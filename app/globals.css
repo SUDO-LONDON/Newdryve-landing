@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --color-racing-green: var(--racing-green);
+  --color-racing-green-dark: var(--racing-green-dark);
+  --color-deep-rose: var(--deep-rose);
+  --color-blush-surface: var(--blush-surface);
+  --color-blush-border: var(--blush-border);
+  --color-canvas: var(--canvas);
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+}
+
+:root {
+  --racing-green: #2D6A4F;
+  --racing-green-dark: #2D7A56;
+  --deep-rose: #E8527A;
+  --blush-surface: #F8F2F4;
+  --blush-border: #EDE0E5;
+  --canvas: #F0EDF0;
+  --ink: #0A0A14;
+  --ink-secondary: #6B6B84;
+  --ink-muted: #9B9BB5;
+  --border: #E8E8F2;
+  --ring: #2D6A4F;
+  --background: #F0EDF0;
+  --foreground: #0A0A14;
+  --radius: 0.625rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+  html {
+    font-family: var(--font-sans);
+  }
+  [id] {
+    scroll-margin-top: 5rem;
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    background: linear-gradient(90deg, var(--racing-green) 0%, var(--deep-rose) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .gradient-bg {
+    background: linear-gradient(90deg, var(--racing-green) 0%, var(--deep-rose) 100%);
+  }
+  .dot-pattern {
+    background-image: radial-gradient(circle at 1px 1px, rgba(10, 10, 20, 0.06) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+  .hero-bg {
+    background:
+      radial-gradient(ellipse 80% 60% at 70% 20%, rgba(232, 82, 122, 0.10), transparent 70%),
+      radial-gradient(ellipse 60% 80% at 20% 80%, rgba(45, 106, 79, 0.08), transparent 70%),
+      var(--canvas);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
