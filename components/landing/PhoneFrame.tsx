@@ -10,26 +10,26 @@ export function PhoneFrame({
   return (
     <div
       style={{
-        width: '100%',
-        maxWidth: 360,
-        aspectRatio: '360 / 720',
+        width: 360,
+        height: 720,
         background: '#0A0A14',
-        borderRadius: 'clamp(36px, 13.3%, 48px)',
-        padding: 'clamp(10px, 3.9%, 14px)',
+        borderRadius: 48,
+        padding: 14,
         boxShadow:
           '0 30px 60px -20px rgba(45,106,79,0.25), 0 20px 40px -10px rgba(0,0,0,0.18)',
         position: 'relative',
+        boxSizing: 'border-box',
         ...style,
       }}
     >
       <div
         style={{
           position: 'absolute',
-          top: '2.8%',
+          top: 20,
           left: '50%',
           transform: 'translateX(-50%)',
-          width: '30.5%',
-          height: '3.9%',
+          width: 110,
+          height: 28,
           background: '#0A0A14',
           borderRadius: 999,
           zIndex: 10,
@@ -41,7 +41,7 @@ export function PhoneFrame({
           width: '100%',
           height: '100%',
           background: '#F0EDF0',
-          borderRadius: 'clamp(28px, 10%, 36px)',
+          borderRadius: 36,
           overflow: 'hidden',
           position: 'relative',
         }}
