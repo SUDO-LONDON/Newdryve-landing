@@ -128,9 +128,10 @@ export default function LandingPage() {
               </a>
               <a
                 href="#signup"
-                className={`inline-flex items-center gap-1.5 bg-ink text-white rounded-full px-4 py-2 text-sm font-bold tracking-tight touch-manipulation motion-safe:transition-colors hover:bg-[#1a1a2c] ${focusRing}`}
+                className={`inline-flex items-center gap-1.5 bg-ink text-white rounded-full px-3.5 sm:px-4 py-2 text-sm font-bold tracking-tight touch-manipulation motion-safe:transition-colors hover:bg-[#1a1a2c] ${focusRing}`}
               >
-                Apply for early access
+                <span className="sm:hidden">Apply</span>
+                <span className="hidden sm:inline">Apply for early access</span>
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                   <path d="M3 9L9 3M9 3H4.5M9 3V7.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -143,7 +144,7 @@ export default function LandingPage() {
           {/* HERO */}
           <section className="hero-bg relative overflow-hidden">
             <div className="absolute inset-0 dot-pattern opacity-50 pointer-events-none" aria-hidden="true" />
-            <div className="relative max-w-6xl mx-auto px-5 pt-16 pb-20 md:pt-24 md:pb-28 grid md:grid-cols-[1.05fr_1fr] gap-10 lg:gap-16 items-center">
+            <div className="relative max-w-6xl mx-auto px-5 pt-10 pb-14 md:pt-24 md:pb-28 grid md:grid-cols-[1.05fr_1fr] gap-10 lg:gap-16 items-center">
               {/* Left: text + CTAs */}
               <div>
                 <span className="inline-flex items-center gap-2 rounded-full bg-blush-surface border border-blush-border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose">
@@ -162,10 +163,10 @@ export default function LandingPage() {
                   <span className="text-ink font-semibold">It&rsquo;s not live yet.</span> We&rsquo;re recruiting our first cohort of learners and instructors right now.
                 </p>
 
-                <div className="mt-7 flex flex-wrap items-center gap-3">
+                <div className="mt-7 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
                   <a
                     href="#signup"
-                    className={`inline-flex items-center gap-1.5 bg-ink text-white rounded-full px-5 py-3 text-sm font-bold touch-manipulation motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 hover:bg-[#1a1a2c] ${focusRing}`}
+                    className={`inline-flex items-center justify-center gap-1.5 bg-ink text-white rounded-full px-5 py-3 text-sm font-bold touch-manipulation motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 hover:bg-[#1a1a2c] ${focusRing}`}
                   >
                     Join as a learner
                     <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
@@ -174,7 +175,7 @@ export default function LandingPage() {
                   </a>
                   <a
                     href="#instructors"
-                    className={`inline-flex items-center gap-1.5 bg-white text-ink border border-[#E8E8F2] rounded-full px-5 py-3 text-sm font-bold touch-manipulation motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 hover:border-ink ${focusRing}`}
+                    className={`inline-flex items-center justify-center gap-1.5 bg-white text-ink border border-[#E8E8F2] rounded-full px-5 py-3 text-sm font-bold touch-manipulation motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 hover:border-ink ${focusRing}`}
                   >
                     Apply as an instructor
                     <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
@@ -203,7 +204,7 @@ export default function LandingPage() {
 
               {/* Right: animated phone preview */}
               <div className="relative flex justify-center md:justify-end">
-                <div className="relative">
+                <div className="relative w-full max-w-[300px] sm:max-w-[340px] md:max-w-[360px]">
                   <BookingFlowPlayer />
                   {/* preview label */}
                   <div
@@ -242,8 +243,8 @@ export default function LandingPage() {
 
           {/* WHAT WE'RE BUILDING - design preview */}
           <section id="preview" className="bg-canvas">
-            <div className="max-w-6xl mx-auto px-5 py-20">
-              <div className="max-w-2xl mb-12">
+            <div className="max-w-6xl mx-auto px-5 py-14 md:py-20">
+              <div className="max-w-2xl mb-10 md:mb-12">
                 <SectionEyebrow>Preview · Designs, not live product</SectionEyebrow>
                 <h2 className="text-[clamp(28px,4vw,42px)] font-extrabold tracking-[-1px] leading-[1.1] text-balance">
                   What we&rsquo;re building.
@@ -255,8 +256,8 @@ export default function LandingPage() {
 
               <div className="grid md:grid-cols-3 gap-5">
                 {/* Feature 1 */}
-                <article className="bg-white rounded-2xl border border-[#E8E8F2] p-6 flex flex-col gap-5 motion-safe:transition-shadow motion-safe:hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.08)]">
-                  <div className="rounded-xl bg-canvas p-4 -m-2 mb-0">
+                <article className="bg-white rounded-2xl border border-[#E8E8F2] p-6 flex flex-col gap-5 min-w-0 motion-safe:transition-shadow motion-safe:hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.08)]">
+                  <div className="rounded-xl bg-canvas p-4 -m-2 mb-0 min-w-0">
                     <MiniSlotPicker selectedIndex={3} />
                   </div>
                   <div>
@@ -270,8 +271,8 @@ export default function LandingPage() {
                 </article>
 
                 {/* Feature 2 */}
-                <article className="bg-white rounded-2xl border border-[#E8E8F2] p-6 flex flex-col gap-5 motion-safe:transition-shadow motion-safe:hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.08)]">
-                  <div className="rounded-xl bg-canvas p-4 flex flex-col gap-2">
+                <article className="bg-white rounded-2xl border border-[#E8E8F2] p-6 flex flex-col gap-5 min-w-0 motion-safe:transition-shadow motion-safe:hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.08)]">
+                  <div className="rounded-xl bg-canvas p-4 flex flex-col gap-2 min-w-0">
                     {PAYMENT_METHODS.map((m) => (
                       <div
                         key={m.title}
@@ -309,8 +310,8 @@ export default function LandingPage() {
                 </article>
 
                 {/* Feature 3 */}
-                <article className="bg-white rounded-2xl border border-[#E8E8F2] p-6 flex flex-col gap-5 motion-safe:transition-shadow motion-safe:hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.08)]">
-                  <div className="rounded-xl bg-canvas p-4">
+                <article className="bg-white rounded-2xl border border-[#E8E8F2] p-6 flex flex-col gap-5 min-w-0 motion-safe:transition-shadow motion-safe:hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.08)]">
+                  <div className="rounded-xl bg-canvas p-4 min-w-0">
                     <div className="flex items-baseline justify-between mb-3">
                       <div>
                         <div className="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Hours toward test</div>
@@ -353,7 +354,7 @@ export default function LandingPage() {
 
           {/* FOR INSTRUCTORS */}
           <section id="instructors" className="bg-ink text-white">
-            <div className="max-w-6xl mx-auto px-5 py-20 grid md:grid-cols-2 gap-12 items-center">
+            <div className="max-w-6xl mx-auto px-5 py-14 md:py-20 grid md:grid-cols-2 gap-10 md:gap-12 items-center">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-[1px] text-deep-rose mb-3">For instructors</p>
                 <h2 className="text-[clamp(28px,4vw,42px)] font-extrabold tracking-[-1px] leading-[1.1] text-balance">
@@ -452,7 +453,7 @@ export default function LandingPage() {
 
           {/* SIGNUP */}
           <section id="signup" className="bg-canvas">
-            <div className="max-w-6xl mx-auto px-5 py-20 grid lg:grid-cols-2 gap-10 lg:gap-16">
+            <div className="max-w-6xl mx-auto px-5 py-14 md:py-20 grid lg:grid-cols-2 gap-10 lg:gap-16">
               <div id="signup-learner" className="flex flex-col">
                 <SectionEyebrow>For learners</SectionEyebrow>
                 <h2 className="text-[clamp(26px,3.5vw,36px)] font-extrabold tracking-[-1px] leading-[1.1] text-balance mb-2">
@@ -479,8 +480,8 @@ export default function LandingPage() {
 
           {/* FAQ */}
           <section id="faq" className="bg-white border-y border-[#E8E8F2]">
-            <div className="max-w-3xl mx-auto px-5 py-20">
-              <div className="text-center mb-10">
+            <div className="max-w-3xl mx-auto px-5 py-14 md:py-20">
+              <div className="text-center mb-8 md:mb-10">
                 <SectionEyebrow>Frequently asked</SectionEyebrow>
                 <h2 className="text-[clamp(28px,4vw,42px)] font-extrabold tracking-[-1px] leading-[1.1] text-balance">
                   Everything you need to know.
@@ -519,8 +520,8 @@ export default function LandingPage() {
 
           {/* FINAL CTA */}
           <section className="bg-canvas">
-            <div className="max-w-3xl mx-auto px-5 py-20 text-center">
-              <div className="bg-white border border-[#E8E8F2] rounded-3xl px-8 py-14 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.08)]">
+            <div className="max-w-3xl mx-auto px-5 py-14 md:py-20 text-center">
+              <div className="bg-white border border-[#E8E8F2] rounded-3xl px-5 py-10 sm:px-8 sm:py-14 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.08)]">
                 <h2 className="text-[clamp(28px,4.5vw,40px)] font-extrabold tracking-[-1px] leading-[1.1] text-balance">
                   Help us build it.
                 </h2>

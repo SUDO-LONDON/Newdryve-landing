@@ -11,8 +11,6 @@ export function BookingFlowPlayer() {
   const reduced = useReducedMotion();
   const playerRef = useRef<PlayerRef>(null);
 
-  // `autoPlay` can race with hydration in React 19 / Next 16 and leave the
-  // player paused on frame 0. Drive playback imperatively so it always starts.
   useEffect(() => {
     if (reduced) return;
     const player = playerRef.current;
@@ -24,14 +22,11 @@ export function BookingFlowPlayer() {
       try {
         playerRef.current.play();
       } catch {
-        // Player not mounted yet; retry on the next frame.
         requestAnimationFrame(tryPlay);
       }
     };
     tryPlay();
 
-    // Pause when the tab is hidden, resume on return. Prevents the loop from
-    // drifting out of sync and saves cycles.
     const onVisibility = () => {
       const p = playerRef.current;
       if (!p) return;
