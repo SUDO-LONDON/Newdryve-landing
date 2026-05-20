@@ -1,4 +1,4 @@
-// External app URLs — the dashboard + login routes live in a separate repo.
+// External app URLs. The dashboard + login routes live in a separate repo.
 // Override at build time:
 //   NEXT_PUBLIC_APP_URL=https://app.newdryve.com
 //   NEXT_PUBLIC_SITE_URL=https://newdryve.com

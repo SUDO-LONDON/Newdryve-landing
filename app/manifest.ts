@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Newdryve — Book Driving Lessons",
+    name: "Newdryve · Early Access",
     short_name: "Newdryve",
     description:
-      "Book driving lessons with DBS-verified instructors in Norwich. Real-time availability, pay by card, bank transfer, or cash.",
+      "Newdryve. Early access for learner drivers and instructors in Norwich. Apply to join the first cohort.",
     start_url: "/",
     display: "standalone",
     background_color: "#F0EDF0",

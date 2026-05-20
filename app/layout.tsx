@@ -13,25 +13,20 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://newdryve.com";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Newdryve — Book Driving Lessons in Norwich · DBS-Verified Instructors",
+    default: "Newdryve · Early Access · Driving Lessons in Norwich",
     template: "%s · Newdryve",
   },
   description:
-    "Book driving lessons in Norwich in 60 seconds. Verified, DBS-checked instructors, real-time availability for the next 14 days. Pay by card, bank transfer, or cash. iOS app + web dashboard.",
+    "Newdryve is an early-access driving-lesson platform launching in Norwich. Apply as a learner or as an ADI-qualified instructor to join the first cohort.",
   applicationName: "Newdryve",
   generator: "Next.js",
   keywords: [
     "driving lessons Norwich",
     "driving instructor Norwich",
-    "book driving lessons UK",
-    "DBS verified driving instructor",
-    "intensive driving course Norwich",
-    "automatic driving lessons Norwich",
-    "manual driving lessons Norwich",
-    "pass plus Norwich",
-    "mock driving test Norwich",
+    "Norwich driving school",
+    "ADI instructor Norwich",
+    "early access driving app",
     "Newdryve",
-    "driving school app UK",
   ],
   authors: [{ name: "Newdryve", url: SITE_URL }],
   creator: "Newdryve",
@@ -52,9 +47,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Newdryve",
-    title: "Newdryve — Book Driving Lessons in Norwich in 60 Seconds",
+    title: "Newdryve · Early Access in Norwich",
     description:
-      "Verified, DBS-checked instructors. Real-time availability for the next 14 days. Pay by card, bank transfer, or cash. No phone tag.",
+      "We're building a faster way to find an ADI-qualified driving instructor in Norwich. Apply for early access as a learner or instructor.",
     url: "/",
     locale: "en_GB",
     images: [
@@ -62,7 +57,7 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Newdryve — Book Driving Lessons in Norwich",
+        alt: "Newdryve · Early Access in Norwich",
         type: "image/png",
       },
     ],
@@ -71,9 +66,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@newdryve",
     creator: "@newdryve",
-    title: "Newdryve — Book Driving Lessons in Norwich in 60 Seconds",
+    title: "Newdryve · Early Access in Norwich",
     description:
-      "Verified, DBS-checked driving instructors near you. Real-time availability. Pay by card, bank transfer, or cash.",
+      "We're building a faster way to book driving lessons in Norwich. Apply for early access as a learner or instructor.",
     images: ["/opengraph-image"],
   },
   robots: {

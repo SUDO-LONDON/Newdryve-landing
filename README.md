@@ -1,4 +1,4 @@
-# Newdryve — Landing
+# Newdryve Landing
 
 Marketing site for **Newdryve**, the UK driving-lesson booking platform. Built with Next.js 16 (Turbopack), Tailwind v4, and an animated phone-mockup hero powered by Remotion's `@remotion/player`.
 
@@ -9,7 +9,7 @@ The dashboard and authenticated app live in a separate repo and are linked from 
 - **Next.js 16** (App Router, Turbopack)
 - **React 19**
 - **Tailwind CSS v4** (token-driven, single `globals.css`)
-- **Remotion 4 + `@remotion/player`** — embedded looping 3-scene phone animation (Discover → Slot Picker → Confirmation) with a `prefers-reduced-motion` static fallback
+- **Remotion 4 + `@remotion/player`**: embedded looping 3-scene phone animation (Discover → Slot Picker → Confirmation) with a `prefers-reduced-motion` static fallback
 - **TypeScript**, **ESLint** (next/core-web-vitals + typescript)
 
 ## Quick start
@@ -83,7 +83,7 @@ The page ships:
 
 ## Deployment
 
-The site is a standard Next.js App Router project — deploy anywhere Next.js 16 runs (Vercel recommended). Set the two `NEXT_PUBLIC_*` env vars on the deploy target.
+The site is a standard Next.js App Router project. Deploy anywhere Next.js 16 runs (Vercel recommended). Set the two `NEXT_PUBLIC_*` env vars on the deploy target.
 
 ## License
 

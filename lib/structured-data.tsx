@@ -1,5 +1,3 @@
-import { INSTRUCTORS } from "./instructors";
-
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://newdryve.com";
 
 export const ORGANIZATION_JSONLD = {
@@ -10,7 +8,7 @@ export const ORGANIZATION_JSONLD = {
   url: SITE_URL,
   logo: `${SITE_URL}/icon`,
   description:
-    "Newdryve is a booking platform connecting UK learner drivers with verified, DBS-checked driving instructors.",
+    "Newdryve is an early-access platform being built to connect learner drivers in Norwich with verified, ADI-qualified instructors.",
   address: {
     "@type": "PostalAddress",
     addressLocality: "Norwich",
@@ -21,9 +19,6 @@ export const ORGANIZATION_JSONLD = {
     "@type": "City",
     name: "Norwich",
   },
-  sameAs: [
-    "https://apps.apple.com/",
-  ],
 };
 
 export const WEBSITE_JSONLD = {
@@ -33,168 +28,43 @@ export const WEBSITE_JSONLD = {
   url: SITE_URL,
   name: "Newdryve",
   description:
-    "Book driving lessons with DBS-verified instructors in Norwich. Real-time availability for the next 14 days.",
+    "Newdryve. Early access for learner drivers and instructors in Norwich. Apply to join the first cohort.",
   inLanguage: "en-GB",
   publisher: { "@id": `${SITE_URL}#organization` },
-  potentialAction: {
-    "@type": "SearchAction",
-    target: {
-      "@type": "EntryPoint",
-      urlTemplate: `${SITE_URL}/?q={search_term_string}`,
-    },
-    "query-input": "required name=search_term_string",
-  },
-};
-
-export const LOCAL_BUSINESS_JSONLD = {
-  "@context": "https://schema.org",
-  "@type": "DrivingSchool",
-  "@id": `${SITE_URL}#localbusiness`,
-  name: "Newdryve Driving Lessons — Norwich",
-  url: SITE_URL,
-  image: `${SITE_URL}/opengraph-image`,
-  description:
-    "Book driving lessons in Norwich with verified, DBS-checked instructors. Manual and automatic transmission. Pay by card, bank transfer, or cash.",
-  priceRange: "£35–£40 per hour",
-  telephone: "+44-0000-000000",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "Norwich City Centre",
-    addressLocality: "Norwich",
-    addressRegion: "Norfolk",
-    postalCode: "NR1",
-    addressCountry: "GB",
-  },
-  geo: {
-    "@type": "GeoCoordinates",
-    latitude: 52.6309,
-    longitude: 1.2974,
-  },
-  areaServed: [
-    { "@type": "City", name: "Norwich" },
-    { "@type": "Place", name: "Thorpe St Andrew" },
-    { "@type": "Place", name: "Hellesdon" },
-    { "@type": "Place", name: "Wymondham" },
-    { "@type": "Place", name: "Sprowston" },
-    { "@type": "Place", name: "Costessey" },
-    { "@type": "Place", name: "Earlham" },
-  ],
-  openingHoursSpecification: [
-    {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-      opens: "07:00",
-      closes: "21:00",
-    },
-  ],
-  paymentAccepted: ["Credit Card", "Debit Card", "Bank Transfer", "Cash"],
-  currenciesAccepted: "GBP",
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "4.85",
-    reviewCount: "481",
-    bestRating: "5",
-    worstRating: "1",
-  },
-  hasOfferCatalog: {
-    "@type": "OfferCatalog",
-    name: "Driving lesson types",
-    itemListElement: [
-      {
-        "@type": "Offer",
-        itemOffered: {
-          "@type": "Service",
-          name: "1-hour driving lesson",
-          description: "Single one-hour driving lesson with a DBS-verified instructor.",
-        },
-        priceSpecification: {
-          "@type": "PriceSpecification",
-          price: "38",
-          priceCurrency: "GBP",
-        },
-      },
-      {
-        "@type": "Offer",
-        itemOffered: {
-          "@type": "Service",
-          name: "2-hour driving lesson",
-          description: "Two-hour driving lesson — best for real progress.",
-        },
-        priceSpecification: {
-          "@type": "PriceSpecification",
-          price: "70",
-          priceCurrency: "GBP",
-        },
-      },
-      {
-        "@type": "Offer",
-        itemOffered: {
-          "@type": "Service",
-          name: "Mock driving test",
-          description: "105-minute mock test that simulates the DVSA practical exam.",
-        },
-        priceSpecification: {
-          "@type": "PriceSpecification",
-          price: "72",
-          priceCurrency: "GBP",
-        },
-      },
-    ],
-  },
-};
-
-export const MOBILE_APP_JSONLD = {
-  "@context": "https://schema.org",
-  "@type": "MobileApplication",
-  name: "Newdryve",
-  operatingSystem: "iOS",
-  applicationCategory: "TravelApplication",
-  applicationSubCategory: "Driving lessons booking",
-  url: SITE_URL,
-  description:
-    "Book driving lessons with verified instructors in Norwich. Real-time availability and flexible payment options.",
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "GBP",
-  },
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "4.85",
-    reviewCount: "481",
-    bestRating: "5",
-    worstRating: "1",
-  },
 };
 
 export const FAQ_ITEMS = [
   {
-    q: "How fast can I book a driving lesson on Newdryve?",
-    a: "Most learners complete a booking in under 60 seconds. Pick an instructor, choose a slot from real-time availability, confirm your details, and pay your way — card, bank transfer, or cash.",
+    q: "Is Newdryve available to use now?",
+    a: "Not yet. Newdryve is in early access. We're building it now and inviting a first cohort of learners and instructors in Norwich. Apply on this page and we'll be in touch as spots open up.",
   },
   {
-    q: "Are Newdryve instructors DBS verified?",
-    a: "Yes. Every instructor on Newdryve is DBS checked, qualified (ADI), and independently rated by previous students. Verification badges are shown on every instructor profile.",
+    q: "What is Newdryve going to do?",
+    a: "Newdryve will let you find a verified, ADI-qualified driving instructor in Norwich, see their real availability, and book a lesson without the phone tag, paying by card, bank transfer, or cash.",
   },
   {
-    q: "How much does a driving lesson in Norwich cost?",
-    a: "Driving lessons on Newdryve range from £35 to £40 per hour depending on the instructor. You can compare prices, transmission types (manual or automatic), specialisms, and ratings before booking.",
+    q: "I'm a learner. What do I get from joining early access?",
+    a: "Early access learners are first in line when we open bookings and get to help shape the app. Newdryve never adds a booking fee or platform charge for learners: you pay your instructor directly for the lesson, nothing more.",
   },
   {
-    q: "Can I pay by cash or bank transfer?",
-    a: "Yes. Newdryve supports card payments, bank transfers (BACS / Faster Payments), and cash on arrival. Pick the option that suits you when booking.",
+    q: "I'm a driving instructor. Why should I apply?",
+    a: "We're recruiting a small founding group of ADI-qualified instructors in and around Norwich. You'll get a branded booking experience, set your own availability and pricing, and keep 100% of every lesson. Newdryve takes 0% commission. You pay nothing until your first booking, then a flat monthly fee.",
   },
   {
-    q: "Which areas of Norwich does Newdryve cover?",
-    a: "Newdryve currently covers Norwich City Centre, Thorpe St Andrew, Hellesdon, Wymondham, Hethersett, Cringleford, Sprowston, Old Catton, Costessey, Earlham, Bowthorpe, and Dereham Road.",
+    q: "How much does Newdryve cost?",
+    a: "For instructors: 0% commission on every booking, forever. You pay nothing until your first booking, then a flat monthly fee. No per-booking cuts. For learners: nothing. You pay your instructor directly for the lesson.",
   },
   {
-    q: "Do you offer automatic-only driving lessons?",
-    a: "Yes. Several Newdryve instructors specialise in automatic transmission lessons, including instructors for mature and nervous learners.",
+    q: "When will Newdryve launch?",
+    a: "We're aiming to onboard the first instructors and learners over the coming months. We'll only invite people in when we can give them a great experience, so the timing depends on instructor onboarding.",
   },
   {
-    q: "Can I cancel or reschedule a driving lesson?",
-    a: "Yes. You can cancel or reschedule directly in the Newdryve app, subject to your instructor's notice period.",
+    q: "Where will Newdryve operate?",
+    a: "We're starting in Norwich and the surrounding Norfolk area: Thorpe St Andrew, Hellesdon, Wymondham, Sprowston, Costessey and nearby. We'll expand to other UK cities once Norwich is running smoothly.",
+  },
+  {
+    q: "How will payment work?",
+    a: "We plan to support card, bank transfer (Faster Payments / BACS) and cash on arrival, so learners and instructors can pick whichever option suits them.",
   },
 ];
 
@@ -224,33 +94,6 @@ export const BREADCRUMB_JSONLD = {
   ],
 };
 
-export const INSTRUCTOR_LIST_JSONLD = {
-  "@context": "https://schema.org",
-  "@type": "ItemList",
-  name: "Verified driving instructors in Norwich",
-  itemListOrder: "https://schema.org/ItemListOrderDescending",
-  numberOfItems: INSTRUCTORS.length,
-  itemListElement: INSTRUCTORS.map((ins, i) => ({
-    "@type": "ListItem",
-    position: i + 1,
-    item: {
-      "@type": "Person",
-      name: ins.name,
-      jobTitle: "DVSA Approved Driving Instructor (ADI)",
-      identifier: ins.adiNumber,
-      description: ins.bio,
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: ins.rating.toString(),
-        reviewCount: ins.reviews.toString(),
-        bestRating: "5",
-      },
-      areaServed: ins.areas.map((a) => ({ "@type": "Place", name: a })),
-      knowsAbout: ins.specialisms,
-    },
-  })),
-};
-
 export function JsonLd({ data }: { data: object | object[] }) {
   const payload = Array.isArray(data) ? data : [data];
   return (
@@ -259,7 +102,6 @@ export function JsonLd({ data }: { data: object | object[] }) {
         <script
           key={i}
           type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }}
         />
       ))}

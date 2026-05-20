@@ -409,7 +409,7 @@ function ConfirmScene({ progress, fps }: { progress: number; fps: number }) {
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 700, fontSize: 13, color: COLORS.ink }}>{INSTRUCTORS[0].name}</div>
-            <div style={{ fontSize: 11, color: COLORS.inkSecondary }}>2-hour lesson · {INSTRUCTORS[0].car.split('—')[0].trim()}</div>
+            <div style={{ fontSize: 11, color: COLORS.inkSecondary }}>2-hour lesson · {INSTRUCTORS[0].car.split(',')[0].trim()}</div>
           </div>
           <div style={{ fontSize: 14, fontWeight: 800, color: COLORS.green, fontVariantNumeric: 'tabular-nums' }}>£76</div>
         </div>
@@ -459,7 +459,9 @@ export const BookingFlowComposition: React.FC = () => {
   const local = frame - scene * SCENE_DUR;
   const sceneProgress = local;
 
-  const fadeIn = interpolate(local, [0, 8], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  // Scene 0 starts fully visible so the very first frame isn't blank
+  // (otherwise if the player stalls on frame 0 the phone appears empty).
+  const fadeIn = scene === 0 ? 1 : interpolate(local, [0, 8], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   const fadeOut = interpolate(local, [SCENE_DUR - 10, SCENE_DUR], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   const sceneOpacity = scene === 2 ? fadeIn : fadeIn * fadeOut;
 
