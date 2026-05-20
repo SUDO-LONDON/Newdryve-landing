@@ -22,12 +22,13 @@ export type SendArgs = {
   text?: string;
   from?: string;
   replyTo?: string;
+  headers?: Record<string, string>;
 };
 
 export async function sendEmail(args: SendArgs): Promise<{ ok: boolean; id?: string; error?: string }> {
   const client = getClient();
   if (!client) {
-    console.warn('[email] RESEND_API_KEY missing — skipping send to', args.to);
+    console.warn('[email] RESEND_API_KEY missing, skipping send to', args.to);
     return { ok: false, error: 'RESEND_API_KEY missing' };
   }
   try {
@@ -38,6 +39,7 @@ export async function sendEmail(args: SendArgs): Promise<{ ok: boolean; id?: str
       html: args.html,
       text: args.text,
       replyTo: args.replyTo,
+      headers: args.headers,
     });
     if (error) {
       console.error('[email] resend error', error);

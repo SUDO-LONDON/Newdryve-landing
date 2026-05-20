@@ -155,7 +155,7 @@ export default function LandingPage() {
                 <h1 className="mt-5 text-[clamp(36px,6.5vw,64px)] font-extrabold leading-[1.05] tracking-[-1.5px] text-balance">
                   Learn to drive with{' '}
                   <RotatingName />
-                  {' '}without the phone&nbsp;tag.
+                  {' '}without the back-and-forth.
                 </h1>
 
                 <p className="mt-5 text-lg text-ink-secondary leading-relaxed max-w-xl text-pretty">
@@ -262,7 +262,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold tracking-[-0.3px] text-balance">
-                      Real-time availability, not phone tag.
+                      Real-time availability, no chasing callbacks.
                     </h3>
                     <p className="mt-2 text-sm text-ink-secondary leading-relaxed">
                       Each instructor sets their own schedule. Learners see the next 14 days of real openings and tap a slot to book.

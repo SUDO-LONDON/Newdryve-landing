@@ -54,19 +54,29 @@ function stepRow(num: number, title: string, body: string, accent: string): stri
   `;
 }
 
-function featureCard(emoji: string, title: string, body: string, tint: string): string {
+function featureRow(emoji: string, title: string, body: string, tint: string): string {
   return `
-    <td valign="top" width="33%" style="padding:8px;">
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:separate;border:1px solid ${COLORS.border};border-radius:14px;background:${COLORS.white};">
-        <tr>
-          <td style="padding:18px;font-family:${FONT_STACK};">
-            <div style="width:36px;height:36px;border-radius:10px;background:${tint};text-align:center;line-height:36px;font-size:18px;margin-bottom:12px;">${emoji}</div>
-            <div style="font-size:14px;font-weight:800;color:${COLORS.ink};line-height:1.3;">${title}</div>
-            <div style="margin-top:6px;font-size:13px;color:${COLORS.inkSecondary};line-height:1.55;">${body}</div>
-          </td>
-        </tr>
-      </table>
-    </td>
+    <tr>
+      <td style="padding:0 0 10px 0;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:separate;border:1px solid ${COLORS.border};border-radius:14px;background:${COLORS.white};">
+          <tr>
+            <td style="padding:16px 18px;font-family:${FONT_STACK};">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td valign="top" width="54" style="padding-right:14px;">
+                    <div style="width:40px;height:40px;border-radius:10px;background:${tint};text-align:center;line-height:40px;font-size:20px;">${emoji}</div>
+                  </td>
+                  <td valign="top">
+                    <div style="font-size:15px;font-weight:800;color:${COLORS.ink};line-height:1.3;">${title}</div>
+                    <div style="margin-top:4px;font-size:14px;color:${COLORS.inkSecondary};line-height:1.55;">${body}</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
   `;
 }
 
@@ -162,11 +172,9 @@ function layout(opts: LayoutOpts): string {
           <tr>
             <td style="padding:12px 32px 0 32px;">
               <div style="font-family:${FONT_STACK};font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:${COLORS.deepRose};">${opts.featuresTitle}</div>
-              <div style="height:6px;line-height:6px;">&nbsp;</div>
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:separate;">
-                <tr>
-                  ${opts.features.map((f) => featureCard(f.emoji, f.title, f.body, f.tint)).join('')}
-                </tr>
+              <div style="height:14px;line-height:14px;">&nbsp;</div>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">
+                ${opts.features.map((f) => featureRow(f.emoji, f.title, f.body, f.tint)).join('')}
               </table>
             </td>
           </tr>
@@ -217,12 +225,12 @@ export function renderStudentWelcomeEmail({ name }: { name?: string } = {}): { s
   const firstName = nameOrFallback(name, 'there');
   const subject = "You're on the Newdryve early-access list";
   const html = layout({
-    preheader: "Thanks for signing up — here's what happens next as we open up driving lessons in Norwich.",
+    preheader: "Thanks for signing up. Here's what happens next as we open up driving lessons in Norwich.",
     title: 'Welcome to Newdryve.',
     subhead: "You're officially on the early-access list for driving lessons in Norwich. Here's what to expect from us.",
     greeting: `Hi ${escape(firstName)},`,
     intro:
-      "Thanks for signing up. We're building Newdryve so finding a driving instructor and booking lessons in Norwich feels less like phone tag — and more like a few taps. You're now in the queue for the first cohort.",
+      "Thanks for signing up. We're building Newdryve so finding a driving instructor and booking lessons in Norwich feels less like ringing around and more like a few taps. You're now in the queue for the first cohort.",
     stepsTitle: "What happens next",
     steps: [
       {
@@ -230,12 +238,12 @@ export function renderStudentWelcomeEmail({ name }: { name?: string } = {}): { s
         body: "As soon as we onboard an ADI-qualified instructor with availability near you, we'll line up an introduction by email.",
       },
       {
-        title: "You'll see real availability — no phone tag",
+        title: "You'll see real availability, no chasing callbacks",
         body: "When you're matched, you'll get access to your instructor's real, up-to-the-minute schedule. Pick a time that works and book the slot in seconds.",
       },
       {
         title: "Pay your way",
-        body: "Card, bank transfer, or cash on arrival — choose whichever you prefer. No surprise fees, no hidden charges.",
+        body: "Card, bank transfer, or cash on arrival. Choose whichever you prefer, with no surprise fees and no hidden charges.",
       },
     ],
     featuresTitle: "What we're building",
@@ -249,7 +257,7 @@ export function renderStudentWelcomeEmail({ name }: { name?: string } = {}): { s
       {
         emoji: '💳',
         title: 'Flexible payments',
-        body: 'Card, bank transfer, or cash on arrival — paid the way you actually like to pay.',
+        body: 'Card, bank transfer, or cash on arrival, paid the way you actually like to pay.',
         tint: COLORS.deepRoseSoft,
       },
       {
@@ -262,23 +270,23 @@ export function renderStudentWelcomeEmail({ name }: { name?: string } = {}): { s
     ctaLabel: 'Visit Newdryve',
     ctaHref: SITE_URL,
     closing:
-      "We'll only email you when there's real news — a matched instructor, an open lesson slot, or a platform launch in your area. Got a friend learning to drive in Norwich? Forward this on — the early cohort is small and we'd love to keep it local.",
+      "We'll only email you when there's real news: a matched instructor, an open lesson slot, or a platform launch in your area. Got a friend learning to drive in Norwich? Forward this on. The early cohort is small and we'd love to keep it local.",
     signOff: 'The Newdryve team',
   });
 
   const text = [
     `Hi ${firstName},`,
     '',
-    "Thanks for signing up to Newdryve — you're officially on the early-access list for driving lessons in Norwich.",
+    "Thanks for signing up to Newdryve. You're officially on the early-access list for driving lessons in Norwich.",
     '',
     'What happens next:',
     "  1. We'll match you with an ADI-qualified instructor near you.",
     "  2. You'll see their real availability and book the slot you want.",
-    '  3. Pay by card, bank transfer, or cash — whichever you prefer.',
+    '  3. Pay by card, bank transfer, or cash, whichever you prefer.',
     '',
     `We'll only email you when there's real news. Visit ${SITE_URL} to learn more.`,
     '',
-    '— The Newdryve team',
+    'The Newdryve team',
   ].join('\n');
 
   return { subject, html, text };
@@ -286,20 +294,20 @@ export function renderStudentWelcomeEmail({ name }: { name?: string } = {}): { s
 
 export function renderInstructorWelcomeEmail({ name }: { name?: string } = {}): { subject: string; html: string; text: string } {
   const firstName = nameOrFallback(name, 'there');
-  const subject = 'Your founding instructor application — Newdryve';
+  const subject = 'Your founding instructor application · Newdryve';
   const html = layout({
     preheader: "Thanks for applying to teach with Newdryve. Here's exactly what happens next.",
     title: "Welcome, founding instructor.",
     subhead:
-      "Thanks for applying to teach with Newdryve. We're building this with a small founding group of ADI-qualified instructors in Norwich — and you're now on the list.",
+      "Thanks for applying to teach with Newdryve. We're building this with a small founding group of ADI-qualified instructors in Norwich, and you're now on the list.",
     greeting: `Hi ${escape(firstName)},`,
     intro:
-      "We're recruiting a small founding cohort of instructors to launch Newdryve in Norwich. You stay in full control of your schedule and pricing — we just give you the booking layer and the learners.",
+      "We're recruiting a small founding cohort of instructors to launch Newdryve in Norwich. You stay in full control of your schedule and pricing. We just give you the booking layer and the learners.",
     stepsTitle: "What happens next",
     steps: [
       {
         title: "We'll review your application personally",
-        body: "Every application is read by a real human on our team — not a form-bot. We'll look at your ADI, your area, and the experience you've shared.",
+        body: "Every application is read by a real human on our team, not a form-bot. We'll look at your ADI, your area, and the experience you've shared.",
       },
       {
         title: "Quick intro call",
@@ -321,7 +329,7 @@ export function renderInstructorWelcomeEmail({ name }: { name?: string } = {}): 
       {
         emoji: '🆓',
         title: 'Free until your first booking',
-        body: "You don't pay anything until a learner books with you. After that, a flat monthly fee — that's it.",
+        body: "You don't pay anything until a learner books with you. After that, a flat monthly fee. That's it.",
         tint: COLORS.deepRoseSoft,
       },
       {
@@ -334,7 +342,7 @@ export function renderInstructorWelcomeEmail({ name }: { name?: string } = {}): 
     ctaLabel: 'See the founding cohort page',
     ctaHref: `${SITE_URL}/#instructors`,
     closing:
-      "We're keeping the first cohort intentionally small so we can build the platform around how Norwich instructors actually work. If there's anything specific you want from a tool like this, just hit reply — every founding instructor's feedback directly shapes what we build next.",
+      "We're keeping the first cohort intentionally small so we can build the platform around how Norwich instructors actually work. If there's anything specific you want from a tool like this, just hit reply. Every founding instructor's feedback directly shapes what we build next.",
     signOff: 'The Newdryve team',
   });
 
@@ -355,7 +363,7 @@ export function renderInstructorWelcomeEmail({ name }: { name?: string } = {}): 
     '',
     `Visit ${SITE_URL}/#instructors for more.`,
     '',
-    '— The Newdryve team',
+    'The Newdryve team',
   ].join('\n');
 
   return { subject, html, text };

@@ -28,7 +28,7 @@ function shuffle<T>(arr: readonly T[]): T[] {
 export function RotatingName() {
   const reduced = useReducedMotion();
   // Index into NAMES. Starts at 0 so SSR + first client render both show
-  // NAMES[0] — no hydration mismatch. The rotation kicks in post-mount.
+  // NAMES[0], no hydration mismatch. The rotation kicks in post-mount.
   const [index, setIndex] = useState(0);
 
   useEffect(() => {

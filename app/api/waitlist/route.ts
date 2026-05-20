@@ -47,6 +47,8 @@ export async function POST(req: Request) {
 
   const admin = renderAdminNotificationEmail({ email, role, name, postcode, notes });
 
+  const unsubscribeMailto = `mailto:${ADMIN_NOTIFY_EMAIL}?subject=unsubscribe`;
+
   const [welcomeResult, adminResult] = await Promise.allSettled([
     sendEmail({
       to: email,
@@ -54,6 +56,10 @@ export async function POST(req: Request) {
       html: welcome.html,
       text: welcome.text,
       replyTo: ADMIN_NOTIFY_EMAIL,
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeMailto}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
     }),
     sendEmail({
       to: ADMIN_NOTIFY_EMAIL,
