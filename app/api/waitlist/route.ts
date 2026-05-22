@@ -179,46 +179,5 @@ export async function POST(req: Request) {
     console.warn('[waitlist:applicant-send-failed]', signup.email, applicantResult);
   }
 
-  const welcome =
-    role === 'instructor'
-      ? renderInstructorWelcomeEmail({ name })
-      : renderStudentWelcomeEmail({ name });
-
-  const adminNotification = renderAdminNotificationEmail({ email, role, name, postcode, notes });
-
-  const unsubscribeMailto = `mailto:${ADMIN_NOTIFY_EMAIL}?subject=unsubscribe`;
-
-  const [welcomeResult, adminResult] = await Promise.allSettled([
-    sendEmail({
-      to: email,
-      subject: welcome.subject,
-      html: welcome.html,
-      text: welcome.text,
-      replyTo: ADMIN_NOTIFY_EMAIL,
-      headers: {
-        'List-Unsubscribe': `<${unsubscribeMailto}>`,
-        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-      },
-    }),
-    sendEmail({
-      to: ADMIN_NOTIFY_EMAIL,
-      subject: adminNotification.subject,
-      html: adminNotification.html,
-      text: adminNotification.text,
-      replyTo: email,
-    }),
-  ]);
-
-  if (welcomeResult.status === 'rejected') {
-    console.error('[waitlist] welcome send threw', welcomeResult.reason);
-  } else if (!welcomeResult.value.ok) {
-    console.error('[waitlist] welcome send failed', welcomeResult.value.error);
-  }
-  if (adminResult.status === 'rejected') {
-    console.error('[waitlist] admin send threw', adminResult.reason);
-  } else if (!adminResult.value.ok) {
-    console.error('[waitlist] admin send failed', adminResult.value.error);
-  }
-
   return NextResponse.json({ ok: true });
 }
