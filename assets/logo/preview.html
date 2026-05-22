@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newdryve Logo Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #F0EDF0;
+    font-family: 'DM Sans', sans-serif;
+    padding: 48px 40px;
+    color: #2D6A4F;
+  }
+  h1 { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #9B9BB5; margin-bottom: 48px; }
+  h2 { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #C4B8BC; margin-bottom: 20px; }
+  .section { margin-bottom: 60px; }
+  .row { display: flex; align-items: flex-end; gap: 32px; flex-wrap: wrap; }
+  .swatch { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .label { font-size: 10px; font-weight: 600; color: #9B9BB5; letter-spacing: 0.04em; }
+  .divider { height: 1px; background: #E0DAE0; margin: 52px 0; }
+
+  .on-white { background: #FFFFFF; padding: 28px 32px; border-radius: 16px; border: 1px solid #E8E8F2; }
+  .on-green  { background: #2D6A4F; padding: 28px 32px; border-radius: 16px; }
+  .on-pink   { background: #FFB3C6; padding: 28px 32px; border-radius: 16px; }
+  .on-dark   { background: #0A0A14; padding: 28px 32px; border-radius: 16px; }
+  .on-blush  { background: #F8F2F4; padding: 28px 32px; border-radius: 16px; border: 1px solid #EDE0E5; }
+
+  .icon-box-lg  { width: 160px; height: 160px; border-radius: 36px; background: #FFF; border: 1px solid #E8E8F2; display: flex; align-items: center; justify-content: center; }
+  .icon-box-md  { width: 80px;  height: 80px;  border-radius: 18px; background: #FFF; border: 1px solid #E8E8F2; display: flex; align-items: center; justify-content: center; }
+  .icon-box-sm  { width: 60px;  height: 60px;  border-radius: 14px; background: #FFF; border: 1px solid #E8E8F2; display: flex; align-items: center; justify-content: center; }
+  .icon-box-xs  { width: 32px;  height: 32px;  border-radius: 8px;  background: #FFF; border: 1px solid #E8E8F2; display: flex; align-items: center; justify-content: center; }
+
+  .palette { display: flex; gap: 10px; }
+  .pal-swatch { width: 60px; }
+  .pal-block  { height: 60px; border-radius: 12px; }
+  .pal-name   { margin-top: 6px; font-size: 10px; font-weight: 600; color: #9B9BB5; }
+  .pal-hex    { font-size: 9px; font-weight: 500; color: #C4B8BC; }
+
+  .header-mock {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #E8E8F2;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-links { display: flex; align-items: center; gap: 28px; }
+  .nav-link-active { font-size: 14px; font-weight: 700; color: #2D6A4F; }
+  .nav-link { font-size: 14px; font-weight: 500; color: #9B9BB5; }
+  .nav-cta {
+    background: #2D6A4F; color: white;
+    font-size: 13px; font-weight: 700;
+    padding: 9px 22px; border-radius: 100px;
+    letter-spacing: -0.2px;
+  }
+</style>
+</head>
+<body>
+
+<!--
+  n glyph path — DM Sans ExtraBold 66px, origin x=16 baseline y=64
+  Measured from actual font file via opentype.js.
+  Left stem:  outer x=20.356, inner x=29.596 → centre x=25.0
+  Right stem: inner x=43.786, outer x=52.960 → centre x=48.4
+  Arch peak:  outer y=29.944, inner y=37.732 → centre y=33.8
+-->
+
+<h1>Newdryve — Logo System</h1>
+
+<!-- ═══════════════════ FULL COMBINATION MARK ═══════════════════ -->
+<div class="section">
+  <h2>Full Combination Mark</h2>
+  <div class="row">
+
+    <!-- WHITE BG -->
+    <div class="swatch">
+      <div class="on-white">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 80" width="260" height="80" fill="none">
+          <defs>
+            <linearGradient id="g-white" gradientUnits="userSpaceOnUse" x1="20" y1="40" x2="53" y2="40">
+              <stop offset="0%"   stop-color="#2D6A4F"/>
+              <stop offset="100%" stop-color="#E8527A"/>
+            </linearGradient>
+            <clipPath id="nc-white">
+              <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z"/>
+            </clipPath>
+          </defs>
+          <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z" fill="url(#g-white)"/>
+          <g clip-path="url(#nc-white)" opacity="0.75">
+            <line x1="25" y1="33" x2="25" y2="62" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+            <path d="M 25 43 C 30 35 48 27 48 45" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3" fill="none"/>
+            <line x1="48" y1="45" x2="48" y2="62" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+          </g>
+          <text x="90" y="52" font-family="'DM Sans',system-ui,sans-serif" font-size="24" font-weight="800" letter-spacing="-1.4">
+            <tspan fill="#2D6A4F">newdr</tspan><tspan fill="#E8527A">y</tspan><tspan fill="#2D6A4F">ve</tspan>
+          </text>
+        </svg>
+      </div>
+      <span class="label">White</span>
+    </div>
+
+    <!-- BLUSH BG -->
+    <div class="swatch">
+      <div class="on-blush">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 80" width="260" height="80" fill="none">
+          <defs>
+            <linearGradient id="g-blush" gradientUnits="userSpaceOnUse" x1="20" y1="40" x2="53" y2="40">
+              <stop offset="0%"   stop-color="#2D6A4F"/>
+              <stop offset="100%" stop-color="#E8527A"/>
+            </linearGradient>
+            <clipPath id="nc-blush">
+              <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z"/>
+            </clipPath>
+          </defs>
+          <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z" fill="url(#g-blush)"/>
+          <g clip-path="url(#nc-blush)" opacity="0.75">
+            <line x1="25" y1="33" x2="25" y2="62" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+            <path d="M 25 43 C 30 35 48 27 48 45" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3" fill="none"/>
+            <line x1="48" y1="45" x2="48" y2="62" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+          </g>
+          <text x="90" y="52" font-family="'DM Sans',system-ui,sans-serif" font-size="24" font-weight="800" letter-spacing="-1.4">
+            <tspan fill="#2D6A4F">newdr</tspan><tspan fill="#E8527A">y</tspan><tspan fill="#2D6A4F">ve</tspan>
+          </text>
+        </svg>
+      </div>
+      <span class="label">Blush Surface</span>
+    </div>
+
+    <!-- GREEN BG -->
+    <div class="swatch">
+      <div class="on-green">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 80" width="260" height="80" fill="none">
+          <defs>
+            <linearGradient id="g-green" gradientUnits="userSpaceOnUse" x1="20" y1="40" x2="53" y2="40">
+              <stop offset="0%"   stop-color="rgba(255,255,255,0.9)"/>
+              <stop offset="100%" stop-color="#FFB3C6"/>
+            </linearGradient>
+            <clipPath id="nc-green">
+              <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z"/>
+            </clipPath>
+          </defs>
+          <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z" fill="url(#g-green)"/>
+          <g clip-path="url(#nc-green)" opacity="0.75">
+            <line x1="25" y1="33" x2="25" y2="62" stroke="rgba(0,0,0,0.18)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+            <path d="M 25 43 C 30 35 48 27 48 45" stroke="rgba(0,0,0,0.18)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3" fill="none"/>
+            <line x1="48" y1="45" x2="48" y2="62" stroke="rgba(0,0,0,0.18)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+          </g>
+          <text x="90" y="52" font-family="'DM Sans',system-ui,sans-serif" font-size="24" font-weight="800" letter-spacing="-1.4">
+            <tspan fill="white">newdr</tspan><tspan fill="#FFB3C6">y</tspan><tspan fill="white">ve</tspan>
+          </text>
+        </svg>
+      </div>
+      <span class="label">Racing Green</span>
+    </div>
+
+    <!-- DARK BG -->
+    <div class="swatch">
+      <div class="on-dark">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 80" width="260" height="80" fill="none">
+          <defs>
+            <linearGradient id="g-dark" gradientUnits="userSpaceOnUse" x1="20" y1="40" x2="53" y2="40">
+              <stop offset="0%"   stop-color="#2D7A56"/>
+              <stop offset="100%" stop-color="#FFB3C6"/>
+            </linearGradient>
+            <clipPath id="nc-dark">
+              <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z"/>
+            </clipPath>
+          </defs>
+          <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z" fill="url(#g-dark)"/>
+          <g clip-path="url(#nc-dark)" opacity="0.75">
+            <line x1="25" y1="33" x2="25" y2="62" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+            <path d="M 25 43 C 30 35 48 27 48 45" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3" fill="none"/>
+            <line x1="48" y1="45" x2="48" y2="62" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+          </g>
+          <text x="90" y="52" font-family="'DM Sans',system-ui,sans-serif" font-size="24" font-weight="800" letter-spacing="-1.4">
+            <tspan fill="white">newdr</tspan><tspan fill="#FFB3C6">y</tspan><tspan fill="white">ve</tspan>
+          </text>
+        </svg>
+      </div>
+      <span class="label">Dark</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════ ICON MARK — SIZES ═══════════════════ -->
+<div class="section">
+  <h2>Icon Mark — All Sizes</h2>
+  <div class="row" style="align-items: flex-end;">
+
+    <div class="swatch">
+      <div class="icon-box-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="136" height="136" fill="none">
+          <defs>
+            <linearGradient id="gi-lg" gradientUnits="userSpaceOnUse" x1="20" y1="40" x2="53" y2="40">
+              <stop offset="0%"   stop-color="#2D6A4F"/>
+              <stop offset="100%" stop-color="#E8527A"/>
+            </linearGradient>
+            <clipPath id="nic-lg">
+              <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z"/>
+            </clipPath>
+          </defs>
+          <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z" fill="url(#gi-lg)"/>
+          <g clip-path="url(#nic-lg)" opacity="0.75">
+            <line x1="25" y1="33" x2="25" y2="62" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+            <path d="M 25 43 C 30 35 48 27 48 45" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3" fill="none"/>
+            <line x1="48" y1="45" x2="48" y2="62" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+          </g>
+        </svg>
+      </div>
+      <span class="label">1024 · App Store</span>
+    </div>
+
+    <div class="swatch">
+      <div class="icon-box-md">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="64" height="64" fill="none">
+          <defs>
+            <linearGradient id="gi-md" gradientUnits="userSpaceOnUse" x1="20" y1="40" x2="53" y2="40">
+              <stop offset="0%"   stop-color="#2D6A4F"/>
+              <stop offset="100%" stop-color="#E8527A"/>
+            </linearGradient>
+            <clipPath id="nic-md">
+              <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z"/>
+            </clipPath>
+          </defs>
+          <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z" fill="url(#gi-md)"/>
+          <g clip-path="url(#nic-md)" opacity="0.75">
+            <line x1="25" y1="33" x2="25" y2="62" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+            <path d="M 25 43 C 30 35 48 27 48 45" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3" fill="none"/>
+            <line x1="48" y1="45" x2="48" y2="62" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+          </g>
+        </svg>
+      </div>
+      <span class="label">512 · Splash</span>
+    </div>
+
+    <div class="swatch">
+      <div class="icon-box-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="44" height="44" fill="none">
+          <defs>
+            <linearGradient id="gi-sm" gradientUnits="userSpaceOnUse" x1="20" y1="40" x2="53" y2="40">
+              <stop offset="0%"   stop-color="#2D6A4F"/>
+              <stop offset="100%" stop-color="#E8527A"/>
+            </linearGradient>
+            <clipPath id="nic-sm">
+              <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z"/>
+            </clipPath>
+          </defs>
+          <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z" fill="url(#gi-sm)"/>
+          <g clip-path="url(#nic-sm)" opacity="0.75">
+            <line x1="25" y1="33" x2="25" y2="62" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+            <path d="M 25 43 C 30 35 48 27 48 45" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3" fill="none"/>
+            <line x1="48" y1="45" x2="48" y2="62" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+          </g>
+        </svg>
+      </div>
+      <span class="label">60 · Home screen</span>
+    </div>
+
+    <!-- xs: heavier strokes for legibility at 32px -->
+    <div class="swatch">
+      <div class="icon-box-xs">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="22" height="22" fill="none">
+          <defs>
+            <linearGradient id="gi-xs" gradientUnits="userSpaceOnUse" x1="20" y1="40" x2="53" y2="40">
+              <stop offset="0%"   stop-color="#2D6A4F"/>
+              <stop offset="100%" stop-color="#E8527A"/>
+            </linearGradient>
+            <clipPath id="nic-xs">
+              <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z"/>
+            </clipPath>
+          </defs>
+          <path d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z" fill="url(#gi-xs)"/>
+          <g clip-path="url(#nic-xs)" opacity="0.8">
+            <line x1="25" y1="33" x2="25" y2="62" stroke="white" stroke-width="3" stroke-linecap="round" stroke-dasharray="8 6"/>
+            <path d="M 25 43 C 30 35 48 27 48 45" stroke="white" stroke-width="3" stroke-linecap="round" stroke-dasharray="8 6" fill="none"/>
+            <line x1="48" y1="45" x2="48" y2="62" stroke="white" stroke-width="3" stroke-linecap="round" stroke-dasharray="8 6"/>
+          </g>
+        </svg>
+      </div>
+      <span class="label">32 · Favicon</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════ COLOUR PALETTE ═══════════════════ -->
+<div class="section">
+  <h2>Brand Colour Palette</h2>
+  <div class="palette">
+    <div class="pal-swatch">
+      <div class="pal-block" style="background:#2D6A4F;"></div>
+      <div class="pal-name">Racing Green</div>
+      <div class="pal-hex">#2D6A4F</div>
+    </div>
+    <div class="pal-swatch">
+      <div class="pal-block" style="background:#2D7A56;"></div>
+      <div class="pal-name">Green Mid</div>
+      <div class="pal-hex">#2D7A56</div>
+    </div>
+    <div class="pal-swatch">
+      <div class="pal-block" style="background:#E8527A;"></div>
+      <div class="pal-name">Deep Rose</div>
+      <div class="pal-hex">#E8527A</div>
+    </div>
+    <div class="pal-swatch">
+      <div class="pal-block" style="background:#FFB3C6; border:1px solid #E8D0D8;"></div>
+      <div class="pal-name">Blush Pink</div>
+      <div class="pal-hex">#FFB3C6</div>
+    </div>
+    <div class="pal-swatch">
+      <div class="pal-block" style="background:#F8F2F4; border:1px solid #EDE0E5;"></div>
+      <div class="pal-name">Blush Surface</div>
+      <div class="pal-hex">#F8F2F4</div>
+    </div>
+    <div class="pal-swatch">
+      <div class="pal-block" style="background:#0A0A14;"></div>
+      <div class="pal-name">Ink</div>
+      <div class="pal-hex">#0A0A14</div>
+    </div>
+    <div class="pal-swatch">
+      <div class="pal-block" style="background:#6B6B84;"></div>
+      <div class="pal-name">Ink Secondary</div>
+      <div class="pal-hex">#6B6B84</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════ HEADER IN CONTEXT ═══════════════════ -->
+<!--
+  Header variant: font-size 45px, origin x=11 baseline y=43
+  Scale factor vs 66px: 45/66 = 0.68182
+  Left stem centre:  x = 11 + (25.0 - 16) × 0.68182 = 17.1 → 17
+  Right stem centre: x = 11 + (48.4 - 16) × 0.68182 = 33.1 → 33
+  Arch peak y:       43 + (33.8 - 64) × 0.68182 = 43 − 20.6 = 22.4
+  Path via transform: translate(11,43) scale(0.68182) translate(-16,-64)
+-->
+<div class="section">
+  <h2>In Context — Website Header</h2>
+  <div class="header-mock">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 54" width="200" height="54" fill="none">
+      <defs>
+        <linearGradient id="gh" gradientUnits="userSpaceOnUse" x1="14" y1="27" x2="37" y2="27">
+          <stop offset="0%"   stop-color="#2D6A4F"/>
+          <stop offset="100%" stop-color="#E8527A"/>
+        </linearGradient>
+        <clipPath id="nhc">
+          <path transform="translate(11,43) scale(0.68182) translate(-16,-64)"
+                d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z"/>
+        </clipPath>
+      </defs>
+      <path transform="translate(11,43) scale(0.68182) translate(-16,-64)"
+            d="M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z"
+            fill="url(#gh)"/>
+      <g clip-path="url(#nhc)" opacity="0.75">
+        <line x1="17" y1="22" x2="17" y2="42" stroke="white" stroke-width="1" stroke-linecap="round" stroke-dasharray="3 2"/>
+        <path d="M 17 29 C 21 20 30 21 33 30" stroke="white" stroke-width="1" stroke-linecap="round" stroke-dasharray="3 2" fill="none"/>
+        <line x1="33" y1="30" x2="33" y2="42" stroke="white" stroke-width="1" stroke-linecap="round" stroke-dasharray="3 2"/>
+      </g>
+      <text x="62" y="33" font-family="'DM Sans',system-ui,sans-serif" font-size="18" font-weight="800" letter-spacing="-1">
+        <tspan fill="#2D6A4F">newdr</tspan><tspan fill="#E8527A">y</tspan><tspan fill="#2D6A4F">ve</tspan>
+      </text>
+    </svg>
+    <div class="nav-links">
+      <span class="nav-link-active">Find an instructor</span>
+      <span class="nav-link">How it works</span>
+      <span class="nav-link">Pricing</span>
+      <div class="nav-cta">Book a lesson</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
