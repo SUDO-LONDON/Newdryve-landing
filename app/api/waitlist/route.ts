@@ -184,7 +184,7 @@ export async function POST(req: Request) {
       ? renderInstructorWelcomeEmail({ name })
       : renderStudentWelcomeEmail({ name });
 
-  const admin = renderAdminNotificationEmail({ email, role, name, postcode, notes });
+  const adminNotification = renderAdminNotificationEmail({ email, role, name, postcode, notes });
 
   const unsubscribeMailto = `mailto:${ADMIN_NOTIFY_EMAIL}?subject=unsubscribe`;
 
@@ -202,9 +202,9 @@ export async function POST(req: Request) {
     }),
     sendEmail({
       to: ADMIN_NOTIFY_EMAIL,
-      subject: admin.subject,
-      html: admin.html,
-      text: admin.text,
+      subject: adminNotification.subject,
+      html: adminNotification.html,
+      text: adminNotification.text,
       replyTo: email,
     }),
   ]);
