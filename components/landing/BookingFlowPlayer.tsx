@@ -24,11 +24,11 @@ export function BookingFlowPlayer() {
         style={{
           position: 'absolute',
           top: 0,
-          left: '50%',
+          left: 0,
           width: 360,
           height: 720,
-          transformOrigin: 'top center',
-          transform: 'translateX(-50%) scale(min(1, calc(100cqi / 360)))',
+          transformOrigin: 'top left',
+          transform: 'scale(min(1, calc(100cqi / 360px)))',
         }}
       >
         <PhoneFrame>
