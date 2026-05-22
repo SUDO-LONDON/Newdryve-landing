@@ -3,8 +3,8 @@ import { SLOTS, DAYS } from '@/lib/instructors';
 export function MiniSlotPicker({ selectedIndex = 1 }: { selectedIndex?: number }) {
   const activeDay = 2;
   return (
-    <div className="rounded-2xl bg-white border border-[#E8E8F2] p-4">
-      <div className="flex gap-1.5 mb-3 overflow-x-auto -mx-1 px-1">
+    <div className="rounded-2xl bg-white border border-[#E8E8F2] p-4 min-w-0">
+      <div className="flex gap-1.5 mb-3 overflow-x-auto -mx-1 px-1 min-w-0">
         {DAYS.map((d, i) => (
           <div
             key={d}

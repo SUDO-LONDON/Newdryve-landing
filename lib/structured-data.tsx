@@ -40,7 +40,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "What is Newdryve going to do?",
-    a: "Newdryve will let you find a verified, ADI-qualified driving instructor in Norwich, see their real availability, and book a lesson without the phone tag, paying by card, bank transfer, or cash.",
+    a: "Newdryve will let you find a verified, ADI-qualified driving instructor in Norwich, see their real availability, and book a lesson without the back-and-forth of missed calls and voicemails, paying by card, bank transfer, or cash.",
   },
   {
     q: "I'm a learner. What do I get from joining early access?",
