@@ -110,7 +110,8 @@ export async function POST(req: Request) {
   }
 
   const email = typeof body.email === 'string' ? body.email.trim() : '';
-  const role = body.role === 'student' || body.role === 'instructor' ? body.role : null;
+  const role: 'student' | 'instructor' | null =
+    body.role === 'student' || body.role === 'instructor' ? body.role : null;
   const postcode = typeof body.postcode === 'string' ? body.postcode.trim().slice(0, 16) : '';
   const name = typeof body.name === 'string' ? body.name.trim().slice(0, 80) : '';
   const notes = typeof body.notes === 'string' ? body.notes.trim().slice(0, 500) : '';
@@ -176,6 +177,47 @@ export async function POST(req: Request) {
   if (applicantResult.status === 'rejected' || (applicantResult.value && 'error' in applicantResult.value && applicantResult.value.error)) {
     // Confirmation failed but admin got the lead — log and still return success.
     console.warn('[waitlist:applicant-send-failed]', signup.email, applicantResult);
+  }
+
+  const welcome =
+    role === 'instructor'
+      ? renderInstructorWelcomeEmail({ name })
+      : renderStudentWelcomeEmail({ name });
+
+  const adminNotification = renderAdminNotificationEmail({ email, role, name, postcode, notes });
+
+  const unsubscribeMailto = `mailto:${ADMIN_NOTIFY_EMAIL}?subject=unsubscribe`;
+
+  const [welcomeResult, adminResult] = await Promise.allSettled([
+    sendEmail({
+      to: email,
+      subject: welcome.subject,
+      html: welcome.html,
+      text: welcome.text,
+      replyTo: ADMIN_NOTIFY_EMAIL,
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeMailto}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+    }),
+    sendEmail({
+      to: ADMIN_NOTIFY_EMAIL,
+      subject: adminNotification.subject,
+      html: adminNotification.html,
+      text: adminNotification.text,
+      replyTo: email,
+    }),
+  ]);
+
+  if (welcomeResult.status === 'rejected') {
+    console.error('[waitlist] welcome send threw', welcomeResult.reason);
+  } else if (!welcomeResult.value.ok) {
+    console.error('[waitlist] welcome send failed', welcomeResult.value.error);
+  }
+  if (adminResult.status === 'rejected') {
+    console.error('[waitlist] admin send threw', adminResult.reason);
+  } else if (!adminResult.value.ok) {
+    console.error('[waitlist] admin send failed', adminResult.value.error);
   }
 
   return NextResponse.json({ ok: true });

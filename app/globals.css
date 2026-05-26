@@ -47,6 +47,10 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
+    /* Defensive: prevent any descendant whose intrinsic content exceeds the
+       viewport from producing a horizontal scrollbar. `clip` (unlike `hidden`)
+       does not create a scroll container, so sticky positioning still works. */
+    overflow-x: clip;
   }
   html {
     font-family: var(--font-sans);

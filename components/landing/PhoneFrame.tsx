@@ -18,6 +18,7 @@ export function PhoneFrame({
         boxShadow:
           '0 30px 60px -20px rgba(45,106,79,0.25), 0 20px 40px -10px rgba(0,0,0,0.18)',
         position: 'relative',
+        boxSizing: 'border-box',
         ...style,
       }}
     >
