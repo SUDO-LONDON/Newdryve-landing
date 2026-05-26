@@ -118,7 +118,7 @@ export default function RootLayout({
   return (
     <html
       lang="en-GB"
-      className={`${dmSans.variable} h-full antialiased`}
+      className={`${dmSans.variable} h-full antialiased`} // Add the font variable to the HTML element
     >
       <body className="min-h-full flex flex-col font-[family-name:var(--font-dm-sans)]">{children}</body>
     </html>
