@@ -560,6 +560,9 @@ export default function LandingPage() {
               <a href="#faq" className={`text-ink-secondary hover:text-ink motion-safe:transition-colors rounded-md ${focusRing}`}>
                 FAQ
               </a>
+              <a href="https://instagram.com/newdryve" target="_blank" rel="noopener noreferrer" className={`text-ink-secondary hover:text-ink motion-safe:transition-colors rounded-md ${focusRing}`}>
+                Instagram
+              </a>
             </div>
           </div>
         </footer>
