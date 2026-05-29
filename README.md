@@ -35,6 +35,7 @@ npm run dev                  # http://localhost:3000
 | ------------------------ | -------- | ----------------------------- | ---------------------------------------------------- |
 | `NEXT_PUBLIC_SITE_URL`   | yes (prod) | `https://newdryve.com`      | Metadata, canonicals, OG tags, sitemap, robots, JSON-LD |
 | `NEXT_PUBLIC_APP_URL`    | yes (prod) | `https://app.newdryve.com`  | "Open Dashboard" and "Log in" CTAs                    |
+| `BACKEND_ORIGIN`         | yes (if sharing domain with API) | unset | Rewrites `/v1/*`, `/healthz`, and `/readyz` to the existing Fastify backend |
 
 ## Layout
 
@@ -84,6 +85,8 @@ The page ships:
 ## Deployment
 
 The site is a standard Next.js App Router project. Deploy anywhere Next.js 16 runs (Vercel recommended). Set the two `NEXT_PUBLIC_*` env vars on the deploy target.
+
+If `newdryve.com` should serve this landing page while the existing backend remains unchanged, point `newdryve.com` at this Next.js app and set `BACKEND_ORIGIN` to the backend service's public origin, for example the Railway-generated backend domain. Next.js will proxy `/v1/*`, `/healthz`, and `/readyz` to that backend so existing API and webhook paths continue to work.
 
 ## License
 
