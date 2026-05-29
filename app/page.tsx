@@ -203,8 +203,8 @@ export default function LandingPage() {
               </div>
 
               {/* Right: animated phone preview */}
-              <div className="relative flex justify-center md:justify-end">
-                <div className="relative w-full max-w-[300px] sm:max-w-[340px] md:max-w-[360px]">
+              <div className="relative">
+                <div className="relative w-full max-w-[300px] sm:max-w-[340px] md:max-w-[360px] mx-auto md:ml-auto md:mr-0">
                   <BookingFlowPlayer />
                   {/* preview label */}
                   <div

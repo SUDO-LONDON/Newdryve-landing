@@ -28,7 +28,7 @@ export function BookingFlowPlayer() {
           width: 360,
           height: 720,
           transformOrigin: 'top left',
-          transform: 'scale(min(1, calc(100cqi / 360)))',
+          transform: 'scale(min(1, calc(100cqi / 360px)))',
         }}
       >
         <PhoneFrame>
