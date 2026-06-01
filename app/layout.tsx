@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     template: "%s · Newdryve",
   },
   description:
-    "Newdryve is an early-access driving-lesson platform launching in Norwich. Apply as a learner or as an ADI-qualified instructor to join the first cohort.",
+    "Find a verified driving instructor in Norwich and book in 60 seconds. Newdryve is the driving lesson app launching in Norwich — instant booking, real availability, and automatic cancellation protection for instructors.",
   applicationName: "Newdryve",
   generator: "Next.js",
   keywords: [
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     siteName: "Newdryve",
     title: "Newdryve · Early Access in Norwich",
     description:
-      "We're building a faster way to find an ADI-qualified driving instructor in Norwich. Apply for early access as a learner or instructor.",
+      "Find a verified driving instructor in Norwich and book in 60 seconds. Launching summer 2026 — apply for early access now.",
     url: "/",
     locale: "en_GB",
     images: [
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     creator: "@newdryve",
     title: "Newdryve · Early Access in Norwich",
     description:
-      "We're building a faster way to book driving lessons in Norwich. Apply for early access as a learner or instructor.",
+      "Find a verified driving instructor in Norwich and book in 60 seconds. Launching summer 2026 — apply for early access now.",
     images: ["/opengraph-image"],
   },
   robots: {

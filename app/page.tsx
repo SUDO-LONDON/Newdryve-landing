@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { BookingFlowPlayer } from '@/components/landing/BookingFlowPlayer';
-import { RotatingName } from '@/components/landing/RotatingName';
 import { MiniSlotPicker } from '@/components/landing/MiniSlotPicker';
 import { WaitlistForm } from '@/components/landing/WaitlistForm';
 import {
@@ -15,7 +14,7 @@ import {
 export const metadata = {
   title: 'Newdryve · Early Access · Driving Lessons in Norwich',
   description:
-    'Newdryve is an early-access driving-lesson platform launching in Norwich. Apply now as a learner or as an ADI-qualified instructor to join the first cohort.',
+    'Find a verified driving instructor in Norwich and book in 60 seconds. Newdryve is the driving lesson app launching in Norwich — instant booking, real availability, and automatic cancellation protection for instructors.',
   alternates: {
     canonical: '/',
   },
@@ -153,14 +152,15 @@ export default function LandingPage() {
                 </span>
 
                 <h1 className="mt-5 text-[clamp(36px,6.5vw,64px)] font-extrabold leading-[1.05] tracking-[-1.5px] text-balance">
-                  Learn to drive with{' '}
-                  <RotatingName />
-                  {' '}without the back-and-forth.
+                  Find a driving instructor in Norwich.{' '}
+                  <span className="gradient-text">Book in 60 seconds.</span>
                 </h1>
 
                 <p className="mt-5 text-lg text-ink-secondary leading-relaxed max-w-xl text-pretty">
-                  We&rsquo;re building <span className="text-ink font-semibold">Newdryve</span>, a faster way to find an ADI-qualified instructor in Norwich, see real availability, and book a lesson in 60 seconds.{' '}
-                  <span className="text-ink font-semibold">It&rsquo;s not live yet.</span> We&rsquo;re recruiting our first cohort of learners and instructors right now.
+                  <span className="text-ink font-semibold">Newdryve</span> connects Norwich learner drivers with verified, DBS-checked ADI instructors. See real availability. Book instantly. No phone calls, no voicemails, no waiting.
+                </p>
+                <p className="mt-3 text-lg text-ink-secondary leading-relaxed max-w-xl text-pretty">
+                  We&rsquo;re onboarding our founding cohort of Norwich instructors and learners now.
                 </p>
 
                 <div className="mt-7 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
@@ -168,7 +168,7 @@ export default function LandingPage() {
                     href="#signup"
                     className={`inline-flex items-center justify-center gap-1.5 bg-ink text-white rounded-full px-5 py-3 text-sm font-bold touch-manipulation motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 hover:bg-[#1a1a2c] ${focusRing}`}
                   >
-                    Join as a learner
+                    Join the Norwich waitlist
                     <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                       <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
@@ -177,7 +177,7 @@ export default function LandingPage() {
                     href="#instructors"
                     className={`inline-flex items-center justify-center gap-1.5 bg-white text-ink border border-[#E8E8F2] rounded-full px-5 py-3 text-sm font-bold touch-manipulation motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 hover:border-ink ${focusRing}`}
                   >
-                    Apply as an instructor
+                    Apply as a founding instructor
                     <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                       <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
@@ -232,8 +232,8 @@ export default function LandingPage() {
                       </svg>
                     </span>
                     <div>
-                      <div className="text-xs font-bold text-ink leading-tight">Concept design</div>
-                      <div className="text-[10px] text-ink-secondary">Not live data</div>
+                      <div className="text-xs font-bold text-ink leading-tight">Preview</div>
+                      <div className="text-[10px] text-ink-secondary">Launching summer 2026</div>
                     </div>
                   </div>
                 </div>
@@ -250,7 +250,7 @@ export default function LandingPage() {
                   What we&rsquo;re building.
                 </h2>
                 <p className="mt-4 text-base text-ink-secondary text-pretty">
-                  Here&rsquo;s the shape of the product. Nothing on this page is live yet. These are designs we&rsquo;re actively shipping with our early-access cohort.
+                  Here&rsquo;s what you&rsquo;ll get when we launch.
                 </p>
               </div>
 
@@ -362,10 +362,17 @@ export default function LandingPage() {
                   <span className="gradient-text">Want in?</span>
                 </h2>
                 <p className="mt-4 text-base text-white/60 leading-relaxed max-w-md text-pretty">
-                  We&rsquo;re looking for a small number of ADI-qualified instructors in and around Norwich to help us shape the platform. You keep full control of your schedule and pricing, and <span className="text-white font-semibold">100% of every lesson</span>. We take 0% commission. After your first booking, you pay a simple flat monthly fee. That&rsquo;s it.
+                  We&rsquo;re looking for a small number of ADI-qualified instructors in and around Norwich to join our founding cohort.
+                </p>
+                <p className="mt-4 text-base text-white/60 leading-relaxed max-w-md text-pretty">
+                  The average instructor loses over <span className="text-white font-semibold">£4,000 a year</span> to last-minute cancellations. Newdryve holds the student&rsquo;s card at the time of booking. If they cancel within 48 hours, we automatically charge them 50% &mdash; that money goes straight to you. We don&rsquo;t take a cut.
+                </p>
+                <p className="mt-4 text-base text-white/60 leading-relaxed max-w-md text-pretty">
+                  You keep <span className="text-white font-semibold">100% of every lesson</span>. 0% commission. Free until your first booking, then a simple flat monthly fee of <span className="text-white font-semibold">£35/month</span>.
                 </p>
                 <ul className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-md">
                   {[
+                    'Students are automatically charged 50% for last-minute cancellations — paid directly to you',
                     'Set your own availability',
                     'Keep your own pricing',
                     '0% commission, forever',
@@ -387,7 +394,7 @@ export default function LandingPage() {
                   href="#signup-instructor"
                   className={`mt-7 inline-flex items-center gap-1.5 bg-racing-green hover:bg-racing-green-dark text-white rounded-full px-5 py-3 text-sm font-bold touch-manipulation motion-safe:transition-colors ${focusRing}`}
                 >
-                  Apply as an instructor
+                  Apply as a founding instructor
                   <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                     <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -533,13 +540,13 @@ export default function LandingPage() {
                     href="#signup-learner"
                     className={`inline-flex items-center gap-1.5 bg-ink text-white rounded-full px-5 py-3 text-sm font-bold touch-manipulation motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 hover:bg-[#1a1a2c] ${focusRing}`}
                   >
-                    Join as a learner
+                    Join the Norwich waitlist
                   </a>
                   <a
                     href="#signup-instructor"
                     className={`inline-flex items-center gap-1.5 bg-white border border-[#E8E8F2] text-ink rounded-full px-5 py-3 text-sm font-bold touch-manipulation motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 hover:border-ink ${focusRing}`}
                   >
-                    Apply as an instructor
+                    Apply as a founding instructor
                   </a>
                 </div>
               </div>

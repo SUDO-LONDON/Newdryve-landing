@@ -172,7 +172,7 @@ export function WaitlistForm({ defaultRole = 'student' }: { defaultRole?: Role }
           disabled={status === 'submitting'}
           className={`inline-flex items-center justify-center gap-1.5 bg-ink text-white rounded-full px-6 py-3.5 text-sm font-bold touch-manipulation motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 hover:bg-[#1a1a2c] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none ${focusRing}`}
         >
-          {status === 'submitting' ? 'Sending…' : isInstructor ? 'Apply as an instructor' : 'Request early access'}
+          {status === 'submitting' ? 'Sending…' : isInstructor ? 'Apply as a founding instructor' : 'Join the Norwich waitlist'}
           {status !== 'submitting' && (
             <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
               <path d="M3 9L9 3M9 3H4.5M9 3V7.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />

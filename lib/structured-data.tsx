@@ -52,11 +52,11 @@ export const FAQ_ITEMS = [
   },
   {
     q: "How much does Newdryve cost?",
-    a: "For instructors: 0% commission on every booking, forever. You pay nothing until your first booking, then a flat monthly fee. No per-booking cuts. For learners: nothing. You pay your instructor directly for the lesson.",
+    a: "For instructors: 0% commission on every booking, forever. You pay nothing until your first booking, then £35/month. No per-booking cuts, no hidden fees. The cancellation protection alone recovers more than that in the first month for most instructors. For learners: nothing. You pay your instructor directly for the lesson.",
   },
   {
     q: "When will Newdryve launch?",
-    a: "We're aiming to onboard the first instructors and learners over the coming months. We'll only invite people in when we can give them a great experience, so the timing depends on instructor onboarding.",
+    a: "We're launching in Norwich in summer 2026. Apply now to be in the founding cohort — founding instructors get the best rate and first access to our learner base.",
   },
   {
     q: "Where will Newdryve operate?",
