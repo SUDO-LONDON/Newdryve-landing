@@ -52,7 +52,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "How much does Newdryve cost?",
-    a: "For instructors: 0% commission on every booking, forever. You pay nothing until your first booking, then £35/month. No per-booking cuts, no hidden fees. The cancellation protection alone recovers more than that in the first month for most instructors. For learners: nothing. You pay your instructor directly for the lesson.",
+    a: "For instructors: 0% commission on every booking, forever. You pay nothing until your first booking, then £29/month. No per-booking cuts, no hidden fees. The cancellation protection alone recovers more than that in the first month for most instructors. For learners: nothing. You pay your instructor directly for the lesson.",
   },
   {
     q: "When will Newdryve launch?",

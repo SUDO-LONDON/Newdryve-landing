@@ -2,6 +2,7 @@
 
 @theme inline {
   --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
   --color-racing-green: var(--racing-green);
   --color-racing-green-dark: var(--racing-green-dark);
   --color-deep-rose: var(--deep-rose);
@@ -61,6 +62,41 @@
 }
 
 @layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    letter-spacing: -0.01em;
+  }
+  /* Scroll-reveal: fade + 8px rise as a section enters the viewport. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+  /* Gentle float for the hero phone mockup. */
+  .float-slow {
+    animation: float-slow 6s ease-in-out infinite;
+  }
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .float-slow { animation: none; }
+  }
   .gradient-text {
     background: linear-gradient(90deg, var(--racing-green) 0%, var(--deep-rose) 100%);
     -webkit-background-clip: text;

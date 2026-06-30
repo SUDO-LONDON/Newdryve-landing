@@ -1,11 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans } from "next/font/google";
+import { DM_Sans, Fraunces } from "next/font/google";
 import "./globals.css";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+});
+
+// Editorial display serif for headings — gives the page a premium, funded-startup feel.
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  // Variable font: weight axis is included by default. `opsz` adds optical sizing.
+  axes: ["opsz"],
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://newdryve.com";
@@ -118,7 +126,7 @@ export default function RootLayout({
   return (
     <html
       lang="en-GB"
-      className={`${dmSans.variable} h-full antialiased`} // Add the font variable to the HTML element
+      className={`${dmSans.variable} ${fraunces.variable} h-full antialiased`} // Add the font variables to the HTML element
     >
       <body className="min-h-full flex flex-col font-[family-name:var(--font-dm-sans)]">{children}</body>
     </html>
