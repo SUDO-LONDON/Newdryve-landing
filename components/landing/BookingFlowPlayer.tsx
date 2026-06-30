@@ -18,6 +18,10 @@ export function BookingFlowPlayer() {
         maxWidth: 360,
         aspectRatio: '360 / 720',
         containerType: 'inline-size',
+        // The inner layer is a fixed 360px box scaled down with a transform;
+        // transforms don't shrink the layout box, so clip it here to stop the
+        // 360px width leaking out as horizontal overflow on narrow screens.
+        overflow: 'hidden',
       }}
     >
       <div

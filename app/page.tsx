@@ -156,9 +156,10 @@ export default function LandingPage() {
           {/* ───────────────────────── HERO ───────────────────────── */}
           <section className="hero-bg relative overflow-hidden">
             <div className="absolute inset-0 dot-pattern opacity-50 pointer-events-none" aria-hidden="true" />
-            <div className="relative max-w-6xl mx-auto px-5 pt-10 pb-16 md:pt-24 md:pb-28 grid md:grid-cols-[1.05fr_1fr] gap-10 lg:gap-16 items-center">
-              {/* Left: text + CTAs */}
-              <Reveal>
+            <div className="relative max-w-6xl mx-auto px-5 pt-10 pb-16 md:pt-24 md:pb-28 grid grid-cols-1 md:grid-cols-[1.05fr_1fr] gap-10 lg:gap-16 items-center">
+              {/* Left: text + CTAs — rendered statically (no scroll-reveal) so the
+                  hero is instant and never gated on JS/animation. */}
+              <div className="min-w-0">
                 <span className="inline-flex items-center gap-2 rounded-full bg-blush-surface border border-blush-border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose">
                   <span className="size-1.5 rounded-full bg-deep-rose animate-pulse" aria-hidden="true" />
                   Norwich · Early access
@@ -201,10 +202,10 @@ export default function LandingPage() {
                     Free until your first booking
                   </span>
                 </p>
-              </Reveal>
+              </div>
 
               {/* Right: animated phone preview with soft teal glow */}
-              <Reveal delay={120} className="relative">
+              <div className="relative min-w-0">
                 <div
                   aria-hidden="true"
                   className="absolute inset-0 -z-10 blur-3xl opacity-70"
@@ -231,7 +232,7 @@ export default function LandingPage() {
                     </div>
                   </div>
                 </div>
-              </Reveal>
+              </div>
             </div>
           </section>
 
@@ -257,7 +258,7 @@ export default function LandingPage() {
 
           {/* ───────────────────── THE PROBLEM ───────────────────── */}
           <section className="bg-canvas">
-            <div className="max-w-6xl mx-auto px-5 py-16 md:py-24 grid md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-16 items-center">
+            <div className="max-w-6xl mx-auto px-5 py-16 md:py-24 grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-16 items-center">
               <Reveal>
                 <SectionEyebrow>The problem</SectionEyebrow>
                 <h2 className="font-display text-[clamp(30px,4.5vw,48px)] font-semibold tracking-[-1px] leading-[1.08] text-balance">
@@ -314,7 +315,7 @@ export default function LandingPage() {
                 </p>
               </Reveal>
 
-              <div className="grid md:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {HOW_IT_WORKS.map((s, i) => {
                   const isPink = s.accent === 'pink';
                   return (
@@ -381,7 +382,7 @@ export default function LandingPage() {
                 </p>
               </Reveal>
 
-              <div className="grid md:grid-cols-2 gap-5 items-stretch">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
                 {/* Diary software */}
                 <Reveal className="rounded-3xl border border-[#E8E8F2] bg-white p-7 md:p-8 flex flex-col">
                   <div className="text-[11px] font-bold uppercase tracking-wider text-ink-muted mb-1">Diary software</div>
@@ -451,7 +452,7 @@ export default function LandingPage() {
 
           {/* ───────────────────── FOR LEARNERS ───────────────────── */}
           <section id="learners" className="bg-white border-y border-[#E8E8F2]">
-            <div className="max-w-6xl mx-auto px-5 py-16 md:py-24 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+            <div className="max-w-6xl mx-auto px-5 py-16 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
               <Reveal>
                 <SectionEyebrow>For learners</SectionEyebrow>
                 <h2 className="font-display text-[clamp(30px,4.5vw,46px)] font-semibold tracking-[-1px] leading-[1.08] text-balance">
@@ -501,7 +502,7 @@ export default function LandingPage() {
 
           {/* ───────────────────── FOR INSTRUCTORS ───────────────────── */}
           <section id="instructors" className="bg-ink text-white">
-            <div className="max-w-6xl mx-auto px-5 py-16 md:py-24 grid md:grid-cols-2 gap-10 md:gap-12 items-center">
+            <div className="max-w-6xl mx-auto px-5 py-16 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
               <Reveal>
                 <p className="text-[11px] font-bold uppercase tracking-[1px] text-deep-rose mb-3">For instructors</p>
                 <h2 className="font-display text-[clamp(30px,4.5vw,46px)] font-semibold tracking-[-1px] leading-[1.08] text-balance">
@@ -609,7 +610,7 @@ export default function LandingPage() {
                 </p>
               </Reveal>
 
-              <div className="grid md:grid-cols-2 gap-5 items-stretch">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
                 {/* Learners */}
                 <Reveal className="rounded-3xl border border-[#E8E8F2] bg-white p-8 flex flex-col">
                   <div className="text-[11px] font-bold uppercase tracking-wider text-deep-rose mb-2">For learners</div>
@@ -701,7 +702,7 @@ export default function LandingPage() {
 
           {/* ───────────────────── SIGNUP ───────────────────── */}
           <section id="signup" className="bg-canvas scroll-mt-20">
-            <div className="max-w-6xl mx-auto px-5 py-16 md:py-24 grid lg:grid-cols-2 gap-10 lg:gap-16">
+            <div className="max-w-6xl mx-auto px-5 py-16 md:py-24 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
               <Reveal id="signup-learner" className="flex flex-col scroll-mt-20">
                 <SectionEyebrow>For learners</SectionEyebrow>
                 <h2 className="font-display text-[clamp(26px,3.5vw,38px)] font-semibold tracking-[-1px] leading-[1.1] text-balance mb-2">

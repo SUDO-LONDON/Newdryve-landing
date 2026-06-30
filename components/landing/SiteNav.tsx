@@ -6,20 +6,43 @@ import { useEffect, useState } from 'react';
 const focusRing =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-racing-green focus-visible:ring-offset-2 focus-visible:ring-offset-canvas';
 
+function LogoMark({ size = 26 }: { size?: number }) {
+  // Brand "n" symbol mark from assets/logo/newdryve-logo.svg — gradient glyph
+  // with a dashed-road motif clipped to the letter.
+  const nPath =
+    'M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z';
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="18 29 37 37"
+      fill="none"
+      aria-hidden="true"
+      className="flex-shrink-0"
+    >
+      <defs>
+        <linearGradient id="nd-grad" gradientUnits="userSpaceOnUse" x1="20" y1="40" x2="53" y2="40">
+          <stop offset="0%" stopColor="#2D6A4F" />
+          <stop offset="100%" stopColor="#E8527A" />
+        </linearGradient>
+        <clipPath id="nd-n-clip">
+          <path d={nPath} />
+        </clipPath>
+      </defs>
+      <path d={nPath} fill="url(#nd-grad)" />
+      <g clipPath="url(#nd-n-clip)" opacity="0.75">
+        <line x1="25" y1="33" x2="25" y2="62" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="4 3" />
+        <path d="M 25 43 C 30 35 48 27 48 45" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="4 3" fill="none" />
+        <line x1="48" y1="45" x2="48" y2="62" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="4 3" />
+      </g>
+    </svg>
+  );
+}
+
 function Logo({ size = 22 }: { size?: number }) {
   return (
     <span className="inline-flex items-center gap-2" translate="no">
-      <svg width={size + 4} height={size + 4} viewBox="0 0 32 32" fill="none" aria-hidden="true">
-        <rect width="32" height="32" rx="9" fill="#2D6A4F" />
-        <path
-          d="M9 22V10l6.5 8.5V10M20 10v12"
-          stroke="white"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <circle cx="20" cy="22" r="1.6" fill="#E8527A" />
-      </svg>
+      <LogoMark size={size + 6} />
       <span
         className="font-extrabold tracking-tight leading-none"
         style={{ fontSize: size, letterSpacing: '-0.5px' }}
