@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Hanken+Grotesk:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{margin:0;background:#0E4230;}
+  a{color:#E7397A;text-decoration:none;}
+  a:hover{color:#c22e63;}
+  .nd-num{font-variant-numeric:tabular-nums;}
+</style>
+</helmet>
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%" data-uneditable="">
+
+<!-- 1 · COVER -->
+<section data-label="Cover" data-screen-label="Cover" data-speaker-notes="Good morning, I'm Sinan, founder of Newdryve. Learning to drive is a huge milestone, but the instructors who get us there run their businesses blind. Newdryve is the marketplace and operating system that fixes that: learners book a verified instructor in about a minute, and instructors get demand, cancellation protection and their whole admin in one place, while keeping every penny they earn." style="width:100%;height:100%;box-sizing:border-box;padding:88px 120px;background:#FBF3EE;color:#17251E;font-family:'Hanken Grotesk',sans-serif;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-weight:800;font-size:26px;letter-spacing:-0.02em;color:#17251E;">newdryve<span style="color:#FF4C86;">.</span></div>
+    <div style="border:1.5px solid rgba(23,37,30,0.18);border-radius:999px;padding:11px 22px;font-size:17px;font-weight:600;letter-spacing:0.02em;color:#0E4230;">Norwich · Early access</div>
+  </div>
+  <div style="max-width:1400px;">
+    <div style="text-transform:uppercase;letter-spacing:0.2em;font-size:19px;font-weight:700;color:#E7397A;margin-bottom:28px;">Investor pitch · UEA Enterprise Fund</div>
+    <h1 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:172px;line-height:0.92;letter-spacing:-0.02em;color:#17251E;margin-bottom:38px;">Driving lessons,<br><span style="font-style:italic;color:#0E4230;">finally sorted.</span></h1>
+    <p style="font-size:34px;line-height:1.42;font-weight:400;color:#4A5A50;max-width:1120px;">The digital infrastructure of a national driving school: learner discovery, instant booking, cancellation protection and business admin, for the independent instructors who make up the market. Without the franchise. Without lesson commission.</p>
+  </div>
+  <div style="display:flex;gap:16px;align-items:center;">
+    <div style="background:#0E4230;color:#F3EDE4;border-radius:999px;padding:15px 30px;font-size:19px;font-weight:700;">0% lesson commission</div>
+    <div style="background:#FF4C86;color:#fff;border-radius:999px;padding:15px 30px;font-size:19px;font-weight:700;">Free until first booking</div>
+    <div style="border:1.5px solid rgba(23,37,30,0.18);border-radius:999px;padding:15px 30px;font-size:19px;font-weight:600;color:#0E4230;">Book in 60 seconds</div>
+  </div>
+</section>
+
+<!-- 2 · WHAT'S BROKEN / FOUNDER STORY -->
+<section data-label="Origin" data-screen-label="Origin" data-speaker-notes="This starts with my dad. He taught for over twenty years. When he took a break and came back, it took him three to four months just to rebuild his learners, all by word of mouth. And the admin followed him home: messages, payments, cancellations, reschedules. He taught forty hours a week and was mentally on call the rest. He is brilliant at teaching, but he was never meant to run a logistics company on the side." style="width:100%;height:100%;box-sizing:border-box;padding:96px 120px;background:#0E4230;color:#F3EDE4;font-family:'Hanken Grotesk',sans-serif;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div style="text-transform:uppercase;letter-spacing:0.2em;font-size:18px;font-weight:700;color:#86E0B0;">What's broken</div>
+    <div style="font-weight:800;font-size:22px;letter-spacing:-0.02em;color:#F3EDE4;">newdryve<span style="color:#FF7FA8;">.</span></div>
+  </div>
+  <div style="max-width:1500px;">
+    <div style="font-family:'Instrument Serif',serif;font-size:120px;line-height:0.4;color:#FF7FA8;height:60px;">“</div>
+    <p style="font-family:'Instrument Serif',serif;font-weight:400;font-size:74px;line-height:1.18;letter-spacing:-0.01em;color:#F7F2EA;">My dad taught for over 20 years. When he restarted, he spent <span style="color:#86E0B0;">3–4 months</span> just finding learners, word of mouth eventually saved him. But then the admin followed him home: messages, payments, cancellations, reschedules. He taught <span style="color:#86E0B0;">40 hours a week</span>, and was mentally on call 24/7.</p>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+    <div style="font-size:22px;font-weight:600;color:#BFD9C9;">Sinan Guckiran · Founder &amp; CEO</div>
+    <div style="max-width:620px;text-align:right;font-size:24px;line-height:1.45;color:#E9E2D6;">Newdryve exists so no instructor has to choose between teaching and running the business.</div>
+  </div>
+</section>
+
+<!-- 3 · WHO SUFFERS (market + operational pain, merged) -->
+<section data-label="Who suffers" data-screen-label="Who suffers" data-speaker-notes="And it isn't just my dad. There are 43,334 instructors in Great Britain, and 86% are independent or with a small local school. The national brands own barely a tenth of this market. Every one of that 86% is a one-person business, juggling around eighteen learners at once, scheduling, payments, cancellations, test pressure, completely alone. No wonder a third say they can't strike a decent work-life balance." style="width:100%;height:100%;box-sizing:border-box;padding:80px 120px;background:#FBF3EE;color:#17251E;font-family:'Hanken Grotesk',sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:34px;">
+    <div style="text-transform:uppercase;letter-spacing:0.2em;font-size:18px;font-weight:700;color:#E7397A;">Who suffers</div>
+    <div style="font-weight:800;font-size:22px;letter-spacing:-0.02em;color:#17251E;">newdryve<span style="color:#FF4C86;">.</span></div>
+  </div>
+  <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:76px;line-height:0.98;letter-spacing:-0.01em;margin-bottom:40px;max-width:1500px;">It isn't just my dad.</h2>
+  <div style="display:flex;gap:40px;flex:1;">
+    <!-- left: the market -->
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div class="nd-num" style="font-family:'Instrument Serif',serif;font-size:150px;line-height:0.8;color:#0E4230;">43,334</div>
+        <div style="font-size:23px;font-weight:600;color:#4A5A50;margin-top:12px;">approved driving instructors in Great Britain</div>
+      </div>
+      <div>
+        <div class="nd-num" style="display:flex;height:60px;border-radius:12px;overflow:hidden;margin-bottom:16px;">
+          <div style="width:68.2%;background:#0E4230;display:flex;align-items:center;padding-left:18px;color:#F3EDE4;font-weight:700;font-size:18px;">Independent 68.2%</div>
+          <div style="width:18.2%;background:#3E8A62;display:flex;align-items:center;padding-left:14px;color:#fff;font-weight:700;font-size:15px;">Local 18.2%</div>
+          <div style="width:13.6%;background:#C9B7A8;display:flex;align-items:center;padding-left:12px;color:#3a2f27;font-weight:700;font-size:14px;">Nat’l</div>
+        </div>
+        <div style="font-size:21px;line-height:1.4;color:#4A5A50;"><strong style="color:#0E4230;">86.4% are independent or local</strong>, roughly 37,441 instructors, outside every national brand.</div>
+      </div>
+    </div>
+    <!-- right: the daily pain -->
+    <div style="flex:1;background:#0E4230;color:#F3EDE4;border-radius:24px;padding:44px;display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="font-size:24px;font-weight:600;color:#BFD9C9;margin-bottom:18px;">Every one of them is a one-person logistics business.</div>
+        <div style="display:flex;align-items:baseline;gap:16px;">
+          <div class="nd-num" style="font-family:'Instrument Serif',serif;font-size:110px;line-height:0.8;color:#FF9BBE;">~18</div>
+          <div style="font-size:22px;line-height:1.35;color:#E9E2D6;max-width:280px;">learners actively training at once, managed single-handed</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:10px 20px;font-size:18px;font-weight:600;">Scheduling</div>
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:10px 20px;font-size:18px;font-weight:600;">Payments</div>
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:10px 20px;font-size:18px;font-weight:600;">Cancellations</div>
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:10px 20px;font-size:18px;font-weight:600;">Reschedules</div>
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:10px 20px;font-size:18px;font-weight:600;">Progress notes</div>
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:10px 20px;font-size:18px;font-weight:600;">Receipts &amp; tax</div>
+      </div>
+      <div style="font-size:20px;line-height:1.4;color:#FFD3E0;border-top:1px solid rgba(255,255,255,0.14);padding-top:20px;">A third of instructors don't positively agree they achieve a good work-life balance.</div>
+    </div>
+  </div>
+  <div style="font-size:16px;color:#A9AEA6;margin-top:22px;">Source: GOV.UK / DVSA, Working as a driving instructor survey 2025 (Sep 2025)</div>
+</section>
+
+<!-- 4 · WHY TODAY'S TOOLS DON'T FIX IT -->
+<section data-label="The gap" data-screen-label="The gap" data-speaker-notes="Here's what's interesting: the behaviour already exists. Learners at national schools like AA and RED already book and track lessons in an app, so demand is proven. And instructors already pay for software, TotalDrive alone has around 8,600. But look at the gap: national apps only serve national-school instructors, and admin tools only manage pupils you already have. Nobody brings the independent majority new learners and runs their business. Existing software helps you keep the students you have. Newdryve fills the diary." style="width:100%;height:100%;box-sizing:border-box;padding:88px 120px;background:#FBF3EE;color:#17251E;font-family:'Hanken Grotesk',sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;">
+    <div style="text-transform:uppercase;letter-spacing:0.2em;font-size:18px;font-weight:700;color:#E7397A;">Why today's tools don't fix it</div>
+    <div style="font-weight:800;font-size:22px;letter-spacing:-0.02em;color:#17251E;">newdryve<span style="color:#FF4C86;">.</span></div>
+  </div>
+  <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:82px;line-height:1.0;letter-spacing:-0.01em;margin-bottom:50px;max-width:1500px;">The behaviour is proven. The gap is wide open.</h2>
+  <div style="display:flex;gap:26px;flex:1;">
+    <div style="flex:1;background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:24px;padding:40px;display:flex;flex-direction:column;">
+      <div style="font-size:22px;font-weight:700;color:#0E4230;margin-bottom:8px;">National-school apps</div>
+      <div style="font-size:19px;color:#8A9089;margin-bottom:24px;">AA · RED · BSM</div>
+      <p style="font-size:23px;line-height:1.45;color:#3E4A42;">Learners already book, track hours and manage lessons in-app. The behaviour is validated, but it's <strong>locked inside the franchise brand.</strong></p>
+    </div>
+    <div style="flex:1;background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:24px;padding:40px;display:flex;flex-direction:column;">
+      <div style="font-size:22px;font-weight:700;color:#0E4230;margin-bottom:8px;">Instructor SaaS</div>
+      <div style="font-size:19px;color:#8A9089;margin-bottom:24px;">TotalDrive · MyDriveTime</div>
+      <p style="font-size:23px;line-height:1.45;color:#3E4A42;">ADIs already pay monthly for software, TotalDrive alone reaches <strong>~8,600 instructors</strong>. But it manages the pupils you <em>already have</em>. It doesn't bring new ones.</p>
+    </div>
+    <div style="flex:1;background:#0E4230;color:#F3EDE4;border-radius:24px;padding:40px;display:flex;flex-direction:column;">
+      <div style="font-size:22px;font-weight:700;color:#86E0B0;margin-bottom:8px;">The gap</div>
+      <div style="font-size:19px;color:#BFD9C9;margin-bottom:24px;">Where Newdryve lives</div>
+      <p style="font-size:23px;line-height:1.45;color:#F0EAE0;">Nobody brings learners <strong>and</strong> runs the business for the independent majority. Diary software helps you keep the students you have. <strong style="color:#FF9BBE;">Newdryve fills the diary.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · WHAT NEWDRYVE DOES / PRODUCT -->
+<section data-label="Product" data-screen-label="Product" data-speaker-notes="So we built one system across the whole workflow. One, get learners: a local marketplace where a learner finds a verified instructor and books in a minute. Two, secure the booking: we hold a card on file, and late cancellations auto-charge, paid entirely to the instructor. Three, run the lesson: their own pricing, availability and progress tracking. Four, run the business: earnings, receipts and accountant-ready exports. We bring the learners and keep the business running." style="width:100%;height:100%;box-sizing:border-box;padding:88px 120px;background:#FBF3EE;color:#17251E;font-family:'Hanken Grotesk',sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;">
+    <div style="text-transform:uppercase;letter-spacing:0.2em;font-size:18px;font-weight:700;color:#E7397A;">What Newdryve does</div>
+    <div style="font-weight:800;font-size:22px;letter-spacing:-0.02em;color:#17251E;">newdryve<span style="color:#FF4C86;">.</span></div>
+  </div>
+  <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:82px;line-height:1.0;letter-spacing:-0.01em;margin-bottom:54px;max-width:1500px;">One system, the whole workflow.</h2>
+  <div style="display:flex;gap:24px;flex:1;">
+    <div style="flex:1;background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:24px;padding:38px 34px;display:flex;flex-direction:column;">
+      <div style="font-family:'Instrument Serif',serif;font-size:56px;color:#FF4C86;line-height:1;">01</div>
+      <div style="font-size:28px;font-weight:700;margin:20px 0 14px;">Get learners</div>
+      <p style="font-size:21px;line-height:1.45;color:#4A5A50;">A marketplace of local learners discovers verified instructors and books a slot in 60 seconds.</p>
+    </div>
+    <div style="flex:1;background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:24px;padding:38px 34px;display:flex;flex-direction:column;">
+      <div style="font-family:'Instrument Serif',serif;font-size:56px;color:#FF4C86;line-height:1;">02</div>
+      <div style="font-size:28px;font-weight:700;margin:20px 0 14px;">Secure the booking</div>
+      <p style="font-size:21px;line-height:1.45;color:#4A5A50;">A card is held on file. Cancel inside 48h and Newdryve auto-charges 50%, <strong>paid 100% to the instructor.</strong></p>
+    </div>
+    <div style="flex:1;background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:24px;padding:38px 34px;display:flex;flex-direction:column;">
+      <div style="font-family:'Instrument Serif',serif;font-size:56px;color:#FF4C86;line-height:1;">03</div>
+      <div style="font-size:28px;font-weight:700;margin:20px 0 14px;">Run the lesson</div>
+      <p style="font-size:21px;line-height:1.45;color:#4A5A50;">Own pricing and availability, live lesson tools and progress tracking toward test day.</p>
+    </div>
+    <div style="flex:1;background:#0E4230;color:#F3EDE4;border-radius:24px;padding:38px 34px;display:flex;flex-direction:column;">
+      <div style="font-family:'Instrument Serif',serif;font-size:56px;color:#FF9BBE;line-height:1;">04</div>
+      <div style="font-size:28px;font-weight:700;margin:20px 0 14px;">Run the business</div>
+      <p style="font-size:21px;line-height:1.45;color:#E9E2D6;">Earnings, receipt capture and accountant-ready expense exports, the business system of record.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · WHY INSTRUCTORS PAY / MODEL -->
+<section data-label="Model" data-screen-label="Model" data-speaker-notes="The model is simple. Learners pay nothing, no booking fees ever. Instructors pay nothing until their first booking, then a flat 29 pounds a month. And zero commission: they keep 100% of every lesson, including cancellation charges. We don't tax their labour, we charge for the software. The marketplace gets instructors in the door; the operating system makes them stay." style="width:100%;height:100%;box-sizing:border-box;padding:88px 120px;background:#FBF3EE;color:#17251E;font-family:'Hanken Grotesk',sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;">
+    <div style="text-transform:uppercase;letter-spacing:0.2em;font-size:18px;font-weight:700;color:#E7397A;">Why instructors pay</div>
+    <div style="font-weight:800;font-size:22px;letter-spacing:-0.02em;color:#17251E;">newdryve<span style="color:#FF4C86;">.</span></div>
+  </div>
+  <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:82px;line-height:1.0;letter-spacing:-0.01em;margin-bottom:50px;max-width:1500px;">We monetise software, not lessons.</h2>
+  <div style="display:flex;gap:26px;margin-bottom:44px;">
+    <div style="flex:1;background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:24px;padding:40px;">
+      <div style="font-size:21px;font-weight:700;color:#8A9089;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:20px;">Learners</div>
+      <div style="font-family:'Instrument Serif',serif;font-size:104px;line-height:0.9;color:#0E4230;">£0</div>
+      <div style="font-size:22px;color:#4A5A50;margin-top:16px;">No booking fees, ever. Pay the instructor directly, card, bank transfer or cash.</div>
+    </div>
+    <div style="flex:1;background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:24px;padding:40px;">
+      <div style="font-size:21px;font-weight:700;color:#8A9089;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:20px;">Instructors</div>
+      <div class="nd-num" style="font-family:'Instrument Serif',serif;font-size:104px;line-height:0.9;color:#0E4230;">£29<span style="font-size:40px;color:#8A9089;">/mo</span></div>
+      <div style="font-size:22px;color:#4A5A50;margin-top:16px;">Free until the first booking. A flat monthly subscription, no per-booking cuts.</div>
+    </div>
+    <div style="flex:1;background:#FF4C86;color:#fff;border-radius:24px;padding:40px;">
+      <div style="font-size:21px;font-weight:700;color:rgba(255,255,255,0.85);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:20px;">Commission</div>
+      <div style="font-family:'Instrument Serif',serif;font-size:104px;line-height:0.9;">0%</div>
+      <div style="font-size:22px;margin-top:16px;">Keep 100% of every lesson. Newdryve takes nothing, including from the cancellation flow.</div>
+    </div>
+  </div>
+  <div style="background:#0E4230;color:#F3EDE4;border-radius:20px;padding:30px 40px;font-family:'Instrument Serif',serif;font-size:38px;line-height:1.25;">The marketplace gets instructors in. <span style="color:#FF9BBE;">The operating system makes them stay.</span></div>
+</section>
+
+<!-- 8 · WHY THIS CAN SCALE / GO TO MARKET -->
+<section data-label="Go-to-market" data-screen-label="Go-to-market" data-speaker-notes="Why does this scale? We go one city at a time, starting in Norwich. Marketplaces fail when supply and demand are too thin, so we build density in one place first: founder proximity, direct instructor relationships, and two universities on our doorstep. Students are the ideal learner wedge, dense, arriving every September, and mostly without a licence yet. Win Norwich, prove it, then repeat the playbook city by city." style="width:100%;height:100%;box-sizing:border-box;padding:88px 120px;background:#FBF3EE;color:#17251E;font-family:'Hanken Grotesk',sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;">
+    <div style="text-transform:uppercase;letter-spacing:0.2em;font-size:18px;font-weight:700;color:#E7397A;">Why this can scale</div>
+    <div style="font-weight:800;font-size:22px;letter-spacing:-0.02em;color:#17251E;">newdryve<span style="color:#FF4C86;">.</span></div>
+  </div>
+  <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:82px;line-height:1.0;letter-spacing:-0.01em;margin-bottom:50px;max-width:1500px;">Win one city, then repeat it.</h2>
+  <div style="display:flex;gap:26px;flex:1;">
+    <div style="flex:1.15;background:#0E4230;color:#F3EDE4;border-radius:24px;padding:44px;display:flex;flex-direction:column;">
+      <div style="font-family:'Instrument Serif',serif;font-size:52px;margin-bottom:24px;">Start in Norwich</div>
+      <p style="font-size:24px;line-height:1.5;color:#E9E2D6;margin-bottom:28px;">Marketplaces fail when supply and demand are spread too thin. Norwich gives us density on both sides in one place:</p>
+      <div style="display:flex;flex-direction:column;gap:16px;font-size:22px;color:#F0EAE0;">
+        <div style="display:flex;gap:14px;align-items:baseline;"><span style="color:#86E0B0;font-weight:800;">→</span> Founder proximity &amp; local ADI insight</div>
+        <div style="display:flex;gap:14px;align-items:baseline;"><span style="color:#86E0B0;font-weight:800;">→</span> UEA + Norwich University of the Arts density</div>
+        <div style="display:flex;gap:14px;align-items:baseline;"><span style="color:#86E0B0;font-weight:800;">→</span> Prove density in one city, then repeat the playbook</div>
+      </div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:22px;">
+      <div style="font-size:22px;font-weight:600;color:#4A5A50;">Students are the learner wedge: dense, recurring every September, and mostly pre-licence.</div>
+      <div style="background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:20px;padding:34px 36px;flex:1;display:flex;flex-direction:column;justify-content:center;">
+        <div class="nd-num" style="font-family:'Instrument Serif',serif;font-size:96px;line-height:0.85;color:#0E4230;">2.86m</div>
+        <div style="font-size:20px;color:#4A5A50;margin-top:12px;">higher-education students in the UK, 2024/25</div>
+      </div>
+      <div style="background:#FF4C86;color:#fff;border-radius:20px;padding:34px 36px;flex:1;display:flex;flex-direction:column;justify-content:center;">
+        <div class="nd-num" style="font-family:'Instrument Serif',serif;font-size:96px;line-height:0.85;">29%</div>
+        <div style="font-size:20px;margin-top:12px;">of 17–20-year-olds held a full licence in 2023. The majority are still pre-licence.</div>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:16px;color:#A9AEA6;margin-top:22px;">Sources: HESA 2024/25 · DfT / Parliament written statement (2024)</div>
+</section>
+
+<!-- 9 · TRACTION / STATUS -->
+<section data-label="Traction" data-screen-label="Traction" data-speaker-notes="And we're close. Every feature was designed around real instructor pain points, not guesswork. The backend is live, the product is about 70% built; we're finishing the polish, then submitting to the App Store and Google Play. We're four technical founders, we've already contacted 56 local instructors through a founding champion's network, and we're onboarding our first cohort for a Norwich launch this summer." style="width:100%;height:100%;box-sizing:border-box;padding:88px 120px;background:#FBF3EE;color:#17251E;font-family:'Hanken Grotesk',sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;">
+    <div style="text-transform:uppercase;letter-spacing:0.2em;font-size:18px;font-weight:700;color:#E7397A;">Where we are</div>
+    <div style="font-weight:800;font-size:22px;letter-spacing:-0.02em;color:#17251E;">newdryve<span style="color:#FF4C86;">.</span></div>
+  </div>
+  <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:82px;line-height:1.0;letter-spacing:-0.01em;margin-bottom:52px;max-width:1500px;">Built with instructors, and close to launch.</h2>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;flex:1;">
+    <div style="background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:24px;padding:38px;display:flex;flex-direction:column;justify-content:center;">
+      <div class="nd-num" style="font-family:'Instrument Serif',serif;font-size:72px;color:#0E4230;line-height:0.9;">~70%</div>
+      <div style="font-size:22px;color:#4A5A50;margin-top:14px;">of the product built. Final polish, then submission to the App Store and Google Play.</div>
+    </div>
+    <div style="background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:24px;padding:38px;display:flex;flex-direction:column;justify-content:center;">
+      <div style="font-family:'Instrument Serif',serif;font-size:56px;color:#0E4230;line-height:1;">Live</div>
+      <div style="font-size:22px;color:#4A5A50;margin-top:14px;">Backend already running on api.newdryve.com.</div>
+    </div>
+    <div style="background:#0E4230;color:#F3EDE4;border-radius:24px;padding:38px;display:flex;flex-direction:column;justify-content:center;">
+      <div style="font-family:'Instrument Serif',serif;font-size:46px;color:#FF9BBE;line-height:1.05;">Built with ADIs</div>
+      <div style="font-size:22px;color:#E9E2D6;margin-top:14px;">Every feature is designed around real instructor pain points.</div>
+    </div>
+    <div style="background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:24px;padding:38px;display:flex;flex-direction:column;justify-content:center;">
+      <div class="nd-num" style="font-family:'Instrument Serif',serif;font-size:72px;color:#0E4230;line-height:0.9;">4</div>
+      <div style="font-size:22px;color:#4A5A50;margin-top:14px;">technical founders building the product</div>
+    </div>
+    <div style="background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:24px;padding:38px;display:flex;flex-direction:column;justify-content:center;">
+      <div class="nd-num" style="font-family:'Instrument Serif',serif;font-size:72px;color:#0E4230;line-height:0.9;">56</div>
+      <div style="font-size:22px;color:#4A5A50;margin-top:14px;">local ADIs contacted, through a founding champion's 30–40 network</div>
+    </div>
+    <div style="background:#FF4C86;color:#fff;border-radius:24px;padding:38px;display:flex;flex-direction:column;justify-content:center;">
+      <div style="font-family:'Instrument Serif',serif;font-size:52px;line-height:1;">Summer 2026</div>
+      <div style="font-size:22px;margin-top:14px;">Targeted Norwich launch; founding cohort onboarding now.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 · THESIS / CLOSE -->
+
+
+<!-- 12 · APPENDIX · COMPETITIVE LANDSCAPE + ECONOMICS -->
+<section data-label="Landscape" data-screen-label="Appendix-Landscape" data-speaker-notes="Backup for competition questions. Rated Driving is our closest competitor: they take a percentage cut of every lesson, around 3 to 4 pounds an hour to the instructor, and they hold all payments themselves, everything runs through their app. Beyond them: EzLicence takes 25% of every lesson. GoRoadie charges 25.99 pounds to unlock each lead. Instruct Me charges the student an 18% booking fee. Instructor Go adds a 30 pound learner deposit and is London-only. TotalDrive and other admin tools bring no new learners at all. Newdryve is the only instructor-first position: 0% commission, no learner fee, a flat 29 pounds a month, and the instructor keeps control of payment." style="width:100%;height:100%;box-sizing:border-box;padding:64px 120px;background:#FBF3EE;color:#17251E;font-family:'Hanken Grotesk',sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+    <div style="text-transform:uppercase;letter-spacing:0.2em;font-size:18px;font-weight:700;color:#E7397A;">Appendix · Competitors</div>
+    <div style="font-weight:800;font-size:22px;letter-spacing:-0.02em;color:#17251E;">newdryve<span style="color:#FF4C86;">.</span></div>
+  </div>
+  <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:58px;line-height:1.0;letter-spacing:-0.01em;margin-bottom:26px;">The others tax the lesson. We don't.</h2>
+  <div style="display:flex;gap:26px;flex:1;">
+    <div style="flex:1.35;display:flex;flex-direction:column;justify-content:center;">
+      <div style="font-size:15px;font-weight:700;color:#8A9089;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">What the live alternatives cost an instructor</div>
+      <div style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1.5px solid rgba(23,37,30,0.18);background:rgba(255,76,134,0.06);border-radius:10px;margin:0 -14px;padding-left:14px;padding-right:14px;">
+        <div style="width:185px;font-size:21px;font-weight:800;color:#0E4230;">Rated Driving</div>
+        <div style="flex:1;font-size:18px;line-height:1.4;color:#17251E;font-weight:600;">Closest competitor. Takes a <strong>% cut of every lesson, ~£3–4/hr to the instructor</strong>, and <strong>holds all payments</strong>, everything must run through their app.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:18px;padding:13px 0;border-bottom:1px solid rgba(23,37,30,0.12);">
+        <div style="width:185px;font-size:19px;font-weight:700;color:#0E4230;">EzLicence</div>
+        <div style="flex:1;font-size:17px;line-height:1.35;color:#4A5A50;"><strong style="color:#17251E;">25% service fee</strong> on every lesson, plus payout/account fees.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:18px;padding:13px 0;border-bottom:1px solid rgba(23,37,30,0.12);">
+        <div style="width:185px;font-size:19px;font-weight:700;color:#0E4230;">GoRoadie</div>
+        <div style="flex:1;font-size:17px;line-height:1.35;color:#4A5A50;"><strong style="color:#17251E;">£25.99 per lead</strong> to unlock a learner's contact, then you're on your own.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:18px;padding:13px 0;border-bottom:1px solid rgba(23,37,30,0.12);">
+        <div style="width:185px;font-size:19px;font-weight:700;color:#0E4230;">Instruct Me</div>
+        <div style="flex:1;font-size:17px;line-height:1.35;color:#4A5A50;"><strong style="color:#17251E;">18% booking fee charged to the student</strong>, a £40/hr lesson becomes £47.20.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:18px;padding:13px 0;border-bottom:1px solid rgba(23,37,30,0.12);">
+        <div style="width:185px;font-size:19px;font-weight:700;color:#0E4230;">Instructor Go</div>
+        <div style="flex:1;font-size:17px;line-height:1.35;color:#4A5A50;"><strong style="color:#17251E;">£30 learner deposit</strong>; London-only, negligible traction.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:18px;padding:13px 0;">
+        <div style="width:185px;font-size:18px;font-weight:700;color:#0E4230;line-height:1.1;">TotalDrive<br><span style="font-size:13px;font-weight:600;color:#8A9089;">MyDriveTime · BookMeFast</span></div>
+        <div style="flex:1;font-size:17px;line-height:1.35;color:#4A5A50;">Admin software from £18/mo. <strong style="color:#17251E;">Brings no new learners</strong>.</div>
+      </div>
+    </div>
+    <div style="flex:1;background:#0E4230;color:#F3EDE4;border-radius:22px;padding:30px 34px;display:flex;flex-direction:column;justify-content:space-between;">
+      <div style="font-weight:800;font-size:24px;letter-spacing:-0.02em;color:#fff;">newdryve<span style="color:#FF7FA8;">.</span></div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;align-items:baseline;gap:14px;">
+          <div class="nd-num" style="font-family:'Instrument Serif',serif;font-size:56px;line-height:0.82;color:#86E0B0;width:120px;">0%</div>
+          <div style="font-size:18px;color:#E9E2D6;">commission on every lesson</div>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:14px;">
+          <div class="nd-num" style="font-family:'Instrument Serif',serif;font-size:56px;line-height:0.82;color:#86E0B0;width:120px;">£0</div>
+          <div style="font-size:18px;color:#E9E2D6;">learner platform fee</div>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:14px;">
+          <div class="nd-num" style="font-family:'Instrument Serif',serif;font-size:56px;line-height:0.82;color:#86E0B0;width:120px;">£29</div>
+          <div style="font-size:18px;color:#E9E2D6;">a month, free until first booking</div>
+        </div>
+      </div>
+      <div style="font-size:16px;line-height:1.35;color:#FFD3E0;border-top:1px solid rgba(255,255,255,0.16);padding-top:16px;">Learners pay directly, by card, transfer or cash. We don't tax the lesson, we sell the operating system around it.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 · APPENDIX · MOAT / OS -->
+<section data-label="Moat" data-screen-label="Appendix-Moat" data-speaker-notes="Backup on defensibility. A pure marketplace can be bypassed once two people meet; an operating system that stores the instructor's whole business history cannot. The longer they run on Newdryve, the harder it is to leave." style="width:100%;height:100%;box-sizing:border-box;padding:80px 120px;background:#0E4230;color:#F3EDE4;font-family:'Hanken Grotesk',sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;">
+    <div style="text-transform:uppercase;letter-spacing:0.2em;font-size:18px;font-weight:700;color:#86E0B0;">Appendix · Moat</div>
+    <div style="font-weight:800;font-size:22px;letter-spacing:-0.02em;color:#F3EDE4;">newdryve<span style="color:#FF7FA8;">.</span></div>
+  </div>
+  <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:70px;line-height:1.02;letter-spacing:-0.01em;margin-bottom:38px;max-width:1400px;">Why it holds: we become the system of record.</h2>
+  <div style="display:flex;gap:40px;flex:1;">
+    <div style="flex:1;font-size:25px;line-height:1.55;color:#E9E2D6;display:flex;flex-direction:column;justify-content:center;">
+      <p style="margin-bottom:26px;">A pure marketplace can be disintermediated once two people have met. A <strong style="color:#86E0B0;">vertical operating system</strong> can't, because it stores the instructor's entire business history.</p>
+      <p>The longer an instructor runs on Newdryve, the more painful it becomes to leave. The marketplace acquires; the operating system retains.</p>
+    </div>
+    <div style="flex:1;display:flex;flex-wrap:wrap;gap:14px;align-content:center;">
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:14px 26px;font-size:20px;font-weight:600;">Lessons &amp; bookings</div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:14px 26px;font-size:20px;font-weight:600;">Earnings history</div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:14px 26px;font-size:20px;font-weight:600;">Cancellation records</div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:14px 26px;font-size:20px;font-weight:600;">Expenses &amp; receipts</div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:14px 26px;font-size:20px;font-weight:600;">Progress notes</div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:14px 26px;font-size:20px;font-weight:600;">Learner records</div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:14px 26px;font-size:20px;font-weight:600;">Payment methods</div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(134,224,176,0.25);border-radius:999px;padding:14px 26px;font-size:20px;font-weight:600;">Accountant-ready exports</div>
+    </div>
+  </div>
+  <div style="background:#FF4C86;color:#fff;border-radius:20px;padding:28px 40px;font-family:'Instrument Serif',serif;font-size:36px;margin-top:32px;">We don't just help instructors find learners. We run the business behind every lesson.</div>
+</section>
+
+<!-- 14 · APPENDIX · TAM / REVENUE LADDER -->
+<section data-label="Model detail" data-screen-label="Appendix-TAM" data-speaker-notes="Backup on the numbers. At 29 pounds a month, the independent base alone is roughly a 13 million pound annual opportunity in the UK. Expansion from there is into European markets and into instructor insurance and vehicle products." style="width:100%;height:100%;box-sizing:border-box;padding:80px 120px;background:#FBF3EE;color:#17251E;font-family:'Hanken Grotesk',sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;">
+    <div style="text-transform:uppercase;letter-spacing:0.2em;font-size:18px;font-weight:700;color:#E7397A;">Appendix · Model</div>
+    <div style="font-weight:800;font-size:22px;letter-spacing:-0.02em;color:#17251E;">newdryve<span style="color:#FF4C86;">.</span></div>
+  </div>
+  <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:70px;line-height:1.0;letter-spacing:-0.01em;margin-bottom:40px;max-width:1500px;">A £13m UK beachhead, then the instructor economy.</h2>
+  <div style="display:flex;gap:32px;flex:1;">
+    <div style="flex:1.1;background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:24px;padding:14px 40px 30px;">
+      <div style="font-size:20px;font-weight:700;color:#8A9089;text-transform:uppercase;letter-spacing:0.08em;padding:22px 0 6px;">Revenue ladder · £29/mo</div>
+      <div class="nd-num">
+        <div style="display:flex;justify-content:space-between;padding:18px 0;border-bottom:1px solid rgba(23,37,30,0.1);font-size:22px;"><span style="color:#4A5A50;">100 instructors</span><span style="font-weight:700;">£34.8k ARR</span></div>
+        <div style="display:flex;justify-content:space-between;padding:18px 0;border-bottom:1px solid rgba(23,37,30,0.1);font-size:22px;"><span style="color:#4A5A50;">500 instructors</span><span style="font-weight:700;">£174k ARR</span></div>
+        <div style="display:flex;justify-content:space-between;padding:18px 0;border-bottom:1px solid rgba(23,37,30,0.1);font-size:22px;"><span style="color:#4A5A50;">1,000 instructors</span><span style="font-weight:700;">£348k ARR</span></div>
+        <div style="display:flex;justify-content:space-between;padding:18px 0;border-bottom:1px solid rgba(23,37,30,0.1);font-size:22px;"><span style="color:#4A5A50;">5,000 instructors</span><span style="font-weight:700;">£1.74m ARR</span></div>
+        <div style="display:flex;justify-content:space-between;padding:18px 0;font-size:22px;"><span style="color:#0E4230;font-weight:700;">10,000 instructors</span><span style="font-weight:800;color:#0E4230;">£3.48m ARR</span></div>
+      </div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:22px;">
+      <div style="background:#0E4230;color:#F3EDE4;border-radius:24px;padding:36px 40px;">
+        <div style="font-size:20px;color:#BFD9C9;margin-bottom:8px;">UK car-ADI beachhead</div>
+        <div class="nd-num" style="font-family:'Instrument Serif',serif;font-size:96px;line-height:0.9;color:#FF9BBE;">£13.0m</div>
+        <div style="font-size:19px;color:#E9E2D6;margin-top:12px;">37,441 independent/local ADIs × £348/yr</div>
+      </div>
+      <div style="background:#fff;border:1px solid rgba(23,37,30,0.1);border-radius:24px;padding:32px 40px;flex:1;">
+        <div style="font-size:20px;font-weight:700;color:#0E4230;margin-bottom:16px;">Then the wedge widens:</div>
+        <div style="font-size:23px;line-height:1.6;color:#0E4230;font-weight:600;">European markets · instructor insurance &amp; vehicle products.</div>
+        <div style="font-size:16px;line-height:1.5;color:#8A9089;margin-top:16px;padding-top:16px;border-top:1px solid rgba(23,37,30,0.1);">Optional future lever: a small per-booking learner fee, additional take-rate without touching the instructor's 0% commission.</div>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:16px;color:#A9AEA6;margin-top:22px;">Newdryve estimates. Car lessons are the wedge into a much broader independent-instructor economy.</div>
+</section>
+
+<!-- 15 · APPENDIX · OBJECTIONS -->
+<section data-label="Q&amp;A" data-screen-label="Appendix-QA" data-speaker-notes="Backup: the hard questions and the short answers, ready if they come up." style="width:100%;height:100%;box-sizing:border-box;padding:80px 120px;background:#FBF3EE;color:#17251E;font-family:'Hanken Grotesk',sans-serif;display:flex;flex-direction:column;position:relative;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;">
+    <div style="text-transform:uppercase;letter-spacing:0.2em;font-size:18px;font-weight:700;color:#E7397A;">Appendix · Q&amp;A</div>
+    <div style="font-weight:800;font-size:22px;letter-spacing:-0.02em;color:#17251E;">newdryve<span style="color:#FF4C86;">.</span></div>
+  </div>
+  <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:70px;line-height:1.0;letter-spacing:-0.01em;margin-bottom:38px;">The hard questions.</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px 40px;flex:1;">
+    <div>
+      <div style="font-size:23px;font-weight:700;color:#0E4230;margin-bottom:8px;">Why won't TotalDrive just copy this?</div>
+      <div style="font-size:19px;line-height:1.45;color:#4A5A50;">Their DNA is admin software. The hard part isn't a calendar, it's building local supply/demand density, trust, verification and cancellation enforcement. We start with the marketplace problem on day one.</div>
+    </div>
+    <div>
+      <div style="font-size:23px;font-weight:700;color:#0E4230;margin-bottom:8px;">Why won't AA or RED crush you?</div>
+      <div style="font-size:19px;line-height:1.45;color:#4A5A50;">They're franchises tied to their own branded ecosystems. Newdryve is for the independent majority who don't want to give up pricing, payments and their student relationships.</div>
+    </div>
+    <div>
+      <div style="font-size:23px;font-weight:700;color:#0E4230;margin-bottom:8px;">Why will instructors pay £29/month?</div>
+      <div style="font-size:19px;line-height:1.45;color:#4A5A50;">TotalDrive already proves they pay. We add learner acquisition and cancellation protection, one booking or one protected cancellation can pay for itself.</div>
+    </div>
+    <div>
+      <div style="font-size:23px;font-weight:700;color:#0E4230;margin-bottom:8px;">Why no commission?</div>
+      <div style="font-size:19px;line-height:1.45;color:#4A5A50;">Commission misaligns us with the instructor. We want to be trusted infrastructure, not a tax on every lesson, subscription gives us predictable SaaS revenue instead.</div>
+    </div>
+    <div>
+      <div style="font-size:23px;font-weight:700;color:#0E4230;margin-bottom:8px;">How do you prevent disintermediation?</div>
+      <div style="font-size:19px;line-height:1.45;color:#4A5A50;">The booking is only the entry point. Diary, progress, protection, earnings, receipts and exports become the system of record, leaving gets painful.</div>
+    </div>
+    <div>
+      <div style="font-size:23px;font-weight:700;color:#0E4230;margin-bottom:8px;">Is this venture scale?</div>
+      <div style="font-size:19px;line-height:1.45;color:#4A5A50;">The UK car-ADI market is the beachhead. The opportunity is the operating layer for independent instructors, expanding into European markets, plus insurance and vehicle products.</div>
+    </div>
+  </div>
+</section>
+
+</x-import>
+</x-dc>
+</body>
+</html>
