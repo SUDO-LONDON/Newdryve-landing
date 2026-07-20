@@ -76,7 +76,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Authenticated but not on the founder allowlist → denied.
-  if (!isFounderEmail(email)) {
+  if (!(await isAllowedFounder(supabase, email))) {
     if (isDenied) return response();
     const url = request.nextUrl.clone();
     url.pathname = "/ops/denied";
@@ -120,3 +120,19 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/", "/ops", "/ops/:path*"],
 };
+
+async function isAllowedFounder(
+  supabase: ReturnType<typeof createSupabaseMiddlewareClient>["supabase"],
+  email: string | null
+): Promise<boolean> {
+  if (!email) return false;
+  if (isFounderEmail(email)) return true;
+
+  const { data, error } = await supabase
+    .from("ops_allowlist")
+    .select("email")
+    .eq("email", email.trim().toLowerCase())
+    .maybeSingle();
+
+  return !error && !!data;
+}

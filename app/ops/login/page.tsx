@@ -20,7 +20,7 @@ function opsAuthCallbackOrigin(): string {
 
 function LoginInner() {
   const params = useSearchParams();
-  const next = params.get("next") || "/ops";
+  const next = sanitizeNext(params.get("next"));
   const timedOut = params.get("timeout") === "1";
   const linkError = params.get("error") === "1";
 
@@ -143,6 +143,18 @@ function LoginInner() {
       </div>
     </main>
   );
+}
+
+function sanitizeNext(next: string | null): string {
+  if (!next || !next.startsWith("/ops")) return "/ops";
+  if (
+    next === "/ops/login" ||
+    next === "/ops/denied" ||
+    next.startsWith("/ops/auth")
+  ) {
+    return "/ops";
+  }
+  return next;
 }
 
 export default function LoginPage() {

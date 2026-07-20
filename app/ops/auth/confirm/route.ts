@@ -31,13 +31,20 @@ export async function GET(request: NextRequest) {
     email = data.user?.email ?? undefined;
   }
 
+  if (ok && !email) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    email = user?.email ?? undefined;
+  }
+
   if (!ok) {
     return NextResponse.redirect(opsUrl("/ops/login?error=1"));
   }
 
   // Enforce the allowlist immediately — a valid session for a non-founder must
   // not be allowed to persist.
-  if (!isFounderEmail(email)) {
+  if (!email || !(await isAllowedFounder(supabase, email))) {
     await supabase.auth.signOut();
     return NextResponse.redirect(opsUrl("/ops/denied"));
   }
@@ -48,9 +55,27 @@ export async function GET(request: NextRequest) {
 // Only permit same-origin /ops paths as the post-login destination.
 function sanitizeNext(next: string | null): string {
   if (!next || !next.startsWith("/ops")) return "/ops";
+  if (next === "/ops/login" || next === "/ops/denied" || next.startsWith("/ops/auth")) {
+    return "/ops";
+  }
   return next;
 }
 
 function opsUrl(path: string): URL {
   return new URL(path, PUBLIC_SITE_URL);
+}
+
+async function isAllowedFounder(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  email: string
+): Promise<boolean> {
+  if (isFounderEmail(email)) return true;
+
+  const { data, error } = await supabase
+    .from("ops_allowlist")
+    .select("email")
+    .eq("email", email.trim().toLowerCase())
+    .maybeSingle();
+
+  return !error && !!data;
 }
