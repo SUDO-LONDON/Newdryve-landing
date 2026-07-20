@@ -150,8 +150,22 @@ function isLocalRow(row) {
   return false;
 }
 
+function isDrivingSchoolRow(row) {
+  const categoryText = normalizePlace(`${row.category} ${row.subtypes} ${row.type}`);
+  const searchable = normalizePlace(
+    `${row.name} ${row.category} ${row.subtypes} ${row.website_title} ${row.website_description}`
+  );
+
+  if (/\b(guitar|music|high school|secondary school|sixth form|college|academy trust|primary school)\b/.test(searchable)) {
+    return false;
+  }
+
+  return /\b(driving school|driving instructor|driving licence|driving license|school of motoring)\b/.test(categoryText);
+}
+
 function mapRow(row) {
   if (!isLocalRow(row)) return null;
+  if (!isDrivingSchoolRow(row)) return null;
 
   const contactName =
     clean(row.full_name) ||
@@ -214,9 +228,14 @@ if (parsed.errors.length) {
 const seen = new Set();
 const items = [];
 let skippedNonLocalRows = 0;
+let skippedNonDrivingRows = 0;
 for (const row of parsed.data) {
   if (!isLocalRow(row)) {
     skippedNonLocalRows++;
+    continue;
+  }
+  if (!isDrivingSchoolRow(row)) {
+    skippedNonDrivingRows++;
     continue;
   }
   const item = mapRow(row);
@@ -262,7 +281,9 @@ console.log(
       parsed_csv_rows: parsed.data.length,
       inserted_instructor_rows: afterCount ?? 0,
       skipped_non_local_rows: skippedNonLocalRows,
-      skipped_duplicate_or_blank_rows: parsed.data.length - skippedNonLocalRows - items.length,
+      skipped_non_driving_rows: skippedNonDrivingRows,
+      skipped_duplicate_or_blank_rows:
+        parsed.data.length - skippedNonLocalRows - skippedNonDrivingRows - items.length,
     },
     null,
     2
