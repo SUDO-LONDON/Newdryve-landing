@@ -117,7 +117,6 @@ export default function SpendModal({
             <input
               type="file"
               accept={ALLOWED_EXTENSIONS.map((e) => `.${e}`).join(",")}
-              capture="environment"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm"
             />
