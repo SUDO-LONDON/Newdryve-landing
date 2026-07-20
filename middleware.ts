@@ -1,0 +1,81 @@
+// Ops portal gate — the FIRST of two enforcement layers (RLS is the second).
+// Every /ops request passes through here: session is refreshed, the founder
+// allowlist is checked, and an inactivity timeout is enforced. No /ops page,
+// API route or asset is reachable without an allowlisted, active session.
+import { NextResponse, type NextRequest } from "next/server";
+import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
+import { isFounderEmail, OPS_SESSION_TIMEOUT_MINUTES } from "@/lib/ops/env";
+
+const LAST_ACTIVE_COOKIE = "ops_last_active";
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  const isLogin = pathname === "/ops/login";
+  const isAuthRoute = pathname.startsWith("/ops/auth"); // confirm + signout callbacks
+  const isDenied = pathname === "/ops/denied";
+
+  const { supabase, response } = createSupabaseMiddlewareClient(request);
+
+  // The auth callback routes must run to set/clear the session cookie.
+  if (isAuthRoute) return response();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const email = user?.email ?? null;
+
+  // Unauthenticated → login (except the login page itself).
+  if (!user) {
+    if (isLogin) return response();
+    const url = request.nextUrl.clone();
+    url.pathname = "/ops/login";
+    url.searchParams.set("next", pathname);
+    return NextResponse.redirect(url);
+  }
+
+  // Authenticated but not on the founder allowlist → denied.
+  if (!isFounderEmail(email)) {
+    if (isDenied) return response();
+    const url = request.nextUrl.clone();
+    url.pathname = "/ops/denied";
+    return NextResponse.redirect(url);
+  }
+
+  // Allowlisted founder. Enforce sliding inactivity timeout.
+  const now = Date.now();
+  const last = Number(request.cookies.get(LAST_ACTIVE_COOKIE)?.value || "0");
+  const timeoutMs = OPS_SESSION_TIMEOUT_MINUTES * 60 * 1000;
+  if (last && now - last > timeoutMs) {
+    await supabase.auth.signOut();
+    const url = request.nextUrl.clone();
+    url.pathname = "/ops/login";
+    url.searchParams.set("timeout", "1");
+    const timedOut = NextResponse.redirect(url);
+    timedOut.cookies.delete(LAST_ACTIVE_COOKIE);
+    return timedOut;
+  }
+
+  // Signed-in founder landing on the login page → dashboard.
+  if (isLogin) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/ops";
+    url.searchParams.delete("next");
+    return NextResponse.redirect(url);
+  }
+
+  // Continue, refreshing the activity window and any rotated auth cookies.
+  const res = response();
+  res.cookies.set(LAST_ACTIVE_COOKIE, String(now), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/ops",
+    maxAge: OPS_SESSION_TIMEOUT_MINUTES * 60,
+  });
+  return res;
+}
+
+export const config = {
+  matcher: ["/ops", "/ops/:path*"],
+};

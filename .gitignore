@@ -39,6 +39,9 @@ next-env.d.ts
 .vscode/
 .cursor/
 
+# Aerial (local agent-to-agent messaging daemon: socket, mailboxes, history)
+.aerial/
+
 # Vercel
 .vercel
 .env.example
