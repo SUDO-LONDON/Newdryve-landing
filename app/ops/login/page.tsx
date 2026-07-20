@@ -4,6 +4,19 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
+const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+
+function opsAuthCallbackOrigin(): string {
+  if (PUBLIC_SITE_URL) return PUBLIC_SITE_URL;
+
+  const localHosts = new Set(["localhost", "127.0.0.1", "::1"]);
+  if (localHosts.has(window.location.hostname)) {
+    return window.location.origin;
+  }
+
+  return "https://newdryve.com";
+}
+
 function LoginInner() {
   const params = useSearchParams();
   const next = params.get("next") || "/ops";
@@ -19,7 +32,7 @@ function LoginInner() {
     setStatus("sending");
     setMessage(null);
     const supabase = createSupabaseBrowserClient();
-    const emailRedirectTo = `${window.location.origin}/ops/auth/confirm?next=${encodeURIComponent(next)}`;
+    const emailRedirectTo = `${opsAuthCallbackOrigin()}/ops/auth/confirm?next=${encodeURIComponent(next)}`;
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: { emailRedirectTo },

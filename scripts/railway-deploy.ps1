@@ -50,6 +50,7 @@ function Invoke-Railway {
 
 $envValues = Read-DotEnv -Path $envPath
 $requiredKeys = @(
+  "NEXT_PUBLIC_SITE_URL",
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   "SUPABASE_SERVICE_ROLE_KEY",
