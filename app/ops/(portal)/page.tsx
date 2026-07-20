@@ -1,18 +1,13 @@
-// Founder dashboard: makes the current bottleneck (instructor supply) obvious
-// at a glance, surfaces overdue work across every board, upcoming funding
-// deadlines, and recent activity. Server component, always fresh.
+// Founder dashboard: makes the current bottleneck obvious at a glance,
+// surfaces overdue work across every board, and upcoming funding deadlines.
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getBoards } from "@/lib/ops/config";
 import { boardBasePath } from "@/lib/ops/types";
-import type { OpsActivity, OpsField, OpsItem } from "@/lib/ops/types";
+import type { OpsField, OpsItem } from "@/lib/ops/types";
 import { itemValue, primaryFieldKey } from "@/components/ops/format";
 
 export const dynamic = "force-dynamic";
-
-type ActivityRow = OpsActivity & {
-  ops_items: { board_id: string; stage: string | null; data: Record<string, unknown> } | null;
-};
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
@@ -23,30 +18,11 @@ function boardHref(boardId: string): string {
   return base ? `${base}/${boardId}` : "/ops";
 }
 
-function activityText(a: OpsActivity): string {
-  switch (a.kind) {
-    case "created":
-      return "created item";
-    case "deleted":
-      return "deleted item";
-    case "restored":
-      return "restored item";
-    case "note_added":
-      return "added a note";
-    case "stage_change":
-      return `stage → ${a.new_value ?? "—"}`;
-    case "field_change":
-      return `${a.field}: ${a.old_value ?? "—"} → ${a.new_value ?? "—"}`;
-    default:
-      return a.kind;
-  }
-}
-
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
   const today = todayISO();
 
-  const [boards, fieldsRes, instructorsRes, overdueActionsRes, obligationsRes, pipelineRes, activityRes] =
+  const [boards, fieldsRes, instructorsRes, overdueActionsRes, obligationsRes, pipelineRes] =
     await Promise.all([
       getBoards(),
       supabase
@@ -75,11 +51,6 @@ export default async function DashboardPage() {
         .select("id,board_id,stage,data,updated_at")
         .eq("board_id", "pipeline")
         .is("deleted_at", null),
-      supabase
-        .from("ops_activity")
-        .select("*, ops_items(board_id, stage, data)")
-        .order("created_at", { ascending: false })
-        .limit(15),
     ]);
 
   const boardName = (id: string) => boards.find((b) => b.id === id)?.name ?? id;
@@ -96,7 +67,6 @@ export default async function DashboardPage() {
     return String(itemValue(item, key) ?? "Untitled");
   };
 
-  // ---- Instructor pipeline (the bottleneck) --------------------------------
   const instructorBoard = boards.find((b) => b.id === "instructors");
   const instructors = (instructorsRes.data ?? []) as unknown as OpsItem[];
   const stageOrder = instructorBoard?.stages ?? [];
@@ -108,7 +78,6 @@ export default async function DashboardPage() {
   const activeCount = instructors.filter((i) => i.stage === "Active").length;
   const payingCount = instructors.filter((i) => i.data?.subscription_status === "Paying").length;
 
-  // ---- Overdue everywhere ---------------------------------------------------
   const overdueActions = (overdueActionsRes.data ?? []) as unknown as OpsItem[];
   const obligations = (obligationsRes.data ?? []) as unknown as OpsItem[];
   const overdueObligations = obligations
@@ -135,7 +104,6 @@ export default async function DashboardPage() {
   ];
   const overdueTotal = overdueRows.length;
 
-  // ---- Upcoming funding deadlines --------------------------------------------
   const upcomingObligations = obligations
     .filter((o) => {
       const due = o.data?.due_date as string | undefined;
@@ -150,10 +118,14 @@ export default async function DashboardPage() {
     const deadline = p.data?.application_deadline as string | undefined;
     const pitch = p.data?.pitch_date as string | undefined;
     if (deadline && deadline >= today) {
-      pipelineDeadlines.push({ item: p, date: deadline, label: `${titleFor(p)} — application deadline` });
+      pipelineDeadlines.push({
+        item: p,
+        date: deadline,
+        label: `${titleFor(p)} - application deadline`,
+      });
     }
     if (pitch && pitch >= today) {
-      pipelineDeadlines.push({ item: p, date: pitch, label: `${titleFor(p)} — pitch` });
+      pipelineDeadlines.push({ item: p, date: pitch, label: `${titleFor(p)} - pitch` });
     }
   }
 
@@ -167,9 +139,6 @@ export default async function DashboardPage() {
   ]
     .sort((a, b) => a.date.localeCompare(b.date))
     .slice(0, 8);
-
-  // ---- Recent activity --------------------------------------------------------
-  const activity = (activityRes.data ?? []) as unknown as ActivityRow[];
 
   return (
     <div className="space-y-8">
@@ -185,20 +154,18 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Top stat row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatTile label="Instructors — Active" value={activeCount} />
-        <StatTile label="Instructors — Paying" value={payingCount} accent="racing-green" />
+        <StatTile label="Instructors - Active" value={activeCount} />
+        <StatTile label="Instructors - Paying" value={payingCount} accent="racing-green" />
         <StatTile label="Overdue (all boards)" value={overdueTotal} accent={overdueTotal > 0 ? "deep-rose" : undefined} />
         <StatTile label="Upcoming obligations" value={upcomingObligations.length} />
       </div>
 
-      {/* Instructor pipeline — the bottleneck */}
       <section className="rounded-2xl border border-border bg-white p-5">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-lg text-ink">Instructor pipeline</h2>
           <Link href={boardHref("instructors")} className="text-sm text-racing-green hover:underline">
-            View board →
+            View board -&gt;
           </Link>
         </div>
         <p className="mt-1 text-xs text-ink-muted">
@@ -208,7 +175,7 @@ export default async function DashboardPage() {
           {stageCounts.map(({ stage, count }) => (
             <div key={stage} className="flex items-center gap-3">
               <span className="w-32 shrink-0 truncate text-xs text-ink-secondary">{stage}</span>
-              <div className="h-3 flex-1 rounded-full bg-blush-surface overflow-hidden">
+              <div className="h-3 flex-1 overflow-hidden rounded-full bg-blush-surface">
                 <div
                   className="h-full rounded-full bg-racing-green"
                   style={{ width: `${(count / maxStageCount) * 100}%` }}
@@ -222,12 +189,11 @@ export default async function DashboardPage() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Overdue */}
         <section className="rounded-2xl border border-border bg-white p-5">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-lg text-ink">Overdue</h2>
             <Link href="/ops/due" className="text-sm text-racing-green hover:underline">
-              Full due/overdue view →
+              Full due/overdue view -&gt;
             </Link>
           </div>
           <p className="mt-1 text-xs text-ink-muted">{overdueTotal} item(s) past their date.</p>
@@ -242,7 +208,7 @@ export default async function DashboardPage() {
                     <span className="block truncate text-sm text-ink">{r.label || "Untitled"}</span>
                     <span className="text-xs text-ink-muted">
                       {boardName(r.item.board_id)}
-                      {r.isObligation ? " · obligation" : ""}
+                      {r.isObligation ? " - obligation" : ""}
                     </span>
                   </span>
                   <span className="shrink-0 text-xs font-medium text-deep-rose">
@@ -251,11 +217,10 @@ export default async function DashboardPage() {
                 </Link>
               </li>
             ))}
-            {overdueRows.length === 0 && <p className="text-sm text-ink-muted">Nothing overdue. 🎉</p>}
+            {overdueRows.length === 0 && <p className="text-sm text-ink-muted">Nothing overdue.</p>}
           </ul>
         </section>
 
-        {/* Upcoming funding obligations/deadlines */}
         <section className="rounded-2xl border border-border bg-white p-5">
           <h2 className="font-display text-lg text-ink">Upcoming funding deadlines</h2>
           <p className="mt-1 text-xs text-ink-muted">Soonest first.</p>
@@ -282,30 +247,6 @@ export default async function DashboardPage() {
           </ul>
         </section>
       </div>
-
-      {/* Recent activity */}
-      <section className="rounded-2xl border border-border bg-white p-5">
-        <h2 className="font-display text-lg text-ink">Recent activity</h2>
-        <ul className="mt-3 space-y-1.5">
-          {activity.map((a) => (
-            <li key={a.id} className="text-xs text-ink-secondary">
-              <span className="text-ink-muted">{new Date(a.created_at).toLocaleString("en-GB")}</span>{" "}
-              · {a.actor_email ?? "system"}
-              {a.ops_items?.board_id && (
-                <>
-                  {" "}
-                  ·{" "}
-                  <Link href={boardHref(a.ops_items.board_id)} className="text-racing-green hover:underline">
-                    {boardName(a.ops_items.board_id)}
-                  </Link>
-                </>
-              )}{" "}
-              · {activityText(a)}
-            </li>
-          ))}
-          {activity.length === 0 && <li className="text-sm text-ink-muted">No activity yet.</li>}
-        </ul>
-      </section>
     </div>
   );
 }

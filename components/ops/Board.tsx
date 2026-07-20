@@ -274,7 +274,17 @@ export default function Board({
           </div>
         </div>
 
-        <p className="mt-2 text-xs text-ink-muted">{filtered.length} items</p>
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-ink-muted">
+          <span>{filtered.length} items</span>
+          {filtered.length > 0 && (
+            <button
+              onClick={() => setSelected(new Set(filtered.map((i) => i.id)))}
+              className="text-racing-green hover:underline"
+            >
+              Select visible
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Bulk bar */}
@@ -323,6 +333,8 @@ export default function Board({
           fields={compactFields}
           primaryKey={primaryKey}
           items={filtered}
+          selected={selected}
+          onToggle={toggleSel}
           onOpen={setDrawerId}
           onDropStage={(id, stage) => patchItem(id, { stage })}
         />
@@ -390,6 +402,8 @@ function KanbanView({
   fields,
   primaryKey,
   items,
+  selected,
+  onToggle,
   onOpen,
   onDropStage,
 }: {
@@ -397,6 +411,8 @@ function KanbanView({
   fields: OpsField[];
   primaryKey: string;
   items: OpsItem[];
+  selected: Set<string>;
+  onToggle: (id: string) => void;
   onOpen: (id: string) => void;
   onDropStage: (id: string, stage: string) => void;
 }) {
@@ -426,16 +442,30 @@ function KanbanView({
             </div>
             <div className="space-y-2">
               {list.map((i) => (
-                <button
+                <div
                   key={i.id}
                   draggable
                   onDragStart={() => setDragId(i.id)}
-                  onClick={() => onOpen(i.id)}
-                  className="block w-full text-left rounded-lg border border-border bg-white p-3 hover:shadow-sm"
+                  className="rounded-lg border border-border bg-white p-3 hover:shadow-sm"
                 >
-                  <p className="text-sm font-medium text-ink truncate">
-                    {String(itemValue(i, primaryKey) ?? "Untitled")}
-                  </p>
+                  <div className="flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(i.id)}
+                      onChange={() => onToggle(i.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-border"
+                      aria-label={`Select ${String(itemValue(i, primaryKey) ?? "item")}`}
+                    />
+                    <button
+                      onClick={() => onOpen(i.id)}
+                      className="min-w-0 flex-1 text-left"
+                    >
+                      <p className="truncate text-sm font-medium text-ink">
+                        {String(itemValue(i, primaryKey) ?? "Untitled")}
+                      </p>
+                    </button>
+                  </div>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {fields
                       .filter((f) => f.key !== primaryKey && f.type !== "stage")
@@ -453,7 +483,7 @@ function KanbanView({
                   {i.owner_email && (
                     <p className="mt-1 text-[11px] text-ink-muted">{i.owner_email}</p>
                   )}
-                </button>
+                </div>
               ))}
             </div>
           </div>
