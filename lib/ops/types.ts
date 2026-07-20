@@ -105,6 +105,21 @@ export interface OpsKpi {
   deleted_at: string | null;
 }
 
+// A QR receipt-capture handoff session. The token is a single-use, 15-minute
+// capability that lets a phone upload one receipt photo against it.
+export type CaptureStatus = "pending" | "received" | "used" | "expired";
+
+export interface OpsCaptureSession {
+  token: string;
+  created_by: string;
+  status: CaptureStatus;
+  receipt_path: string | null;
+  receipt_mime: string | null;
+  created_at: string;
+  expires_at: string;
+  used_at: string | null;
+}
+
 /** Format integer pence as GBP, e.g. 750000 → "£7,500.00". */
 export function formatPence(pence: number): string {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(

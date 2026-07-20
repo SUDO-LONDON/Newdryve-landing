@@ -24,6 +24,7 @@ supabase db push            # applies everything in supabase/migrations/
 | `0007_ops_performance_indexes.sql` | Extra indexes for dashboard/board queries |
 | `0008_ops_finance_kpis.sql`  | `ops_settings` (funding total), `ops_expenses`, `ops_kpis` + `ops_is_ceo()` + RLS |
 | `0009_ops_receipts_storage.sql` | Private `receipts` bucket (expense photos) + storage RLS |
+| `0010_ops_capture_sessions.sql` | `ops_capture_sessions` — QR phone→laptop receipt-capture handoff |
 
 ## Before going live
 
