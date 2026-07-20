@@ -56,7 +56,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  const { supabase, response } = createSupabaseMiddlewareClient(request);
+  const { supabase, setRequestHeader, response } = createSupabaseMiddlewareClient(request);
 
   // The auth callback routes must run to set/clear the session cookie.
   if (isAuthRoute) return response();
@@ -84,10 +84,13 @@ export async function middleware(request: NextRequest) {
   }
 
   // Allowlisted founder. Enforce sliding inactivity timeout.
+  if (email) setRequestHeader("x-ops-founder-email", email);
+
   const now = Date.now();
-  const last = Number(request.cookies.get(LAST_ACTIVE_COOKIE)?.value || "0");
+  const lastCookie = request.cookies.get(LAST_ACTIVE_COOKIE);
+  const last = Number(lastCookie?.value || "0");
   const timeoutMs = OPS_SESSION_TIMEOUT_MINUTES * 60 * 1000;
-  if (last && now - last > timeoutMs) {
+  if (!lastCookie || !Number.isFinite(last) || !last || now - last > timeoutMs) {
     await supabase.auth.signOut();
     const url = request.nextUrl.clone();
     url.pathname = "/ops/login";

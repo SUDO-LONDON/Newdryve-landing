@@ -49,17 +49,32 @@ export default async function DashboardPage() {
   const [boards, fieldsRes, instructorsRes, overdueActionsRes, obligationsRes, pipelineRes, activityRes] =
     await Promise.all([
       getBoards(),
-      supabase.from("ops_fields").select("*").order("position", { ascending: true }),
-      supabase.from("ops_items").select("*").eq("board_id", "instructors").is("deleted_at", null),
+      supabase
+        .from("ops_fields")
+        .select("board_id,key,type,position")
+        .order("position", { ascending: true }),
       supabase
         .from("ops_items")
-        .select("*")
+        .select("stage,data")
+        .eq("board_id", "instructors")
+        .is("deleted_at", null),
+      supabase
+        .from("ops_items")
+        .select("id,board_id,stage,next_action,next_action_date,data,updated_at")
         .is("deleted_at", null)
         .not("next_action_date", "is", null)
         .lt("next_action_date", today)
         .order("next_action_date", { ascending: true }),
-      supabase.from("ops_items").select("*").eq("board_id", "obligations").is("deleted_at", null),
-      supabase.from("ops_items").select("*").eq("board_id", "pipeline").is("deleted_at", null),
+      supabase
+        .from("ops_items")
+        .select("id,board_id,stage,data,updated_at")
+        .eq("board_id", "obligations")
+        .is("deleted_at", null),
+      supabase
+        .from("ops_items")
+        .select("id,board_id,stage,data,updated_at")
+        .eq("board_id", "pipeline")
+        .is("deleted_at", null),
       supabase
         .from("ops_activity")
         .select("*, ops_items(board_id, stage, data)")

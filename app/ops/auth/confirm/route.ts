@@ -5,9 +5,10 @@
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { isFounderEmail } from "@/lib/ops/env";
+import { isFounderEmail, OPS_SESSION_TIMEOUT_MINUTES } from "@/lib/ops/env";
 
 const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://newdryve.com";
+const LAST_ACTIVE_COOKIE = "ops_last_active";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -49,7 +50,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(opsUrl("/ops/denied"));
   }
 
-  return NextResponse.redirect(opsUrl(next));
+  const res = NextResponse.redirect(opsUrl(next));
+  res.cookies.set(LAST_ACTIVE_COOKIE, String(Date.now()), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/ops",
+    maxAge: OPS_SESSION_TIMEOUT_MINUTES * 60,
+  });
+  return res;
 }
 
 // Only permit same-origin /ops paths as the post-login destination.

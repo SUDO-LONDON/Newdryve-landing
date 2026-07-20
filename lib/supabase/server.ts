@@ -3,6 +3,7 @@
 // through to Postgres, where RLS enforces the allowlist.
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { headers } from "next/headers";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/ops/env";
 
 export async function createSupabaseServerClient() {
@@ -29,6 +30,9 @@ export async function createSupabaseServerClient() {
 
 /** Convenience: the authenticated user's email, or null. */
 export async function getSessionEmail(): Promise<string | null> {
+  const forwardedEmail = (await headers()).get("x-ops-founder-email");
+  if (forwardedEmail) return forwardedEmail;
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
