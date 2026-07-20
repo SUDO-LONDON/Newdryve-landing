@@ -130,10 +130,20 @@ create table if not exists public.ops_document_versions (
 );
 create index if not exists ops_document_versions_doc_idx on public.ops_document_versions (document_id, uploaded_at desc);
 
-alter table public.ops_documents
-  add constraint ops_documents_current_version_fk
-  foreign key (current_version_id) references public.ops_document_versions(id)
-  on delete set null;
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'ops_documents_current_version_fk'
+      and conrelid = 'public.ops_documents'::regclass
+  ) then
+    alter table public.ops_documents
+      add constraint ops_documents_current_version_fk
+      foreign key (current_version_id) references public.ops_document_versions(id)
+      on delete set null;
+  end if;
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- Audit log. Every data-room action and every personal-data access.
