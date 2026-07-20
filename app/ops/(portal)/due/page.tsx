@@ -34,13 +34,20 @@ export default async function DuePage() {
 
   const [boards, fieldsRes, dueActionsRes, obligationsRes] = await Promise.all([
     getBoards(),
-    supabase.from("ops_fields").select("*").order("position", { ascending: true }),
+    supabase
+      .from("ops_fields")
+      .select("board_id,key,type,required,position")
+      .order("position", { ascending: true }),
     supabase
       .from("ops_items")
-      .select("*")
+      .select("id,board_id,next_action,next_action_date,data,updated_at")
       .is("deleted_at", null)
       .not("next_action_date", "is", null),
-    supabase.from("ops_items").select("*").eq("board_id", "obligations").is("deleted_at", null),
+    supabase
+      .from("ops_items")
+      .select("id,board_id,stage,data,updated_at")
+      .eq("board_id", "obligations")
+      .is("deleted_at", null),
   ]);
 
   const boardName = (id: string) => boards.find((b) => b.id === id)?.name ?? id;

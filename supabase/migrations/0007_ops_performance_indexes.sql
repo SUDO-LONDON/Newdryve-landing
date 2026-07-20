@@ -11,3 +11,6 @@ create index if not exists ops_items_active_due_idx
 
 create index if not exists ops_activity_created_idx
   on public.ops_activity (created_at desc);
+
+create index if not exists ops_documents_current_version_idx
+  on public.ops_documents (current_version_id);

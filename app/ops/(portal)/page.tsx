@@ -51,7 +51,7 @@ export default async function DashboardPage() {
       getBoards(),
       supabase
         .from("ops_fields")
-        .select("board_id,key,type,position")
+        .select("board_id,key,type,required,position")
         .order("position", { ascending: true }),
       supabase
         .from("ops_items")

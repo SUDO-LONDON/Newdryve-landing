@@ -6,6 +6,7 @@ import { type EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isFounderEmail, OPS_SESSION_TIMEOUT_MINUTES } from "@/lib/ops/env";
+import { createVerifiedFounderCookie, VERIFIED_COOKIE } from "@/lib/ops/session";
 
 const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://newdryve.com";
 const LAST_ACTIVE_COOKIE = "ops_last_active";
@@ -51,13 +52,15 @@ export async function GET(request: NextRequest) {
   }
 
   const res = NextResponse.redirect(opsUrl(next));
-  res.cookies.set(LAST_ACTIVE_COOKIE, String(Date.now()), {
+  const cookieOptions = {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/ops",
     maxAge: OPS_SESSION_TIMEOUT_MINUTES * 60,
-  });
+  } as const;
+  res.cookies.set(LAST_ACTIVE_COOKIE, String(Date.now()), cookieOptions);
+  res.cookies.set(VERIFIED_COOKIE, await createVerifiedFounderCookie(email), cookieOptions);
   return res;
 }
 
