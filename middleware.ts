@@ -16,6 +16,21 @@ const LAST_ACTIVE_COOKIE = "ops_last_active";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (pathname === "/") {
+    const hasOtpParams =
+      request.nextUrl.searchParams.has("code") ||
+      request.nextUrl.searchParams.has("token_hash");
+
+    if (!hasOtpParams) return NextResponse.next();
+
+    const url = request.nextUrl.clone();
+    url.pathname = "/ops/auth/confirm";
+    if (!url.searchParams.has("next")) {
+      url.searchParams.set("next", "/ops");
+    }
+    return NextResponse.redirect(url);
+  }
+
   const isLogin = pathname === "/ops/login";
   const isAuthRoute = pathname.startsWith("/ops/auth"); // confirm + signout callbacks
   const isDenied = pathname === "/ops/denied";
@@ -99,5 +114,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/ops", "/ops/:path*"],
+  matcher: ["/", "/ops", "/ops/:path*"],
 };
