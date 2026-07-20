@@ -4,7 +4,12 @@
 // API route or asset is reachable without an allowlisted, active session.
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
-import { isFounderEmail, OPS_SESSION_TIMEOUT_MINUTES } from "@/lib/ops/env";
+import {
+  isFounderEmail,
+  OPS_SESSION_TIMEOUT_MINUTES,
+  SUPABASE_ANON_KEY,
+  SUPABASE_URL,
+} from "@/lib/ops/env";
 
 const LAST_ACTIVE_COOKIE = "ops_last_active";
 
@@ -14,6 +19,23 @@ export async function middleware(request: NextRequest) {
   const isLogin = pathname === "/ops/login";
   const isAuthRoute = pathname.startsWith("/ops/auth"); // confirm + signout callbacks
   const isDenied = pathname === "/ops/denied";
+
+  const hasAuthCookie = request.cookies
+    .getAll()
+    .some((cookie) => cookie.name.startsWith("sb-"));
+
+  // Let unauthenticated founders reach the login page even if the deployed
+  // service is missing Supabase env. Without this, the middleware crashes before
+  // the static login page can render.
+  if (isLogin && !hasAuthCookie) return NextResponse.next();
+
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    if (isLogin || isDenied) return NextResponse.next();
+    const url = request.nextUrl.clone();
+    url.pathname = "/ops/login";
+    url.searchParams.set("next", pathname);
+    return NextResponse.redirect(url);
+  }
 
   const { supabase, response } = createSupabaseMiddlewareClient(request);
 

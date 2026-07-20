@@ -73,6 +73,23 @@ if (-not [string]::IsNullOrWhiteSpace($Project)) {
   $scopeArgs += @("--project", $Project)
 }
 
+$statusOutput = Invoke-Railway status --json @scopeArgs
+if ($LASTEXITCODE -ne 0) {
+  throw 'Railway CLI is not authenticated or this directory is not linked. Run `npx @railway/cli login`, then `npx @railway/cli link`, or pass -Project/-Service.'
+}
+
+try {
+  $status = $statusOutput | Out-String | ConvertFrom-Json
+  $projectName = $status.project.name
+  $serviceName = $status.service.name
+  if ([string]::IsNullOrWhiteSpace($projectName) -or [string]::IsNullOrWhiteSpace($serviceName)) {
+    throw "Missing project/service in Railway status output."
+  }
+  Write-Host "Railway target: $projectName / $serviceName / $Environment"
+} catch {
+  throw 'Could not confirm Railway target from `railway status --json`.'
+}
+
 Write-Host "Setting Railway variables from .env.local..."
 foreach ($key in $requiredKeys) {
   $envValues[$key] | Invoke-Railway variable set $key --stdin --skip-deploys @scopeArgs | Out-Null
