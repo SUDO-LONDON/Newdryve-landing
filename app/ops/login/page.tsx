@@ -1,10 +1,11 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+const RESEND_COOLDOWN_SECONDS = 60;
 
 function opsAuthCallbackOrigin(): string {
   if (PUBLIC_SITE_URL) return PUBLIC_SITE_URL;
@@ -26,11 +27,32 @@ function LoginInner() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
+  const [lastSentAt, setLastSentAt] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const cooldownRemaining = lastSentAt
+    ? Math.max(
+        0,
+        RESEND_COOLDOWN_SECONDS - Math.floor((now - lastSentAt) / 1000)
+      )
+    : 0;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (cooldownRemaining > 0) {
+      setStatus("error");
+      setMessage(`Please wait ${cooldownRemaining}s before requesting another link.`);
+      return;
+    }
+
     setStatus("sending");
     setMessage(null);
+    setLastSentAt(Date.now());
     const supabase = createSupabaseBrowserClient();
     const emailRedirectTo = `${opsAuthCallbackOrigin()}/ops/auth/confirm?next=${encodeURIComponent(next)}`;
     const { error } = await supabase.auth.signInWithOtp({
@@ -39,7 +61,11 @@ function LoginInner() {
     });
     if (error) {
       setStatus("error");
-      setMessage(error.message);
+      setMessage(
+        error.message.toLowerCase().includes("rate limit")
+          ? "Too many sign-in emails were requested. Wait a minute and try again; if this keeps happening, configure Supabase custom SMTP."
+          : error.message
+      );
     } else {
       setStatus("sent");
     }
@@ -99,10 +125,14 @@ function LoginInner() {
             )}
             <button
               type="submit"
-              disabled={status === "sending"}
+              disabled={status === "sending" || cooldownRemaining > 0}
               className="w-full rounded-lg gradient-bg px-4 py-2.5 text-white font-medium disabled:opacity-60"
             >
-              {status === "sending" ? "Sending…" : "Send sign-in link"}
+              {status === "sending"
+                ? "Sending..."
+                : cooldownRemaining > 0
+                  ? `Try again in ${cooldownRemaining}s`
+                  : "Send sign-in link"}
             </button>
           </form>
         )}
