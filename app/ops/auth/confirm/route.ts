@@ -7,6 +7,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isFounderEmail } from "@/lib/ops/env";
 
+const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://newdryve.com";
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
@@ -30,21 +32,25 @@ export async function GET(request: NextRequest) {
   }
 
   if (!ok) {
-    return NextResponse.redirect(new URL("/ops/login?error=1", request.url));
+    return NextResponse.redirect(opsUrl("/ops/login?error=1"));
   }
 
   // Enforce the allowlist immediately — a valid session for a non-founder must
   // not be allowed to persist.
   if (!isFounderEmail(email)) {
     await supabase.auth.signOut();
-    return NextResponse.redirect(new URL("/ops/denied", request.url));
+    return NextResponse.redirect(opsUrl("/ops/denied"));
   }
 
-  return NextResponse.redirect(new URL(next, request.url));
+  return NextResponse.redirect(opsUrl(next));
 }
 
 // Only permit same-origin /ops paths as the post-login destination.
 function sanitizeNext(next: string | null): string {
   if (!next || !next.startsWith("/ops")) return "/ops";
   return next;
+}
+
+function opsUrl(path: string): URL {
+  return new URL(path, PUBLIC_SITE_URL);
 }

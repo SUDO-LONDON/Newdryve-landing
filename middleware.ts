@@ -12,6 +12,7 @@ import {
 } from "@/lib/ops/env";
 
 const LAST_ACTIVE_COOKIE = "ops_last_active";
+const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://newdryve.com";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -23,7 +24,10 @@ export async function middleware(request: NextRequest) {
 
     if (!hasOtpParams) return NextResponse.next();
 
-    const url = request.nextUrl.clone();
+    const url = new URL("/ops/auth/confirm", PUBLIC_SITE_URL);
+    request.nextUrl.searchParams.forEach((value, key) => {
+      url.searchParams.set(key, value);
+    });
     url.pathname = "/ops/auth/confirm";
     if (!url.searchParams.has("next")) {
       url.searchParams.set("next", "/ops");
