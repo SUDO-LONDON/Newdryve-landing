@@ -76,6 +76,51 @@ export interface Founder {
   role: string | null;
 }
 
+// Finance — funding + spend. Amounts are integer pence.
+export interface OpsExpense {
+  id: string;
+  description: string;
+  category: string | null;
+  amount_pence: number;
+  spent_on: string; // YYYY-MM-DD
+  receipt_path: string;
+  receipt_mime: string | null;
+  created_by: string | null;
+  created_at: string;
+  deleted_at: string | null;
+}
+
+// Weekly KPI assigned to a founder. Created by the CEO; ticked by the assignee.
+export interface OpsKpi {
+  id: string;
+  week_start: string; // YYYY-MM-DD (Monday)
+  assignee_email: string;
+  title: string;
+  detail: string | null;
+  done: boolean;
+  done_at: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+/** Format integer pence as GBP, e.g. 750000 → "£7,500.00". */
+export function formatPence(pence: number): string {
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(
+    (pence || 0) / 100
+  );
+}
+
+/** The Monday (ISO week start) of the week containing `d`, as YYYY-MM-DD. */
+export function mondayOf(d: Date = new Date()): string {
+  const copy = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dow = copy.getUTCDay(); // 0=Sun..6=Sat
+  const diff = dow === 0 ? -6 : 1 - dow; // shift back to Monday
+  copy.setUTCDate(copy.getUTCDate() + diff);
+  return copy.toISOString().slice(0, 10);
+}
+
 // Keys promoted to dedicated ops_items columns. The `owner` field maps to the
 // owner_email column; every non-promoted field lives in ops_items.data.
 export const PROMOTED_KEYS = ["stage", "owner", "next_action", "next_action_date"] as const;

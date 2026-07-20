@@ -1,11 +1,14 @@
 // Founder dashboard: makes the current bottleneck obvious at a glance,
 // surfaces overdue work across every board, and upcoming funding deadlines.
 import Link from "next/link";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getBoards } from "@/lib/ops/config";
+import { createSupabaseServerClient, getSessionEmail } from "@/lib/supabase/server";
+import { getBoards, getFounders } from "@/lib/ops/config";
 import { boardBasePath } from "@/lib/ops/types";
-import type { OpsField, OpsItem } from "@/lib/ops/types";
+import type { OpsExpense, OpsField, OpsItem, OpsKpi } from "@/lib/ops/types";
+import { isCeoEmail } from "@/lib/ops/env";
 import { itemValue, primaryFieldKey } from "@/components/ops/format";
+import FinancePanel from "@/components/ops/FinancePanel";
+import KpiPanel from "@/components/ops/KpiPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -22,8 +25,19 @@ export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
   const today = todayISO();
 
-  const [boards, fieldsRes, instructorsRes, overdueActionsRes, obligationsRes, pipelineRes] =
-    await Promise.all([
+  const [
+    boards,
+    fieldsRes,
+    instructorsRes,
+    overdueActionsRes,
+    obligationsRes,
+    pipelineRes,
+    fundingRes,
+    expensesRes,
+    kpisRes,
+    founders,
+    email,
+  ] = await Promise.all([
       getBoards(),
       supabase
         .from("ops_fields")
@@ -51,7 +65,27 @@ export default async function DashboardPage() {
         .select("id,board_id,stage,data,updated_at")
         .eq("board_id", "pipeline")
         .is("deleted_at", null),
+      supabase.from("ops_settings").select("value").eq("key", "funding_total_pence").maybeSingle(),
+      supabase
+        .from("ops_expenses")
+        .select("*")
+        .is("deleted_at", null)
+        .order("spent_on", { ascending: false }),
+      supabase
+        .from("ops_kpis")
+        .select("*")
+        .is("deleted_at", null)
+        .order("week_start", { ascending: false })
+        .order("created_at", { ascending: true }),
+      getFounders(),
+      getSessionEmail(),
     ]);
+
+  const fundingPence = Number(fundingRes.data?.value ?? 0) || 0;
+  const expenses = (expensesRes.data ?? []) as unknown as OpsExpense[];
+  const kpis = (kpisRes.data ?? []) as unknown as OpsKpi[];
+  const currentEmail = email ?? "";
+  const isCeo = isCeoEmail(currentEmail);
 
   const boardName = (id: string) => boards.find((b) => b.id === id)?.name ?? id;
 
@@ -247,6 +281,15 @@ export default async function DashboardPage() {
           </ul>
         </section>
       </div>
+
+      <FinancePanel initialFundingPence={fundingPence} initialExpenses={expenses} />
+
+      <KpiPanel
+        initialKpis={kpis}
+        founders={founders}
+        isCeo={isCeo}
+        currentEmail={currentEmail}
+      />
     </div>
   );
 }

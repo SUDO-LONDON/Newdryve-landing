@@ -39,6 +39,20 @@ export function isFounderEmail(email: string | null | undefined): boolean {
   return FOUNDER_ALLOWLIST.includes(email.trim().toLowerCase());
 }
 
+/**
+ * The CEO email. The CEO is the only founder permitted to create/assign weekly
+ * KPIs. Mirrored in Postgres by ops_is_ceo() (allowlist role = 'CEO').
+ */
+export const CEO_EMAIL: string = (process.env.OPS_CEO_EMAIL || "sinan@newdryve.com")
+  .trim()
+  .toLowerCase();
+
+/** Case-insensitive CEO check. */
+export function isCeoEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return email.trim().toLowerCase() === CEO_EMAIL;
+}
+
 /** Fail fast in server contexts if core Supabase config is missing. */
 export function assertSupabaseEnv(): void {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {

@@ -21,6 +21,9 @@ supabase db push            # applies everything in supabase/migrations/
 | `0004_ops_seed_allowlist.sql`| Founder allowlist — **edit emails first** |
 | `0005_ops_seed_obligations.sql` | Seeds the UEA Grow It grant obligations |
 | `0006_ops_storage.sql`       | Private `data-room` bucket + storage RLS |
+| `0007_ops_performance_indexes.sql` | Extra indexes for dashboard/board queries |
+| `0008_ops_finance_kpis.sql`  | `ops_settings` (funding total), `ops_expenses`, `ops_kpis` + `ops_is_ceo()` + RLS |
+| `0009_ops_receipts_storage.sql` | Private `receipts` bucket (expense photos) + storage RLS |
 
 ## Before going live
 
