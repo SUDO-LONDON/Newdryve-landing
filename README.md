@@ -28,6 +28,7 @@ npm run dev                  # http://localhost:3000
 | `npm run build` | Production build                         |
 | `npm run start` | Serve the production build               |
 | `npm run lint`  | ESLint                                   |
+| `npm run railway:deploy` | Set ops Supabase env vars on Railway from `.env.local`, then deploy |
 
 ## Environment variables
 
@@ -87,6 +88,8 @@ The page ships:
 The site is a standard Next.js App Router project. Deploy anywhere Next.js 16 runs (Vercel recommended). Set the two `NEXT_PUBLIC_*` env vars on the deploy target.
 
 If `newdryve.com` should serve this landing page while the existing backend remains unchanged, point `newdryve.com` at this Next.js app and set `BACKEND_ORIGIN` to the backend service's public origin, for example the Railway-generated backend domain. Next.js will proxy `/v1/*`, `/healthz`, and `/readyz` to that backend so existing API and webhook paths continue to work.
+
+For Railway, `npm run railway:deploy` reads `.env.local`, sets the ops Supabase variables on the linked Railway service, and runs `railway up`. Use `npm run railway:deploy -- -SkipDeploy` to update variables without deploying. Optional parameters: `-Environment`, `-Service`, and `-Project`.
 
 ## License
 

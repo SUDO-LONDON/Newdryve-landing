@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "railway:deploy": "powershell -ExecutionPolicy Bypass -File scripts/railway-deploy.ps1"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
