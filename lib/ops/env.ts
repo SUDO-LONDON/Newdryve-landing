@@ -53,6 +53,46 @@ export function isCeoEmail(email: string | null | undefined): boolean {
   return email.trim().toLowerCase() === CEO_EMAIL;
 }
 
+/**
+ * Discord incoming webhook for delivery-pipeline notifications (SECRET,
+ * server-only). Unset simply disables notifications — the pipeline itself
+ * keeps working, so a missing webhook is never a hard failure.
+ */
+export const DISCORD_WEBHOOK_URL: string = (process.env.OPS_DISCORD_WEBHOOK_URL || "").trim();
+
+/**
+ * Founder email -> Discord user id, as a JSON object string, e.g.
+ *   OPS_DISCORD_USER_IDS='{"deniz@newdryve.com":"123456789012345678"}'
+ * Only ids listed here are ever mentioned, which is also what stops a node
+ * title from being able to trigger a mass ping.
+ */
+const DISCORD_USER_IDS: Record<string, string> = (() => {
+  const raw = (process.env.OPS_DISCORD_USER_IDS || "").trim();
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const out: Record<string, string> = {};
+    for (const [email, id] of Object.entries(parsed)) {
+      if (typeof id === "string" && id.trim()) out[email.trim().toLowerCase()] = id.trim();
+    }
+    return out;
+  } catch {
+    // Bad JSON must not take the portal down; mentions degrade to plain names.
+    return {};
+  }
+})();
+
+/** Discord user id for a founder, or null if we have no mapping. */
+export function discordIdFor(email: string | null | undefined): string | null {
+  if (!email) return null;
+  return DISCORD_USER_IDS[email.trim().toLowerCase()] ?? null;
+}
+
+/** Absolute base URL of the ops portal, used for deep links in notifications. */
+export const OPS_BASE_URL: string = (
+  process.env.OPS_BASE_URL || "https://newdryve.com"
+).replace(/\/$/, "");
+
 /** Fail fast in server contexts if core Supabase config is missing. */
 export function assertSupabaseEnv(): void {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {

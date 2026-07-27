@@ -105,6 +105,65 @@ export interface OpsKpi {
   deleted_at: string | null;
 }
 
+// ---------------------------------------------------------------------------
+// Delivery pipeline. A DAG of work: an edge means the `from` node must be done
+// before the `to` node can start. Completing a node can unlock someone else's
+// work, which is what fires the Discord ping.
+// ---------------------------------------------------------------------------
+
+export type PipelineTrack = "frontend" | "backend" | "cloud" | "ops";
+
+export const PIPELINE_TRACKS: PipelineTrack[] = ["frontend", "backend", "cloud", "ops"];
+
+/** Current state of a node, derived from its prerequisites. Never stored. */
+export type NodeStatus = "done" | "ready" | "blocked";
+
+export interface OpsPipelineNode {
+  id: string;
+  key: string;
+  title: string;
+  detail: string | null;
+  /** Definition of done — the agreed condition for ticking this node. */
+  dod: string | null;
+  track: PipelineTrack;
+  owner_email: string | null;
+  due_date: string | null; // YYYY-MM-DD
+  position: number;
+  done: boolean;
+  done_at: string | null;
+  done_by: string | null;
+  /** First moment every prerequisite was satisfied. Set once, never cleared. */
+  unlocked_at: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface OpsPipelineEdge {
+  id: string;
+  from_key: string;
+  to_key: string;
+  created_by: string | null;
+  created_at: string;
+}
+
+export type PipelineEventKind =
+  | "completed"
+  | "reopened"
+  | "unlocked"
+  | "notified"
+  | "notify_failed";
+
+export interface OpsPipelineEvent {
+  id: string;
+  node_key: string;
+  kind: PipelineEventKind;
+  actor_email: string | null;
+  detail: Record<string, unknown> | null;
+  created_at: string;
+}
+
 // A QR receipt-capture handoff session. The token is a single-use, 15-minute
 // capability that lets a phone upload one receipt photo against it.
 export type CaptureStatus = "pending" | "received" | "used" | "expired";

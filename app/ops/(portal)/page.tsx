@@ -4,11 +4,17 @@ import Link from "next/link";
 import { createSupabaseServerClient, getSessionEmail } from "@/lib/supabase/server";
 import { getBoards, getFounders } from "@/lib/ops/config";
 import { boardBasePath } from "@/lib/ops/types";
-import type { OpsExpense, OpsField, OpsItem, OpsKpi } from "@/lib/ops/types";
+import type {
+  OpsExpense,
+  OpsField,
+  OpsItem,
+  OpsPipelineEdge,
+  OpsPipelineNode,
+} from "@/lib/ops/types";
 import { isCeoEmail } from "@/lib/ops/env";
 import { itemValue, primaryFieldKey } from "@/components/ops/format";
 import FinancePanel from "@/components/ops/FinancePanel";
-import KpiPanel from "@/components/ops/KpiPanel";
+import PipelinePanel from "@/components/ops/PipelinePanel";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +40,8 @@ export default async function DashboardPage() {
     pipelineRes,
     fundingRes,
     expensesRes,
-    kpisRes,
+    pipelineNodesRes,
+    pipelineEdgesRes,
     founders,
     email,
   ] = await Promise.all([
@@ -72,18 +79,19 @@ export default async function DashboardPage() {
         .is("deleted_at", null)
         .order("spent_on", { ascending: false }),
       supabase
-        .from("ops_kpis")
+        .from("ops_pipeline_nodes")
         .select("*")
         .is("deleted_at", null)
-        .order("week_start", { ascending: false })
-        .order("created_at", { ascending: true }),
+        .order("position", { ascending: true }),
+      supabase.from("ops_pipeline_edges").select("*"),
       getFounders(),
       getSessionEmail(),
     ]);
 
   const fundingPence = Number(fundingRes.data?.value ?? 0) || 0;
   const expenses = (expensesRes.data ?? []) as unknown as OpsExpense[];
-  const kpis = (kpisRes.data ?? []) as unknown as OpsKpi[];
+  const pipelineNodes = (pipelineNodesRes.data ?? []) as unknown as OpsPipelineNode[];
+  const pipelineEdges = (pipelineEdgesRes.data ?? []) as unknown as OpsPipelineEdge[];
   const currentEmail = email ?? "";
   const isCeo = isCeoEmail(currentEmail);
 
@@ -284,8 +292,9 @@ export default async function DashboardPage() {
 
       <FinancePanel initialFundingPence={fundingPence} initialExpenses={expenses} />
 
-      <KpiPanel
-        initialKpis={kpis}
+      <PipelinePanel
+        initialNodes={pipelineNodes}
+        initialEdges={pipelineEdges}
         founders={founders}
         isCeo={isCeo}
         currentEmail={currentEmail}
