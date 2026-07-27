@@ -6,6 +6,6 @@ insert into public.ops_allowlist (email, name, role) values
   ('sinan@newdryve.com',   'Sinan Guckiran',    'CEO'),
   ('deniz@newdryve.com',   'Deniz Cem Dogan',   'CTO'),
   ('jed@newdryve.com',     'Jed Sam',           'CPO'),
-  ('kurtish@newdryve.com', 'Kurtish Mistry',    'CCO')
+  ('kurt@newdryve.com',    'Kurtish Mistry',    'CCO')
 on conflict (email) do update set
   name = excluded.name, role = excluded.role;
