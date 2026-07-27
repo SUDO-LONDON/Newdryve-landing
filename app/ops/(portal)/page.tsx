@@ -1,20 +1,12 @@
 // Founder dashboard: makes the current bottleneck obvious at a glance,
 // surfaces overdue work across every board, and upcoming funding deadlines.
 import Link from "next/link";
-import { createSupabaseServerClient, getSessionEmail } from "@/lib/supabase/server";
-import { getBoards, getFounders } from "@/lib/ops/config";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getBoards } from "@/lib/ops/config";
 import { boardBasePath } from "@/lib/ops/types";
-import type {
-  OpsExpense,
-  OpsField,
-  OpsItem,
-  OpsPipelineEdge,
-  OpsPipelineNode,
-} from "@/lib/ops/types";
-import { isCeoEmail } from "@/lib/ops/env";
+import type { OpsExpense, OpsField, OpsItem } from "@/lib/ops/types";
 import { itemValue, primaryFieldKey } from "@/components/ops/format";
 import FinancePanel from "@/components/ops/FinancePanel";
-import PipelinePanel from "@/components/ops/PipelinePanel";
 
 export const dynamic = "force-dynamic";
 
@@ -40,10 +32,6 @@ export default async function DashboardPage() {
     pipelineRes,
     fundingRes,
     expensesRes,
-    pipelineNodesRes,
-    pipelineEdgesRes,
-    founders,
-    email,
   ] = await Promise.all([
       getBoards(),
       supabase
@@ -78,23 +66,10 @@ export default async function DashboardPage() {
         .select("*")
         .is("deleted_at", null)
         .order("spent_on", { ascending: false }),
-      supabase
-        .from("ops_pipeline_nodes")
-        .select("*")
-        .is("deleted_at", null)
-        .order("position", { ascending: true }),
-      supabase.from("ops_pipeline_edges").select("*"),
-      getFounders(),
-      getSessionEmail(),
     ]);
 
   const fundingPence = Number(fundingRes.data?.value ?? 0) || 0;
   const expenses = (expensesRes.data ?? []) as unknown as OpsExpense[];
-  const pipelineNodes = (pipelineNodesRes.data ?? []) as unknown as OpsPipelineNode[];
-  const pipelineEdges = (pipelineEdgesRes.data ?? []) as unknown as OpsPipelineEdge[];
-  const currentEmail = email ?? "";
-  const isCeo = isCeoEmail(currentEmail);
-
   const boardName = (id: string) => boards.find((b) => b.id === id)?.name ?? id;
 
   const fieldsByBoard = new Map<string, OpsField[]>();
@@ -291,14 +266,6 @@ export default async function DashboardPage() {
       </div>
 
       <FinancePanel initialFundingPence={fundingPence} initialExpenses={expenses} />
-
-      <PipelinePanel
-        initialNodes={pipelineNodes}
-        initialEdges={pipelineEdges}
-        founders={founders}
-        isCeo={isCeo}
-        currentEmail={currentEmail}
-      />
     </div>
   );
 }

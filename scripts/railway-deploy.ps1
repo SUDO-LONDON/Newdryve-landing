@@ -58,12 +58,32 @@ $requiredKeys = @(
   "OPS_SESSION_TIMEOUT_MINUTES"
 )
 
+# Pushed only when present and non-empty. The delivery pipeline works without
+# these — notifications just no-op — so an unset webhook must not block a deploy.
+$optionalKeys = @(
+  "OPS_DISCORD_WEBHOOK_URL",
+  "OPS_DISCORD_USER_IDS",
+  "OPS_BASE_URL"
+)
+
 $missing = @($requiredKeys | Where-Object {
   -not $envValues.ContainsKey($_) -or [string]::IsNullOrWhiteSpace($envValues[$_])
 })
 
 if ($missing.Count -gt 0) {
   throw "Missing required Railway variables in .env.local: $($missing -join ', ')"
+}
+
+$presentOptional = @($optionalKeys | Where-Object {
+  $envValues.ContainsKey($_) -and -not [string]::IsNullOrWhiteSpace($envValues[$_])
+})
+
+$skippedOptional = @($optionalKeys | Where-Object { $presentOptional -notcontains $_ })
+if ($skippedOptional.Count -gt 0) {
+  Write-Host "Optional variables not set in .env.local (skipping): $($skippedOptional -join ', ')"
+  if ($skippedOptional -contains "OPS_DISCORD_WEBHOOK_URL") {
+    Write-Host "  Delivery-pipeline unlocks will NOT notify Discord." -ForegroundColor Yellow
+  }
 }
 
 $scopeArgs = @("--environment", $Environment)
@@ -92,7 +112,7 @@ try {
 }
 
 Write-Host "Setting Railway variables from .env.local..."
-foreach ($key in $requiredKeys) {
+foreach ($key in ($requiredKeys + $presentOptional)) {
   $envValues[$key] | Invoke-Railway variable set $key --stdin --skip-deploys @scopeArgs | Out-Null
   Write-Host "  set $key"
 }

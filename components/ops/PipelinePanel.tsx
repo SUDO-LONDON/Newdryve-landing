@@ -267,7 +267,11 @@ export default function PipelinePanel({
               </li>
             ))}
             {tops.length === 0 && (
-              <p className="text-sm text-ink-muted">Nothing is ready — everything is done or blocked.</p>
+              <p className="text-sm text-ink-muted">
+                {nodes.length === 0
+                  ? "No tasks yet — add one to start the pipeline."
+                  : "Nothing is ready — everything is done or blocked."}
+              </p>
             )}
           </ul>
 
