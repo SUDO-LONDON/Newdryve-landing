@@ -4,6 +4,7 @@ import { MiniSlotPicker } from '@/components/landing/MiniSlotPicker';
 import { WaitlistForm } from '@/components/landing/WaitlistForm';
 import { SiteNav } from '@/components/landing/SiteNav';
 import { Reveal } from '@/components/landing/Reveal';
+import { RecoveryRedirect } from '@/components/landing/RecoveryRedirect';
 import {
   JsonLd,
   ORGANIZATION_JSONLD,
@@ -142,6 +143,7 @@ export default function LandingPage() {
   return (
     <>
       <JsonLd data={[ORGANIZATION_JSONLD, WEBSITE_JSONLD, FAQ_JSONLD, BREADCRUMB_JSONLD]} />
+      <RecoveryRedirect />
       <a
         href="#main"
         className={`sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-ink focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:font-bold ${focusRing}`}
