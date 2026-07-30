@@ -21,7 +21,7 @@ const sections = [
     body: [
       'Newdryve is operated by NEWDRYVE LTD, trading as NewDryve. NEWDRYVE LTD is a company registered in England and Wales with company number 17234490.',
       'Our registered office is 10 Greylag Close, Norwich, NR7 8FQ, England.',
-      'You can contact us at admin@newdryve.com.',
+      'You can contact us at support@newdryve.com.',
     ],
   },
   {
@@ -128,7 +128,7 @@ const sections = [
     title: '13. Refunds And Disputes',
     body: [
       'Refunds may depend on the lesson status, payment method, instructor evidence, cancellation timing and applicable consumer rights.',
-      'If you believe a charge is incorrect or you want to submit a complaint, contact admin@newdryve.com promptly with the booking details and the reason for the dispute.',
+      'If you believe a charge is incorrect or you want to submit a complaint, contact support@newdryve.com promptly with the booking details and the reason for the dispute.',
       'We may ask students and instructors for evidence such as messages, timestamps, location records, lesson notes or booking history.',
       'Newdryve will review complaints and disputes and decide the outcome reasonably based on the available information, applicable law, payment-provider rules and these Terms.',
       "Chargebacks or payment disputes made through a bank or payment provider may be handled under that provider's rules.",
@@ -287,7 +287,7 @@ const sections = [
   {
     title: '32. Contact',
     body: [
-      'Questions, complaints, cancellation disputes, refund requests and support queries should be sent to admin@newdryve.com.',
+      'Questions, complaints, cancellation disputes, refund requests and support queries should be sent to support@newdryve.com.',
       'Please include your account email, booking details and a short explanation so we can investigate efficiently.',
     ],
   },
@@ -309,7 +309,7 @@ export default function TermsPage() {
         </h1>
         <p className="mt-4 text-sm text-ink-secondary">Version 2026-07-30. Last updated 30 July 2026.</p>
         <p className="mt-6 rounded-2xl border border-blush-border bg-blush-surface px-5 py-4 text-sm leading-relaxed text-ink-secondary">
-          <strong className="text-ink">Operator:</strong> NEWDRYVE LTD, trading as NewDryve. Company number 17234490. Registered office: 10 Greylag Close, Norwich, NR7 8FQ, England. Contact <a href="mailto:admin@newdryve.com" className="font-semibold text-ink underline underline-offset-2">admin@newdryve.com</a>.
+          <strong className="text-ink">Operator:</strong> NEWDRYVE LTD, trading as NewDryve. Company number 17234490. Registered office: 10 Greylag Close, Norwich, NR7 8FQ, England. Contact <a href="mailto:support@newdryve.com" className="font-semibold text-ink underline underline-offset-2">support@newdryve.com</a>.
         </p>
 
         <div className="mt-10 space-y-8">
