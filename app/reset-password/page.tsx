@@ -38,19 +38,15 @@ function ResetPasswordForm() {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
-        detectSessionInUrl: false,
+        // Supports Supabase's default recovery redirect, which returns the
+        // recovery session in the URL fragment after email verification.
+        detectSessionInUrl: true,
       },
     });
   }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    if (!tokenHash || recoveryType !== "recovery") {
-      setState("error");
-      setMessage("This password reset link is incomplete. Request a new one from the Newdryve app.");
-      return;
-    }
 
     if (!supabase) {
       setState("error");
@@ -73,15 +69,25 @@ function ResetPasswordForm() {
     setState("submitting");
     setMessage("");
 
-    const { error: verificationError } = await supabase.auth.verifyOtp({
-      token_hash: tokenHash,
-      type: "recovery",
-    });
+    const { data: sessionData } = await supabase.auth.getSession();
 
-    if (verificationError) {
-      setState("error");
-      setMessage("This reset link has expired or has already been used. Request a new one from the Newdryve app.");
-      return;
+    if (!sessionData.session) {
+      if (!tokenHash || recoveryType !== "recovery") {
+        setState("error");
+        setMessage("This reset link has expired or has already been used. Request a new one from the Newdryve app.");
+        return;
+      }
+
+      const { error: verificationError } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: "recovery",
+      });
+
+      if (verificationError) {
+        setState("error");
+        setMessage("This reset link has expired or has already been used. Request a new one from the Newdryve app.");
+        return;
+      }
     }
 
     const { error: updateError } = await supabase.auth.updateUser({ password });
