@@ -38,6 +38,7 @@ export default function PrivacyPage() {
         <p className="mt-6 rounded-2xl border border-blush-border bg-blush-surface px-5 py-4 text-sm leading-relaxed text-ink-secondary">
           <strong className="text-ink">Data controller:</strong> NEWDRYVE LTD, trading as Newdryve, company number 17234490. Registered office: 10 Greylag Close, Norwich, NR7 8FQ, England. For privacy questions or requests, email{' '}
           <a href="mailto:support@newdryve.com" className="font-semibold text-ink underline underline-offset-2">support@newdryve.com</a>.
+          <span className="mt-2 block">The Newdryve iOS app is published on the App Store by JSDK SAGA LIMITED on behalf of NEWDRYVE LTD.</span>
         </p>
 
         <div className="mt-10 space-y-8">

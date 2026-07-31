@@ -22,6 +22,7 @@ const sections = [
       'Newdryve is operated by NEWDRYVE LTD, trading as NewDryve. NEWDRYVE LTD is a company registered in England and Wales with company number 17234490.',
       'Our registered office is 10 Greylag Close, Norwich, NR7 8FQ, England.',
       'You can contact us at support@newdryve.com.',
+      'The Newdryve iOS app is published on the App Store by JSDK SAGA LIMITED on behalf of NEWDRYVE LTD.',
     ],
   },
   {
