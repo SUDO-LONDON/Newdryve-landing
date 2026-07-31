@@ -19,5 +19,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
       },
     },
+    {
+      url: `${SITE_URL}/datadeletion`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.4,
+      alternates: {
+        languages: {
+          "en-GB": `${SITE_URL}/datadeletion`,
+        },
+      },
+    },
   ];
 }

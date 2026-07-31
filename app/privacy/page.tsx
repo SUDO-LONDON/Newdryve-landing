@@ -101,7 +101,7 @@ export default function PrivacyPage() {
           </Section>
 
           <Section title="9. Deleting your account">
-            <p>You can request account deletion through Account settings in the app or by emailing <a href="mailto:support@newdryve.com" className="font-semibold text-ink underline underline-offset-2">support@newdryve.com</a>. Deleting the app from your device does not delete your Newdryve account.</p>
+            <p>You can request account deletion through Account settings in the app, by using our <Link href="/datadeletion" className="font-semibold text-ink underline underline-offset-2">data deletion request form</Link>, or by emailing <a href="mailto:support@newdryve.com" className="font-semibold text-ink underline underline-offset-2">support@newdryve.com</a>. Deleting the app from your device does not delete your Newdryve account.</p>
           </Section>
 
           <Section title="10. Children">

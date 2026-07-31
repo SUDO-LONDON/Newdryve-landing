@@ -821,6 +821,9 @@ export default function LandingPage() {
               <Link href="/terms" className={`text-ink-secondary hover:text-ink motion-safe:transition-colors rounded-md ${focusRing}`}>
                 Terms
               </Link>
+              <Link href="/datadeletion" className={`text-ink-secondary hover:text-ink motion-safe:transition-colors rounded-md ${focusRing}`}>
+                Delete account
+              </Link>
               <a
                 href="https://instagram.com/newdryve"
                 target="_blank"

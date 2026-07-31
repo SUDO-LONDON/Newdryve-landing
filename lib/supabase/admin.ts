@@ -1,9 +1,9 @@
 import "server-only";
 
-// Service-role Supabase client. BYPASSES RLS — use only in server code after
-// the caller's founder identity has already been verified (getSessionEmail +
-// isFounderEmail). Reserved for: signed-URL generation for the private
-// data-room bucket, storage writes, audit-log inserts, and GDPR hard-deletes.
+// Service-role Supabase client. BYPASSES RLS — use only in server code with
+// strict route-level validation and authorization appropriate to the caller.
+// Reserved for: private storage, audit logs, privacy-request intake, and
+// confirmed GDPR hard-deletes.
 // Never import this into a client component or expose the key to the browser.
 import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_SERVICE_ROLE_KEY, SUPABASE_URL } from "@/lib/ops/env";
