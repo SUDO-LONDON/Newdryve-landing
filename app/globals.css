@@ -1,8 +1,10 @@
 @import "tailwindcss";
+@import "@fontsource-variable/dm-sans";
+@import "@fontsource-variable/fraunces";
 
 @theme inline {
-  --font-sans: "DM Sans", system-ui, sans-serif;
-  --font-display: Fraunces, Georgia, "Times New Roman", serif;
+  --font-sans: "DM Sans Variable", system-ui, sans-serif;
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
   --color-racing-green: var(--racing-green);
   --color-racing-green-dark: var(--racing-green-dark);
   --color-deep-rose: var(--deep-rose);
