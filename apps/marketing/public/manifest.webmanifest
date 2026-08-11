@@ -1,0 +1,26 @@
+{
+  "name": "Newdryve",
+  "short_name": "Newdryve",
+  "description": "Find a verified driving instructor in Norwich and book a lesson in under 60 seconds.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F0EDF0",
+  "theme_color": "#2D6A4F",
+  "orientation": "portrait",
+  "categories": ["education", "lifestyle", "travel"],
+  "lang": "en-GB",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

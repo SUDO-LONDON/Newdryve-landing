@@ -1,0 +1,269 @@
+---
+/**
+ * Waitlist form. Submits exactly as the previous React component did:
+ * POST /api/waitlist with JSON { email, role, postcode, name, notes }.
+ *
+ * No framework runtime: one small inline script handles submit, and the form
+ * carries a real `action`/`method` so it degrades to a normal POST if JS fails.
+ */
+interface Props {
+  id: string;
+  defaultRole?: 'student' | 'instructor';
+  /** Hides the learner/instructor toggle and locks the role. */
+  lockRole?: boolean;
+  submitLabel?: string;
+}
+
+const { id, defaultRole = 'student', lockRole = false, submitLabel } = Astro.props;
+
+const isInstructor = defaultRole === 'instructor';
+const label =
+  submitLabel || (isInstructor ? 'Apply as a founding instructor' : 'Join the Norwich waitlist');
+const inputClass =
+  'focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-base text-ink placeholder:text-ink-muted sm:text-sm';
+const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondary';
+---
+
+<div data-waitlist-root data-default-role={defaultRole}>
+  <form
+    id={id}
+    action="/api/waitlist"
+    method="post"
+    novalidate
+    data-waitlist-form
+    class="flex flex-col gap-5 rounded-2xl border border-border bg-white p-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.08)] sm:p-8"
+  >
+    {
+      !lockRole && (
+        <fieldset class="self-start">
+          <legend class="sr-only">I am a</legend>
+          <div class="inline-flex rounded-full border border-border bg-canvas p-1">
+            <label class="cursor-pointer">
+              <input
+                type="radio"
+                name="role"
+                value="student"
+                checked={!isInstructor}
+                class="peer sr-only"
+              />
+              <span class="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold text-ink-secondary transition-colors peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-racing-green peer-focus-visible:ring-offset-2">
+                I want lessons
+              </span>
+            </label>
+            <label class="cursor-pointer">
+              <input
+                type="radio"
+                name="role"
+                value="instructor"
+                checked={isInstructor}
+                class="peer sr-only"
+              />
+              <span class="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold text-ink-secondary transition-colors peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-racing-green peer-focus-visible:ring-offset-2">
+                I&rsquo;m an instructor
+              </span>
+            </label>
+          </div>
+        </fieldset>
+      )
+    }
+    {lockRole && <input type="hidden" name="role" value={defaultRole} />}
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="flex flex-col gap-1.5">
+        <label class={labelClass} for={`${id}-email`}>
+          Email <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+        </label>
+        <input
+          id={`${id}-email`}
+          name="email"
+          type="email"
+          required
+          autocomplete="email"
+          inputmode="email"
+          placeholder="you@example.com"
+          class={inputClass}
+        />
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label class={labelClass} for={`${id}-name`}>
+          Name <span class="font-medium normal-case tracking-normal text-ink-muted">(optional)</span>
+        </label>
+        <input
+          id={`${id}-name`}
+          name="name"
+          type="text"
+          autocomplete="name"
+          placeholder="First name"
+          class={inputClass}
+        />
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label class={labelClass} for={`${id}-postcode`}>
+        <span data-label-postcode>{isInstructor ? 'Where you teach' : 'Postcode or area'}</span>
+        <span class="font-medium normal-case tracking-normal text-ink-muted">(optional)</span>
+      </label>
+      <input
+        id={`${id}-postcode`}
+        name="postcode"
+        type="text"
+        autocomplete="postal-code"
+        data-placeholder-student="e.g. NR1 or Thorpe St Andrew"
+        data-placeholder-instructor="e.g. Norwich, Sprowston"
+        placeholder={isInstructor ? 'e.g. Norwich, Sprowston' : 'e.g. NR1 or Thorpe St Andrew'}
+        class={inputClass}
+      />
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label class={labelClass} for={`${id}-notes`}>
+        <span data-label-notes
+          >{isInstructor ? 'ADI number or experience' : 'Anything we should know'}</span
+        >
+        <span class="font-medium normal-case tracking-normal text-ink-muted">(optional)</span>
+      </label>
+      <textarea
+        id={`${id}-notes`}
+        name="notes"
+        rows="3"
+        data-placeholder-student="Beginner, automatic only, test booked for July"
+        data-placeholder-instructor="ADI-1234, transmission, years teaching, anything else"
+        placeholder={
+          isInstructor
+            ? 'ADI-1234, transmission, years teaching, anything else'
+            : 'Beginner, automatic only, test booked for July'
+        }
+        class={`${inputClass} resize-none`}></textarea>
+    </div>
+
+    <p data-waitlist-error role="alert" class="hidden text-sm font-semibold text-deep-rose-ink"></p>
+
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <button
+        type="submit"
+        data-waitlist-submit
+        class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-white transition-transform hover:bg-[#1a1a2c] disabled:cursor-not-allowed disabled:opacity-60 motion-safe:hover:-translate-y-0.5"
+      >
+        <span data-waitlist-submit-label data-label-student="Join the Norwich waitlist" data-label-instructor="Apply as a founding instructor">{label}</span>
+        <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path
+            d="M3 9L9 3M9 3H4.5M9 3V7.5"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <p class="text-xs text-ink-muted">No spam. We only email you about Newdryve.</p>
+    </div>
+  </form>
+
+  <div
+    data-waitlist-success
+    hidden
+    role="status"
+    class="rounded-2xl border border-border bg-white p-8 text-center"
+  >
+    <div
+      class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-racing-green/10 text-racing-green"
+    >
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+        <path
+          d="M5 11l4 4 8-9"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </div>
+    <h3 class="text-xl font-extrabold tracking-tight">You&rsquo;re on the list.</h3>
+    <p class="mt-2 text-sm text-ink-secondary">
+      We&rsquo;ll be in touch from <span class="font-semibold text-ink">hello@newdryve.com</span> as the
+      early-access cohort opens up.
+    </p>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-waitlist-root]').forEach((root) => {
+    const form = root.querySelector<HTMLFormElement>('[data-waitlist-form]');
+    const success = root.querySelector<HTMLElement>('[data-waitlist-success]');
+    const errorEl = root.querySelector<HTMLElement>('[data-waitlist-error]');
+    const button = root.querySelector<HTMLButtonElement>('[data-waitlist-submit]');
+    const buttonLabel = root.querySelector<HTMLElement>('[data-waitlist-submit-label]');
+    if (!form || !success || !errorEl || !button || !buttonLabel) return;
+
+    const postcodeLabel = root.querySelector<HTMLElement>('[data-label-postcode]');
+    const notesLabel = root.querySelector<HTMLElement>('[data-label-notes]');
+    const postcodeInput = form.querySelector<HTMLInputElement>('input[name="postcode"]');
+    const notesInput = form.querySelector<HTMLTextAreaElement>('textarea[name="notes"]');
+
+    const currentRole = () =>
+      (new FormData(form).get('role') as string) || root.dataset.defaultRole || 'student';
+
+    // Keep the copy in step with the selected role, matching the old component.
+    const syncRoleCopy = () => {
+      const instructor = currentRole() === 'instructor';
+      const suffix = instructor ? 'instructor' : 'student';
+      if (postcodeLabel) postcodeLabel.textContent = instructor ? 'Where you teach' : 'Postcode or area';
+      if (notesLabel)
+        notesLabel.textContent = instructor ? 'ADI number or experience' : 'Anything we should know';
+      if (postcodeInput) postcodeInput.placeholder = postcodeInput.dataset[`placeholder${suffix.charAt(0).toUpperCase()}${suffix.slice(1)}`] || '';
+      if (notesInput) notesInput.placeholder = notesInput.dataset[`placeholder${suffix.charAt(0).toUpperCase()}${suffix.slice(1)}`] || '';
+      buttonLabel.textContent =
+        (instructor ? buttonLabel.dataset.labelInstructor : buttonLabel.dataset.labelStudent) || '';
+    };
+
+    form.querySelectorAll<HTMLInputElement>('input[name="role"]').forEach((radio) =>
+      radio.addEventListener('change', syncRoleCopy)
+    );
+
+    let submitting = false;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (submitting) return;
+
+      const data = new FormData(form);
+      const payload = {
+        email: String(data.get('email') || ''),
+        role: currentRole(),
+        postcode: String(data.get('postcode') || ''),
+        name: String(data.get('name') || ''),
+        notes: String(data.get('notes') || ''),
+      };
+
+      submitting = true;
+      button.disabled = true;
+      const restoreLabel = buttonLabel.textContent;
+      buttonLabel.textContent = 'Sending...';
+      errorEl.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const body = (await res.json().catch(() => ({}))) as { error?: string };
+          throw new Error(body.error || 'Something went wrong. Please try again.');
+        }
+
+        form.hidden = true;
+        success.hidden = false;
+        success.focus?.();
+      } catch (err) {
+        errorEl.textContent =
+          err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+        errorEl.classList.remove('hidden');
+        buttonLabel.textContent = restoreLabel;
+      } finally {
+        submitting = false;
+        button.disabled = false;
+      }
+    });
+  });
+</script>

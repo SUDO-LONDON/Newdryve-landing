@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="132 43 590 590" role="img" aria-label="Newdryve favicon">
+  <defs>
+    <linearGradient id="shapeGrad" x1="158" y1="318" x2="691" y2="318" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#287450"/>
+      <stop offset="0.42" stop-color="#737064"/>
+      <stop offset="1" stop-color="#e34377"/>
+    </linearGradient>
+    <filter id="soften" x="-2%" y="-2%" width="104%" height="104%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0.15"/>
+    </filter>
+  </defs>
+
+  <path filter="url(#soften)" fill="url(#shapeGrad)" d="
+    M164 75
+    L295 75
+    L306 164
+    C346 96 414 63 487 63
+    C604 63 690 146 690 323
+    L690 612
+    L542 612
+    L542 329
+    C542 238 505 188 438 188
+    C361 188 314 246 314 329
+    L314 612
+    L164 612
+    Z"/>
+
+  <path fill="#ffffff" opacity="0.02" d="M306 164 C318 145 334 126 353 111 L314 329 Z"/>
+
+  <g fill="none" stroke="#f6eeee" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" opacity="0.94">
+    <path d="M239 112 L239 176"/>
+    <path d="M239 338 L239 401"/>
+    <path d="M239 451 L239 515"/>
+    <path d="M239 573 L239 580"/>
+    <path d="M239 290 L239 250 L280 224"/>
+    <path d="M317 193 C336 180 354 169 372 160"/>
+    <path d="M417 140 C440 134 463 130 480 130"/>
+    <path d="M528 139 C548 147 565 159 578 176"/>
+    <path d="M599 221 C607 252 610 270 610 282"/>
+    <path d="M610 307 L610 369"/>
+    <path d="M610 419 L610 483"/>
+    <path d="M610 532 L610 576"/>
+  </g>
+</svg>

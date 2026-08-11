@@ -1,0 +1,47 @@
+
+# The internal founder portal is disallowed for every crawler group, in
+# addition to being auth-gated and served from a separate host.
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /ops
+Disallow: /ops/
+
+User-agent: GPTBot
+Allow: /
+Disallow: /ops
+Disallow: /ops/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /ops
+Disallow: /ops/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /ops
+Disallow: /ops/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /ops
+Disallow: /ops/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /ops
+Disallow: /ops/
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /ops
+Disallow: /ops/
+
+User-agent: anthropic-ai
+Allow: /
+Disallow: /ops
+Disallow: /ops/
+
+Sitemap: https://newdryve.com/sitemap-index.xml
+Host: https://newdryve.com

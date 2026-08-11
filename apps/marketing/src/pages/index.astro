@@ -1,0 +1,438 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PhoneFrame from '../components/PhoneFrame.astro';
+import WaitlistForm from '../components/WaitlistForm.astro';
+import Faq from '../components/Faq.astro';
+import { APP, BRAND, FOUNDING_INSTRUCTORS } from '../config/site';
+import {
+  organizationSchema,
+  websiteSchema,
+  learnerServiceSchema,
+  faqSchema,
+  breadcrumbSchema,
+  type FaqItem,
+} from '../lib/schema';
+import appDiscover from '../assets/app-discover.png';
+import appProgress from '../assets/app-progress.png';
+
+const title = 'Driving Lessons in Norwich | Book an Instructor in 60 Seconds | Newdryve';
+const description =
+  'Find a verified, DBS-checked driving instructor in Norwich and book a lesson in under 60 seconds. See real availability, track your progress to test, and pay your instructor directly. Free to use.';
+
+const FAQ_ITEMS: readonly FaqItem[] = [
+  {
+    q: 'How much do driving lessons cost?',
+    a: 'Each instructor sets their own hourly rate, so prices vary. You can see every instructor’s rate before you book, with no booking fee added on top. Newdryve is free for learners: you pay your instructor for the lesson and nothing to us.',
+  },
+  {
+    q: 'How do I book a lesson?',
+    a: 'Open the app, browse verified instructors near you, and pick a slot from their real availability. Booking takes under 60 seconds. There are no phone calls, no voicemails and no waiting to hear back.',
+  },
+  {
+    q: 'Is Newdryve available in my area?',
+    a: 'Newdryve is live in Norwich and the surrounding Norfolk area, including Thorpe St Andrew, Hellesdon, Sprowston, Costessey and Wymondham. We are expanding across the UK from there. Join the waitlist and we will tell you when we reach your area.',
+  },
+  {
+    q: 'How do I pay for lessons?',
+    a: 'You add a card when you book, which secures the slot in your instructor’s diary. You are not charged upfront. You settle the lesson itself with your instructor.',
+  },
+  {
+    q: 'What happens if I need to cancel?',
+    a: 'Cancel with more than 24 hours’ notice and you are not charged. Inside 24 hours, half the lesson fee is charged and goes directly to your instructor to cover the slot they can no longer fill. Newdryve takes none of it.',
+  },
+  {
+    q: 'Are the instructors qualified?',
+    a: 'Every instructor on Newdryve is ADI-qualified and DBS-checked before their profile goes live. You can see their experience, specialisms and the areas they cover on their profile.',
+  },
+];
+
+const HOW_IT_WORKS = [
+  {
+    step: '01',
+    title: 'Find an instructor',
+    body: 'Browse ADI-qualified, DBS-checked instructors near you. Filter by manual or automatic, see their rate, specialisms and the areas they cover.',
+  },
+  {
+    step: '02',
+    title: 'Book in 60 seconds',
+    body: 'Pick a slot from their genuine availability and confirm. No phone tag, no voicemails, no waiting days for a reply.',
+  },
+  {
+    step: '03',
+    title: 'Track your progress',
+    body: 'See every lesson, the skills you have signed off and how close you are to test readiness, all in one place.',
+  },
+];
+
+const BENEFITS = [
+  {
+    title: 'Verified instructors only',
+    body: 'Every instructor is ADI-qualified and DBS-checked before they appear. No guesswork.',
+  },
+  {
+    title: 'Real availability',
+    body: 'You see genuine open slots, not a contact form. What you tap is what you get.',
+  },
+  {
+    title: 'Book instantly',
+    body: 'Under 60 seconds from opening the app to a confirmed lesson in your calendar.',
+  },
+  {
+    title: 'Track hours to test',
+    body: 'A clear view of your lessons, your skills and your test readiness as you go.',
+  },
+  {
+    title: 'Only pay for lessons you take',
+    body: 'Newdryve never charges learners a booking fee or platform fee. You pay your instructor for the lesson.',
+  },
+  {
+    title: 'Cancel fairly',
+    body: 'Free to cancel with more than 24 hours’ notice, with the rules stated up front rather than buried.',
+  },
+];
+
+const jsonLd = [
+  organizationSchema,
+  websiteSchema,
+  learnerServiceSchema,
+  faqSchema(FAQ_ITEMS),
+  breadcrumbSchema([{ name: 'Home', path: '/' }]),
+];
+
+const foundingInstructor = FOUNDING_INSTRUCTORS.people[0];
+---
+
+<BaseLayout title={title} description={description} path="/" jsonLd={jsonLd} audience="learner">
+  <!-- HERO -->
+  <section class="hero-bg relative overflow-hidden">
+    <div class="dot-pattern pointer-events-none absolute inset-0 opacity-50" aria-hidden="true"></div>
+    <div
+      class="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-5 pb-16 pt-10 md:grid-cols-[1.05fr_1fr] md:pb-24 md:pt-20 lg:gap-16"
+    >
+      <div class="min-w-0">
+        <span
+          class="inline-flex items-center gap-2 rounded-full border border-blush-border bg-blush-surface px-3 py-1.5 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink"
+        >
+          <span class="size-1.5 rounded-full bg-deep-rose" aria-hidden="true"></span>
+          Norwich
+        </span>
+
+        <h1
+          class="font-display mt-5 text-[clamp(38px,7vw,64px)] font-semibold leading-[1.03] tracking-[-1.5px] text-balance"
+        >
+          Find a driving instructor in Norwich. <span class="gradient-text">Book in 60 seconds.</span>
+        </h1>
+
+        <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-secondary text-pretty">
+          Newdryve is the app that shows you verified driving instructors near you, with their real
+          availability. Pick a slot, book it, and get on with learning to drive. Free for learners.
+        </p>
+
+        <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <a
+            href="#join"
+            class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] motion-safe:hover:-translate-y-0.5"
+          >
+            Join the Norwich waitlist
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path
+                d="M2.5 6h7M6 2.5 9.5 6 6 9.5"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+          </a>
+          <a
+            href="/instructors"
+            class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-border bg-white px-6 py-3.5 text-sm font-bold text-ink transition-transform hover:border-ink motion-safe:hover:-translate-y-0.5"
+          >
+            I&rsquo;m an instructor
+          </a>
+        </div>
+
+        {
+          APP.android.live && (
+            <p class="mt-4 text-sm text-ink-secondary">
+              Android app is live on <a
+                href={APP.android.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="focus-ring rounded font-semibold text-racing-green underline underline-offset-2"
+                >Google Play</a
+              >. iOS is in review.
+            </p>
+          )
+        }
+
+        <p class="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-secondary">
+          <span class="inline-flex items-center gap-1.5 font-semibold text-racing-green">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"></circle>
+              <path
+                d="M4 7l2 2 4-4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+            Verified, DBS-checked instructors
+          </span>
+        </p>
+      </div>
+
+      <div class="flex justify-center md:justify-end">
+        <PhoneFrame
+          src={appDiscover}
+          alt="The Newdryve app showing a list of driving instructors in Norwich, each with their hourly rate, specialisms, pickup areas and available slots."
+          caption="A preview of the Newdryve app. Instructor profiles shown are sample data."
+          loading="eager"
+          float
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST STRIP -->
+  <section aria-label="Why Newdryve is trustworthy" class="border-y border-border bg-white">
+    <ul class="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-2 px-5 py-5 text-center">
+      {
+        ['ADI-qualified instructors', 'DBS-checked', 'No booking fees for learners', 'Built in Norwich'].map(
+          (item) => (
+            <li class="inline-flex items-center gap-2 text-sm font-semibold text-ink-secondary">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" class="text-ink-muted">
+                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5" />
+                <path d="M4 7l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              {item}
+            </li>
+          )
+        )
+      }
+    </ul>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works" class="bg-canvas">
+    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
+      <div class="reveal max-w-2xl">
+        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+          How it works
+        </p>
+        <h2
+          class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
+        >
+          Three steps to your next lesson.
+        </h2>
+      </div>
+
+      <ol class="mt-12 grid gap-6 md:grid-cols-3">
+        {
+          HOW_IT_WORKS.map((item, index) => (
+            <li
+              class="reveal rounded-2xl border border-border bg-white p-7"
+              data-reveal-delay={index * 100}
+            >
+              <span class="font-display text-3xl font-semibold text-ink-muted tabular-nums">
+                {item.step}
+              </span>
+              <h3 class="mt-4 text-xl font-bold tracking-[-0.3px]">{item.title}</h3>
+              <p class="mt-2.5 text-sm leading-relaxed text-ink-secondary">{item.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- WHY NEWDRYVE -->
+  <section id="why" class="border-y border-border bg-white">
+    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
+      <div class="grid items-center gap-12 md:grid-cols-[1fr_auto] lg:gap-20">
+        <div>
+          <div class="reveal max-w-xl">
+            <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+              Why Newdryve
+            </p>
+            <h2
+              class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
+            >
+              Everything you need to pass, in one app.
+            </h2>
+          </div>
+
+          <ul class="mt-10 grid gap-x-8 gap-y-7 sm:grid-cols-2">
+            {
+              BENEFITS.map((benefit, index) => (
+                <li class="reveal" data-reveal-delay={index * 60}>
+                  <div class="flex items-start gap-3">
+                    <span
+                      class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-racing-green/10 text-racing-green"
+                      aria-hidden="true"
+                    >
+                      <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 7l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </span>
+                    <div>
+                      <h3 class="text-base font-bold tracking-[-0.2px]">{benefit.title}</h3>
+                      <p class="mt-1 text-sm leading-relaxed text-ink-secondary">{benefit.body}</p>
+                    </div>
+                  </div>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div class="flex justify-center">
+          <PhoneFrame
+            src={appProgress}
+            alt="The Newdryve app progress screen showing test readiness at 30 percent, with 8 of 27 skills marked competent, a list of strengths including cockpit drill and steering control, and areas to focus on next such as roundabouts and parallel parking."
+            caption="Track your skills and test readiness lesson by lesson."
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HONEST LAUNCH FRAMING -->
+  <section class="bg-canvas">
+    <div class="mx-auto max-w-4xl px-5 py-16 text-center md:py-24">
+      <div class="reveal">
+        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+          Launching in Norwich now
+        </p>
+        <h2
+          class="font-display text-[clamp(28px,4vw,40px)] font-semibold leading-[1.1] tracking-[-1px] text-balance"
+        >
+          We are starting small, in one city, on purpose.
+        </h2>
+        <p class="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-ink-secondary text-pretty">
+          Newdryve is new. Rather than claim a crowd we do not have, here is exactly where we are:
+          the Android app is live, iOS is in review, and we are hand-picking the founding
+          instructors in Norwich one at a time. No inflated numbers and no invented reviews.
+        </p>
+
+        {
+          FOUNDING_INSTRUCTORS.show && foundingInstructor && (
+            <div class="mx-auto mt-9 max-w-md rounded-2xl border border-border bg-white p-7">
+              <p class="text-[11px] font-bold uppercase tracking-[1px] text-ink-muted">
+                Our first founding instructor
+              </p>
+              <p class="font-display mt-2 text-2xl font-semibold tracking-[-0.5px]">
+                {foundingInstructor.name}
+              </p>
+              {foundingInstructor.area && (
+                <p class="mt-1 text-sm text-ink-secondary">{foundingInstructor.area}</p>
+              )}
+              {foundingInstructor.quote && (
+                <blockquote class="mt-4 text-sm leading-relaxed text-ink-secondary">
+                  &ldquo;{foundingInstructor.quote}&rdquo;
+                </blockquote>
+              )}
+              {foundingInstructor.website && (
+                <a
+                  href={foundingInstructor.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="focus-ring mt-4 inline-flex min-h-11 items-center rounded text-sm font-semibold text-racing-green underline underline-offset-2"
+                >
+                  Visit their website
+                </a>
+              )}
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="border-y border-border bg-white">
+    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
+      <div class="reveal mx-auto mb-10 max-w-2xl text-center">
+        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+          Frequently asked
+        </p>
+        <h2
+          class="font-display text-[clamp(30px,4.5vw,44px)] font-semibold leading-[1.1] tracking-[-1px] text-balance"
+        >
+          Learner questions.
+        </h2>
+      </div>
+      <Faq items={FAQ_ITEMS} />
+    </div>
+  </section>
+
+  <!-- SIGNUP -->
+  <section id="join" class="scroll-mt-20 bg-canvas">
+    <div class="mx-auto max-w-3xl px-5 py-16 md:py-24">
+      <div class="reveal mb-8 text-center">
+        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+          For learners
+        </p>
+        <h2
+          class="font-display text-[clamp(28px,4vw,40px)] font-semibold leading-[1.1] tracking-[-1px] text-balance"
+        >
+          Join the Norwich waitlist.
+        </h2>
+        <p class="mx-auto mt-4 max-w-xl text-base leading-relaxed text-ink-secondary">
+          Tell us where you are and we will let you know as instructors open up near you.
+        </p>
+      </div>
+      <WaitlistForm id="waitlist-learner" defaultRole="student" />
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="relative overflow-hidden bg-racing-green text-white">
+    <div class="mx-auto max-w-4xl px-5 py-16 text-center md:py-20">
+      <h2
+        class="font-display text-[clamp(30px,5vw,48px)] font-semibold leading-[1.05] tracking-[-1px] text-balance"
+      >
+        Learning to drive in Norwich?
+      </h2>
+      <p class="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/80 text-pretty">
+        Find a verified instructor, see when they are actually free, and book your first lesson.
+      </p>
+      <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <a
+          href="#join"
+          class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-racing-green transition-transform motion-safe:hover:-translate-y-0.5"
+        >
+          Join the waitlist
+        </a>
+        {
+          APP.android.live && (
+            <a
+              href={APP.android.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-white/30 px-6 py-3.5 text-sm font-bold text-white transition-transform hover:bg-white/10 motion-safe:hover:-translate-y-0.5"
+            >
+              Get it on Google Play
+            </a>
+          )
+        }
+      </div>
+      <p class="mt-6 text-sm text-white/70">
+        Questions? Email <a
+          href={`mailto:${BRAND.email}`}
+          class="focus-ring rounded font-semibold text-white underline underline-offset-2"
+          >{BRAND.email}</a
+        >.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // Supabase password-recovery links land on "/" with the recovery session in
+  // the URL fragment. Forward them to the reset form, fragment intact.
+  // Ported from components/landing/RecoveryRedirect.tsx.
+  const params = new URLSearchParams(window.location.hash.slice(1));
+  if (params.get('type') === 'recovery' && params.has('access_token')) {
+    window.location.replace(`/reset-password${window.location.hash}`);
+  }
+</script>

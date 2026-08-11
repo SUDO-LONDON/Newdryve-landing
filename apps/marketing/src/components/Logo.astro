@@ -1,0 +1,53 @@
+---
+interface Props {
+  size?: number;
+  /** Renders the wordmark in white for use on dark bands. */
+  inverted?: boolean;
+}
+
+const { size = 22, inverted = false } = Astro.props;
+
+// Brand "n" mark from assets/logo/newdryve-logo.svg: gradient glyph with a
+// dashed-road motif clipped inside the letterform.
+const nPath =
+  'M29.596 64 L20.356 64 L20.356 30.736 L28.474 30.736 L29.134 36.148 Q30.652 33.376 33.457 31.66 Q36.262 29.944 40.222 29.944 Q44.314 29.944 47.152 31.693 Q49.99 33.442 51.475 36.742 Q52.96 40.042 52.96 44.86 L52.96 64 L43.786 64 L43.786 45.718 Q43.786 41.89 42.169 39.811 Q40.552 37.732 37.054 37.732 Q34.942 37.732 33.226 38.755 Q31.51 39.778 30.553 41.659 Q29.596 43.54 29.596 46.246 L29.596 64 Z';
+
+const markSize = size + 6;
+const green = inverted ? '#FFFFFF' : '#2D6A4F';
+const rose = inverted ? '#FFFFFF' : '#E8527A';
+---
+
+<span class="inline-flex items-center gap-2" translate="no">
+  <svg
+    width={markSize}
+    height={markSize}
+    viewBox="18 29 37 37"
+    fill="none"
+    aria-hidden="true"
+    class="shrink-0"
+  >
+    <defs>
+      <linearGradient id="nd-grad" gradientUnits="userSpaceOnUse" x1="20" y1="40" x2="53" y2="40">
+        <stop offset="0%" stop-color={green} />
+        <stop offset="100%" stop-color={rose} />
+      </linearGradient>
+      <clipPath id="nd-n-clip">
+        <path d={nPath} />
+      </clipPath>
+    </defs>
+    <path d={nPath} fill="url(#nd-grad)" />
+    <g clip-path="url(#nd-n-clip)" opacity="0.75">
+      <line x1="25" y1="33" x2="25" y2="62" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"></line>
+      <path d="M 25 43 C 30 35 48 27 48 45" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3" fill="none"></path>
+      <line x1="48" y1="45" x2="48" y2="62" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 3"></line>
+    </g>
+  </svg>
+  <span
+    class="font-extrabold leading-none tracking-tight"
+    style={`font-size:${size}px;letter-spacing:-0.5px`}
+  >
+    <span style={`color:${green}`}>newdr</span><span style={`color:${rose}`}>y</span><span
+      style={`color:${green}`}>ve</span
+    >
+  </span>
+</span>

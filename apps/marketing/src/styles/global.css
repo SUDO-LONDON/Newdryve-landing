@@ -1,0 +1,162 @@
+@import 'tailwindcss';
+
+/* Self-hosted brand fonts, ported from the Next app's next/font setup so there
+   is no third-party font request and no layout shift on load. */
+@import '@fontsource-variable/dm-sans';
+@import '@fontsource-variable/fraunces';
+
+@theme inline {
+  --font-sans: 'DM Sans Variable', system-ui, sans-serif;
+  --font-display: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+  --color-racing-green: var(--racing-green);
+  --color-racing-green-dark: var(--racing-green-dark);
+  --color-deep-rose: var(--deep-rose);
+  --color-deep-rose-ink: var(--deep-rose-ink);
+  --color-blush-surface: var(--blush-surface);
+  --color-blush-border: var(--blush-border);
+  --color-canvas: var(--canvas);
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+}
+
+/* Brand palette, preserved exactly from the existing site (app/globals.css).
+   Racing Green and Deep Rose are the identity; do not substitute. */
+:root {
+  --racing-green: #2d6a4f;
+  --racing-green-dark: #2d7a56;
+  --deep-rose: #e8527a;
+  /* Darkened rose reserved for small text on light backgrounds. #E8527A on
+     white is 3.1:1 and fails WCAG AA for body copy; this is 4.6:1. */
+  --deep-rose-ink: #c13b60;
+  --blush-surface: #f8f2f4;
+  --blush-border: #ede0e5;
+  --canvas: #f0edf0;
+  --ink: #0a0a14;
+  --ink-secondary: #5c5c73;
+  --ink-muted: #6f6f88;
+  --border: #e8e8f2;
+  --ring: #2d6a4f;
+  --radius: 0.625rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--canvas);
+    color: var(--ink);
+    /* `clip` rather than `hidden` so descendants cannot force a horizontal
+       scrollbar while sticky positioning still works. */
+    overflow-x: clip;
+  }
+
+  [id] {
+    scroll-margin-top: 5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    letter-spacing: -0.01em;
+  }
+
+  /* Brand gradient for display text. The stops are deliberately front-loaded:
+     a even green-to-rose ramp spends its middle in a muddy grey-brown that
+     reads as washed out at heading sizes, so the transition completes early
+     and the bulk of the phrase sits in legible rose. */
+  .gradient-text {
+    background: linear-gradient(100deg, var(--racing-green) 0%, var(--deep-rose) 38%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .dot-pattern {
+    background-image: radial-gradient(circle at 1px 1px, rgba(10, 10, 20, 0.06) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+
+  .hero-bg {
+    background:
+      radial-gradient(ellipse 80% 60% at 70% 20%, rgba(232, 82, 122, 0.1), transparent 70%),
+      radial-gradient(ellipse 60% 80% at 20% 80%, rgba(45, 106, 79, 0.08), transparent 70%),
+      var(--canvas);
+  }
+
+  /* Content is visible by default and animates on entry, so it can never get
+     stuck hidden if JS is slow, blocked or disabled. */
+  .reveal.is-visible {
+    animation: reveal-in 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes reveal-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .float-slow {
+    animation: float-slow 6s ease-in-out infinite;
+  }
+
+  @keyframes float-slow {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  /* Every interactive element uses this single focus treatment. */
+  .focus-ring:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--canvas),
+      0 0 0 4px var(--racing-green);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal.is-visible,
+  .float-slow {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

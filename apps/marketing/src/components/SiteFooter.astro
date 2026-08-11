@@ -1,0 +1,69 @@
+---
+import Logo from './Logo.astro';
+import { BRAND, APP } from '../config/site';
+
+const year = new Date().getFullYear();
+
+const footerLinks = [
+  { href: '/#how-it-works', label: 'How it works' },
+  { href: '/driving-lessons/norwich', label: 'Driving lessons Norwich' },
+  { href: '/test-centres', label: 'Test centres' },
+  { href: '/guides/driving-lesson-cost', label: 'Lesson costs' },
+  { href: '/guides/how-to-find-a-driving-instructor', label: 'Find an instructor' },
+  { href: '/instructors', label: 'For instructors' },
+  { href: '/instructors#pricing', label: 'Pricing' },
+  { href: '/#faq', label: 'FAQ' },
+  { href: '/privacy', label: 'Privacy Policy' },
+  { href: '/terms', label: 'Terms' },
+  { href: '/datadeletion', label: 'Delete account' },
+];
+---
+
+<footer class="border-t border-border bg-white">
+  <div
+    class="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-10 sm:flex-row sm:items-center sm:justify-between"
+  >
+    <a href="/" aria-label="Newdryve home" class="focus-ring -m-1 self-start rounded-md p-1">
+      <Logo size={20} />
+    </a>
+
+    <nav aria-label="Footer" class="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs font-semibold">
+      {
+        footerLinks.map((link) => (
+          <a
+            href={link.href}
+            class="focus-ring inline-flex min-h-11 items-center rounded-md text-ink-secondary transition-colors hover:text-ink"
+          >
+            {link.label}
+          </a>
+        ))
+      }
+      <a
+        href={BRAND.instagram}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="focus-ring inline-flex min-h-11 items-center rounded-md text-ink-secondary transition-colors hover:text-ink"
+      >
+        Instagram
+      </a>
+      {
+        APP.android.live && (
+          <a
+            href={APP.android.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="focus-ring inline-flex min-h-11 items-center rounded-md text-ink-secondary transition-colors hover:text-ink"
+          >
+            Google Play
+          </a>
+        )
+      }
+    </nav>
+  </div>
+
+  <div class="mx-auto max-w-6xl px-5 pb-8">
+    <p class="text-xs text-ink-muted">
+      &copy; {year} {BRAND.name}. All rights reserved. Built in {BRAND.city}.
+    </p>
+  </div>
+</footer>

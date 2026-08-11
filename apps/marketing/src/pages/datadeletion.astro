@@ -1,0 +1,249 @@
+---
+/**
+ * Ported from app/datadeletion/page.tsx. The form posts to /api/data-deletion
+ * with the same JSON contract as before: { firstName, lastName, email, phone }.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { organizationSchema, breadcrumbSchema } from '../lib/schema';
+
+const title = 'Request data deletion | Newdryve';
+const description = 'Ask Newdryve to delete your account and associated personal data.';
+
+const jsonLd = [
+  organizationSchema,
+  breadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'Request data deletion', path: '/datadeletion' },
+  ]),
+];
+
+const inputClass =
+  'focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-base text-ink placeholder:text-ink-muted sm:text-sm';
+const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondary';
+
+const steps = [
+  { badge: 'bg-racing-green', text: 'We match the details you provide with your Newdryve account.' },
+  { badge: 'bg-deep-rose', text: 'We contact you if we need more information to verify your identity.' },
+  {
+    badge: 'bg-ink',
+    text: 'We delete or anonymise eligible data and confirm when the request is complete.',
+  },
+];
+---
+
+<BaseLayout title={title} description={description} path="/datadeletion" jsonLd={jsonLd}>
+  <div class="relative overflow-hidden">
+    <div class="dot-pattern pointer-events-none absolute inset-0 opacity-40" aria-hidden="true"></div>
+
+    <div
+      class="relative mx-auto grid max-w-6xl gap-10 px-5 py-12 md:grid-cols-[0.9fr_1.1fr] md:items-start md:gap-16 md:py-20"
+    >
+      <div class="md:sticky md:top-24">
+        <p class="text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">Your privacy</p>
+        <h1
+          class="font-display mt-3 text-[clamp(36px,6vw,56px)] font-semibold leading-[1.02] tracking-[-1.2px] text-balance"
+        >
+          Request data deletion.
+        </h1>
+        <p class="mt-5 max-w-xl text-base leading-relaxed text-ink-secondary md:text-lg">
+          Submit the details linked to your Newdryve account and our team will review your request.
+          We may need to verify your identity before taking action.
+        </p>
+
+        <div class="mt-8 rounded-2xl border border-blush-border bg-blush-surface p-5">
+          <h2 class="text-sm font-extrabold text-ink">What happens next?</h2>
+          <ol class="mt-4 space-y-4 text-sm leading-relaxed text-ink-secondary">
+            {
+              steps.map((step, index) => (
+                <li class="flex gap-3">
+                  <span
+                    class={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${step.badge}`}
+                  >
+                    {index + 1}
+                  </span>
+                  <span>{step.text}</span>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </div>
+
+      <section aria-labelledby="deletion-form-heading">
+        <div class="mb-5">
+          <h2
+            id="deletion-form-heading"
+            class="font-display text-2xl font-semibold tracking-tight sm:text-3xl"
+          >
+            Your account details
+          </h2>
+          <p class="mt-2 text-sm leading-relaxed text-ink-secondary">
+            All fields are required. Use the email address and phone number associated with your
+            account.
+          </p>
+        </div>
+
+        <div data-deletion-root>
+          <form
+            action="/api/data-deletion"
+            method="post"
+            novalidate
+            data-deletion-form
+            class="flex flex-col gap-5 rounded-2xl border border-border bg-white p-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.08)] sm:p-8"
+          >
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="dd-first-name">First name</label>
+                <input
+                  id="dd-first-name"
+                  name="firstName"
+                  type="text"
+                  required
+                  autocomplete="given-name"
+                  class={inputClass}
+                />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="dd-last-name">Last name</label>
+                <input
+                  id="dd-last-name"
+                  name="lastName"
+                  type="text"
+                  required
+                  autocomplete="family-name"
+                  class={inputClass}
+                />
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class={labelClass} for="dd-email">Email address</label>
+              <input
+                id="dd-email"
+                name="email"
+                type="email"
+                required
+                autocomplete="email"
+                inputmode="email"
+                class={inputClass}
+              />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class={labelClass} for="dd-phone">Phone number</label>
+              <input
+                id="dd-phone"
+                name="phone"
+                type="tel"
+                required
+                autocomplete="tel"
+                inputmode="tel"
+                class={inputClass}
+              />
+            </div>
+
+            <p data-deletion-error role="alert" class="hidden text-sm font-semibold text-deep-rose-ink"></p>
+
+            <button
+              type="submit"
+              data-deletion-submit
+              class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-white transition-transform hover:bg-[#1a1a2c] disabled:cursor-not-allowed disabled:opacity-60 motion-safe:hover:-translate-y-0.5"
+            >
+              <span data-deletion-submit-label>Submit deletion request</span>
+            </button>
+          </form>
+
+          <div
+            data-deletion-success
+            hidden
+            role="status"
+            class="rounded-2xl border border-border bg-white p-8 text-center"
+          >
+            <div
+              class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-racing-green/10 text-racing-green"
+            >
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                <path
+                  d="M5 11l4 4 8-9"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-extrabold tracking-tight">Request received.</h3>
+            <p class="mt-2 text-sm text-ink-secondary">
+              We will review your request and contact you at the email address you provided.
+            </p>
+          </div>
+        </div>
+
+        <p class="mt-5 text-xs leading-relaxed text-ink-muted">
+          Some records may need to be retained where required by law or for fraud prevention,
+          disputes, tax or accounting purposes. See our <a
+            href="/privacy"
+            class="focus-ring rounded font-semibold text-ink underline underline-offset-2"
+            >Privacy Policy</a
+          > for details.
+        </p>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-deletion-root]');
+  if (root) {
+    const form = root.querySelector<HTMLFormElement>('[data-deletion-form]');
+    const success = root.querySelector<HTMLElement>('[data-deletion-success]');
+    const errorEl = root.querySelector<HTMLElement>('[data-deletion-error]');
+    const button = root.querySelector<HTMLButtonElement>('[data-deletion-submit]');
+    const buttonLabel = root.querySelector<HTMLElement>('[data-deletion-submit-label]');
+
+    if (form && success && errorEl && button && buttonLabel) {
+      let submitting = false;
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (submitting) return;
+
+        const data = new FormData(form);
+        const payload = {
+          firstName: String(data.get('firstName') || ''),
+          lastName: String(data.get('lastName') || ''),
+          email: String(data.get('email') || ''),
+          phone: String(data.get('phone') || ''),
+        };
+
+        submitting = true;
+        button.disabled = true;
+        buttonLabel.textContent = 'Sending...';
+        errorEl.classList.add('hidden');
+
+        try {
+          const res = await fetch('/api/data-deletion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok) {
+            const body = (await res.json().catch(() => ({}))) as { error?: string };
+            throw new Error(body.error || 'Something went wrong. Please try again.');
+          }
+
+          form.hidden = true;
+          success.hidden = false;
+        } catch (err) {
+          errorEl.textContent =
+            err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+          errorEl.classList.remove('hidden');
+          buttonLabel.textContent = 'Submit deletion request';
+        } finally {
+          submitting = false;
+          button.disabled = false;
+        }
+      });
+    }
+  }
+</script>

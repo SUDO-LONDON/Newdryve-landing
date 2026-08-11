@@ -1,0 +1,20 @@
+- generic [active] [ref=e1] [box=0,0,1905,2574]:
+  - link "Skip to content" [ref=e2] [cursor=pointer] [box=-1,-1,1,1]:
+    - /url: "#main"
+  - banner [ref=e3] [box=0,0,1905,65]:
+    - navigation "Primary" [ref=e4] [box=377,0,1152,64]:
+      - link "Newdryve home" [ref=e5] [cursor=pointer] [box=393,14,147,36]:
+        - /url: /
+      - generic [ref=e12] [box=731,14,439,36]
+      - link "Join the waitlist" [ref=e19] [cursor=pointer] [box=1366,10,142,44]:
+        - /url: /#join
+  - main [ref=e21] [box=0,65,1905,2288]:
+    - article [ref=e22] [box=0,65,1905,2288]:
+      - generic [ref=e24] [box=377,65,1152,624]
+      - generic [ref=e56] [box=377,690,1152,1663]
+  - contentinfo [ref=e124] [box=0,2353,1905,221]:
+    - generic [ref=e125] [box=377,2354,1152,172]:
+      - link "Newdryve home" [ref=e126] [cursor=pointer] [box=393,2390,135,41]:
+        - /url: /
+      - navigation "Footer" [ref=e133] [box=547,2394,961,92]
+    - paragraph [ref=e148] [box=397,2526,1112,16]: © 2026 Newdryve. All rights reserved. Built in Norwich.

@@ -1,0 +1,35 @@
+- generic [active] [ref=e1] [box=0,0,1905,3023]:
+  - link "Skip to content" [ref=e2] [cursor=pointer] [box=-1,-1,1,1]:
+    - /url: "#main"
+  - banner [ref=e3] [box=0,0,1905,65]:
+    - navigation "Primary" [ref=e4] [box=377,0,1152,64]:
+      - link "Newdryve home" [ref=e5] [cursor=pointer] [box=393,14,147,36]:
+        - /url: /
+      - generic [ref=e12] [box=731,14,439,36]
+      - link "Join the waitlist" [ref=e19] [cursor=pointer] [box=1366,10,142,44]:
+        - /url: /#join
+  - main [ref=e21] [box=0,65,1905,2737]:
+    - article [ref=e22] [box=0,65,1905,2737]:
+      - generic [ref=e24] [box=377,65,1152,559]
+      - generic [ref=e56] [box=377,625,1152,2177]
+  - contentinfo [ref=e143] [box=0,2802,1905,221]:
+    - generic [ref=e144] [box=377,2803,1152,172]:
+      - link "Newdryve home" [ref=e145] [cursor=pointer] [box=393,2839,135,41]:
+        - /url: /
+      - navigation "Footer" [ref=e152] [box=547,2843,961,92]
+    - paragraph [ref=e167] [box=397,2975,1112,16]: © 2026 Newdryve. All rights reserved. Built in Norwich.
+  - generic [ref=e170] [box=305,0,1280,1397]:
+    - generic [ref=e171] [box=1476,43,66,30]:
+      - checkbox "Use dark theme" [ref=e172] [box=1480,46,13,13]
+      - generic [ref=e173] [cursor=pointer] [box=1469,40,79,36]: Use dark theme
+    - banner [ref=e183] [box=345,112,1200,63]:
+      - generic [ref=e184] [box=345,112,1200,63]
+    - generic [ref=e192] [box=345,199,1200,512]:
+      - generic [ref=e193] [box=345,199,1200,448]
+      - generic [ref=e207] [box=401,664,1128,31]
+    - generic [ref=e211] [box=345,735,1200,75]:
+      - 'heading "index.mjs: ERROR: Could not resolve \"./tracingRegistry.mjs\":1:46" [level=2] [ref=e212] [box=369,759,675,27]'
+      - button "Open in editor" [ref=e214] [box=1354,759,167,21]
+    - generic [ref=e218] [box=345,834,1200,523]:
+      - generic [ref=e219] [box=345,834,1200,82]
+      - generic [ref=e226] [box=345,916,1200,441]: "UnhandledRejection: Astro detected an unhandled rejection. Here's the stack trace: Error: Build failed with 24 errors: error: Cannot read directory \"../../../../..\": Access is denied. node_modules/@supabase/supabase-js/dist/index.mjs:1:46: ERROR: Could not resolve \"./tracingRegistry.mjs\" node_modules/aria-query/lib/index.js:7:51: ERROR: Could not resolve \"./ariaPropsMap\" node_modules/aria-query/lib/index.js:8:45: ERROR: Could not resolve \"./domMap\" node_modules/aria-query/lib/index.js:9:47: ERROR: Could not resolve \"./rolesMap\" ... at failureErrorWithLog (C:\\Users\\sinan\\IdeaProjects\\coursework\\Newdryve-landing\\apps\\marketing\\node_modules\\vite\\node_modules\\esbuild\\lib\\main.js:1467:15) at C:\\Users\\sinan\\IdeaProjects\\coursework\\Newdryve-landing\\apps\\marketing\\node_modules\\vite\\node_modules\\esbuild\\lib\\main.js:926:25 at C:\\Users\\sinan\\IdeaProjects\\coursework\\Newdryve-landing\\apps\\marketing\\node_modules\\vite\\node_modules\\esbuild\\lib\\main.js:1345:9 at process.processTicksAndRejections (node:internal/process/task_queues:103:5) at process.handleUnhandledRejection (file:///C:/Users/sinan/IdeaProjects/coursework/Newdryve-landing/apps/marketing/node_modules/astro/dist/vite-plugin-astro-server/plugin.js:116:62) at process.emit (node:events:508:28) at emitUnhandledRejection (node:internal/process/promises:252:13) at throwUnhandledRejectionsMode (node:internal/process/promises:388:19) at processPromiseRejections (node:internal/process/promises:475:17) at process.processTicksAndRejections (node:internal/process/task_queues:104:32)"

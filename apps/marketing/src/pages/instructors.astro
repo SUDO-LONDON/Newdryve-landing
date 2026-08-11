@@ -1,0 +1,454 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PhoneFrame from '../components/PhoneFrame.astro';
+import WaitlistForm from '../components/WaitlistForm.astro';
+import Faq from '../components/Faq.astro';
+import { PRICING, BRAND } from '../config/site';
+import {
+  organizationSchema,
+  instructorAppSchema,
+  faqSchema,
+  breadcrumbSchema,
+  type FaqItem,
+} from '../lib/schema';
+import appInstructorProfile from '../assets/app-instructor-profile.png';
+
+const title = 'The Driving Instructor App That Brings You New Learners | Newdryve';
+const description =
+  'Newdryve is a marketplace, not diary software. Get discovered by new learners in your area, and get paid automatically when someone cancels late. 0% commission, £29/month, free until your first booking.';
+
+const FAQ_ITEMS: readonly FaqItem[] = [
+  {
+    q: 'How do I get paid?',
+    a: 'You keep 100% of every lesson fee. Newdryve takes 0% commission, so the money for the lesson is yours in full. The only thing you pay us is the flat £29 monthly subscription.',
+  },
+  {
+    q: 'How does the late cancellation charge actually work?',
+    a: 'The learner adds a card when they book, which secures the slot. Nothing is charged at that point. If they cancel within 24 hours of the lesson, Newdryve automatically charges 50% of the lesson fee and passes it straight to you. We take no cut of that fee.',
+  },
+  {
+    q: 'Do I keep my own pricing?',
+    a: 'Yes. You set your own hourly rate, your own availability and the areas you cover. Newdryve never sets your prices or takes a percentage of them.',
+  },
+  {
+    q: 'What areas do you cover?',
+    a: 'Newdryve is live in Norwich and the surrounding Norfolk area, and we are expanding across the UK from there. We are also building towards HGV, motorcycle and trade instruction. If you teach outside Norwich, apply anyway and we will tell you when we reach you.',
+  },
+  {
+    q: 'How do I join?',
+    a: 'Apply on this page with your ADI details. We are onboarding founding instructors in small groups so we can get each one set up properly. You pay nothing until your first booking comes through.',
+  },
+  {
+    q: 'What do I need to qualify?',
+    a: 'You need to be ADI-qualified and willing to complete a DBS check. We verify both before your profile goes live, because that verification is what learners trust.',
+  },
+];
+
+const SOLUTION = [
+  {
+    step: '01',
+    title: 'Get discovered by new learners',
+    body: 'Your profile appears to learners searching in your area, with your rate, your specialisms and your real availability. These are pupils you did not already have.',
+    accent: 'green' as const,
+  },
+  {
+    step: '02',
+    title: 'They book with a card on file',
+    body: 'The learner picks a slot and confirms with a card. Nothing is charged upfront. The slot in your diary is simply protected from that moment.',
+    accent: 'green' as const,
+  },
+  {
+    step: '03',
+    title: 'Cancel late and you are paid automatically',
+    body: 'If they cancel inside 24 hours, Newdryve charges 50% of the lesson fee and pays it straight to you. No awkward conversation, no chasing, no writing off the slot.',
+    accent: 'pink' as const,
+  },
+];
+
+const jsonLd = [
+  organizationSchema,
+  instructorAppSchema,
+  faqSchema(FAQ_ITEMS),
+  breadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'For instructors', path: '/instructors' },
+  ]),
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path="/instructors"
+  jsonLd={jsonLd}
+  audience="instructor"
+>
+  <!-- HERO -->
+  <section class="hero-bg relative overflow-hidden">
+    <div class="dot-pattern pointer-events-none absolute inset-0 opacity-50" aria-hidden="true"></div>
+    <div
+      class="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-5 pb-16 pt-10 md:grid-cols-[1.05fr_1fr] md:pb-24 md:pt-20 lg:gap-16"
+    >
+      <div class="min-w-0">
+        <span
+          class="inline-flex items-center gap-2 rounded-full border border-blush-border bg-blush-surface px-3 py-1.5 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink"
+        >
+          <span class="size-1.5 rounded-full bg-deep-rose" aria-hidden="true"></span>
+          For driving instructors
+        </span>
+
+        <h1
+          class="font-display mt-5 text-[clamp(36px,6.5vw,60px)] font-semibold leading-[1.03] tracking-[-1.5px] text-balance"
+        >
+          Fill your diary. <span class="gradient-text">Never lose money to a cancellation again.</span>
+        </h1>
+
+        <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-secondary text-pretty">
+          Newdryve puts your profile in front of learners looking for an instructor right now, and
+          holds their card when they book. If they cancel late, you are paid automatically. It is a
+          marketplace that brings you work, not another diary to fill in.
+        </p>
+
+        <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <a
+            href="#apply"
+            class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] motion-safe:hover:-translate-y-0.5"
+          >
+            Apply as a founding instructor
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path
+                d="M2.5 6h7M6 2.5 9.5 6 6 9.5"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+          </a>
+          <a
+            href="#pricing"
+            class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-border bg-white px-6 py-3.5 text-sm font-bold text-ink transition-transform hover:border-ink motion-safe:hover:-translate-y-0.5"
+          >
+            See pricing
+          </a>
+        </div>
+
+        <ul class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-semibold">
+          {
+            [PRICING.commission + ' commission', PRICING.monthlyWithPeriod, PRICING.freeUntil].map(
+              (item) => (
+                <li class="inline-flex items-center gap-1.5 text-racing-green">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5" />
+                    <path d="M4 7l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  {item}
+                </li>
+              )
+            )
+          }
+        </ul>
+      </div>
+
+      <div class="flex justify-center md:justify-end">
+        <PhoneFrame
+          src={appInstructorProfile}
+          alt="A driving instructor profile in the Newdryve app, showing their hourly rate, years of experience, DBS verified badge, specialisms such as intensive courses and test prep, and the pickup areas they cover."
+          caption="How your profile looks to a learner. Sample data shown."
+          loading="eager"
+          float
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- THE PROBLEM -->
+  <section class="border-y border-border bg-white">
+    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
+      <div class="grid items-center gap-12 md:grid-cols-2 lg:gap-20">
+        <div class="reveal">
+          <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+            The problem
+          </p>
+          <h2
+            class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
+          >
+            A cancelled lesson is a hole in your week you cannot fill.
+          </h2>
+          <div class="mt-6 space-y-4 text-base leading-relaxed text-ink-secondary text-pretty">
+            <p>
+              Someone cancels the night before. That two-hour slot is gone. You cannot fill it at
+              short notice, you are already in the car park, and the lesson you planned your day
+              around pays nothing.
+            </p>
+            <p>
+              Then there is the rest of it: gaps in the diary you fill by posting in local Facebook
+              groups, learners who go quiet for three weeks, and payments you have to ask for twice.
+            </p>
+          </div>
+        </div>
+
+        <div class="reveal rounded-2xl border border-border bg-canvas p-7" data-reveal-delay="100">
+          <p class="text-[11px] font-bold uppercase tracking-[1px] text-ink-muted">
+            Do the arithmetic yourself
+          </p>
+          <dl class="mt-5 space-y-4 text-sm">
+            <div class="flex items-baseline justify-between gap-4 border-b border-border pb-4">
+              <dt class="text-ink-secondary">One 2-hour lesson at £38/hr</dt>
+              <dd class="font-bold tabular-nums">£76</dd>
+            </div>
+            <div class="flex items-baseline justify-between gap-4 border-b border-border pb-4">
+              <dt class="text-ink-secondary">Cancelled once a week</dt>
+              <dd class="font-bold tabular-nums">£76 / week</dd>
+            </div>
+            <div class="flex items-baseline justify-between gap-4 border-b border-border pb-4">
+              <dt class="text-ink-secondary">Across a 48-week teaching year</dt>
+              <dd class="text-deep-rose-ink font-bold tabular-nums">&minus; £3,648</dd>
+            </div>
+            <div class="flex items-baseline justify-between gap-4">
+              <dt class="text-ink-secondary">Recovered by Newdryve at 50%</dt>
+              <dd class="font-bold tabular-nums text-racing-green">+ £1,824</dd>
+            </div>
+          </dl>
+          <p class="mt-5 text-xs leading-relaxed text-ink-muted">
+            A worked example using a £38 hourly rate, not a survey figure. Swap in your own rate and
+            cancellation rate to see where you land.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE SOLUTION -->
+  <section id="how-it-works" class="bg-canvas">
+    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
+      <div class="reveal max-w-2xl">
+        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+          How Newdryve works for you
+        </p>
+        <h2
+          class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
+        >
+          New learners in, income protected.
+        </h2>
+      </div>
+
+      <ol class="mt-12 grid gap-6 md:grid-cols-3">
+        {
+          SOLUTION.map((item, index) => (
+            <li
+              class={`reveal rounded-2xl border p-7 ${
+                item.accent === 'pink'
+                  ? 'border-blush-border bg-blush-surface'
+                  : 'border-border bg-white'
+              }`}
+              data-reveal-delay={index * 100}
+            >
+              <span
+                class={`font-display text-3xl font-semibold tabular-nums ${
+                  item.accent === 'pink' ? 'text-deep-rose' : 'text-ink-muted'
+                }`}
+              >
+                {item.step}
+              </span>
+              <h3 class="mt-4 text-xl font-bold tracking-[-0.3px]">{item.title}</h3>
+              <p class="mt-2.5 text-sm leading-relaxed text-ink-secondary">{item.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- DIFFERENTIATOR -->
+  <section class="border-y border-border bg-ink text-white">
+    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
+      <div class="reveal mx-auto max-w-2xl text-center">
+        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose">
+          The difference
+        </p>
+        <h2
+          class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
+        >
+          Most instructor apps organise the pupils you already have.
+        </h2>
+        <p class="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/70 text-pretty">
+          Diary and admin tools are genuinely useful, and they solve a real problem. They just solve
+          a different one. Newdryve is a marketplace: its job is to bring you learners you did not
+          have, and to make sure you are paid when one of them cancels late.
+        </p>
+      </div>
+
+      <div class="mt-12 grid gap-5 md:grid-cols-2">
+        <div class="reveal rounded-2xl border border-white/15 bg-white/5 p-7">
+          <h3 class="text-lg font-bold tracking-[-0.3px] text-white/90">Diary and admin software</h3>
+          <ul class="mt-5 space-y-3 text-sm leading-relaxed text-white/70">
+            {
+              [
+                'Schedules the pupils already in your book',
+                'You still have to find new learners yourself',
+                'A late cancellation is still your loss to absorb',
+                'Invoicing and chasing payment stays your job',
+              ].map((item) => (
+                <li class="flex items-start gap-2.5">
+                  <span class="mt-1.5 size-1.5 shrink-0 rounded-full bg-white/40" aria-hidden="true" />
+                  {item}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div class="reveal rounded-2xl border border-deep-rose/40 bg-deep-rose/10 p-7" data-reveal-delay="100">
+          <h3 class="text-lg font-bold tracking-[-0.3px]">Newdryve</h3>
+          <ul class="mt-5 space-y-3 text-sm leading-relaxed text-white/85">
+            {
+              [
+                'Puts you in front of learners actively searching in your area',
+                'Brings you pupils you did not already have',
+                'Charges late cancellations automatically and pays you',
+                'Takes 0% of your lesson fee, ever',
+              ].map((item) => (
+                <li class="flex items-start gap-2.5">
+                  <span class="mt-0.5 shrink-0 text-deep-rose" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
+                      <path d="M3 7l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                  {item}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" class="scroll-mt-20 bg-canvas">
+    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
+      <div class="reveal mx-auto mb-10 max-w-2xl text-center">
+        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">Pricing</p>
+        <h2
+          class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
+        >
+          One flat fee. No commission, ever.
+        </h2>
+      </div>
+
+      <div class="reveal mx-auto max-w-md rounded-3xl border border-border bg-white p-8 text-center shadow-[0_20px_60px_-20px_rgba(0,0,0,0.1)]">
+        <p class="text-[11px] font-bold uppercase tracking-[1px] text-ink-muted">
+          Instructor subscription
+        </p>
+        <p class="mt-4 flex items-baseline justify-center gap-1">
+          <span class="font-display text-6xl font-semibold tracking-[-2px] tabular-nums"
+            >{PRICING.monthly}</span
+          >
+          <span class="text-lg font-semibold text-ink-secondary">/month</span>
+        </p>
+
+        <ul class="mt-8 space-y-3.5 text-left text-sm">
+          {
+            [
+              `${PRICING.commission} commission on every lesson, forever`,
+              PRICING.freeUntil,
+              'You set your own hourly rate and availability',
+              'Automatic late-cancellation charges paid straight to you',
+              PRICING.cancelAnytime,
+            ].map((item) => (
+              <li class="flex items-start gap-2.5">
+                <span
+                  class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-racing-green/10 text-racing-green"
+                  aria-hidden="true"
+                >
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                    <path d="M3 7l3 3 5-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </span>
+                <span class="leading-relaxed text-ink-secondary">{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+
+        <a
+          href="#apply"
+          class="focus-ring mt-8 inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-white transition-transform hover:bg-[#1a1a2c] motion-safe:hover:-translate-y-0.5"
+        >
+          Apply as a founding instructor
+        </a>
+        <p class="mt-4 text-xs leading-relaxed text-ink-muted">
+          Learners pay Newdryve nothing. They pay you for the lesson.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="border-y border-border bg-white">
+    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
+      <div class="reveal mx-auto mb-10 max-w-2xl text-center">
+        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+          Frequently asked
+        </p>
+        <h2
+          class="font-display text-[clamp(30px,4.5vw,44px)] font-semibold leading-[1.1] tracking-[-1px] text-balance"
+        >
+          Instructor questions.
+        </h2>
+      </div>
+      <Faq items={FAQ_ITEMS} />
+    </div>
+  </section>
+
+  <!-- APPLY -->
+  <section id="apply" class="scroll-mt-20 bg-canvas">
+    <div class="mx-auto max-w-3xl px-5 py-16 md:py-24">
+      <div class="reveal mb-8 text-center">
+        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+          For instructors
+        </p>
+        <h2
+          class="font-display text-[clamp(28px,4vw,40px)] font-semibold leading-[1.1] tracking-[-1px] text-balance"
+        >
+          Apply as a founding instructor.
+        </h2>
+        <p class="mx-auto mt-4 max-w-xl text-base leading-relaxed text-ink-secondary">
+          Tell us your ADI number and where you teach. We onboard founding instructors in small
+          groups so everyone gets set up properly.
+        </p>
+      </div>
+      <WaitlistForm id="waitlist-instructor" defaultRole="instructor" lockRole />
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="relative overflow-hidden bg-racing-green text-white">
+    <div class="mx-auto max-w-4xl px-5 py-16 text-center md:py-20">
+      <h2
+        class="font-display text-[clamp(30px,5vw,48px)] font-semibold leading-[1.05] tracking-[-1px] text-balance"
+      >
+        Stop absorbing other people&rsquo;s cancellations.
+      </h2>
+      <p class="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/80 text-pretty">
+        {PRICING.commission} commission, {PRICING.monthlyWithPeriod}, and free until your first
+        booking comes through.
+      </p>
+      <div class="mt-8">
+        <a
+          href="#apply"
+          class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-racing-green transition-transform motion-safe:hover:-translate-y-0.5"
+        >
+          Apply as a founding instructor
+        </a>
+      </div>
+      <p class="mt-6 text-sm text-white/70">
+        Questions? Email <a
+          href={`mailto:${BRAND.email}`}
+          class="focus-ring rounded font-semibold text-white underline underline-offset-2"
+          >{BRAND.email}</a
+        >.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

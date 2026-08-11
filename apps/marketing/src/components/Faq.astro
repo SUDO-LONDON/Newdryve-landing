@@ -1,0 +1,35 @@
+---
+import type { FaqItem } from '../lib/schema';
+
+interface Props {
+  items: readonly FaqItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="mx-auto max-w-3xl divide-y divide-border overflow-hidden rounded-2xl border border-border bg-white">
+  {
+    items.map((item) => (
+      <details class="group">
+        <summary class="focus-ring flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 px-5 py-5 text-left text-base font-bold text-ink [&::-webkit-details-marker]:hidden">
+          {item.q}
+          <span
+            class="shrink-0 text-ink-muted transition-transform duration-200 group-open:rotate-45"
+            aria-hidden="true"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path
+                d="M9 4v10M4 9h10"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </span>
+        </summary>
+        <p class="px-5 pb-5 text-sm leading-relaxed text-ink-secondary">{item.a}</p>
+      </details>
+    ))
+  }
+</div>
