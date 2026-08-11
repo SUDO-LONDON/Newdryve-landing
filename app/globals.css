@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
-  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-display: Fraunces, Georgia, "Times New Roman", serif;
   --color-racing-green: var(--racing-green);
   --color-racing-green-dark: var(--racing-green-dark);
   --color-deep-rose: var(--deep-rose);
