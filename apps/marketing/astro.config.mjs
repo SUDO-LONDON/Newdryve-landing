@@ -8,6 +8,10 @@ const SITE_URL = process.env.PUBLIC_SITE_URL || 'https://newdryve.com';
 
 export default defineConfig({
   site: SITE_URL,
+  server: {
+    host: '0.0.0.0',
+    port: 3000,
+  },
   // Static by default: every marketing page is prerendered to plain HTML at
   // build time. The two form endpoints opt out individually with
   // `export const prerender = false`, because they hold server-only secrets

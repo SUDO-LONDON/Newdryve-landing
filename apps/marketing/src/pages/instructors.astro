@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PhoneFrame from '../components/PhoneFrame.astro';
+import ProductPreview from '../components/ProductPreview.astro';
 import WaitlistForm from '../components/WaitlistForm.astro';
 import Faq from '../components/Faq.astro';
 import { PRICING, BRAND } from '../config/site';
@@ -11,7 +11,6 @@ import {
   breadcrumbSchema,
   type FaqItem,
 } from '../lib/schema';
-import appInstructorProfile from '../assets/app-instructor-profile.png';
 
 const title = 'The Driving Instructor App That Brings You New Learners | Newdryve';
 const description =
@@ -150,11 +149,9 @@ const jsonLd = [
       </div>
 
       <div class="flex justify-center md:justify-end">
-        <PhoneFrame
-          src={appInstructorProfile}
-          alt="A driving instructor profile in the Newdryve app, showing their hourly rate, years of experience, DBS verified badge, specialisms such as intensive courses and test prep, and the pickup areas they cover."
-          caption="How your profile looks to a learner. Sample data shown."
-          loading="eager"
+        <ProductPreview
+          variant="instructor-profile"
+          caption="How your profile is presented to learners. Sample data shown."
           float
         />
       </div>

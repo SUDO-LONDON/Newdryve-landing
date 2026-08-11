@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PhoneFrame from '../components/PhoneFrame.astro';
+import ProductPreview from '../components/ProductPreview.astro';
 import WaitlistForm from '../components/WaitlistForm.astro';
 import Faq from '../components/Faq.astro';
 import { APP, BRAND, FOUNDING_INSTRUCTORS } from '../config/site';
@@ -12,8 +12,6 @@ import {
   breadcrumbSchema,
   type FaqItem,
 } from '../lib/schema';
-import appDiscover from '../assets/app-discover.png';
-import appProgress from '../assets/app-progress.png';
 
 const title = 'Driving Lessons in Norwich | Book an Instructor in 60 Seconds | Newdryve';
 const description =
@@ -182,11 +180,9 @@ const foundingInstructor = FOUNDING_INSTRUCTORS.people[0];
       </div>
 
       <div class="flex justify-center md:justify-end">
-        <PhoneFrame
-          src={appDiscover}
-          alt="The Newdryve app showing a list of driving instructors in Norwich, each with their hourly rate, specialisms, pickup areas and available slots."
-          caption="A preview of the Newdryve app. Instructor profiles shown are sample data."
-          loading="eager"
+        <ProductPreview
+          variant="learner-search"
+          caption="A product preview showing how instructor search is presented. Sample data shown."
           float
         />
       </div>
@@ -286,9 +282,8 @@ const foundingInstructor = FOUNDING_INSTRUCTORS.people[0];
         </div>
 
         <div class="flex justify-center">
-          <PhoneFrame
-            src={appProgress}
-            alt="The Newdryve app progress screen showing test readiness at 30 percent, with 8 of 27 skills marked competent, a list of strengths including cockpit drill and steering control, and areas to focus on next such as roundabouts and parallel parking."
+          <ProductPreview
+            variant="learner-progress"
             caption="Track your skills and test readiness lesson by lesson."
           />
         </div>
