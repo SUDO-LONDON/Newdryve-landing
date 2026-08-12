@@ -7,14 +7,13 @@ import { PRICING, BRAND } from '../config/site';
 import {
   organizationSchema,
   instructorAppSchema,
-  faqSchema,
   breadcrumbSchema,
   type FaqItem,
 } from '../lib/schema';
 
-const title = 'The Driving Instructor App That Brings You New Learners | Newdryve';
+const title = 'Driving Instructor App for New Learners | Newdryve';
 const description =
-  'Newdryve is a marketplace, not diary software. Get discovered by new learners in your area, and get paid automatically when someone cancels late. 0% commission, £29/month, free until your first booking.';
+  'Newdryve helps driving instructors get discovered by local learners, protect against late cancellations, and keep 100% of lesson fees for GBP29/month.';
 
 const FAQ_ITEMS: readonly FaqItem[] = [
   {
@@ -67,7 +66,6 @@ const SOLUTION = [
 const jsonLd = [
   organizationSchema,
   instructorAppSchema,
-  faqSchema(FAQ_ITEMS),
   breadcrumbSchema([
     { name: 'Home', path: '/' },
     { name: 'For instructors', path: '/instructors' },
@@ -449,3 +447,4 @@ const jsonLd = [
     </div>
   </section>
 </BaseLayout>
+

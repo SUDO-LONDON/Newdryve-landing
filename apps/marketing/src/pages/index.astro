@@ -8,14 +8,13 @@ import {
   organizationSchema,
   websiteSchema,
   learnerServiceSchema,
-  faqSchema,
   breadcrumbSchema,
   type FaqItem,
 } from '../lib/schema';
 
-const title = 'Driving Lessons in Norwich | Book an Instructor in 60 Seconds | Newdryve';
+const title = 'Book Driving Lessons in Norwich | Newdryve';
 const description =
-  'Find a verified, DBS-checked driving instructor in Norwich and book a lesson in under 60 seconds. See real availability, track your progress to test, and pay your instructor directly. Free to use.';
+  'Find verified driving instructors in Norwich, see real availability, and join the learner waitlist. Newdryve is free for learners.';
 
 const FAQ_ITEMS: readonly FaqItem[] = [
   {
@@ -93,7 +92,6 @@ const jsonLd = [
   organizationSchema,
   websiteSchema,
   learnerServiceSchema,
-  faqSchema(FAQ_ITEMS),
   breadcrumbSchema([{ name: 'Home', path: '/' }]),
 ];
 

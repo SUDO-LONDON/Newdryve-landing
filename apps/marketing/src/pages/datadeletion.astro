@@ -7,7 +7,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { organizationSchema, breadcrumbSchema } from '../lib/schema';
 
 const title = 'Request data deletion | Newdryve';
-const description = 'Ask Newdryve to delete your account and associated personal data.';
+const description =
+  'Request deletion of your Newdryve account and eligible personal data, including identity checks before data is removed or anonymised.';
 
 const jsonLd = [
   organizationSchema,
@@ -31,7 +32,7 @@ const steps = [
 ];
 ---
 
-<BaseLayout title={title} description={description} path="/datadeletion" jsonLd={jsonLd}>
+<BaseLayout title={title} description={description} path="/datadeletion" jsonLd={jsonLd} noindex>
   <div class="relative overflow-hidden">
     <div class="dot-pattern pointer-events-none absolute inset-0 opacity-40" aria-hidden="true"></div>
 

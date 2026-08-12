@@ -10,46 +10,16 @@ const { variant, caption, float = false, class: className = '' } = Astro.props;
 
 const variants = {
   'learner-search': {
-    eyebrow: 'Near Norwich',
-    title: 'Available instructors',
-    footer: 'Slots refresh as instructors update their diary.',
-    rows: [
-      ['Manual', 'Thorpe St Andrew', 'Wed 16:30'],
-      ['Automatic', 'Hellesdon', 'Thu 10:00'],
-      ['Manual', 'Sprowston', 'Fri 14:15'],
-    ],
-    stats: [
-      ['From', 'GBP38/hr'],
-      ['Book', '60 sec'],
-    ],
+    src: '/product/newdryve-discover.png',
+    alt: 'Newdryve instructor discovery screen with search, filters and verified instructor cards',
   },
   'learner-progress': {
-    eyebrow: 'Progress',
-    title: 'Test readiness',
-    footer: 'Track what is signed off and what needs more practice.',
-    rows: [
-      ['Competent', 'Cockpit drill', 'Signed off'],
-      ['Developing', 'Roundabouts', 'Next focus'],
-      ['Developing', 'Parallel parking', 'Practice'],
-    ],
-    stats: [
-      ['Skills', '8 / 27'],
-      ['Ready', '30%'],
-    ],
+    src: '/product/newdryve-lessons.png',
+    alt: 'Newdryve lessons screen showing upcoming lessons, lesson tracking and rescheduling controls',
   },
   'instructor-profile': {
-    eyebrow: 'Instructor profile',
-    title: 'Your learner-facing profile',
-    footer: 'Learners see your rate, areas, specialisms and open slots.',
-    rows: [
-      ['Verified', 'ADI + DBS', 'Checked'],
-      ['Areas', 'Norwich, Hellesdon', 'Editable'],
-      ['Specialisms', 'Test prep', 'Visible'],
-    ],
-    stats: [
-      ['Rate', 'GBP38/hr'],
-      ['Commission', '0%'],
-    ],
+    src: '/product/newdryve-discover.png',
+    alt: 'Newdryve instructor discovery screen showing how instructors appear to learners',
   },
 } as const;
 
@@ -58,57 +28,15 @@ const data = variants[variant];
 
 <figure class={`flex flex-col items-center ${className}`}>
   <div class={`relative ${float ? 'motion-safe:float-slow' : ''}`}>
-    <div
-      class="relative w-[260px] overflow-hidden rounded-[2.5rem] border-[10px] border-ink bg-white shadow-[0_30px_70px_-25px_rgba(10,10,20,0.5)] sm:w-[290px]"
-      aria-label={data.title}
-    >
-      <div class="border-b border-border bg-canvas px-5 pb-4 pt-5">
-        <div class="mx-auto mb-4 h-1.5 w-14 rounded-full bg-ink/20" aria-hidden="true"></div>
-        <p class="text-[10px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-          {data.eyebrow}
-        </p>
-        <h3 class="mt-1 text-xl font-extrabold tracking-[-0.3px] text-ink">{data.title}</h3>
-      </div>
-
-      <div class="space-y-3 p-5">
-        <div class="grid grid-cols-2 gap-3">
-          {
-            data.stats.map(([label, value]) => (
-              <div class="rounded-xl border border-border bg-canvas p-3">
-                <p class="text-[10px] font-bold uppercase tracking-[1px] text-ink-muted">
-                  {label}
-                </p>
-                <p class="mt-1 text-lg font-extrabold text-ink">{value}</p>
-              </div>
-            ))
-          }
-        </div>
-
-        <div class="space-y-2.5">
-          {
-            data.rows.map(([label, title, meta]) => (
-              <div class="rounded-xl border border-border bg-white p-3 shadow-sm">
-                <div class="flex items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <p class="text-[10px] font-bold uppercase tracking-[1px] text-racing-green">
-                      {label}
-                    </p>
-                    <p class="mt-1 text-sm font-bold leading-tight text-ink">{title}</p>
-                  </div>
-                  <span class="shrink-0 rounded-full bg-blush-surface px-2 py-1 text-[10px] font-bold text-deep-rose-ink">
-                    {meta}
-                  </span>
-                </div>
-              </div>
-            ))
-          }
-        </div>
-
-        <p class="rounded-xl bg-racing-green px-4 py-3 text-center text-sm font-bold text-white">
-          {variant === 'instructor-profile' ? 'Apply as an instructor' : 'Join the waitlist'}
-        </p>
-      </div>
-    </div>
+    <img
+      src={data.src}
+      alt={data.alt}
+      width="1024"
+      height="1536"
+      loading={float ? 'eager' : 'lazy'}
+      decoding="async"
+      class="h-auto w-[260px] select-none sm:w-[290px]"
+    />
 
     <span
       class="absolute -right-2 top-4 z-20 rounded-full border border-blush-border bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[1px] text-deep-rose-ink shadow-sm"

@@ -1,0 +1,17 @@
+
+> newdryve-landing@0.1.0 dev
+> next dev --port 3000
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.146:3000
+- Environments: .env.local
+✓ Ready in 776ms
+
+ GET / 200 in 2.4s (next.js: 1956ms, proxy.ts: 68ms, application-code: 409ms)
+ GET /manifest.webmanifest 200 in 243ms (next.js: 233ms, application-code: 10ms)
+ GET /icon 404 in 213ms (next.js: 188ms, application-code: 24ms)
+ GET / 200 in 105ms (next.js: 8ms, proxy.ts: 3ms, application-code: 93ms)
+ GET /manifest.webmanifest 200 in 10ms (next.js: 5ms, application-code: 5ms)
+ GET / 200 in 82ms (next.js: 6ms, proxy.ts: 3ms, application-code: 73ms)
+ GET /manifest.webmanifest 200 in 9ms (next.js: 3ms, application-code: 5ms)

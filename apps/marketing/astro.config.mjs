@@ -20,8 +20,15 @@ export default defineConfig({
   adapter: node({ mode: 'standalone' }),
   integrations: [
     sitemap({
-      // The founder portal lives on a separate service and must stay unindexed.
-      filter: (page) => !page.includes('/ops'),
+      // Keep private utility/legal noindex URLs out of XML sitemaps.
+      filter: (page) => {
+        const pathname = new URL(page).pathname.replace(/\/$/, '') || '/';
+
+        return (
+          !pathname.startsWith('/ops') &&
+          !['/terms', '/reset-password', '/datadeletion'].includes(pathname)
+        );
+      },
     }),
   ],
   vite: {

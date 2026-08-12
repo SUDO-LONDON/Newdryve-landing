@@ -1,0 +1,618 @@
+⚠ Turbopack's filesystem cache has been deleted because we previously detected an internal error in Turbopack. Builds or page loads may be slower as a result.
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/dm_sans_81a33cc5.module.css
+next/font: warning:
+Failed to download `DM Sans` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_81a33cc5.module.css
+    [next]/internal/font/google/dm_sans_81a33cc5.js
+    ./app/layout.tsx
+
+
+⚠ [next]/internal/font/google/fraunces_93adee12.module.css
+next/font: warning:
+Failed to download `Fraunces` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/fraunces_93adee12.module.css
+    [next]/internal/font/google/fraunces_93adee12.js
+    ./app/layout.tsx
+
+

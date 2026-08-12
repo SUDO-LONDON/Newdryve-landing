@@ -114,7 +114,7 @@ const sources = {
 export const seoPages: readonly SeoPage[] = [
   {
     slug: 'driving-lessons/norwich',
-    title: 'Driving Lessons in Norwich | Find a Verified Instructor | Newdryve',
+    title: 'Driving Lessons in Norwich | Local Learner Guide | Newdryve',
     description:
       'Find driving lessons in Norwich, Thorpe St Andrew, Sprowston, Hellesdon, Costessey, Cringleford, Taverham, Drayton and nearby Norfolk areas.',
     h1: 'Driving lessons in Norwich',
@@ -243,7 +243,7 @@ export const seoPages: readonly SeoPage[] = [
   },
   {
     slug: 'driving-lessons/wymondham',
-    title: 'Driving Lessons in Wymondham | Local Learner Guide | Newdryve',
+    title: 'Driving Lessons in Wymondham | Learner Guide | Newdryve',
     description:
       'Wymondham learner guide for driving lessons, Norwich test-centre choices, A11 practice, nearby villages, and Newdryve waitlist demand registration.',
     h1: 'Driving lessons in Wymondham',
@@ -343,7 +343,7 @@ export const seoPages: readonly SeoPage[] = [
     slug: 'driving-lessons/dereham',
     title: 'Driving Lessons in Dereham | Local Learner Guide | Newdryve',
     description:
-      'Dereham learner guide for driving lessons, Norwich and King\'s Lynn test-centre choices, A47 practice, nearby villages, and Newdryve waitlist demand.',
+      'Dereham learner guide for driving lessons, Norwich and west Norfolk test-centre choices, A47 practice, nearby villages, and Newdryve waitlist demand.',
     h1: 'Driving lessons in Dereham',
     kicker: 'Dereham learner guide',
     summary:
@@ -439,7 +439,7 @@ export const seoPages: readonly SeoPage[] = [
   },
   {
     slug: 'driving-lessons/attleborough',
-    title: 'Driving Lessons in Attleborough | Local Learner Guide | Newdryve',
+    title: 'Driving Lessons in Attleborough | Learner Guide | Newdryve',
     description:
       'Attleborough learner guide for driving lessons, Norwich test-centre choices, A11 and B1077 practice, nearby villages, and Newdryve waitlist demand.',
     h1: 'Driving lessons in Attleborough',
@@ -537,7 +537,7 @@ export const seoPages: readonly SeoPage[] = [
   },
   {
     slug: 'driving-lessons/diss',
-    title: 'Driving Lessons in Diss | Norwich vs Bury Test-Centre Guide | Newdryve',
+    title: 'Driving Lessons in Diss | Norwich or Bury Guide | Newdryve',
     description:
       'Diss learner guide for driving lessons, Norwich vs Bury St Edmunds test-centre choices, A1066 and A140 practice, border villages, and Newdryve waitlist demand.',
     h1: 'Driving lessons in Diss',
@@ -640,7 +640,7 @@ export const seoPages: readonly SeoPage[] = [
   },
   {
     slug: 'test-centres/norwich-peachman-way',
-    title: 'Norwich Peachman Way Driving Test Centre | Address and Learner Guide',
+    title: 'Norwich Peachman Way Test Centre | Newdryve Guide',
     description:
       'Guide to Norwich Peachman Way driving test centre for learners around Thorpe St Andrew, Sprowston, Heartsease, Dussindale, Rackheath, Brundall and nearby areas.',
     h1: 'Norwich Peachman Way driving test centre',
@@ -738,7 +738,7 @@ export const seoPages: readonly SeoPage[] = [
   },
   {
     slug: 'test-centres/norwich-jupiter-road',
-    title: 'Norwich Jupiter Road Driving Test Centre | Address and Learner Guide',
+    title: 'Norwich Jupiter Road Test Centre | Newdryve Guide',
     description:
       'Guide to Norwich Jupiter Road driving test centre for learners around Hellesdon, Old Catton, Mile Cross, Drayton, Taverham, Horsford and north Norwich.',
     h1: 'Norwich Jupiter Road driving test centre',
@@ -836,7 +836,7 @@ export const seoPages: readonly SeoPage[] = [
   },
   {
     slug: 'test-centres',
-    title: 'Driving Test Centres near Norwich | Norwich and Norfolk Guide',
+    title: 'Driving Test Centres near Norwich | Newdryve Guide',
     description:
       'Compare driving test centres near Norwich and Norfolk areas including Wymondham, Dereham, Attleborough, Diss, Aylsham, North Walsham and Great Yarmouth.',
     h1: 'Driving test centres near Norwich',
@@ -936,7 +936,7 @@ export const seoPages: readonly SeoPage[] = [
   },
   {
     slug: 'guides/driving-lesson-cost',
-    title: 'How Much Do Driving Lessons Cost? UK and Norwich Guide | Newdryve',
+    title: 'Driving Lesson Costs UK and Norwich | Newdryve',
     description:
       'A practical guide to UK driving lesson costs, Norwich context, manual vs automatic pricing, test fees, and how Newdryve stays free for learners.',
     h1: 'How much do driving lessons cost?',
@@ -1093,7 +1093,7 @@ export const seoPages: readonly SeoPage[] = [
   },
   {
     slug: 'guides/how-to-book-driving-test',
-    title: 'How to Book Your Driving Test | Practical Test Guide | Newdryve',
+    title: 'How to Book Your Driving Test | Newdryve Guide',
     description:
       'How to book a UK practical driving test, what you need, how to choose a Norwich test centre, and how to avoid unofficial booking traps.',
     h1: 'How to book your driving test',
@@ -1172,7 +1172,7 @@ export const seoPages: readonly SeoPage[] = [
   },
   {
     slug: 'guides/manual-vs-automatic',
-    title: 'Manual vs Automatic Driving Lessons | Which Should You Learn In?',
+    title: 'Manual vs Automatic Driving Lessons | Newdryve',
     description:
       'Compare manual and automatic driving lessons, licence implications, cost, availability, and how to choose the right transmission for your learning style.',
     h1: 'Manual vs automatic: which should you learn in?',

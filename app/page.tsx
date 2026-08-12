@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import { BookingFlowPlayer } from '@/components/landing/BookingFlowPlayer';
-import { MiniSlotPicker } from '@/components/landing/MiniSlotPicker';
+import Image from 'next/image';
 import { WaitlistForm } from '@/components/landing/WaitlistForm';
 import { SiteNav } from '@/components/landing/SiteNav';
 import { Reveal } from '@/components/landing/Reveal';
@@ -40,6 +39,30 @@ function Logo({ size = 22 }: { size?: number }) {
       <span className="text-deep-rose">y</span>
       <span className="text-racing-green">ve</span>
     </span>
+  );
+}
+
+function ProductScreenshot({
+  src,
+  alt,
+  className = '',
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  priority?: boolean;
+}) {
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={1024}
+      height={1536}
+      priority={priority}
+      sizes="(min-width: 768px) 360px, 82vw"
+      className={`h-auto w-full select-none ${className}`}
+    />
   );
 }
 
@@ -217,7 +240,11 @@ export default function LandingPage() {
                   }}
                 />
                 <div className="relative w-full max-w-[300px] sm:max-w-[340px] md:max-w-[360px] mx-auto md:ml-auto md:mr-0 motion-safe:float-slow">
-                  <BookingFlowPlayer />
+                  <ProductScreenshot
+                    src="/product/newdryve-home.png"
+                    alt="Newdryve learner home screen showing a current driving lesson, quick actions and instructor details"
+                    priority
+                  />
                   <div
                     aria-hidden="true"
                     className="hidden md:flex absolute -left-6 top-10 bg-white border border-[#E8E8F2] rounded-2xl px-4 py-3 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.18)] gap-3 items-center"
@@ -230,7 +257,7 @@ export default function LandingPage() {
                     </span>
                     <div>
                       <div className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">Preview</div>
-                      <div className="text-sm font-extrabold text-ink leading-tight">The experience we&rsquo;re building</div>
+                      <div className="text-sm font-extrabold text-ink leading-tight">A preview of the learner app</div>
                     </div>
                   </div>
                 </div>
@@ -487,16 +514,20 @@ export default function LandingPage() {
                 </a>
               </Reveal>
 
-              {/* Learner booking-flow mockup */}
+              {/* Learner discovery screenshot */}
               <Reveal delay={120} className="relative">
                 <span className="absolute -top-3 left-4 z-10 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider bg-ink text-white rounded-full px-2.5 py-1">
                   Preview
                 </span>
                 <div className="bg-canvas border border-[#E8E8F2] rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.14)]">
                   <div className="mb-3 text-[11px] font-bold uppercase tracking-wider text-ink-muted">
-                    Sarah Mitchell · pick a slot
+                    Find verified instructors
                   </div>
-                  <MiniSlotPicker selectedIndex={3} />
+                  <ProductScreenshot
+                    src="/product/newdryve-discover.png"
+                    alt="Newdryve instructor discovery screen with search, filters and verified instructor cards"
+                    className="mx-auto max-w-[300px]"
+                  />
                 </div>
               </Reveal>
             </div>
@@ -542,59 +573,16 @@ export default function LandingPage() {
                 </a>
               </Reveal>
 
-              {/* Instructor dashboard mockup, clearly labelled as concept */}
+              {/* Lesson schedule screenshot */}
               <Reveal delay={120} className="relative">
                 <span className="absolute -top-3 left-4 z-10 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider bg-deep-rose text-white rounded-full px-2.5 py-1">
-                  Concept · not live
+                  App preview
                 </span>
-                <div className="bg-[#13131F] border border-white/10 rounded-2xl p-5 shadow-[0_30px_80px_-20px_rgba(45,106,79,0.4)]">
-                  <div className="flex items-center justify-between mb-5">
-                    <div>
-                      <div className="text-[11px] font-bold uppercase tracking-wider text-white/40">Good morning</div>
-                      <div className="text-lg font-extrabold tracking-[-0.3px]">Today&rsquo;s overview</div>
-                    </div>
-                    <span
-                      className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1"
-                      style={{ background: 'rgba(0,194,122,0.18)', color: '#4ADE80' }}
-                    >
-                      Demo
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 mb-5">
-                    {[
-                      { label: 'Lessons today', value: '4', sub: 'example data' },
-                      { label: 'This week', value: '21', sub: 'example data' },
-                      { label: 'Capacity used', value: '78%', sub: 'this week' },
-                      { label: 'Hours given', value: '340', sub: 'all-time' },
-                    ].map((s) => (
-                      <div key={s.label} className="bg-white/5 border border-white/10 rounded-xl p-3">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-white/40">{s.label}</div>
-                        <div className="mt-1 text-2xl font-extrabold tracking-[-0.5px] tabular-nums">{s.value}</div>
-                        <div className="text-[11px] text-white/50 tabular-nums">{s.sub}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                    <div className="flex items-baseline justify-between mb-3">
-                      <div className="text-xs font-bold text-white/70">Earnings · last 7 days</div>
-                      <div className="text-xs font-bold tabular-nums text-white/40">demo</div>
-                    </div>
-                    <div className="flex items-end gap-1.5 h-16">
-                      {[6, 4, 7, 5, 8, 9, 7].map((h, i) => (
-                        <div
-                          key={i}
-                          className="flex-1 rounded-t-md"
-                          style={{
-                            height: `${h * 10}%`,
-                            background: i === 6 ? '#E8527A' : 'rgba(45,106,79,0.5)',
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <ProductScreenshot
+                  src="/product/newdryve-lessons.png"
+                  alt="Newdryve lessons screen showing upcoming lessons, lesson tracking and rescheduling controls"
+                  className="mx-auto max-w-[330px]"
+                />
               </Reveal>
             </div>
           </section>

@@ -10,7 +10,7 @@ import {
   type SeoPage,
 } from '../content/seo-pages';
 import { SITE_URL, BRAND } from '../config/site';
-import { breadcrumbSchema, faqSchema, organizationSchema, websiteSchema } from '../lib/schema';
+import { breadcrumbSchema, organizationSchema, websiteSchema } from '../lib/schema';
 
 export function getStaticPaths() {
   return seoPages.map((page) => ({
@@ -75,7 +75,6 @@ const jsonLd = [
   organizationSchema,
   websiteSchema,
   articleSchema,
-  faqSchema(page.faqs),
   breadcrumbSchema(breadcrumbTrail),
 ];
 ---
