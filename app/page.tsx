@@ -57,8 +57,8 @@ function ProductScreenshot({
     <Image
       src={src}
       alt={alt}
-      width={1024}
-      height={1536}
+      width={740}
+      height={1488}
       priority={priority}
       sizes="(min-width: 768px) 360px, 82vw"
       className={`h-auto w-full select-none ${className}`}
