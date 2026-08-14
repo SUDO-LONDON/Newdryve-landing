@@ -72,6 +72,84 @@ const lessonTypes = [
   { code: 'mock_test', label: 'Mock test', checked: false },
 ];
 
+const ukCities = [
+  'Aberdeen',
+  'Armagh',
+  'Bangor, County Down',
+  'Bangor, Gwynedd',
+  'Bath',
+  'Belfast',
+  'Birmingham',
+  'Bradford',
+  'Brighton and Hove',
+  'Bristol',
+  'Cambridge',
+  'Canterbury',
+  'Cardiff',
+  'Carlisle',
+  'Chelmsford',
+  'Chester',
+  'Chichester',
+  'Colchester',
+  'Coventry',
+  'Derby',
+  'Doncaster',
+  'Dundee',
+  'Dunfermline',
+  'Durham',
+  'Edinburgh',
+  'Ely',
+  'Exeter',
+  'Glasgow',
+  'Gloucester',
+  'Hereford',
+  'Inverness',
+  'Kingston upon Hull',
+  'Lancaster',
+  'Leeds',
+  'Leicester',
+  'Lichfield',
+  'Lincoln',
+  'Lisburn',
+  'Liverpool',
+  'London',
+  'Manchester',
+  'Milton Keynes',
+  'Newcastle upon Tyne',
+  'Newport',
+  'Newry',
+  'Norwich',
+  'Nottingham',
+  'Oxford',
+  'Perth',
+  'Peterborough',
+  'Plymouth',
+  'Portsmouth',
+  'Preston',
+  'Ripon',
+  'Salford',
+  'Salisbury',
+  'Sheffield',
+  'Southampton',
+  'Southend-on-Sea',
+  'St Albans',
+  'St Asaph',
+  'St Davids',
+  'Stirling',
+  'Stoke-on-Trent',
+  'Sunderland',
+  'Swansea',
+  'Truro',
+  'Wakefield',
+  'Wells',
+  'Westminster',
+  'Winchester',
+  'Wolverhampton',
+  'Worcester',
+  'Wrexham',
+  'York',
+] as const;
+
 const howItWorks = [
   { badge: 'bg-racing-green', text: 'You apply here and choose the password you&rsquo;ll sign in with.' },
   { badge: 'bg-deep-rose', text: 'We check your ADI and DBS certificates by hand, usually within a day or two.' },
@@ -205,17 +283,20 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
 
             <div class="flex flex-col gap-1.5">
               <label class={labelClass} for="apply-areas">
-                Areas you cover <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                Primary city you cover <span aria-hidden="true" class="text-deep-rose-ink">*</span>
               </label>
-              <input
+              <select
                 id="apply-areas"
                 name="service_areas"
-                type="text"
                 required
-                placeholder="Norwich, Sprowston, Thorpe St Andrew"
                 class={inputClass}
-              />
-              <p class="text-xs text-ink-muted">Separate each area with a comma.</p>
+              >
+                <option value="">Select a UK city</option>
+                {ukCities.map((city) => <option value={city}>{city}</option>)}
+              </select>
+              <p class="text-xs text-ink-muted">
+                You&rsquo;ll set your coverage radius in the app after approval.
+              </p>
             </div>
           </fieldset>
 
