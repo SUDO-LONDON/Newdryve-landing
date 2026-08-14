@@ -31,8 +31,9 @@ export const PRICING = {
   monthly: '£29',
   monthlyWithPeriod: '£29/month',
   commission: '0%',
-  freeUntil: 'Free until your first booking',
   cancelAnytime: 'Cancel anytime',
+  billingCancellation:
+    'Cancel anytime. Your membership stays active until the end of the current billing period, which is non-refundable.',
   /** Share of the lesson fee a late-cancelling learner is charged. */
   lateCancellationShare: '50%',
   /**

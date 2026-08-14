@@ -12,16 +12,16 @@ import {
 
 const title = 'Driving Instructor App for New Learners | Newdryve';
 const description =
-  'Newdryve helps driving instructors get discovered by local learners, protect against late cancellations, and keep 100% of lesson fees for GBP29/month.';
+  'Newdryve helps driving instructors get discovered by local learners and protect their income from late cancellations for GBP29/month with 0% Newdryve commission.';
 
 const FAQ_ITEMS: readonly FaqItem[] = [
   {
     q: 'How do I get paid?',
-    a: 'You keep 100% of every lesson fee. Newdryve takes 0% commission, so the money for the lesson is yours in full. The only thing you pay us is the flat £29 monthly subscription.',
+    a: 'At the end of each lesson, you choose whether the learner pays by cash, bank transfer or card through Stripe. Newdryve takes 0% commission from lesson payments. Stripe’s standard processing fee applies only when you choose card payment.',
   },
   {
     q: 'How does the late cancellation charge actually work?',
-    a: 'The learner adds a card when they book, which secures the slot. Nothing is charged at that point. If they cancel within 24 hours of the lesson, Newdryve automatically charges 50% of the lesson fee and passes it straight to you. We take no cut of that fee.',
+    a: 'Every learner must keep a valid card saved to their account before they can book. Nothing is charged when they book. If the learner cancels within 24 hours of the lesson, a 50% cancellation fee is automatically charged through Stripe and sent to you. Newdryve takes no commission; Stripe’s standard processing fee applies.',
   },
   {
     q: 'Do I keep my own pricing?',
@@ -33,7 +33,7 @@ const FAQ_ITEMS: readonly FaqItem[] = [
   },
   {
     q: 'How do I join?',
-    a: 'Apply on this page with your ADI details. We are onboarding founding instructors in small groups so we can get each one set up properly. You pay nothing until your first booking comes through.',
+    a: 'Apply on this page with your ADI details. We are onboarding founding instructors in small groups so we can get each one set up properly. Membership is £29 per month with 0% Newdryve commission.',
   },
   {
     q: 'What do I need to qualify?',
@@ -51,13 +51,13 @@ const SOLUTION = [
   {
     step: '02',
     title: 'They book with a card on file',
-    body: 'The learner picks a slot and confirms with a card. Nothing is charged upfront. The slot in your diary is simply protected from that moment.',
+    body: 'A learner cannot book without a valid card saved to their account. Nothing is charged when they book; the card secures every lesson they reserve.',
     accent: 'green' as const,
   },
   {
     step: '03',
-    title: 'Cancel late and you are paid automatically',
-    body: 'If they cancel inside 24 hours, Newdryve charges 50% of the lesson fee and pays it straight to you. No awkward conversation, no chasing, no writing off the slot.',
+    title: 'Late cancellations are handled automatically',
+    body: 'If the learner cancels within 24 hours, a 50% cancellation fee is charged through Stripe and sent to you. Newdryve takes no commission from it.',
     accent: 'pink' as const,
   },
 ];
@@ -96,12 +96,13 @@ const jsonLd = [
         <h1
           class="font-display mt-5 text-[clamp(36px,6.5vw,60px)] font-semibold leading-[1.03] tracking-[-1.5px] text-balance"
         >
-          Fill your diary. <span class="gradient-text">Never lose money to a cancellation again.</span>
+          Fill your diary. <span class="gradient-text">Protect your income from late cancellations.</span>
         </h1>
 
         <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-secondary text-pretty">
           Newdryve puts your profile in front of learners looking for an instructor right now, and
-          holds their card when they book. If they cancel late, you are paid automatically. It is a
+          requires a valid card before they can book. If they cancel within 24 hours, your 50%
+          cancellation fee is handled automatically. It is a
           marketplace that brings you work, not another diary to fill in.
         </p>
 
@@ -130,7 +131,7 @@ const jsonLd = [
 
         <ul class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-semibold">
           {
-            [PRICING.commission + ' commission', PRICING.monthlyWithPeriod, PRICING.freeUntil].map(
+            [PRICING.commission + ' Newdryve commission', PRICING.monthlyWithPeriod, 'Every booking card-secured'].map(
               (item) => (
                 <li class="inline-flex items-center gap-1.5 text-racing-green">
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -268,7 +269,7 @@ const jsonLd = [
         <p class="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/70 text-pretty">
           Diary and admin tools are genuinely useful, and they solve a real problem. They just solve
           a different one. Newdryve is a marketplace: its job is to bring you learners you did not
-          have, and to make sure you are paid when one of them cancels late.
+          have, and to apply your cancellation fee automatically when one of them cancels late.
         </p>
       </div>
 
@@ -299,8 +300,8 @@ const jsonLd = [
               [
                 'Puts you in front of learners actively searching in your area',
                 'Brings you pupils you did not already have',
-                'Charges late cancellations automatically and pays you',
-                'Takes 0% of your lesson fee, ever',
+                'Applies a 50% fee when a learner cancels within 24 hours',
+                'Takes 0% commission from lesson payments',
               ].map((item) => (
                 <li class="flex items-start gap-2.5">
                   <span class="mt-0.5 shrink-0 text-deep-rose" aria-hidden="true">
@@ -344,10 +345,13 @@ const jsonLd = [
         <ul class="mt-8 space-y-3.5 text-left text-sm">
           {
             [
-              `${PRICING.commission} commission on every lesson, forever`,
-              PRICING.freeUntil,
-              'You set your own hourly rate and availability',
-              'Automatic late-cancellation charges paid straight to you',
+              `${PRICING.commission} Newdryve commission on lesson payments`,
+              'Choose cash, bank transfer or card after each lesson',
+              'Stripe fees apply only when you choose card payment',
+              'Set your price, teaching areas, availability and travel time',
+              'Every learner booking is secured by a saved card',
+              'Learners can reserve several lessons at once',
+              '50% fee when a learner cancels within 24 hours',
               PRICING.cancelAnytime,
             ].map((item) => (
               <li class="flex items-start gap-2.5">
@@ -372,7 +376,7 @@ const jsonLd = [
           Apply as a founding instructor
         </a>
         <p class="mt-4 text-xs leading-relaxed text-ink-muted">
-          Learners pay Newdryve nothing. They pay you for the lesson.
+          {PRICING.billingCancellation} You will not be charged again.
         </p>
       </div>
     </div>
@@ -464,7 +468,7 @@ const jsonLd = [
           </svg>
         </a>
         <p class="mt-4 text-center text-xs text-ink-muted">
-          Free until your first booking. You keep 100% of every lesson fee.
+          {PRICING.monthlyWithPeriod}. Newdryve takes 0% commission from lesson payments.
         </p>
       </div>
     </div>
@@ -479,8 +483,8 @@ const jsonLd = [
         Stop absorbing other people&rsquo;s cancellations.
       </h2>
       <p class="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/80 text-pretty">
-        {PRICING.commission} commission, {PRICING.monthlyWithPeriod}, and free until your first
-        booking comes through.
+        {PRICING.commission} Newdryve commission, {PRICING.monthlyWithPeriod}, and every learner
+        booking secured by a valid card.
       </p>
       <div class="mt-8">
         <a
@@ -500,4 +504,3 @@ const jsonLd = [
     </div>
   </section>
 </BaseLayout>
-

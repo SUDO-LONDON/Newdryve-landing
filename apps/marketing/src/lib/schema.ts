@@ -66,13 +66,13 @@ export const instructorAppSchema = {
   url: `${SITE_URL}/instructors`,
   publisher: { '@id': `${SITE_URL}#organization` },
   description:
-    'Newdryve brings driving instructors new learners and automatically charges a fair fee when a learner cancels late, paid straight to the instructor. 0% commission.',
+    'Newdryve brings driving instructors new learners and applies a 50% cancellation fee when a learner cancels within 24 hours. Newdryve takes 0% commission.',
   offers: {
     '@type': 'Offer',
     price: '29.00',
     priceCurrency: 'GBP',
     category: 'subscription',
-    description: `${PRICING.monthlyWithPeriod} flat. ${PRICING.commission} commission. ${PRICING.freeUntil}.`,
+    description: `${PRICING.monthlyWithPeriod} flat. ${PRICING.commission} Newdryve commission. ${PRICING.cancelAnytime}.`,
     priceSpecification: {
       '@type': 'UnitPriceSpecification',
       price: '29.00',

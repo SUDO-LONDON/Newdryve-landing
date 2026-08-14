@@ -79,7 +79,7 @@ function applicantEmail(s: Signup) {
     : "You're on the Newdryve waitlist";
 
   const body = isInstructor
-    ? `Thanks for putting your name forward. We're recruiting a small founding group of ADI-qualified instructors in Norwich, and we'll be in touch as we line up the first cohort.\n\nA quick reminder of what you can expect: 0% commission on every booking, free until your first booking, and a flat monthly fee after that. You keep 100% of every lesson.\n\nIf you'd like to add anything (ADI number, transmission, what areas you cover), just reply to this email.`
+    ? `Thanks for putting your name forward. We're recruiting a small founding group of ADI-qualified instructors in Norwich, and we'll be in touch as we line up the first cohort.\n\nA quick reminder of what you can expect: membership is £29 per month and Newdryve takes 0% commission from lesson payments. At the end of each lesson, you choose cash, bank transfer or card through Stripe; Stripe's standard processing fee applies to card payments.\n\nIf you'd like to add anything (ADI number, transmission, what areas you cover), just reply to this email.`
     : `Thanks for joining the Newdryve waitlist. We're building a faster way to book driving lessons in Norwich, and we'll be in touch as soon as we have an instructor lined up for you.\n\nIf you have any questions in the meantime, just reply to this email.`;
 
   const html = `
