@@ -113,8 +113,6 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const email = typeof body.email === 'string' ? body.email.trim() : '';
-  const role: 'student' | 'instructor' | null =
-    body.role === 'student' || body.role === 'instructor' ? body.role : null;
   const postcode = typeof body.postcode === 'string' ? body.postcode.trim().slice(0, 16) : '';
   const name = typeof body.name === 'string' ? body.name.trim().slice(0, 80) : '';
   const notes = typeof body.notes === 'string' ? body.notes.trim().slice(0, 500) : '';
@@ -122,9 +120,23 @@ export const POST: APIRoute = async ({ request }) => {
   if (!EMAIL_RE.test(email) || email.length > 254) {
     return json({ error: 'Please enter a valid email address.' }, 400);
   }
-  if (!role) {
-    return json({ error: 'Please choose student or instructor.' }, 400);
+
+  // Learners only. Instructors no longer join a waitlist — they apply for a
+  // real account at /instructors/apply and a founder approves them. An
+  // instructor signup arriving here means a stale cached page or a direct POST,
+  // so send them to the right place rather than silently filing them as a lead
+  // nobody will action.
+  if (body.role === 'instructor') {
+    return json(
+      {
+        error: 'Instructors apply for an account directly.',
+        redirect: '/instructors/apply',
+      },
+      400
+    );
   }
+
+  const role = 'student' as const;
 
   const signup: Signup = {
     email,

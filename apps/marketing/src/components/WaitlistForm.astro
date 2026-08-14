@@ -1,30 +1,29 @@
 ---
 /**
- * Waitlist form. Submits exactly as the previous React component did:
- * POST /api/waitlist with JSON { email, role, postcode, name, notes }.
+ * Learner waitlist form. POSTs /api/waitlist with { email, role, postcode, name, notes }.
+ *
+ * Learners only. Instructors do not join a waitlist — they apply for a real
+ * account at /instructors/apply and are approved by a founder, so this form no
+ * longer carries a learner/instructor toggle. `role` is still sent, fixed to
+ * 'student', because the API contract and the notification emails expect it.
  *
  * No framework runtime: one small inline script handles submit, and the form
  * carries a real `action`/`method` so it degrades to a normal POST if JS fails.
  */
 interface Props {
   id: string;
-  defaultRole?: 'student' | 'instructor';
-  /** Hides the learner/instructor toggle and locks the role. */
-  lockRole?: boolean;
   submitLabel?: string;
 }
 
-const { id, defaultRole = 'student', lockRole = false, submitLabel } = Astro.props;
+const { id, submitLabel } = Astro.props;
 
-const isInstructor = defaultRole === 'instructor';
-const label =
-  submitLabel || (isInstructor ? 'Apply as a founding instructor' : 'Join the Norwich waitlist');
+const label = submitLabel || 'Join the Norwich waitlist';
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-base text-ink placeholder:text-ink-muted sm:text-sm';
 const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondary';
 ---
 
-<div data-waitlist-root data-default-role={defaultRole}>
+<div data-waitlist-root>
   <form
     id={id}
     action="/api/waitlist"
@@ -33,40 +32,7 @@ const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondar
     data-waitlist-form
     class="flex flex-col gap-5 rounded-2xl border border-border bg-white p-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.08)] sm:p-8"
   >
-    {
-      !lockRole && (
-        <fieldset class="self-start">
-          <legend class="sr-only">I am a</legend>
-          <div class="inline-flex rounded-full border border-border bg-canvas p-1">
-            <label class="cursor-pointer">
-              <input
-                type="radio"
-                name="role"
-                value="student"
-                checked={!isInstructor}
-                class="peer sr-only"
-              />
-              <span class="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold text-ink-secondary transition-colors peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-racing-green peer-focus-visible:ring-offset-2">
-                I want lessons
-              </span>
-            </label>
-            <label class="cursor-pointer">
-              <input
-                type="radio"
-                name="role"
-                value="instructor"
-                checked={isInstructor}
-                class="peer sr-only"
-              />
-              <span class="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold text-ink-secondary transition-colors peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-racing-green peer-focus-visible:ring-offset-2">
-                I&rsquo;m an instructor
-              </span>
-            </label>
-          </div>
-        </fieldset>
-      )
-    }
-    {lockRole && <input type="hidden" name="role" value={defaultRole} />}
+    <input type="hidden" name="role" value="student" />
 
     <div class="grid gap-4 sm:grid-cols-2">
       <div class="flex flex-col gap-1.5">
@@ -101,7 +67,7 @@ const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondar
 
     <div class="flex flex-col gap-1.5">
       <label class={labelClass} for={`${id}-postcode`}>
-        <span data-label-postcode>{isInstructor ? 'Where you teach' : 'Postcode or area'}</span>
+        Postcode or area
         <span class="font-medium normal-case tracking-normal text-ink-muted">(optional)</span>
       </label>
       <input
@@ -109,31 +75,21 @@ const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondar
         name="postcode"
         type="text"
         autocomplete="postal-code"
-        data-placeholder-student="e.g. NR1 or Thorpe St Andrew"
-        data-placeholder-instructor="e.g. Norwich, Sprowston"
-        placeholder={isInstructor ? 'e.g. Norwich, Sprowston' : 'e.g. NR1 or Thorpe St Andrew'}
+        placeholder="e.g. NR1 or Thorpe St Andrew"
         class={inputClass}
       />
     </div>
 
     <div class="flex flex-col gap-1.5">
       <label class={labelClass} for={`${id}-notes`}>
-        <span data-label-notes
-          >{isInstructor ? 'ADI number or experience' : 'Anything we should know'}</span
-        >
+        Anything we should know
         <span class="font-medium normal-case tracking-normal text-ink-muted">(optional)</span>
       </label>
       <textarea
         id={`${id}-notes`}
         name="notes"
         rows="3"
-        data-placeholder-student="Beginner, automatic only, test booked for July"
-        data-placeholder-instructor="ADI-1234, transmission, years teaching, anything else"
-        placeholder={
-          isInstructor
-            ? 'ADI-1234, transmission, years teaching, anything else'
-            : 'Beginner, automatic only, test booked for July'
-        }
+        placeholder="Beginner, automatic only, test booked for July"
         class={`${inputClass} resize-none`}></textarea>
     </div>
 
@@ -145,7 +101,7 @@ const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondar
         data-waitlist-submit
         class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-white transition-transform hover:bg-[#1a1a2c] disabled:cursor-not-allowed disabled:opacity-60 motion-safe:hover:-translate-y-0.5"
       >
-        <span data-waitlist-submit-label data-label-student="Join the Norwich waitlist" data-label-instructor="Apply as a founding instructor">{label}</span>
+        <span data-waitlist-submit-label>{label}</span>
         <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
           <path
             d="M3 9L9 3M9 3H4.5M9 3V7.5"
@@ -194,31 +150,6 @@ const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondar
     const buttonLabel = root.querySelector<HTMLElement>('[data-waitlist-submit-label]');
     if (!form || !success || !errorEl || !button || !buttonLabel) return;
 
-    const postcodeLabel = root.querySelector<HTMLElement>('[data-label-postcode]');
-    const notesLabel = root.querySelector<HTMLElement>('[data-label-notes]');
-    const postcodeInput = form.querySelector<HTMLInputElement>('input[name="postcode"]');
-    const notesInput = form.querySelector<HTMLTextAreaElement>('textarea[name="notes"]');
-
-    const currentRole = () =>
-      (new FormData(form).get('role') as string) || root.dataset.defaultRole || 'student';
-
-    // Keep the copy in step with the selected role, matching the old component.
-    const syncRoleCopy = () => {
-      const instructor = currentRole() === 'instructor';
-      const suffix = instructor ? 'instructor' : 'student';
-      if (postcodeLabel) postcodeLabel.textContent = instructor ? 'Where you teach' : 'Postcode or area';
-      if (notesLabel)
-        notesLabel.textContent = instructor ? 'ADI number or experience' : 'Anything we should know';
-      if (postcodeInput) postcodeInput.placeholder = postcodeInput.dataset[`placeholder${suffix.charAt(0).toUpperCase()}${suffix.slice(1)}`] || '';
-      if (notesInput) notesInput.placeholder = notesInput.dataset[`placeholder${suffix.charAt(0).toUpperCase()}${suffix.slice(1)}`] || '';
-      buttonLabel.textContent =
-        (instructor ? buttonLabel.dataset.labelInstructor : buttonLabel.dataset.labelStudent) || '';
-    };
-
-    form.querySelectorAll<HTMLInputElement>('input[name="role"]').forEach((radio) =>
-      radio.addEventListener('change', syncRoleCopy)
-    );
-
     let submitting = false;
 
     form.addEventListener('submit', async (event) => {
@@ -228,7 +159,7 @@ const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondar
       const data = new FormData(form);
       const payload = {
         email: String(data.get('email') || ''),
-        role: currentRole(),
+        role: 'student',
         postcode: String(data.get('postcode') || ''),
         name: String(data.get('name') || ''),
         notes: String(data.get('notes') || ''),

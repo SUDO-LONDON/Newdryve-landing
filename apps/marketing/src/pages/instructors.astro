@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductPreview from '../components/ProductPreview.astro';
-import WaitlistForm from '../components/WaitlistForm.astro';
 import Faq from '../components/Faq.astro';
 import { PRICING, BRAND } from '../config/site';
 import {
@@ -108,7 +107,7 @@ const jsonLd = [
 
         <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <a
-            href="#apply"
+            href="/instructors/apply"
             class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] motion-safe:hover:-translate-y-0.5"
           >
             Apply as a founding instructor
@@ -367,7 +366,7 @@ const jsonLd = [
         </ul>
 
         <a
-          href="#apply"
+          href="/instructors/apply"
           class="focus-ring mt-8 inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-white transition-transform hover:bg-[#1a1a2c] motion-safe:hover:-translate-y-0.5"
         >
           Apply as a founding instructor
@@ -409,11 +408,65 @@ const jsonLd = [
           Apply as a founding instructor.
         </h2>
         <p class="mx-auto mt-4 max-w-xl text-base leading-relaxed text-ink-secondary">
-          Tell us your ADI number and where you teach. We onboard founding instructors in small
-          groups so everyone gets set up properly.
+          You&rsquo;re applying for a real account, not a waiting list. Set up your profile and
+          choose your password now; we check your certificates and approve you by hand, usually
+          within a day or two.
         </p>
       </div>
-      <WaitlistForm id="waitlist-instructor" defaultRole="instructor" lockRole />
+
+      <div class="reveal rounded-2xl border border-border bg-white p-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.08)] sm:p-8">
+        <p class="text-[11px] font-bold uppercase tracking-[1px] text-ink-muted">
+          What you&rsquo;ll need
+        </p>
+        <ul class="mt-4 space-y-3 text-sm leading-relaxed text-ink-secondary">
+          {
+            [
+              'A photo or screenshot of your ADI certificate.',
+              'A photo or screenshot of your DBS certificate.',
+              'Your hourly rate, the areas you cover and roughly when you teach.',
+              'About five minutes.',
+            ].map((item) => (
+              <li class="flex gap-3">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 22 22"
+                  fill="none"
+                  aria-hidden="true"
+                  class="mt-0.5 shrink-0 text-racing-green"
+                >
+                  <path
+                    d="M5 11l4 4 8-9"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+
+        <a
+          href="/instructors/apply"
+          class="focus-ring mt-7 inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] motion-safe:hover:-translate-y-0.5"
+        >
+          Start your application
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path
+              d="M2.5 6h7M6 2.5 9.5 6 6 9.5"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </a>
+        <p class="mt-4 text-center text-xs text-ink-muted">
+          Free until your first booking. You keep 100% of every lesson fee.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -431,7 +484,7 @@ const jsonLd = [
       </p>
       <div class="mt-8">
         <a
-          href="#apply"
+          href="/instructors/apply"
           class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-racing-green transition-transform motion-safe:hover:-translate-y-0.5"
         >
           Apply as a founding instructor

@@ -9,7 +9,7 @@ interface Props {
 const { audience = 'learner' } = Astro.props;
 
 const links = audience === 'instructor' ? INSTRUCTOR_NAV_LINKS : NAV_LINKS;
-const ctaHref = audience === 'instructor' ? '/instructors#apply' : '/#join';
+const ctaHref = audience === 'instructor' ? '/instructors/apply' : '/#join';
 const ctaLabel = audience === 'instructor' ? 'Apply' : 'Join';
 const ctaLabelLong =
   audience === 'instructor' ? 'Apply as a founding instructor' : 'Join the waitlist';
