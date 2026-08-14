@@ -1,6 +1,6 @@
 ---
 /**
- * Instructor application form.
+ * Instructor application form, as a five-step stepper.
  *
  * Replaces the founder's local daemon as the way an instructor account comes
  * into existence. The applicant chooses their own password here and keeps it —
@@ -8,10 +8,15 @@
  * created immediately but cannot be signed into until a founder approves it
  * in /ops.
  *
+ * Progressive enhancement: the stepper is applied by script, not baked into the
+ * markup. With JavaScript off, every step renders as a plain stacked form with
+ * one submit button and a real action/method, exactly as it did before. The
+ * step chrome (progress bar, Back/Next) starts `hidden` and is revealed on init.
+ *
  * Certificates are PUT straight from the browser to Supabase Storage using
  * short-lived signed URLs returned by the API, so the files never pass through
  * this service. Consistent with the rest of the site, there is no framework
- * runtime: one inline script does the submit.
+ * runtime: one inline script drives the whole thing.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { organizationSchema, breadcrumbSchema } from '../../lib/schema';
@@ -31,10 +36,23 @@ const jsonLd = [
 
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-base text-ink placeholder:text-ink-muted sm:text-sm';
+const fileClass =
+  'focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-sm text-ink-secondary file:mr-3 file:rounded-full file:border-0 file:bg-ink file:px-4 file:py-2 file:text-xs file:font-bold file:text-white';
 const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondary';
 const optionalClass = 'font-medium normal-case tracking-normal text-ink-muted';
-const sectionClass = 'flex flex-col gap-5 border-t border-border pt-8 first:border-0 first:pt-0';
-const legendClass = 'text-lg font-extrabold tracking-tight text-ink';
+const stepClass = 'flex flex-col gap-5';
+const legendClass = 'font-display text-xl font-semibold tracking-[-0.5px] text-ink';
+const pillClass =
+  'inline-flex min-h-11 items-center rounded-full border border-border px-4 text-sm font-bold text-ink-secondary transition-colors peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-racing-green peer-focus-visible:ring-offset-2';
+
+/** Drives both the progress rail and the script's step count. */
+const formSteps = [
+  { n: 1, label: 'About you' },
+  { n: 2, label: 'Sign-in' },
+  { n: 3, label: 'Certificates' },
+  { n: 4, label: 'Teaching' },
+  { n: 5, label: 'Availability' },
+];
 
 // Monday-first for readability; the value is the Postgres weekday (0 = Sunday).
 const weekdays = [
@@ -54,14 +72,25 @@ const lessonTypes = [
   { code: 'mock_test', label: 'Mock test', checked: false },
 ];
 
-const steps = [
+const howItWorks = [
   { badge: 'bg-racing-green', text: 'You apply here and choose the password you&rsquo;ll sign in with.' },
   { badge: 'bg-deep-rose', text: 'We check your ADI and DBS certificates by hand, usually within a day or two.' },
   { badge: 'bg-ink', text: 'We email you the moment you&rsquo;re approved, and you sign straight into the app.' },
 ];
+
+const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,application/pdf';
 ---
 
-<BaseLayout title={title} description={description} path="/instructors/apply" jsonLd={jsonLd}>
+{/* audience="instructor" matters: the default learner nav puts a "Join the
+    waitlist" CTA in the header, which is the one thing an instructor should
+    never be offered on the application page. */}
+<BaseLayout
+  title={title}
+  description={description}
+  path="/instructors/apply"
+  jsonLd={jsonLd}
+  audience="instructor"
+>
   <div class="relative overflow-hidden">
     <div class="dot-pattern pointer-events-none absolute inset-0 opacity-40" aria-hidden="true"></div>
 
@@ -86,7 +115,7 @@ const steps = [
           <h2 class="text-sm font-extrabold text-ink">How it works</h2>
           <ol class="mt-4 space-y-4 text-sm leading-relaxed text-ink-secondary">
             {
-              steps.map((step, index) => (
+              howItWorks.map((step, index) => (
                 <li class="flex gap-3">
                   <span
                     class={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white ${step.badge}`}
@@ -113,10 +142,36 @@ const steps = [
           method="post"
           novalidate
           data-apply-form
-          class="flex flex-col gap-8 rounded-2xl border border-border bg-white p-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.08)] sm:p-8"
+          class="flex flex-col gap-6 rounded-2xl border border-border bg-white p-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.08)] sm:p-8"
         >
-          <fieldset class={sectionClass}>
-            <legend class={legendClass}>About you</legend>
+          {/* Step chrome. Hidden until the script takes over, so a no-JS
+              visitor sees a plain stacked form rather than dead controls. */}
+          <div data-stepper-chrome hidden>
+            <div class="flex items-baseline justify-between gap-3">
+              <p class="text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+                Step <span data-step-current>1</span> of {formSteps.length}
+              </p>
+              <p data-step-name class="text-sm font-semibold text-ink-secondary"></p>
+            </div>
+
+            <ol class="mt-3 flex gap-1.5" aria-hidden="true">
+              {
+                formSteps.map((step) => (
+                  <li
+                    data-step-tick={step.n}
+                    class="h-1.5 flex-1 rounded-full bg-border transition-colors"
+                  />
+                ))
+              }
+            </ol>
+
+            {/* Announces step changes to screen readers without stealing focus
+                from the heading, which is focused separately. */}
+            <p data-step-announce class="sr-only" role="status" aria-live="polite"></p>
+          </div>
+
+          <fieldset class={stepClass} data-step="1">
+            <legend class={legendClass} tabindex="-1" data-step-heading>About you</legend>
 
             <div class="grid gap-4 sm:grid-cols-2">
               <div class="flex flex-col gap-1.5">
@@ -164,8 +219,8 @@ const steps = [
             </div>
           </fieldset>
 
-          <fieldset class={sectionClass}>
-            <legend class={legendClass}>Your sign-in details</legend>
+          <fieldset class={stepClass} data-step="2">
+            <legend class={legendClass} tabindex="-1" data-step-heading>Your sign-in details</legend>
             <p class="-mt-2 text-sm text-ink-secondary">
               This is the password you&rsquo;ll use in the app. It won&rsquo;t work until
               we&rsquo;ve approved you.
@@ -220,8 +275,8 @@ const steps = [
             </div>
           </fieldset>
 
-          <fieldset class={sectionClass}>
-            <legend class={legendClass}>Your certificates</legend>
+          <fieldset class={stepClass} data-step="3">
+            <legend class={legendClass} tabindex="-1" data-step-heading>Your certificates</legend>
             <p class="-mt-2 text-sm text-ink-secondary">
               A clear photo or screenshot is fine. We check these by hand before approving you, and
               they&rsquo;re stored privately &mdash; only the Newdryve team can ever see them.
@@ -237,8 +292,8 @@ const steps = [
                   name="adi_document"
                   type="file"
                   required
-                  accept="image/jpeg,image/png,image/heic,image/heif,image/webp,application/pdf"
-                  class="focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-sm text-ink-secondary file:mr-3 file:rounded-full file:border-0 file:bg-ink file:px-4 file:py-2 file:text-xs file:font-bold file:text-white"
+                  accept={acceptTypes}
+                  class={fileClass}
                 />
               </div>
               <div class="flex flex-col gap-1.5">
@@ -250,8 +305,8 @@ const steps = [
                   name="dbs_document"
                   type="file"
                   required
-                  accept="image/jpeg,image/png,image/heic,image/heif,image/webp,application/pdf"
-                  class="focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-sm text-ink-secondary file:mr-3 file:rounded-full file:border-0 file:bg-ink file:px-4 file:py-2 file:text-xs file:font-bold file:text-white"
+                  accept={acceptTypes}
+                  class={fileClass}
                 />
               </div>
             </div>
@@ -284,8 +339,8 @@ const steps = [
             </div>
           </fieldset>
 
-          <fieldset class={sectionClass}>
-            <legend class={legendClass}>How you teach</legend>
+          <fieldset class={stepClass} data-step="4">
+            <legend class={legendClass} tabindex="-1" data-step-heading>How you teach</legend>
 
             <div class="grid gap-4 sm:grid-cols-2">
               <div class="flex flex-col gap-1.5">
@@ -313,15 +368,11 @@ const steps = [
                 <div class="flex flex-wrap gap-2 pt-1">
                   <label class="cursor-pointer">
                     <input type="checkbox" name="transmissions" value="manual" checked class="peer sr-only" />
-                    <span class="inline-flex min-h-11 items-center rounded-full border border-border px-4 text-sm font-bold text-ink-secondary transition-colors peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-racing-green peer-focus-visible:ring-offset-2">
-                      Manual
-                    </span>
+                    <span class={pillClass}>Manual</span>
                   </label>
                   <label class="cursor-pointer">
                     <input type="checkbox" name="transmissions" value="auto" class="peer sr-only" />
-                    <span class="inline-flex min-h-11 items-center rounded-full border border-border px-4 text-sm font-bold text-ink-secondary transition-colors peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-racing-green peer-focus-visible:ring-offset-2">
-                      Automatic
-                    </span>
+                    <span class={pillClass}>Automatic</span>
                   </label>
                 </div>
               </div>
@@ -340,9 +391,7 @@ const steps = [
                         checked={lesson.checked}
                         class="peer sr-only"
                       />
-                      <span class="inline-flex min-h-11 items-center rounded-full border border-border px-4 text-sm font-bold text-ink-secondary transition-colors peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-racing-green peer-focus-visible:ring-offset-2">
-                        {lesson.label}
-                      </span>
+                      <span class={pillClass}>{lesson.label}</span>
                     </label>
                   ))
                 }
@@ -397,8 +446,10 @@ const steps = [
             </div>
           </fieldset>
 
-          <fieldset class={sectionClass}>
-            <legend class={legendClass}>When you&rsquo;re available</legend>
+          <fieldset class={stepClass} data-step="5">
+            <legend class={legendClass} tabindex="-1" data-step-heading>
+              When you&rsquo;re available
+            </legend>
             <p class="-mt-2 text-sm text-ink-secondary">
               A rough starting point is fine &mdash; you can change all of this in the app once
               you&rsquo;re approved.
@@ -455,24 +506,51 @@ const steps = [
             </div>
           </fieldset>
 
-          <div class="flex flex-col gap-4 border-t border-border pt-8">
+          <div class="flex flex-col gap-4 border-t border-border pt-6">
             <p data-apply-error role="alert" class="hidden text-sm font-semibold text-deep-rose-ink">
             </p>
 
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div class="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                data-step-back
+                hidden
+                class="focus-ring inline-flex min-h-11 items-center justify-center rounded-full border border-border px-5 py-3.5 text-sm font-bold text-ink transition-colors hover:bg-blush-surface disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Back
+              </button>
+
+              <button
+                type="button"
+                data-step-next
+                hidden
+                class="focus-ring inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-white transition-transform hover:bg-[#1a1a2c] motion-safe:hover:-translate-y-0.5 sm:flex-none"
+              >
+                Continue
+                <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                  <path
+                    d="M2.5 6h7M6 2.5 9.5 6 6 9.5"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
+                </svg>
+              </button>
+
               <button
                 type="submit"
                 data-apply-submit
-                class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-white transition-transform hover:bg-[#1a1a2c] disabled:cursor-not-allowed disabled:opacity-60 motion-safe:hover:-translate-y-0.5"
+                class="focus-ring inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] disabled:cursor-not-allowed disabled:opacity-60 motion-safe:hover:-translate-y-0.5 sm:flex-none"
               >
                 <span data-apply-submit-label>Submit application</span>
               </button>
-              <p class="text-xs text-ink-muted">
-                By applying you agree to our
-                <a href="/terms" class="font-semibold text-ink underline underline-offset-2">terms</a>
-                and <a href="/privacy" class="font-semibold text-ink underline underline-offset-2">privacy policy</a>.
-              </p>
             </div>
+
+            <p class="text-xs text-ink-muted">
+              By applying you agree to our
+              <a href="/terms" class="font-semibold text-ink underline underline-offset-2">terms</a>
+              and <a href="/privacy" class="font-semibold text-ink underline underline-offset-2">privacy policy</a>.
+            </p>
           </div>
         </form>
 
@@ -511,6 +589,15 @@ const steps = [
   </div>
 </BaseLayout>
 
+<style>
+  /* The step fieldsets are display:flex, which wins over the `hidden`
+     attribute's UA display:none. Without this the stepper shows every step at
+     once. */
+  [hidden] {
+    display: none !important;
+  }
+</style>
+
 <script>
   const root = document.querySelector<HTMLElement>('[data-apply-root]');
   const form = root?.querySelector<HTMLFormElement>('[data-apply-form]');
@@ -518,10 +605,127 @@ const steps = [
   const successEmail = root?.querySelector<HTMLElement>('[data-apply-success-email]');
   const uploadWarning = root?.querySelector<HTMLElement>('[data-apply-upload-warning]');
   const errorEl = root?.querySelector<HTMLElement>('[data-apply-error]');
-  const button = root?.querySelector<HTMLButtonElement>('[data-apply-submit]');
-  const buttonLabel = root?.querySelector<HTMLElement>('[data-apply-submit-label]');
+  const submitButton = root?.querySelector<HTMLButtonElement>('[data-apply-submit]');
+  const submitLabel = root?.querySelector<HTMLElement>('[data-apply-submit-label]');
+  const chrome = root?.querySelector<HTMLElement>('[data-stepper-chrome]');
+  const backButton = root?.querySelector<HTMLButtonElement>('[data-step-back]');
+  const nextButton = root?.querySelector<HTMLButtonElement>('[data-step-next]');
+  const currentLabel = root?.querySelector<HTMLElement>('[data-step-current]');
+  const stepName = root?.querySelector<HTMLElement>('[data-step-name]');
+  const announce = root?.querySelector<HTMLElement>('[data-step-announce]');
 
-  if (root && form && success && successEmail && uploadWarning && errorEl && button && buttonLabel) {
+  if (
+    root && form && success && successEmail && uploadWarning && errorEl &&
+    submitButton && submitLabel && chrome && backButton && nextButton &&
+    currentLabel && stepName && announce
+  ) {
+    const stepEls = Array.from(root.querySelectorAll<HTMLFieldSetElement>('[data-step]'));
+    const ticks = Array.from(root.querySelectorAll<HTMLElement>('[data-step-tick]'));
+    const names = ['About you', 'Sign-in', 'Certificates', 'Teaching', 'Availability'];
+    const total = stepEls.length;
+    let current = 1;
+
+    const fail = (message: string, focus?: HTMLElement | null) => {
+      errorEl.textContent = message;
+      errorEl.classList.remove('hidden');
+      focus?.focus();
+      return false;
+    };
+
+    const clearError = () => errorEl.classList.add('hidden');
+
+    /**
+     * Per-step gate. Native constraints first (required, minlength, type=email)
+     * so the browser shows its own message against the offending field, then
+     * the checks the markup cannot express.
+     */
+    const validateStep = (step: number): boolean => {
+      const el = stepEls[step - 1];
+      if (!el) return true;
+
+      for (const field of Array.from(
+        el.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+          'input, textarea, select'
+        )
+      )) {
+        if (field.disabled) continue;
+        if (!field.checkValidity()) {
+          clearError();
+          field.reportValidity();
+          return false;
+        }
+      }
+
+      if (step === 2) {
+        const password = form.querySelector<HTMLInputElement>('#apply-password');
+        const confirm = form.querySelector<HTMLInputElement>('#apply-password-confirm');
+        if (password && confirm && password.value !== confirm.value) {
+          return fail('Those two passwords do not match.', confirm);
+        }
+      }
+
+      if (step === 4) {
+        const transmissions = form.querySelectorAll('input[name="transmissions"]:checked');
+        if (transmissions.length === 0) {
+          return fail('Please choose at least one transmission you teach in.');
+        }
+      }
+
+      clearError();
+      return true;
+    };
+
+    const show = (step: number, { focus = true }: { focus?: boolean } = {}) => {
+      current = Math.min(Math.max(step, 1), total);
+      stepEls.forEach((el, index) => {
+        el.hidden = index + 1 !== current;
+      });
+      ticks.forEach((tick, index) => {
+        tick.classList.toggle('bg-racing-green', index + 1 <= current);
+        tick.classList.toggle('bg-border', index + 1 > current);
+      });
+
+      currentLabel.textContent = String(current);
+      stepName.textContent = names[current - 1] ?? '';
+      announce.textContent = `Step ${current} of ${total}: ${names[current - 1] ?? ''}`;
+
+      backButton.hidden = current === 1;
+      nextButton.hidden = current === total;
+      submitButton.hidden = current !== total;
+
+      if (focus) {
+        stepEls[current - 1]?.querySelector<HTMLElement>('[data-step-heading]')?.focus();
+        // Keep the top of the form in view on a phone, where a long step can
+        // otherwise leave the heading off-screen above the fold.
+        form.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
+    };
+
+    // Enhance: reveal the chrome and collapse to one step at a time. Everything
+    // above this point renders as a plain stacked form without JavaScript.
+    chrome.hidden = false;
+    show(1, { focus: false });
+
+    nextButton.addEventListener('click', () => {
+      if (validateStep(current)) show(current + 1);
+    });
+
+    backButton.addEventListener('click', () => {
+      clearError();
+      show(current - 1);
+    });
+
+    // Enter should advance rather than submit, except on the final step.
+    form.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') return;
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'TEXTAREA') return;
+      if (current !== total) {
+        event.preventDefault();
+        if (validateStep(current)) show(current + 1);
+      }
+    });
+
     // Time inputs stay disabled until the day is ticked, so an unchecked day
     // can never contribute an availability rule.
     root.querySelectorAll<HTMLElement>('[data-availability-row]').forEach((row) => {
@@ -575,36 +779,30 @@ const steps = [
       return rules;
     };
 
-    const fail = (message: string) => {
-      errorEl.textContent = message;
-      errorEl.classList.remove('hidden');
-      errorEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    };
-
     let submitting = false;
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       if (submitting) return;
 
+      // Re-check every step, not just the last: someone can go back, break an
+      // earlier answer, then jump forward again.
+      for (let step = 1; step <= total; step += 1) {
+        if (!validateStep(step)) {
+          if (current !== step) show(step);
+          return;
+        }
+      }
+
       const data = new FormData(form);
-      const password = String(data.get('password') || '');
       const email = String(data.get('email') || '').trim().toLowerCase();
-
-      if (password.length < 8) return fail('Your password needs to be at least 8 characters.');
-      if (password !== String(data.get('password_confirm') || '')) {
-        return fail('Those two passwords do not match.');
-      }
-
-      const transmissions = checkedValues('transmissions');
-      if (transmissions.length === 0) {
-        return fail('Please choose at least one transmission you teach in.');
-      }
 
       const adiFile = (form.querySelector<HTMLInputElement>('#apply-adi-doc')?.files || [])[0];
       const dbsFile = (form.querySelector<HTMLInputElement>('#apply-dbs-doc')?.files || [])[0];
       if (!adiFile || !dbsFile) {
-        return fail('Please attach both your ADI and DBS certificates.');
+        show(3);
+        fail('Please attach both your ADI and DBS certificates.');
+        return;
       }
 
       const files: Record<string, File> = { adi: adiFile, dbs: dbsFile };
@@ -613,12 +811,12 @@ const steps = [
       const payload = {
         full_name: String(data.get('full_name') || '').trim(),
         email,
-        password,
+        password: String(data.get('password') || ''),
         phone_e164: toE164(String(data.get('phone') || '')),
         driving_school_name: String(data.get('driving_school_name') || '').trim() || null,
         bio: String(data.get('bio') || '').trim() || null,
         price_per_hour_pounds: Number(data.get('price_per_hour_pounds') || 0),
-        transmissions,
+        transmissions: checkedValues('transmissions'),
         specialisms: splitList(String(data.get('specialisms') || '')),
         service_areas: splitList(String(data.get('service_areas') || '')),
         car_make: String(data.get('car_make') || '').trim() || null,
@@ -640,9 +838,10 @@ const steps = [
       };
 
       submitting = true;
-      button.disabled = true;
-      buttonLabel.textContent = 'Submitting...';
-      errorEl.classList.add('hidden');
+      submitButton.disabled = true;
+      backButton.disabled = true;
+      submitLabel.textContent = 'Submitting...';
+      clearError();
 
       try {
         const res = await fetch('/api/instructor-apply', {
@@ -661,7 +860,7 @@ const steps = [
         // The account exists from here on. Certificate uploads are a follow-up
         // step: if they fail we still show success, because re-submitting the
         // form would only collide with the account we just created.
-        buttonLabel.textContent = 'Uploading certificates...';
+        submitLabel.textContent = 'Uploading certificates...';
         let uploadsOk = true;
 
         for (const upload of body.uploads || []) {
@@ -686,10 +885,11 @@ const steps = [
         success.focus();
       } catch (err) {
         fail(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
-        buttonLabel.textContent = 'Submit application';
+        submitLabel.textContent = 'Submit application';
       } finally {
         submitting = false;
-        button.disabled = false;
+        submitButton.disabled = false;
+        backButton.disabled = false;
       }
     });
   }
