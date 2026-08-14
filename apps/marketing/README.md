@@ -50,8 +50,29 @@ in the browser. It is `noindex`.
 | `/terms` | Real T&Cs, ported verbatim. `noindex`, preserving prior behaviour. |
 | `/datadeletion` | Deletion request form |
 | `/reset-password` | Product Supabase password reset. `noindex`. |
+| `/instructors/apply` | Instructor application form. Certificates upload straight to Supabase Storage. |
 | `/api/waitlist` | `POST {email, role, postcode, name, notes}` |
 | `/api/data-deletion` | `POST {firstName, lastName, email, phone}` |
+| `/api/instructor-apply` | `POST` application → proxies to `POST /v1/instructors/apply` |
+
+### Instructor applications
+
+`/instructors/apply` replaces the founder's local daemon as the way an
+instructor account is created. The applicant chooses their own password, the
+account is created immediately but cannot be signed into, and a founder approves
+it in `/ops`.
+
+It needs one env var, which is **not** in `.env.example` because that file is
+gitignored:
+
+| Var | Value |
+| --- | --- |
+| `BACKEND_ORIGIN` | Live Fastify API origin, e.g. `https://api.newdryve.com` |
+
+Unset, the form returns a 503 with a "temporarily unavailable" message rather
+than failing silently. The ADI/DBS certificates never pass through this service:
+the API returns short-lived signed upload URLs and the browser `PUT`s each file
+directly to a private Supabase Storage bucket.
 
 ## Content and factual claims
 

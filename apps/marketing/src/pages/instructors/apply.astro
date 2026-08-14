@@ -1,0 +1,696 @@
+---
+/**
+ * Instructor application form.
+ *
+ * Replaces the founder's local daemon as the way an instructor account comes
+ * into existence. The applicant chooses their own password here and keeps it —
+ * there is no temporary credential and nothing to redeem later. The account is
+ * created immediately but cannot be signed into until a founder approves it
+ * in /ops.
+ *
+ * Certificates are PUT straight from the browser to Supabase Storage using
+ * short-lived signed URLs returned by the API, so the files never pass through
+ * this service. Consistent with the rest of the site, there is no framework
+ * runtime: one inline script does the submit.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { organizationSchema, breadcrumbSchema } from '../../lib/schema';
+
+const title = 'Apply to teach with Newdryve | Newdryve';
+const description =
+  'Apply to teach with Newdryve. Keep 100% of every lesson fee, set your own hours and prices, and get approved by our team before you start taking bookings.';
+
+const jsonLd = [
+  organizationSchema,
+  breadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'Instructors', path: '/instructors' },
+    { name: 'Apply', path: '/instructors/apply' },
+  ]),
+];
+
+const inputClass =
+  'focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-base text-ink placeholder:text-ink-muted sm:text-sm';
+const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondary';
+const optionalClass = 'font-medium normal-case tracking-normal text-ink-muted';
+const sectionClass = 'flex flex-col gap-5 border-t border-border pt-8 first:border-0 first:pt-0';
+const legendClass = 'text-lg font-extrabold tracking-tight text-ink';
+
+// Monday-first for readability; the value is the Postgres weekday (0 = Sunday).
+const weekdays = [
+  { value: 1, label: 'Monday' },
+  { value: 2, label: 'Tuesday' },
+  { value: 3, label: 'Wednesday' },
+  { value: 4, label: 'Thursday' },
+  { value: 5, label: 'Friday' },
+  { value: 6, label: 'Saturday' },
+  { value: 0, label: 'Sunday' },
+];
+
+const lessonTypes = [
+  { code: '1h', label: '1 hour', checked: true },
+  { code: '90m', label: '90 minutes', checked: true },
+  { code: '2h', label: '2 hours', checked: true },
+  { code: 'mock_test', label: 'Mock test', checked: false },
+];
+
+const steps = [
+  { badge: 'bg-racing-green', text: 'You apply here and choose the password you&rsquo;ll sign in with.' },
+  { badge: 'bg-deep-rose', text: 'We check your ADI and DBS certificates by hand, usually within a day or two.' },
+  { badge: 'bg-ink', text: 'We email you the moment you&rsquo;re approved, and you sign straight into the app.' },
+];
+---
+
+<BaseLayout title={title} description={description} path="/instructors/apply" jsonLd={jsonLd}>
+  <div class="relative overflow-hidden">
+    <div class="dot-pattern pointer-events-none absolute inset-0 opacity-40" aria-hidden="true"></div>
+
+    <div
+      class="relative mx-auto grid max-w-6xl gap-10 px-5 py-12 md:grid-cols-[0.85fr_1.15fr] md:items-start md:gap-16 md:py-20"
+    >
+      <div class="md:sticky md:top-24">
+        <p class="text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+          Founding instructors
+        </p>
+        <h1
+          class="font-display mt-3 text-[clamp(36px,6vw,56px)] font-semibold leading-[1.02] tracking-[-1.2px] text-balance"
+        >
+          Apply to teach with Newdryve.
+        </h1>
+        <p class="mt-5 max-w-xl text-base leading-relaxed text-ink-secondary md:text-lg">
+          We&rsquo;re building a small founding group of ADI-qualified instructors in Norwich. Tell
+          us about yourself and how you teach, and we&rsquo;ll review your application by hand.
+        </p>
+
+        <div class="mt-8 rounded-2xl border border-blush-border bg-blush-surface p-5">
+          <h2 class="text-sm font-extrabold text-ink">How it works</h2>
+          <ol class="mt-4 space-y-4 text-sm leading-relaxed text-ink-secondary">
+            {
+              steps.map((step, index) => (
+                <li class="flex gap-3">
+                  <span
+                    class={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white ${step.badge}`}
+                  >
+                    {index + 1}
+                  </span>
+                  <span set:html={step.text} />
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+
+        <p class="mt-6 text-sm text-ink-secondary">
+          Already applied? You can&rsquo;t sign in until we&rsquo;ve approved you &mdash; we&rsquo;ll
+          email you as soon as that&rsquo;s done.
+        </p>
+      </div>
+
+      <div data-apply-root>
+        <form
+          id="instructor-apply"
+          action="/api/instructor-apply"
+          method="post"
+          novalidate
+          data-apply-form
+          class="flex flex-col gap-8 rounded-2xl border border-border bg-white p-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.08)] sm:p-8"
+        >
+          <fieldset class={sectionClass}>
+            <legend class={legendClass}>About you</legend>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="apply-full-name">
+                  Full name <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                </label>
+                <input
+                  id="apply-full-name"
+                  name="full_name"
+                  type="text"
+                  required
+                  autocomplete="name"
+                  placeholder="Jane Smith"
+                  class={inputClass}
+                />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="apply-phone">
+                  Mobile number <span class={optionalClass}>(optional)</span>
+                </label>
+                <input
+                  id="apply-phone"
+                  name="phone"
+                  type="tel"
+                  autocomplete="tel"
+                  placeholder="07700 900000"
+                  class={inputClass}
+                />
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class={labelClass} for="apply-areas">
+                Areas you cover <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+              </label>
+              <input
+                id="apply-areas"
+                name="service_areas"
+                type="text"
+                required
+                placeholder="Norwich, Sprowston, Thorpe St Andrew"
+                class={inputClass}
+              />
+              <p class="text-xs text-ink-muted">Separate each area with a comma.</p>
+            </div>
+          </fieldset>
+
+          <fieldset class={sectionClass}>
+            <legend class={legendClass}>Your sign-in details</legend>
+            <p class="-mt-2 text-sm text-ink-secondary">
+              This is the password you&rsquo;ll use in the app. It won&rsquo;t work until
+              we&rsquo;ve approved you.
+            </p>
+
+            <div class="flex flex-col gap-1.5">
+              <label class={labelClass} for="apply-email">
+                Email <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+              </label>
+              <input
+                id="apply-email"
+                name="email"
+                type="email"
+                required
+                autocomplete="email"
+                inputmode="email"
+                placeholder="you@example.com"
+                class={inputClass}
+              />
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="apply-password">
+                  Password <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                </label>
+                <input
+                  id="apply-password"
+                  name="password"
+                  type="password"
+                  required
+                  minlength="8"
+                  autocomplete="new-password"
+                  placeholder="At least 8 characters"
+                  class={inputClass}
+                />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="apply-password-confirm">
+                  Confirm password <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                </label>
+                <input
+                  id="apply-password-confirm"
+                  name="password_confirm"
+                  type="password"
+                  required
+                  minlength="8"
+                  autocomplete="new-password"
+                  class={inputClass}
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class={sectionClass}>
+            <legend class={legendClass}>Your certificates</legend>
+            <p class="-mt-2 text-sm text-ink-secondary">
+              A clear photo or screenshot is fine. We check these by hand before approving you, and
+              they&rsquo;re stored privately &mdash; only the Newdryve team can ever see them.
+            </p>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="apply-adi-doc">
+                  ADI certificate <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                </label>
+                <input
+                  id="apply-adi-doc"
+                  name="adi_document"
+                  type="file"
+                  required
+                  accept="image/jpeg,image/png,image/heic,image/heif,image/webp,application/pdf"
+                  class="focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-sm text-ink-secondary file:mr-3 file:rounded-full file:border-0 file:bg-ink file:px-4 file:py-2 file:text-xs file:font-bold file:text-white"
+                />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="apply-dbs-doc">
+                  DBS certificate <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                </label>
+                <input
+                  id="apply-dbs-doc"
+                  name="dbs_document"
+                  type="file"
+                  required
+                  accept="image/jpeg,image/png,image/heic,image/heif,image/webp,application/pdf"
+                  class="focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-sm text-ink-secondary file:mr-3 file:rounded-full file:border-0 file:bg-ink file:px-4 file:py-2 file:text-xs file:font-bold file:text-white"
+                />
+              </div>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="apply-adi-number">
+                  ADI badge number <span class={optionalClass}>(optional)</span>
+                </label>
+                <input
+                  id="apply-adi-number"
+                  name="adi_number"
+                  type="text"
+                  placeholder="e.g. 123456"
+                  class={inputClass}
+                />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="apply-school">
+                  Driving school name <span class={optionalClass}>(optional)</span>
+                </label>
+                <input
+                  id="apply-school"
+                  name="driving_school_name"
+                  type="text"
+                  placeholder="Leave blank if you teach under your own name"
+                  class={inputClass}
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class={sectionClass}>
+            <legend class={legendClass}>How you teach</legend>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="apply-price">
+                  Price per hour (&pound;) <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                </label>
+                <input
+                  id="apply-price"
+                  name="price_per_hour_pounds"
+                  type="number"
+                  required
+                  min="1"
+                  max="500"
+                  step="0.50"
+                  placeholder="40"
+                  class={inputClass}
+                />
+                <p class="text-xs text-ink-muted">You keep 100% of this. Change it any time.</p>
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <span class={labelClass}>
+                  Transmission <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                </span>
+                <div class="flex flex-wrap gap-2 pt-1">
+                  <label class="cursor-pointer">
+                    <input type="checkbox" name="transmissions" value="manual" checked class="peer sr-only" />
+                    <span class="inline-flex min-h-11 items-center rounded-full border border-border px-4 text-sm font-bold text-ink-secondary transition-colors peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-racing-green peer-focus-visible:ring-offset-2">
+                      Manual
+                    </span>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="checkbox" name="transmissions" value="auto" class="peer sr-only" />
+                    <span class="inline-flex min-h-11 items-center rounded-full border border-border px-4 text-sm font-bold text-ink-secondary transition-colors peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-racing-green peer-focus-visible:ring-offset-2">
+                      Automatic
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <span class={labelClass}>Lesson lengths you offer</span>
+              <div class="flex flex-wrap gap-2 pt-1">
+                {
+                  lessonTypes.map((lesson) => (
+                    <label class="cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="lesson_types"
+                        value={lesson.code}
+                        checked={lesson.checked}
+                        class="peer sr-only"
+                      />
+                      <span class="inline-flex min-h-11 items-center rounded-full border border-border px-4 text-sm font-bold text-ink-secondary transition-colors peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-racing-green peer-focus-visible:ring-offset-2">
+                        {lesson.label}
+                      </span>
+                    </label>
+                  ))
+                }
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class={labelClass} for="apply-specialisms">
+                Specialisms <span class={optionalClass}>(optional)</span>
+              </label>
+              <input
+                id="apply-specialisms"
+                name="specialisms"
+                type="text"
+                placeholder="Nervous learners, Pass Plus, refresher lessons"
+                class={inputClass}
+              />
+              <p class="text-xs text-ink-muted">Separate each one with a comma.</p>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class={labelClass} for="apply-bio">
+                Short bio <span class={optionalClass}>(optional)</span>
+              </label>
+              <textarea
+                id="apply-bio"
+                name="bio"
+                rows="3"
+                placeholder="A couple of sentences learners will see on your profile."
+                class={`${inputClass} resize-none`}></textarea>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-3">
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="apply-car-make">
+                  Car make <span class={optionalClass}>(optional)</span>
+                </label>
+                <input id="apply-car-make" name="car_make" type="text" placeholder="Vauxhall" class={inputClass} />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="apply-car-model">
+                  Model <span class={optionalClass}>(optional)</span>
+                </label>
+                <input id="apply-car-model" name="car_model" type="text" placeholder="Corsa" class={inputClass} />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="apply-car-color">
+                  Colour <span class={optionalClass}>(optional)</span>
+                </label>
+                <input id="apply-car-color" name="car_color" type="text" placeholder="Blue" class={inputClass} />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class={sectionClass}>
+            <legend class={legendClass}>When you&rsquo;re available</legend>
+            <p class="-mt-2 text-sm text-ink-secondary">
+              A rough starting point is fine &mdash; you can change all of this in the app once
+              you&rsquo;re approved.
+            </p>
+
+            <div class="flex flex-col gap-2">
+              {
+                weekdays.map((day) => (
+                  <div
+                    class="grid grid-cols-[1fr] items-center gap-2 sm:grid-cols-[auto_1fr_auto_1fr]"
+                    data-availability-row
+                    data-weekday={day.value}
+                  >
+                    <label class="flex min-h-11 cursor-pointer items-center gap-2.5">
+                      <input
+                        type="checkbox"
+                        data-availability-toggle
+                        class="focus-ring size-4 rounded border-border accent-racing-green"
+                      />
+                      <span class="w-24 text-sm font-bold text-ink">{day.label}</span>
+                    </label>
+                    <input
+                      type="time"
+                      value="09:00"
+                      disabled
+                      data-availability-start
+                      aria-label={`${day.label} start time`}
+                      class={`${inputClass} disabled:opacity-40`}
+                    />
+                    <span class="hidden text-center text-sm text-ink-muted sm:block">to</span>
+                    <input
+                      type="time"
+                      value="18:00"
+                      disabled
+                      data-availability-end
+                      aria-label={`${day.label} end time`}
+                      class={`${inputClass} disabled:opacity-40`}
+                    />
+                  </div>
+                ))
+              }
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class={labelClass} for="apply-notes">
+                Anything else we should know <span class={optionalClass}>(optional)</span>
+              </label>
+              <textarea
+                id="apply-notes"
+                name="application_notes"
+                rows="3"
+                placeholder="Years teaching, pass rates, current availability, anything else."
+                class={`${inputClass} resize-none`}></textarea>
+            </div>
+          </fieldset>
+
+          <div class="flex flex-col gap-4 border-t border-border pt-8">
+            <p data-apply-error role="alert" class="hidden text-sm font-semibold text-deep-rose-ink">
+            </p>
+
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <button
+                type="submit"
+                data-apply-submit
+                class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-white transition-transform hover:bg-[#1a1a2c] disabled:cursor-not-allowed disabled:opacity-60 motion-safe:hover:-translate-y-0.5"
+              >
+                <span data-apply-submit-label>Submit application</span>
+              </button>
+              <p class="text-xs text-ink-muted">
+                By applying you agree to our
+                <a href="/terms" class="font-semibold text-ink underline underline-offset-2">terms</a>
+                and <a href="/privacy" class="font-semibold text-ink underline underline-offset-2">privacy policy</a>.
+              </p>
+            </div>
+          </div>
+        </form>
+
+        <div
+          data-apply-success
+          hidden
+          role="status"
+          tabindex="-1"
+          class="rounded-2xl border border-border bg-white p-8 text-center"
+        >
+          <div
+            class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-racing-green/10 text-racing-green"
+          >
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <path
+                d="M5 11l4 4 8-9"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-extrabold tracking-tight">Application received.</h3>
+          <p class="mt-2 text-sm text-ink-secondary">
+            We&rsquo;re working on getting you approved and we&rsquo;ll email
+            <span data-apply-success-email class="font-semibold text-ink"></span> as soon as
+            you&rsquo;re in. You&rsquo;ll sign in with the password you just chose.
+          </p>
+          <p data-apply-upload-warning hidden class="mt-4 rounded-xl bg-blush-surface p-4 text-sm text-ink-secondary">
+            We couldn&rsquo;t upload your certificates. Your application is safe &mdash; just reply
+            to our confirmation email with them attached and we&rsquo;ll add them for you.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-apply-root]');
+  const form = root?.querySelector<HTMLFormElement>('[data-apply-form]');
+  const success = root?.querySelector<HTMLElement>('[data-apply-success]');
+  const successEmail = root?.querySelector<HTMLElement>('[data-apply-success-email]');
+  const uploadWarning = root?.querySelector<HTMLElement>('[data-apply-upload-warning]');
+  const errorEl = root?.querySelector<HTMLElement>('[data-apply-error]');
+  const button = root?.querySelector<HTMLButtonElement>('[data-apply-submit]');
+  const buttonLabel = root?.querySelector<HTMLElement>('[data-apply-submit-label]');
+
+  if (root && form && success && successEmail && uploadWarning && errorEl && button && buttonLabel) {
+    // Time inputs stay disabled until the day is ticked, so an unchecked day
+    // can never contribute an availability rule.
+    root.querySelectorAll<HTMLElement>('[data-availability-row]').forEach((row) => {
+      const toggle = row.querySelector<HTMLInputElement>('[data-availability-toggle]');
+      const start = row.querySelector<HTMLInputElement>('[data-availability-start]');
+      const end = row.querySelector<HTMLInputElement>('[data-availability-end]');
+      toggle?.addEventListener('change', () => {
+        if (!start || !end) return;
+        start.disabled = !toggle.checked;
+        end.disabled = !toggle.checked;
+      });
+    });
+
+    const splitList = (value: string): string[] =>
+      value
+        .split(',')
+        .map((part) => part.trim())
+        .filter(Boolean);
+
+    const checkedValues = (name: string): string[] =>
+      Array.from(form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`)).map(
+        (input) => input.value
+      );
+
+    /** UK mobile as typed (07…) into the E.164 the API expects. */
+    const toE164 = (raw: string): string | null => {
+      const trimmed = raw.replace(/[\s()-]/g, '');
+      if (!trimmed) return null;
+      if (trimmed.startsWith('+')) return trimmed;
+      if (trimmed.startsWith('0')) return `+44${trimmed.slice(1)}`;
+      return `+${trimmed}`;
+    };
+
+    const collectAvailability = () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const rules: Array<Record<string, unknown>> = [];
+      root.querySelectorAll<HTMLElement>('[data-availability-row]').forEach((row) => {
+        const toggle = row.querySelector<HTMLInputElement>('[data-availability-toggle]');
+        const start = row.querySelector<HTMLInputElement>('[data-availability-start]');
+        const end = row.querySelector<HTMLInputElement>('[data-availability-end]');
+        if (!toggle?.checked || !start?.value || !end?.value) return;
+        if (end.value <= start.value) return;
+        rules.push({
+          weekday: Number(row.dataset.weekday),
+          start_time: start.value,
+          end_time: end.value,
+          effective_from: today,
+          effective_until: null,
+        });
+      });
+      return rules;
+    };
+
+    const fail = (message: string) => {
+      errorEl.textContent = message;
+      errorEl.classList.remove('hidden');
+      errorEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    };
+
+    let submitting = false;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (submitting) return;
+
+      const data = new FormData(form);
+      const password = String(data.get('password') || '');
+      const email = String(data.get('email') || '').trim().toLowerCase();
+
+      if (password.length < 8) return fail('Your password needs to be at least 8 characters.');
+      if (password !== String(data.get('password_confirm') || '')) {
+        return fail('Those two passwords do not match.');
+      }
+
+      const transmissions = checkedValues('transmissions');
+      if (transmissions.length === 0) {
+        return fail('Please choose at least one transmission you teach in.');
+      }
+
+      const adiFile = (form.querySelector<HTMLInputElement>('#apply-adi-doc')?.files || [])[0];
+      const dbsFile = (form.querySelector<HTMLInputElement>('#apply-dbs-doc')?.files || [])[0];
+      if (!adiFile || !dbsFile) {
+        return fail('Please attach both your ADI and DBS certificates.');
+      }
+
+      const files: Record<string, File> = { adi: adiFile, dbs: dbsFile };
+      const lessonSelected = checkedValues('lesson_types');
+
+      const payload = {
+        full_name: String(data.get('full_name') || '').trim(),
+        email,
+        password,
+        phone_e164: toE164(String(data.get('phone') || '')),
+        driving_school_name: String(data.get('driving_school_name') || '').trim() || null,
+        bio: String(data.get('bio') || '').trim() || null,
+        price_per_hour_pounds: Number(data.get('price_per_hour_pounds') || 0),
+        transmissions,
+        specialisms: splitList(String(data.get('specialisms') || '')),
+        service_areas: splitList(String(data.get('service_areas') || '')),
+        car_make: String(data.get('car_make') || '').trim() || null,
+        car_model: String(data.get('car_model') || '').trim() || null,
+        car_color: String(data.get('car_color') || '').trim() || null,
+        adi_number: String(data.get('adi_number') || '').trim() || null,
+        application_notes: String(data.get('application_notes') || '').trim() || null,
+        lesson_types: {
+          '1h': lessonSelected.includes('1h'),
+          '90m': lessonSelected.includes('90m'),
+          '2h': lessonSelected.includes('2h'),
+          mock_test: lessonSelected.includes('mock_test'),
+        },
+        weekly_availability: collectAvailability(),
+        documents: [
+          { kind: 'adi', content_type: adiFile.type || 'application/octet-stream' },
+          { kind: 'dbs', content_type: dbsFile.type || 'application/octet-stream' },
+        ],
+      };
+
+      submitting = true;
+      button.disabled = true;
+      buttonLabel.textContent = 'Submitting...';
+      errorEl.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/instructor-apply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const body = (await res.json().catch(() => ({}))) as {
+          error?: string;
+          uploads?: Array<{ kind: string; signed_url: string }>;
+        };
+
+        if (!res.ok) throw new Error(body.error || 'Something went wrong. Please try again.');
+
+        // The account exists from here on. Certificate uploads are a follow-up
+        // step: if they fail we still show success, because re-submitting the
+        // form would only collide with the account we just created.
+        buttonLabel.textContent = 'Uploading certificates...';
+        let uploadsOk = true;
+
+        for (const upload of body.uploads || []) {
+          const file = files[upload.kind];
+          if (!file) continue;
+          try {
+            const put = await fetch(upload.signed_url, {
+              method: 'PUT',
+              headers: { 'content-type': file.type || 'application/octet-stream' },
+              body: file,
+            });
+            if (!put.ok) uploadsOk = false;
+          } catch {
+            uploadsOk = false;
+          }
+        }
+
+        successEmail.textContent = email;
+        uploadWarning.hidden = uploadsOk;
+        form.hidden = true;
+        success.hidden = false;
+        success.focus();
+      } catch (err) {
+        fail(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+        buttonLabel.textContent = 'Submit application';
+      } finally {
+        submitting = false;
+        button.disabled = false;
+      }
+    });
+  }
+</script>
