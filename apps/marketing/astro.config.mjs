@@ -29,6 +29,17 @@ export default defineConfig({
           !['/terms', '/reset-password', '/datadeletion'].includes(pathname)
         );
       },
+      // Canonical URLs omit trailing slashes, so sitemap entries must use the
+      // same URL shape. The home page remains https://newdryve.com/.
+      serialize: (item) => {
+        const url = new URL(item.url);
+
+        if (url.pathname !== '/') {
+          url.pathname = url.pathname.replace(/\/$/, '');
+        }
+
+        return { ...item, url: url.href };
+      },
     }),
   ],
   vite: {
