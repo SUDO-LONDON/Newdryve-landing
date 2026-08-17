@@ -1,47 +1,42 @@
-
-# The internal founder portal is disallowed for every crawler group, in
-# addition to being auth-gated and served from a separate host.
+# Newdryve's public marketing pages are intentionally crawlable. Operational
+# routes and machine endpoints are excluded because they contain no useful
+# search content. Pages with a noindex meta tag remain crawlable so bots can
+# read and honour that directive.
 
 User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /ops
-Disallow: /ops/
+Disallow: /v1/
+Disallow: /healthz
+Disallow: /readyz
 
-User-agent: GPTBot
-Allow: /
-Disallow: /ops
-Disallow: /ops/
-
+# AI search indexes and user-requested retrieval. These crawlers help Newdryve
+# appear as a linked source in ChatGPT, Claude and Perplexity answers.
 User-agent: OAI-SearchBot
-Allow: /
-Disallow: /ops
-Disallow: /ops/
-
 User-agent: ChatGPT-User
-Allow: /
-Disallow: /ops
-Disallow: /ops/
-
+User-agent: Claude-SearchBot
+User-agent: Claude-User
 User-agent: PerplexityBot
+User-agent: Perplexity-User
 Allow: /
+Disallow: /api/
 Disallow: /ops
-Disallow: /ops/
+Disallow: /v1/
+Disallow: /healthz
+Disallow: /readyz
 
+# Model-development and Gemini grounding controls. These are deliberately
+# allowed on the public marketing site; they remain blocked from private and
+# machine-only routes.
+User-agent: GPTBot
+User-agent: ClaudeBot
 User-agent: Google-Extended
 Allow: /
+Disallow: /api/
 Disallow: /ops
-Disallow: /ops/
-
-User-agent: Claude-Web
-Allow: /
-Disallow: /ops
-Disallow: /ops/
-
-User-agent: anthropic-ai
-Allow: /
-Disallow: /ops
-Disallow: /ops/
+Disallow: /v1/
+Disallow: /healthz
+Disallow: /readyz
 
 Sitemap: https://newdryve.com/sitemap-index.xml
-Host: https://newdryve.com

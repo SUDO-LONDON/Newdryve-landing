@@ -1,37 +1,42 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://newdryve.com";
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://newdryve.com").replace(/\/$/, "");
 
-// The internal founder portal is disallowed for every crawler group (in
-// addition to being auth-gated and marked noindex). Keep /ops and /ops/ in
-// every group's disallow list.
-const OPS_DISALLOW = ["/ops", "/ops/"];
+// This Next app currently serves the private /ops surface. Keep its fallback
+// robots route aligned with the canonical Astro marketing site's policy in
+// case the deployment router or hosting topology changes later.
+const NON_CONTENT_PATHS = ["/api/", "/ops", "/v1/", "/healthz", "/readyz"];
+
+const AI_SEARCH_CRAWLERS = [
+  "OAI-SearchBot",
+  "ChatGPT-User",
+  "Claude-SearchBot",
+  "Claude-User",
+  "PerplexityBot",
+  "Perplexity-User",
+];
+
+const AI_MODEL_CRAWLERS = ["GPTBot", "ClaudeBot", "Google-Extended"];
 
 export default function robots(): MetadataRoute.Robots {
-  const aiBots = [
-    "GPTBot",
-    "OAI-SearchBot",
-    "ChatGPT-User",
-    "PerplexityBot",
-    "Google-Extended",
-    "Claude-Web",
-    "anthropic-ai",
-  ];
-
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", ...OPS_DISALLOW],
+        disallow: NON_CONTENT_PATHS,
       },
-      ...aiBots.map((userAgent) => ({
-        userAgent,
+      {
+        userAgent: AI_SEARCH_CRAWLERS,
         allow: "/",
-        disallow: OPS_DISALLOW,
-      })),
+        disallow: NON_CONTENT_PATHS,
+      },
+      {
+        userAgent: AI_MODEL_CRAWLERS,
+        allow: "/",
+        disallow: NON_CONTENT_PATHS,
+      },
     ],
-    sitemap: `${SITE_URL}/sitemap.xml`,
-    host: SITE_URL,
+    sitemap: `${SITE_URL}/sitemap-index.xml`,
   };
 }
