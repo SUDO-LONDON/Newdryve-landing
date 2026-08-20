@@ -13,10 +13,9 @@
  * one submit button and a real action/method, exactly as it did before. The
  * step chrome (progress bar, Back/Next) starts `hidden` and is revealed on init.
  *
- * Certificates are PUT straight from the browser to Supabase Storage using
- * short-lived signed URLs returned by the API, so the files never pass through
- * this service. Consistent with the rest of the site, there is no framework
- * runtime: one inline script drives the whole thing.
+ * An optional ADI badge image is PUT straight from the browser to private
+ * Supabase Storage using a short-lived signed URL. It is supporting evidence,
+ * not the verification itself, and is deleted after review.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { organizationSchema, breadcrumbSchema } from '../../lib/schema';
@@ -48,7 +47,7 @@ const pillClass =
 const formSteps = [
   { n: 1, label: 'About you' },
   { n: 2, label: 'Sign-in' },
-  { n: 3, label: 'Certificates' },
+  { n: 3, label: 'DVSA check' },
   { n: 4, label: 'Teaching' },
   { n: 5, label: 'Availability' },
 ];
@@ -150,8 +149,9 @@ const ukCities = [
 
 const howItWorks = [
   { badge: 'bg-racing-green', text: 'You apply here and choose the password you&rsquo;ll sign in with.' },
-  { badge: 'bg-deep-rose', text: 'We check your ADI and DBS certificates by hand, usually within a day or two.' },
-  { badge: 'bg-ink', text: 'We email you the moment you&rsquo;re approved, and you sign straight into the app.' },
+  { badge: 'bg-deep-rose', text: 'With your permission, we confirm your current ADI registration through GOV.UK or directly with DVSA.' },
+  { badge: 'bg-ink', text: 'If approved, we email your agreed membership and trial terms with a secure Stripe setup link.' },
+  { badge: 'bg-racing-green', text: 'Stripe confirms setup, your account unlocks, and you finish payout onboarding in the app.' },
 ];
 
 const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,application/pdf';
@@ -206,8 +206,8 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         </div>
 
         <p class="mt-6 text-sm text-ink-secondary">
-          Already applied? You can&rsquo;t sign in until we&rsquo;ve approved you &mdash; we&rsquo;ll
-          email you as soon as that&rsquo;s done.
+          Already applied? You can&rsquo;t sign in until we&rsquo;ve approved you and Stripe has confirmed
+          your membership setup &mdash; we&rsquo;ll email you the secure link.
         </p>
       </div>
 
@@ -370,40 +370,12 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
           </fieldset>
 
           <fieldset class={stepClass} data-step="3">
-            <legend class={legendClass} tabindex="-1" data-step-heading>Your certificates</legend>
+            <legend class={legendClass} tabindex="-1" data-step-heading>DVSA registration check</legend>
             <p class="-mt-2 text-sm text-ink-secondary">
-              A clear photo or screenshot is fine. We check these by hand before approving you, and
-              they&rsquo;re stored privately &mdash; only the Newdryve team can ever see them.
+              DVSA already carries out the criminal-record suitability checks required for ADI
+              registration. We only confirm that your registration is current; we do not need your
+              DBS certificate.
             </p>
-
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div class="flex flex-col gap-1.5">
-                <label class={labelClass} for="apply-adi-doc">
-                  ADI certificate <span aria-hidden="true" class="text-deep-rose-ink">*</span>
-                </label>
-                <input
-                  id="apply-adi-doc"
-                  name="adi_document"
-                  type="file"
-                  required
-                  accept={acceptTypes}
-                  class={fileClass}
-                />
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <label class={labelClass} for="apply-dbs-doc">
-                  DBS certificate <span aria-hidden="true" class="text-deep-rose-ink">*</span>
-                </label>
-                <input
-                  id="apply-dbs-doc"
-                  name="dbs_document"
-                  type="file"
-                  required
-                  accept={acceptTypes}
-                  class={fileClass}
-                />
-              </div>
-            </div>
 
             <div class="grid gap-4 sm:grid-cols-2">
               <div class="flex flex-col gap-1.5">
@@ -419,6 +391,53 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
                   class={inputClass}
                 />
               </div>
+              <div class="flex flex-col gap-1.5">
+                <label class={labelClass} for="apply-adi-expiry">
+                  ADI badge expiry <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                </label>
+                <input
+                  id="apply-adi-expiry"
+                  name="adi_badge_expires_on"
+                  type="date"
+                  required
+                  class={inputClass}
+                />
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class={labelClass} for="apply-adi-doc">
+                ADI badge image <span class="normal-case tracking-normal text-ink-muted">(optional)</span>
+              </label>
+              <input
+                id="apply-adi-doc"
+                name="adi_document"
+                type="file"
+                accept={acceptTypes}
+                aria-describedby="apply-adi-doc-help"
+                class={fileClass}
+              />
+              <p id="apply-adi-doc-help" class="text-xs leading-5 text-ink-muted">
+                Useful only if your details are difficult to match. Stored privately and deleted
+                after review. Your DVSA status is checked separately.
+              </p>
+            </div>
+
+            <label class="flex items-start gap-3 rounded-xl border border-border bg-canvas p-4 text-sm leading-6 text-ink-secondary">
+              <input
+                type="checkbox"
+                name="dvsa_verification_consent"
+                value="yes"
+                required
+                class="mt-1 size-4 shrink-0 accent-racing-green"
+              />
+              <span>
+                I authorise Newdryve to use my name and ADI number to check that my registration is
+                current through the GOV.UK directory or by contacting DVSA.
+              </span>
+            </label>
+
+            <div class="grid gap-4 sm:grid-cols-2">
               <div class="flex flex-col gap-1.5">
                 <label class={labelClass} for="apply-school">
                   Driving school name <span aria-hidden="true" class="text-deep-rose-ink">*</span>
@@ -678,11 +697,12 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
           <p class="mt-2 text-sm text-ink-secondary">
             We&rsquo;re working on getting you approved and we&rsquo;ll email
             <span data-apply-success-email class="font-semibold text-ink"></span> as soon as
-            you&rsquo;re in. You&rsquo;ll sign in with the password you just chose.
+            you&rsquo;re approved. That email will contain the final Stripe membership setup step;
+            you&rsquo;ll sign in with the password you just chose once it is complete.
           </p>
           <p data-apply-upload-warning hidden class="mt-4 rounded-xl bg-blush-surface p-4 text-sm text-ink-secondary">
-            We couldn&rsquo;t upload your certificates. Your application is safe &mdash; just reply
-            to our confirmation email with them attached and we&rsquo;ll add them for you.
+            We couldn&rsquo;t upload the optional badge image. Your application is safe and we can still
+            verify your registration directly with DVSA.
           </p>
         </div>
       </div>
@@ -722,7 +742,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
   ) {
     const stepEls = Array.from(root.querySelectorAll<HTMLFieldSetElement>('[data-step]'));
     const ticks = Array.from(root.querySelectorAll<HTMLElement>('[data-step-tick]'));
-    const names = ['About you', 'Sign-in', 'Certificates', 'Teaching', 'Availability'];
+    const names = ['About you', 'Sign-in', 'DVSA check', 'Teaching', 'Availability'];
     const total = stepEls.length;
     let current = 1;
 
@@ -837,6 +857,8 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
     // Enhance: reveal the chrome and collapse to one step at a time. Everything
     // above this point renders as a plain stacked form without JavaScript.
     chrome.hidden = false;
+    const adiExpiry = form.querySelector<HTMLInputElement>('#apply-adi-expiry');
+    if (adiExpiry) adiExpiry.min = new Date().toISOString().slice(0, 10);
     show(1, { focus: false });
 
     nextButton.addEventListener('click', () => {
@@ -940,14 +962,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
       const email = String(data.get('email') || '').trim().toLowerCase();
 
       const adiFile = (form.querySelector<HTMLInputElement>('#apply-adi-doc')?.files || [])[0];
-      const dbsFile = (form.querySelector<HTMLInputElement>('#apply-dbs-doc')?.files || [])[0];
-      if (!adiFile || !dbsFile) {
-        show(3);
-        fail('Please attach both your ADI and DBS certificates.');
-        return;
-      }
-
-      const files: Record<string, File> = { adi: adiFile, dbs: dbsFile };
+      const files: Record<string, File> = adiFile ? { adi: adiFile } : {};
       const lessonSelected = checkedValues('lesson_types');
 
       const payload = {
@@ -965,6 +980,8 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         car_model: String(data.get('car_model') || '').trim() || null,
         car_color: String(data.get('car_color') || '').trim() || null,
         adi_number: String(data.get('adi_number') || '').trim() || null,
+        adi_badge_expires_on: String(data.get('adi_badge_expires_on') || ''),
+        dvsa_verification_consent: data.get('dvsa_verification_consent') === 'yes',
         application_notes: String(data.get('application_notes') || '').trim() || null,
         lesson_types: {
           '1h': lessonSelected.includes('1h'),
@@ -973,10 +990,9 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
           mock_test: false,
         },
         weekly_availability: collectAvailability(),
-        documents: [
-          { kind: 'adi', content_type: adiFile.type || 'application/octet-stream' },
-          { kind: 'dbs', content_type: dbsFile.type || 'application/octet-stream' },
-        ],
+        documents: adiFile
+          ? [{ kind: 'adi', content_type: adiFile.type || 'application/octet-stream' }]
+          : [],
       };
 
       submitting = true;
@@ -999,10 +1015,10 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
 
         if (!res.ok) throw new Error(body.error || 'Something went wrong. Please try again.');
 
-        // The account exists from here on. Certificate uploads are a follow-up
+        // The account exists from here on. The optional badge upload is a follow-up
         // step: if they fail we still show success, because re-submitting the
         // form would only collide with the account we just created.
-        submitLabel.textContent = 'Uploading certificates...';
+        submitLabel.textContent = adiFile ? 'Uploading badge image...' : 'Finishing...';
         let uploadsOk = true;
 
         for (const upload of body.uploads || []) {

@@ -37,7 +37,7 @@ const FAQ_ITEMS: readonly FaqItem[] = [
   },
   {
     q: 'What do I need to qualify?',
-    a: 'You need to be ADI-qualified and willing to complete a DBS check. We verify both before your profile goes live, because that verification is what learners trust.',
+    a: 'You need a current ADI registration. With your permission, we verify it through the GOV.UK directory or directly with DVSA before your profile goes live. DVSA already handles the required criminal-record suitability checks.',
   },
 ];
 
@@ -413,7 +413,7 @@ const jsonLd = [
         </h2>
         <p class="mx-auto mt-4 max-w-xl text-base leading-relaxed text-ink-secondary">
           You&rsquo;re applying for a real account, not a waiting list. Set up your profile and
-          choose your password now; we check your certificates and approve you by hand, usually
+          choose your password now; we check your current DVSA registration and approve you by hand, usually
           within a day or two.
         </p>
       </div>
@@ -425,8 +425,8 @@ const jsonLd = [
         <ul class="mt-4 space-y-3 text-sm leading-relaxed text-ink-secondary">
           {
             [
-              'A photo or screenshot of your ADI certificate.',
-              'A photo or screenshot of your DBS certificate.',
+              'Your ADI number and badge expiry date.',
+              'Permission for Newdryve to confirm your current registration with DVSA.',
               'Your hourly rate, the areas you cover and roughly when you teach.',
               'About five minutes.',
             ].map((item) => (

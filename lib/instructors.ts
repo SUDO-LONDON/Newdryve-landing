@@ -14,7 +14,7 @@ export type Instructor = {
   yearsExp: number;
   car: string;
   bio: string;
-  dbsVerified: boolean;
+  dvsaVerified: boolean;
   adiNumber: string;
 };
 
@@ -41,7 +41,7 @@ export const INSTRUCTORS: Instructor[] = [
     yearsExp: 8,
     car: 'Ford Fiesta, Manual',
     bio: 'Patient and calm. Specialist in nervous learners getting back on track.',
-    dbsVerified: true,
+    dvsaVerified: true,
     adiNumber: 'ADI-2847',
   },
   {
@@ -60,7 +60,7 @@ export const INSTRUCTORS: Instructor[] = [
     yearsExp: 5,
     car: 'Vauxhall Corsa, Manual',
     bio: 'Fast-track specialist. Average pass in under 30 hours.',
-    dbsVerified: true,
+    dvsaVerified: true,
     adiNumber: 'ADI-3912',
   },
   {
@@ -79,7 +79,7 @@ export const INSTRUCTORS: Instructor[] = [
     yearsExp: 6,
     car: 'Toyota Yaris, Automatic',
     bio: '100% five-star reviews. Automatic specialist.',
-    dbsVerified: true,
+    dvsaVerified: true,
     adiNumber: 'ADI-4421',
   },
   {
@@ -98,7 +98,7 @@ export const INSTRUCTORS: Instructor[] = [
     yearsExp: 12,
     car: 'Nissan Micra, Manual',
     bio: 'Norfolk born and bred. Most affordable in the area.',
-    dbsVerified: true,
+    dvsaVerified: true,
     adiNumber: 'ADI-1103',
   },
 ];

@@ -65,12 +65,10 @@ const linkClass = 'focus-ring rounded font-semibold text-ink underline underline
           <li>
             <strong class="text-ink">Instructor application information:</strong> if you apply to teach
             with Newdryve, your name, email address, telephone number, the areas you cover, your ADI
-            badge number, driving-school name, hourly rate, vehicle details, availability and any notes
-            you add. We also ask you to upload a copy of your <strong class="text-ink">ADI certificate
-            and DBS certificate</strong> so we can verify you before your profile goes live. These
-            documents are stored privately, are never publicly accessible, are visible only to the
-            Newdryve team reviewing your application, and are not shared with learners or any third
-            party. See section 7 for how long we keep them.
+            number and expiry date, driving-school name, hourly rate, vehicle details, availability and
+            any notes you add. We record your permission for us to confirm your current registration
+            through the GOV.UK directory or directly with DVSA. You may optionally upload a badge image
+            to help us match your details. We do not request or retain your DBS certificate.
           </li>
           <li>
             <strong class="text-ink">Account and profile information:</strong> your name, email address,
@@ -112,6 +110,11 @@ const linkClass = 'focus-ring rounded font-semibold text-ink underline underline
           match learners and instructors, manage bookings, process and record payments, enable
           payouts, send service notifications, provide support, maintain records, prevent fraud,
           investigate disputes, protect users and improve reliability.
+        </p>
+        <p>
+          For instructor verification, we use the applicant&rsquo;s name and ADI number only to confirm
+          current DVSA registration. We record the verification method, date, reviewer and next recheck
+          date. We do not independently assess criminal-record information or publish a Newdryve DBS claim.
         </p>
         <p>
           Where UK data-protection law applies, we rely on the performance of a contract, legal
@@ -192,14 +195,12 @@ const linkClass = 'focus-ring rounded font-semibold text-ink underline underline
           dispute handling.
         </p>
         <p>
-          ADI and DBS certificates uploaded with an instructor application are kept while the
-          application is being assessed and, if you are approved, for as long as you hold an active
-          instructor account, as the record of the verification we carried out. If your application
-          is unsuccessful, or you close your instructor account, we delete them. You can ask us to
-          delete them at any time by emailing <a
-            href="mailto:support@newdryve.com"
-            class={linkClass}>support@newdryve.com</a
-          >, though we may not be able to keep your profile live without them.
+          An optional ADI badge image is kept only while an instructor application is reviewed and is
+          deleted after the decision. We retain the minimal verification record &mdash; ADI number,
+          badge expiry, check method, date, reviewer and recheck date &mdash; while the instructor account
+          remains active and as needed for disputes or legal obligations. We do not request or retain DBS
+          certificates. You can ask about or request deletion of application information by emailing <a
+            href="mailto:support@newdryve.com" class={linkClass}>support@newdryve.com</a>.
         </p>
       </section>
 

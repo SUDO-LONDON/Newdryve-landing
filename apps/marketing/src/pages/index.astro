@@ -39,7 +39,7 @@ const FAQ_ITEMS: readonly FaqItem[] = [
   },
   {
     q: 'Are the instructors qualified?',
-    a: 'Every instructor on Newdryve is ADI-qualified and DBS-checked before their profile goes live. You can see their experience, specialisms and the areas they cover on their profile.',
+    a: 'Every instructor’s current DVSA registration is checked before their profile goes live. DVSA requires criminal-record suitability checks for ADI registration and renewal. You can also see their experience, specialisms and coverage areas.',
   },
 ];
 
@@ -47,7 +47,7 @@ const HOW_IT_WORKS = [
   {
     step: '01',
     title: 'Find an instructor',
-    body: 'Browse ADI-qualified, DBS-checked instructors near you. Filter by manual or automatic, see their rate, specialisms and the areas they cover.',
+    body: 'Browse DVSA-verified, ADI-qualified instructors near you. Filter by manual or automatic, see their rate, specialisms and the areas they cover.',
   },
   {
     step: '02',
@@ -64,7 +64,7 @@ const HOW_IT_WORKS = [
 const BENEFITS = [
   {
     title: 'Verified instructors only',
-    body: 'Every instructor is ADI-qualified and DBS-checked before they appear. No guesswork.',
+    body: 'We check every instructor’s current DVSA registration before they appear. No guesswork.',
   },
   {
     title: 'Real availability',
@@ -172,7 +172,7 @@ const foundingInstructor = FOUNDING_INSTRUCTORS.people[0];
                 stroke-linecap="round"
                 stroke-linejoin="round"></path>
             </svg>
-            Verified, DBS-checked instructors
+            DVSA-verified instructors
           </span>
         </p>
       </div>
@@ -191,7 +191,7 @@ const foundingInstructor = FOUNDING_INSTRUCTORS.people[0];
   <section aria-label="Why Newdryve is trustworthy" class="border-y border-border bg-white">
     <ul class="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-2 px-5 py-5 text-center">
       {
-        ['ADI-qualified instructors', 'DBS-checked', 'No booking fees for learners', 'Built in Norwich'].map(
+        ['ADI-qualified instructors', 'DVSA status checked', 'No booking fees for learners', 'Built in Norwich'].map(
           (item) => (
             <li class="inline-flex items-center gap-2 text-sm font-semibold text-ink-secondary">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" class="text-ink-muted">

@@ -33,6 +33,7 @@ export default defineConfig({
             '/connect/return',
             '/connect/refresh',
             '/instructor/setup',
+            '/instructors/activate',
           ].includes(pathname)
         );
       },
