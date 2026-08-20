@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import InstructorApprovals from "@/components/ops/InstructorApprovals";
+import InstructorBilling from "@/components/ops/InstructorBilling";
 import { logAudit } from "@/lib/ops/audit";
 import { getSessionEmail } from "@/lib/supabase/server";
 import { isFounderEmail } from "@/lib/ops/env";
@@ -13,9 +14,13 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const TABS: { value: ApplicationStatus; label: string }[] = [
+type InstructorTab = ApplicationStatus | "billing";
+
+const TABS: { value: InstructorTab; label: string }[] = [
   { value: "pending", label: "Pending" },
+  { value: "payment_pending", label: "Awaiting payment" },
   { value: "active", label: "Approved" },
+  { value: "billing", label: "Billing" },
   { value: "rejected", label: "Rejected" },
 ];
 
@@ -29,8 +34,10 @@ export default async function InstructorsPage({
   if (!isFounderEmail(email)) redirect("/ops/denied");
 
   const { status: statusParam } = await searchParams;
-  const status: ApplicationStatus =
-    statusParam === "active" || statusParam === "rejected" ? statusParam : "pending";
+  const status: InstructorTab =
+    statusParam === "payment_pending" || statusParam === "active" || statusParam === "billing" || statusParam === "rejected"
+      ? statusParam
+      : "pending";
 
   let applications: InstructorApplication[] = [];
   let error: string | null = null;
@@ -40,7 +47,10 @@ export default async function InstructorsPage({
       "Instructor approvals are not configured yet. Set NEWDRYVE_API_ORIGIN and NEWDRYVE_API_OPS_SECRET on this service.";
   } else {
     try {
-      applications = await listInstructorApplications(email, status);
+      applications = await listInstructorApplications(email, status === "billing" ? "all" : status);
+      if (status === "billing") {
+        applications = applications.filter((item) => item.status === "payment_pending" || item.status === "active");
+      }
       // Listing an application exposes an applicant's name, email, phone and
       // certificates. That is a personal-data access and is recorded as one.
       if (applications.length > 0) {
@@ -65,12 +75,13 @@ export default async function InstructorsPage({
         <p className="text-[11px] font-semibold uppercase tracking-widest text-racing-green">
           Supply
         </p>
-        <h1 className="font-display text-2xl text-ink">Pending Instructor Approvals</h1>
+        <h1 className="font-display text-2xl text-ink">
+          {status === "billing" ? "Instructor Billing" : "Instructor Applications"}
+        </h1>
         <p className="max-w-2xl text-sm text-ink-secondary">
-          Instructors apply at{" "}
-          <span className="font-medium text-ink">newdryve.com/instructors/apply</span> and land here
-          before they can sign in. Approving one activates the password they chose when they
-          applied and emails them to say they&rsquo;re in.
+          {status === "billing"
+            ? "Track agreed prices, trials, real Stripe payments and renewal dates. Click a monthly amount to change the instructor's next invoice."
+            : "Review applications, agree membership terms and send the Stripe activation email. Access stays locked until Stripe confirms setup."}
         </p>
       </header>
 
@@ -99,11 +110,17 @@ export default async function InstructorsPage({
           <p className="text-sm text-ink-secondary">
             {status === "pending"
               ? "No applications waiting. New ones appear here as soon as they come in."
+              : status === "payment_pending"
+                ? "Nobody is waiting for membership setup."
+                : status === "billing"
+                  ? "No approved instructors with billing terms yet."
               : status === "active"
                 ? "No approved instructors yet."
                 : "Nothing rejected."}
           </p>
         </div>
+      ) : status === "billing" ? (
+        <InstructorBilling applications={applications} />
       ) : (
         <InstructorApprovals applications={applications} status={status} />
       )}

@@ -6,6 +6,8 @@ import {
   InstructorApiError,
   reinstateInstructor,
   rejectInstructor,
+  resendInstructorActivation,
+  updateInstructorBilling,
 } from "@/lib/ops/instructors";
 
 // Approve / reject / reinstate an instructor application.
@@ -18,7 +20,7 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type Action = "approve" | "reject" | "reinstate";
+type Action = "approve" | "reject" | "reinstate" | "update_billing" | "resend_activation";
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const guard = await requireFounder();
@@ -29,7 +31,17 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     return NextResponse.json({ error: "Invalid instructor id" }, { status: 400 });
   }
 
-  let body: { action?: Action; reason?: string; adi_verified?: boolean; dbs_verified?: boolean; is_listed?: boolean };
+  let body: {
+    action?: Action;
+    reason?: string;
+    adi_verified?: boolean;
+    dbs_verified?: boolean;
+    is_listed?: boolean;
+    monthly_amount_pence?: number;
+    trial_months?: number;
+    trial_source?: "word_of_mouth" | "referral" | "other" | null;
+    trial_note?: string | null;
+  };
   try {
     body = await request.json();
   } catch {
@@ -37,7 +49,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const action = body.action;
-  if (action !== "approve" && action !== "reject" && action !== "reinstate") {
+  if (action !== "approve" && action !== "reject" && action !== "reinstate" && action !== "update_billing" && action !== "resend_activation") {
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   }
 
@@ -47,12 +59,20 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         adi_verified: body.adi_verified === true,
         dbs_verified: body.dbs_verified === true,
         is_listed: body.is_listed === true,
+        monthly_amount_pence: Number(body.monthly_amount_pence),
+        trial_months: Number(body.trial_months || 0),
+        trial_source: body.trial_source || null,
+        trial_note: typeof body.trial_note === "string" ? body.trial_note.trim().slice(0, 500) || null : null,
       });
     } else if (action === "reject") {
       const reason = typeof body.reason === "string" ? body.reason.trim().slice(0, 500) : "";
       await rejectInstructor(guard.email, id, reason || null);
-    } else {
+    } else if (action === "reinstate") {
       await reinstateInstructor(guard.email, id);
+    } else if (action === "update_billing") {
+      await updateInstructorBilling(guard.email, id, Number(body.monthly_amount_pence));
+    } else {
+      await resendInstructorActivation(guard.email, id);
     }
   } catch (err) {
     if (err instanceof InstructorApiError) {
@@ -75,10 +95,18 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
             adi_verified: body.adi_verified === true,
             dbs_verified: body.dbs_verified === true,
             is_listed: body.is_listed === true,
+            monthly_amount_pence: body.monthly_amount_pence,
+            trial_months: body.trial_months,
+            trial_source: body.trial_source,
+            trial_note: body.trial_note,
           }
         : action === "reject"
           ? { reason: body.reason ?? null }
-          : undefined,
+          : action === "update_billing"
+            ? { monthly_amount_pence: body.monthly_amount_pence }
+            : action === "resend_activation"
+              ? { email_resent: true }
+              : undefined,
   }).catch((err) => {
     // The decision already landed upstream; a failed audit write must not
     // report the action as failed.

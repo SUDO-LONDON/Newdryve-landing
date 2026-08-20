@@ -39,6 +39,11 @@ function ApplicationCard({
   const [error, setError] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState("");
+  const [approvalStep, setApprovalStep] = useState<0 | 1 | 2>(0);
+  const [monthlyAmount, setMonthlyAmount] = useState("29.00");
+  const [trialMonths, setTrialMonths] = useState(0);
+  const [trialSource, setTrialSource] = useState<"word_of_mouth" | "referral" | "other" | "">("");
+  const [trialNote, setTrialNote] = useState("");
 
   // Default the verification ticks to whatever was actually uploaded, so the
   // common case is one click, but the founder still has to look before they do.
@@ -53,7 +58,7 @@ function ApplicationCard({
   const missingDocuments =
     !application.documents.adi.uploaded || !application.documents.dbs.uploaded;
 
-  async function act(action: "approve" | "reject" | "reinstate", extra: Record<string, unknown> = {}) {
+  async function act(action: "approve" | "reject" | "reinstate" | "resend_activation", extra: Record<string, unknown> = {}) {
     setBusy(action);
     setError(null);
     try {
@@ -135,7 +140,7 @@ function ApplicationCard({
           <div className="flex flex-wrap gap-4">
             <Toggle label="ADI verified" checked={adiVerified} onChange={setAdiVerified} />
             <Toggle label="DBS verified" checked={dbsVerified} onChange={setDbsVerified} />
-            <Toggle label="List in marketplace now" checked={listNow} onChange={setListNow} />
+            <Toggle label="List after membership and payouts are ready" checked={listNow} onChange={setListNow} />
           </div>
 
           {rejecting ? (
@@ -168,18 +173,140 @@ function ApplicationCard({
                 </button>
               </div>
             </div>
+          ) : approvalStep > 0 ? (
+            <div className="mt-4 rounded-xl border border-racing-green/20 bg-racing-green/[0.04] p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-racing-green">
+                    Step {approvalStep} of 2
+                  </p>
+                  <h3 className="mt-1 font-display text-lg text-ink">
+                    {approvalStep === 1 ? "Membership terms" : "Approve and send email"}
+                  </h3>
+                </div>
+                <button type="button" onClick={() => setApprovalStep(0)} className="text-sm text-ink-muted hover:text-ink">
+                  Cancel
+                </button>
+              </div>
+
+              {approvalStep === 1 ? (
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <label className="text-sm font-medium text-ink">
+                    Monthly amount
+                    <div className="mt-1 flex rounded-lg border border-border bg-white focus-within:border-racing-green">
+                      <span className="px-3 py-2 text-ink-muted">£</span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="1000"
+                        step="0.01"
+                        value={monthlyAmount}
+                        onChange={(event) => setMonthlyAmount(event.target.value)}
+                        className="min-w-0 flex-1 rounded-r-lg bg-transparent px-1 py-2 text-ink outline-none"
+                      />
+                    </div>
+                  </label>
+                  <label className="text-sm font-medium text-ink">
+                    Free trial
+                    <select
+                      value={trialMonths}
+                      onChange={(event) => {
+                        const next = Number(event.target.value);
+                        setTrialMonths(next);
+                        if (next === 0) {
+                          setTrialSource("");
+                          setTrialNote("");
+                        }
+                      }}
+                      className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-ink"
+                    >
+                      <option value={0}>No trial</option>
+                      <option value={1}>1 month</option>
+                      <option value={2}>2 months</option>
+                      <option value={3}>3 months</option>
+                    </select>
+                  </label>
+
+                  {trialMonths > 0 ? (
+                    <>
+                      <label className="text-sm font-medium text-ink">
+                        Why was the trial granted?
+                        <select
+                          value={trialSource}
+                          onChange={(event) => setTrialSource(event.target.value as typeof trialSource)}
+                          className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-ink"
+                        >
+                          <option value="">Select a source</option>
+                          <option value="word_of_mouth">Word of mouth</option>
+                          <option value="referral">Referral</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </label>
+                      <label className="text-sm font-medium text-ink">
+                        Trial note <span className="font-normal text-ink-muted">(optional)</span>
+                        <input
+                          value={trialNote}
+                          maxLength={500}
+                          onChange={(event) => setTrialNote(event.target.value)}
+                          placeholder="Who referred them or what was agreed"
+                          className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-ink"
+                        />
+                      </label>
+                    </>
+                  ) : null}
+
+                  <div className="sm:col-span-2 flex justify-end">
+                    <button
+                      type="button"
+                      disabled={!Number.isFinite(Number(monthlyAmount)) || Number(monthlyAmount) < 1 || (trialMonths > 0 && !trialSource)}
+                      onClick={() => setApprovalStep(2)}
+                      className="rounded-lg bg-racing-green px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                    >
+                      Review approval
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4">
+                  <dl className="grid gap-2 rounded-lg bg-white p-4 text-sm sm:grid-cols-2">
+                    <Field label="Instructor" value={name} />
+                    <Field label="Monthly price" value={`${formatPrice(Math.round(Number(monthlyAmount) * 100))}/month`} />
+                    <Field label="Trial" value={trialMonths ? `${trialMonths} month${trialMonths === 1 ? "" : "s"}` : "None"} />
+                    <Field label="Trial source" value={trialSource ? trialSource.replaceAll("_", " ") : "—"} />
+                  </dl>
+                  <p className="mt-3 text-sm leading-6 text-ink-secondary">
+                    This will approve the documents, keep the account locked, and email a secure Stripe setup link. Access unlocks only after Stripe confirms setup.
+                  </p>
+                  <div className="mt-4 flex flex-wrap justify-end gap-2">
+                    <button type="button" onClick={() => setApprovalStep(1)} className="rounded-lg border border-border px-4 py-2 text-sm text-ink">
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy !== null}
+                      onClick={() => act("approve", {
+                        adi_verified: adiVerified,
+                        dbs_verified: dbsVerified,
+                        is_listed: listNow,
+                        monthly_amount_pence: Math.round(Number(monthlyAmount) * 100),
+                        trial_months: trialMonths,
+                        trial_source: trialSource || null,
+                        trial_note: trialNote.trim() || null,
+                      })}
+                      className="rounded-lg bg-racing-green px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                    >
+                      {busy === "approve" ? "Approving…" : "Approve and send email"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="mt-4 flex flex-wrap gap-2">
               <button
                 type="button"
                 disabled={busy !== null}
-                onClick={() =>
-                  act("approve", {
-                    adi_verified: adiVerified,
-                    dbs_verified: dbsVerified,
-                    is_listed: listNow,
-                  })
-                }
+                onClick={() => setApprovalStep(1)}
                 className="rounded-lg bg-racing-green px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
               >
                 {busy === "approve" ? "Approving..." : "Approve"}
@@ -221,6 +348,23 @@ function ApplicationCard({
           {application.approved_at ? ` on ${formatDate(application.approved_at)}` : ""}.
           {application.is_listed ? " Listed in the marketplace." : " Not listed yet."}
         </p>
+      ) : null}
+
+      {status === "payment_pending" ? (
+        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          <p>
+            Approved{application.approved_at ? ` on ${formatDate(application.approved_at)}` : ""}; waiting for Stripe membership setup.
+            {application.tenants ? ` Terms: ${formatPrice(application.tenants.subscription_monthly_amount_pence)}/month${application.tenants.subscription_trial_months ? ` after a ${application.tenants.subscription_trial_months}-month trial` : ""}.` : ""}
+          </p>
+          <button
+            type="button"
+            disabled={busy !== null}
+            onClick={() => act("resend_activation")}
+            className="mt-3 rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-semibold text-amber-950 disabled:opacity-60"
+          >
+            {busy === "resend_activation" ? "Sending…" : "Resend payment email"}
+          </button>
+        </div>
       ) : null}
 
       {error ? (
@@ -292,6 +436,7 @@ function Field({ label, value }: { label: string; value: string | null | undefin
 function StatusPill({ status, appliedAt }: { status: string; appliedAt: string | null }) {
   const styles: Record<string, string> = {
     pending: "bg-blush-surface text-ink",
+    payment_pending: "bg-amber-100 text-amber-900",
     active: "bg-racing-green/10 text-racing-green",
     rejected: "bg-deep-rose/10 text-deep-rose-ink",
   };
@@ -302,7 +447,7 @@ function StatusPill({ status, appliedAt }: { status: string; appliedAt: string |
           styles[status] ?? "bg-blush-surface text-ink"
         }`}
       >
-        {status === "active" ? "approved" : status}
+        {status === "active" ? "approved" : status === "payment_pending" ? "awaiting payment" : status}
       </span>
       {appliedAt ? (
         <p className="mt-1 text-xs text-ink-muted">Applied {formatDate(appliedAt)}</p>

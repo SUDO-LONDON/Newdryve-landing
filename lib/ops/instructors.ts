@@ -16,7 +16,7 @@ import "server-only";
 const API_ORIGIN = (process.env.NEWDRYVE_API_ORIGIN || "").replace(/\/$/, "");
 const OPS_SECRET = process.env.NEWDRYVE_API_OPS_SECRET || "";
 
-export type ApplicationStatus = "pending" | "active" | "rejected";
+export type ApplicationStatus = "pending" | "payment_pending" | "active" | "rejected";
 
 export interface InstructorDocument {
   uploaded: boolean;
@@ -41,6 +41,7 @@ export interface InstructorApplication {
   adi_verified: boolean;
   dbs_verified: boolean;
   is_listed: boolean;
+  listing_approved: boolean;
   application_notes: string | null;
   applied_at: string | null;
   approved_at: string | null;
@@ -50,7 +51,21 @@ export interface InstructorApplication {
   rejection_reason: string | null;
   created_at: string;
   profiles: { display_name: string | null; email: string | null; phone_e164: string | null } | null;
-  tenants: { slug: string; display_name: string } | null;
+  tenants: {
+    slug: string;
+    display_name: string;
+    connect_status: "pending" | "onboarded" | "disabled";
+    subscription_status: string;
+    subscription_monthly_amount_pence: number;
+    subscription_trial_months: number;
+    subscription_trial_source: "word_of_mouth" | "referral" | "other" | null;
+    subscription_trial_note: string | null;
+    subscription_trial_started_at: string | null;
+    subscription_trial_ends_at: string | null;
+    subscription_last_amount_paid_pence: number | null;
+    subscription_last_paid_at: string | null;
+    subscription_current_period_end: string | null;
+  } | null;
   documents: { adi: InstructorDocument; dbs: InstructorDocument };
 }
 
@@ -125,11 +140,36 @@ export async function listInstructorApplications(
 export async function approveInstructor(
   founderEmail: string,
   id: string,
-  options: { adi_verified: boolean; dbs_verified: boolean; is_listed: boolean }
+  options: {
+    adi_verified: boolean;
+    dbs_verified: boolean;
+    is_listed: boolean;
+    monthly_amount_pence: number;
+    trial_months: number;
+    trial_source: "word_of_mouth" | "referral" | "other" | null;
+    trial_note: string | null;
+  }
 ): Promise<void> {
   await call(`/v1/ops/instructor-applications/${id}/approve`, founderEmail, {
     method: "POST",
     body: JSON.stringify(options),
+  });
+}
+
+export async function updateInstructorBilling(
+  founderEmail: string,
+  id: string,
+  monthlyAmountPence: number
+): Promise<void> {
+  await call(`/v1/ops/instructor-applications/${id}/billing`, founderEmail, {
+    method: "PATCH",
+    body: JSON.stringify({ monthly_amount_pence: monthlyAmountPence }),
+  });
+}
+
+export async function resendInstructorActivation(founderEmail: string, id: string): Promise<void> {
+  await call(`/v1/ops/instructor-applications/${id}/resend-activation`, founderEmail, {
+    method: "POST",
   });
 }
 
