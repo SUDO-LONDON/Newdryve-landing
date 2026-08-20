@@ -45,20 +45,27 @@ function ApplicationCard({
   const [trialSource, setTrialSource] = useState<"word_of_mouth" | "referral" | "other" | "">("");
   const [trialNote, setTrialNote] = useState("");
 
-  // Default the verification ticks to whatever was actually uploaded, so the
-  // common case is one click, but the founder still has to look before they do.
-  const [adiVerified, setAdiVerified] = useState(application.documents.adi.uploaded);
-  const [dbsVerified, setDbsVerified] = useState(application.documents.dbs.uploaded);
+  const [adiVerified, setAdiVerified] = useState(application.adi_verified);
+  const [verificationMethod, setVerificationMethod] = useState<"govuk_directory" | "dvsa_contact" | "">(
+    application.adi_verification_method || ""
+  );
+  const [verificationNote, setVerificationNote] = useState(application.adi_verification_note || "");
+  const [badgeExpiry, setBadgeExpiry] = useState(application.adi_badge_expires_on || "");
+  const [permissionConfirmed, setPermissionConfirmed] = useState(
+    Boolean(application.dvsa_verification_consent_at)
+  );
+  const [rechecking, setRechecking] = useState(false);
   const [listNow, setListNow] = useState(false);
 
   const name = application.profiles?.display_name || "Unnamed applicant";
   const email = application.profiles?.email || "—";
   const phone = application.profiles?.phone_e164;
   const areas = application.service_areas ?? [];
-  const missingDocuments =
-    !application.documents.adi.uploaded || !application.documents.dbs.uploaded;
+  const verificationPermission = Boolean(application.dvsa_verification_consent_at);
+  const badgeCurrent = Boolean(badgeExpiry && badgeExpiry >= new Date().toISOString().slice(0, 10));
+  const verificationReady = permissionConfirmed && badgeCurrent && adiVerified && Boolean(verificationMethod);
 
-  async function act(action: "approve" | "reject" | "reinstate" | "resend_activation", extra: Record<string, unknown> = {}) {
+  async function act(action: "approve" | "reject" | "reinstate" | "update_verification" | "resend_activation", extra: Record<string, unknown> = {}) {
     setBusy(action);
     setError(null);
     try {
@@ -96,6 +103,8 @@ function ApplicationCard({
 
       <dl className="mt-4 grid gap-x-6 gap-y-2 border-t border-border pt-4 text-sm sm:grid-cols-2">
         <Field label="ADI number" value={application.adi_number} />
+        <Field label="Badge expires" value={formatDateOnly(application.adi_badge_expires_on)} />
+        <Field label="DVSA-check permission" value={verificationPermission ? "Granted" : "Missing"} />
         <Field label="Trading as" value={application.tenants?.display_name} />
         <Field
           label="Car"
@@ -124,22 +133,71 @@ function ApplicationCard({
       ) : null}
 
       <div className="mt-4 flex flex-wrap gap-3 border-t border-border pt-4">
-        <DocumentLink label="ADI certificate" document={application.documents.adi} />
-        <DocumentLink label="DBS certificate" document={application.documents.dbs} />
+        <DocumentLink label="Optional ADI badge image" document={application.documents.adi} />
+        <a
+          href="https://www.gov.uk/find-driving-schools-and-lessons"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-ink hover:bg-blush-surface"
+        >
+          Check GOV.UK directory
+        </a>
       </div>
 
       {status === "pending" ? (
         <div className="mt-4 border-t border-border pt-4">
-          {missingDocuments ? (
+          {!verificationPermission || !badgeCurrent ? (
             <p className="mb-3 rounded-lg bg-blush-surface px-3 py-2 text-sm text-ink-secondary">
-              A certificate is missing. You can still approve, but you&rsquo;d be doing it without
-              seeing the paperwork.
+              {!verificationPermission
+                ? "This application does not contain permission to contact DVSA. Obtain written permission before approval."
+                : "The ADI badge expiry is missing or has passed. Confirm renewed registration before approval."}
             </p>
           ) : null}
 
-          <div className="flex flex-wrap gap-4">
-            <Toggle label="ADI verified" checked={adiVerified} onChange={setAdiVerified} />
-            <Toggle label="DBS verified" checked={dbsVerified} onChange={setDbsVerified} />
+          <div className="grid gap-4 sm:grid-cols-3">
+            <label className="text-sm font-medium text-ink">
+              Confirmed badge expiry
+              <input
+                type="date"
+                min={new Date().toISOString().slice(0, 10)}
+                value={badgeExpiry}
+                onChange={(event) => setBadgeExpiry(event.target.value)}
+                className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-ink"
+              />
+            </label>
+            <label className="text-sm font-medium text-ink">
+              Verification method
+              <select
+                value={verificationMethod}
+                onChange={(event) => setVerificationMethod(event.target.value as typeof verificationMethod)}
+                className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-ink"
+              >
+                <option value="">Select after checking</option>
+                <option value="govuk_directory">GOV.UK instructor directory</option>
+                <option value="dvsa_contact">Confirmed directly with DVSA</option>
+              </select>
+            </label>
+            <label className="text-sm font-medium text-ink">
+              Verification note <span className="font-normal text-ink-muted">(optional)</span>
+              <input
+                value={verificationNote}
+                maxLength={500}
+                onChange={(event) => setVerificationNote(event.target.value)}
+                placeholder="Match details or DVSA contact reference"
+                className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-ink"
+              />
+            </label>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-4">
+            {!verificationPermission ? (
+              <Toggle
+                label="I obtained written permission to check with DVSA"
+                checked={permissionConfirmed}
+                onChange={setPermissionConfirmed}
+              />
+            ) : null}
+            <Toggle label="I confirmed their current DVSA registration" checked={adiVerified} onChange={setAdiVerified} />
             <Toggle label="List after membership and payouts are ready" checked={listNow} onChange={setListNow} />
           </div>
 
@@ -270,12 +328,16 @@ function ApplicationCard({
                 <div className="mt-4">
                   <dl className="grid gap-2 rounded-lg bg-white p-4 text-sm sm:grid-cols-2">
                     <Field label="Instructor" value={name} />
+                    <Field
+                      label="DVSA verification"
+                      value={verificationMethod === "govuk_directory" ? "GOV.UK directory" : "Direct with DVSA"}
+                    />
                     <Field label="Monthly price" value={`${formatPrice(Math.round(Number(monthlyAmount) * 100))}/month`} />
                     <Field label="Trial" value={trialMonths ? `${trialMonths} month${trialMonths === 1 ? "" : "s"}` : "None"} />
                     <Field label="Trial source" value={trialSource ? trialSource.replaceAll("_", " ") : "—"} />
                   </dl>
                   <p className="mt-3 text-sm leading-6 text-ink-secondary">
-                    This will approve the documents, keep the account locked, and email a secure Stripe setup link. Access unlocks only after Stripe confirms setup.
+                    This records your DVSA check, deletes the optional badge image, keeps the account locked, and emails a secure Stripe setup link. Access unlocks only after Stripe confirms setup.
                   </p>
                   <div className="mt-4 flex flex-wrap justify-end gap-2">
                     <button type="button" onClick={() => setApprovalStep(1)} className="rounded-lg border border-border px-4 py-2 text-sm text-ink">
@@ -286,7 +348,10 @@ function ApplicationCard({
                       disabled={busy !== null}
                       onClick={() => act("approve", {
                         adi_verified: adiVerified,
-                        dbs_verified: dbsVerified,
+                        adi_badge_expires_on: badgeExpiry,
+                        dvsa_verification_consent_confirmed: permissionConfirmed,
+                        adi_verification_method: verificationMethod,
+                        adi_verification_note: verificationNote.trim() || null,
                         is_listed: listNow,
                         monthly_amount_pence: Math.round(Number(monthlyAmount) * 100),
                         trial_months: trialMonths,
@@ -302,23 +367,30 @@ function ApplicationCard({
               )}
             </div>
           ) : (
-            <div className="mt-4 flex flex-wrap gap-2">
-              <button
-                type="button"
-                disabled={busy !== null}
-                onClick={() => setApprovalStep(1)}
-                className="rounded-lg bg-racing-green px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
-              >
-                {busy === "approve" ? "Approving..." : "Approve"}
-              </button>
-              <button
-                type="button"
-                disabled={busy !== null}
-                onClick={() => setRejecting(true)}
-                className="rounded-lg border border-border px-4 py-2 text-sm text-ink hover:bg-blush-surface"
-              >
-                Reject
-              </button>
+            <div className="mt-4">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={busy !== null || !verificationReady}
+                  onClick={() => setApprovalStep(1)}
+                  className="rounded-lg bg-racing-green px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                >
+                  {busy === "approve" ? "Approving..." : "Approve"}
+                </button>
+                <button
+                  type="button"
+                  disabled={busy !== null}
+                  onClick={() => setRejecting(true)}
+                  className="rounded-lg border border-border px-4 py-2 text-sm text-ink hover:bg-blush-surface"
+                >
+                  Reject
+                </button>
+              </div>
+              {!verificationReady ? (
+                <p className="mt-2 text-xs text-ink-muted">
+                  Confirm a current badge, applicant permission and a DVSA verification method before approval.
+                </p>
+              ) : null}
             </div>
           )}
         </div>
@@ -343,11 +415,89 @@ function ApplicationCard({
       ) : null}
 
       {status === "active" ? (
-        <p className="mt-4 border-t border-border pt-4 text-sm text-ink-secondary">
-          Approved{application.approved_by_email ? ` by ${application.approved_by_email}` : ""}
-          {application.approved_at ? ` on ${formatDate(application.approved_at)}` : ""}.
-          {application.is_listed ? " Listed in the marketplace." : " Not listed yet."}
-        </p>
+        <div className="mt-4 border-t border-border pt-4 text-sm text-ink-secondary">
+          <p>
+            Approved{application.approved_by_email ? ` by ${application.approved_by_email}` : ""}
+            {application.approved_at ? ` on ${formatDate(application.approved_at)}` : ""}.
+            {application.is_listed ? " Listed in the marketplace." : " Not listed yet."}
+          </p>
+          <p className="mt-1">
+            {application.adi_verified
+              ? `DVSA registration checked${application.adi_verified_at ? ` on ${formatDate(application.adi_verified_at)}` : ""}. Recheck due ${formatDateOnly(application.adi_recheck_due_on)}.`
+              : "DVSA registration needs checking before displaying the verified badge."}
+          </p>
+
+          {rechecking ? (
+            <div className="mt-4 grid gap-3 rounded-xl border border-border bg-canvas p-4 sm:grid-cols-2">
+              <label className="font-medium text-ink">
+                Badge expiry
+                <input
+                  type="date"
+                  min={new Date().toISOString().slice(0, 10)}
+                  value={badgeExpiry}
+                  onChange={(event) => setBadgeExpiry(event.target.value)}
+                  className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2"
+                />
+              </label>
+              <label className="font-medium text-ink">
+                Verification method
+                <select
+                  value={verificationMethod}
+                  onChange={(event) => setVerificationMethod(event.target.value as typeof verificationMethod)}
+                  className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2"
+                >
+                  <option value="">Select after checking</option>
+                  <option value="govuk_directory">GOV.UK instructor directory</option>
+                  <option value="dvsa_contact">Confirmed directly with DVSA</option>
+                </select>
+              </label>
+              <label className="font-medium text-ink sm:col-span-2">
+                Verification note <span className="font-normal text-ink-muted">(optional)</span>
+                <input
+                  value={verificationNote}
+                  maxLength={500}
+                  onChange={(event) => setVerificationNote(event.target.value)}
+                  className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2"
+                />
+              </label>
+              {!verificationPermission ? (
+                <div className="sm:col-span-2">
+                  <Toggle label="I obtained written permission to check with DVSA" checked={permissionConfirmed} onChange={setPermissionConfirmed} />
+                </div>
+              ) : null}
+              <div className="flex flex-wrap justify-end gap-2 sm:col-span-2">
+                <button type="button" onClick={() => setRechecking(false)} className="rounded-lg border border-border bg-white px-3 py-2 text-ink">
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={busy !== null || !permissionConfirmed || !badgeCurrent || !verificationMethod}
+                  onClick={() => act("update_verification", {
+                    adi_verified: true,
+                    adi_badge_expires_on: badgeExpiry,
+                    dvsa_verification_consent_confirmed: permissionConfirmed,
+                    adi_verification_method: verificationMethod,
+                    adi_verification_note: verificationNote.trim() || null,
+                  })}
+                  className="rounded-lg bg-racing-green px-3 py-2 font-semibold text-white disabled:opacity-50"
+                >
+                  {busy === "update_verification" ? "Saving…" : "Save DVSA check"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setAdiVerified(true);
+                setRechecking(true);
+              }}
+              className="mt-3 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-ink hover:bg-blush-surface"
+            >
+              {application.adi_verified ? "Record a new DVSA check" : "Verify DVSA registration"}
+            </button>
+          )}
+        </div>
       ) : null}
 
       {status === "payment_pending" ? (
@@ -462,6 +612,15 @@ function formatPrice(pence: number): string {
 
 function formatDate(value: string): string {
   return new Date(value).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function formatDateOnly(value: string | null): string {
+  if (!value) return "—";
+  return new Date(`${value}T12:00:00Z`).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",

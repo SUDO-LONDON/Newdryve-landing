@@ -133,7 +133,7 @@ const HOW_IT_WORKS = [
 const LEARNER_BENEFITS = [
   {
     title: 'Verified instructors',
-    body: 'Every instructor is ADI-qualified and DBS-checked before they appear. No guesswork.',
+    body: 'We check every instructor’s current DVSA registration before they appear. No guesswork.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
@@ -269,7 +269,7 @@ export default function LandingPage() {
           <section aria-label="What makes Newdryve trustworthy" className="bg-white border-y border-[#E8E8F2]">
             <ul className="max-w-6xl mx-auto px-5 py-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-center">
               {[
-                'DBS-checked instructors',
+                'DVSA-verified instructors',
                 'ADI-qualified',
                 'Card-protected bookings',
                 'Built in Norwich',

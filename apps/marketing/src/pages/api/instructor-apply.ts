@@ -6,10 +6,9 @@
  * the browser talks to its own origin (no CORS negotiation from the marketing
  * site) and so BACKEND_ORIGIN stays a server-side detail.
  *
- * Certificate files do NOT pass through here. The API replies with short-lived
- * signed upload URLs and the browser PUTs each file straight to Supabase
- * Storage, keeping multi-megabyte phone photos off both this service and the
- * API.
+ * An optional ADI badge image does not pass through here. The API replies with
+ * a short-lived signed upload URL and the browser PUTs it directly to private
+ * Supabase Storage.
  *
  * Request:  POST { full_name, email, password, ...application fields, documents[] }
  * Response: 201 { status, instructor_id, uploads[], message }
@@ -57,6 +56,7 @@ const validateApplication = (payload: unknown): string | null => {
     'car_model',
     'car_color',
     'adi_number',
+    'adi_badge_expires_on',
     'application_notes',
   ];
   if (requiredText.some((key) => !isFilledString(payload[key]))) {
@@ -92,12 +92,15 @@ const validateApplication = (payload: unknown): string | null => {
   if (!isFilledArray(payload.weekly_availability)) {
     return 'Choose at least one day you are available.';
   }
-  if (!Array.isArray(payload.documents)) return 'Attach both required certificates.';
-  const documentKinds = new Set(
-    payload.documents.filter(isRecord).map((document) => document.kind)
-  );
-  if (!documentKinds.has('adi') || !documentKinds.has('dbs')) {
-    return 'Attach both required certificates.';
+  if (payload.dvsa_verification_consent !== true) {
+    return 'Please authorise Newdryve to verify your current DVSA registration.';
+  }
+  if (String(payload.adi_badge_expires_on) < new Date().toISOString().slice(0, 10)) {
+    return 'Your ADI badge must still be current.';
+  }
+  if (!Array.isArray(payload.documents)) return 'Invalid supporting document selection.';
+  if (payload.documents.some((document) => !isRecord(document) || document.kind !== 'adi')) {
+    return 'Only an optional ADI badge image can be attached.';
   }
 
   return null;

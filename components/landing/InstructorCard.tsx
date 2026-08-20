@@ -7,7 +7,7 @@ export function InstructorCard({
   instructor: Instructor;
   compact?: boolean;
 }) {
-  const { name, initials, rating, reviews, pricePerHour, transmission, specialisms, color, slotsToday, areas, yearsExp, dbsVerified } = instructor;
+  const { name, initials, rating, reviews, pricePerHour, transmission, specialisms, color, slotsToday, areas, yearsExp, dvsaVerified } = instructor;
 
   return (
     <article
@@ -34,7 +34,7 @@ export function InstructorCard({
             <h3 className="font-bold text-ink text-base leading-tight m-0">
               {name}
             </h3>
-            {dbsVerified && (
+            {dvsaVerified && (
               <span
                 className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5"
                 style={{ background: 'rgba(0,194,122,0.12)', color: '#00875A' }}
@@ -42,7 +42,7 @@ export function InstructorCard({
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
                   <path d="M2 5l2 2 4-4" stroke="#00875A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                DBS
+                DVSA verified
               </span>
             )}
           </div>

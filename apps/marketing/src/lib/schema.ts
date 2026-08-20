@@ -12,7 +12,7 @@ export const organizationSchema = {
   logo: `${SITE_URL}/og.png`,
   email: BRAND.email,
   description:
-    'Newdryve is a marketplace connecting UK learner drivers with verified, ADI-qualified, DBS-checked driving instructors. Live in Norwich.',
+    'Newdryve is a marketplace connecting UK learner drivers with DVSA-verified, ADI-qualified driving instructors. Live in Norwich.',
   address: {
     '@type': 'PostalAddress',
     addressLocality: BRAND.city,
@@ -52,7 +52,7 @@ export const learnerServiceSchema = {
   },
   audience: { '@type': 'Audience', audienceType: 'Learner drivers' },
   description:
-    'Find a verified, ADI-qualified and DBS-checked driving instructor in Norwich, see real availability and book a lesson in under 60 seconds. Newdryve charges learners nothing.',
+    'Find a DVSA-verified, ADI-qualified driving instructor in Norwich, see real availability and book a lesson in under 60 seconds. Newdryve charges learners nothing.',
 };
 
 /** Software schema for the instructor side, priced at the real £29/month. */

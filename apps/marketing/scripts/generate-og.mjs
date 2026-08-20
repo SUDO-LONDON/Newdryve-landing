@@ -45,13 +45,13 @@ const svg = `
   <text x="80" y="392" font-family="Georgia, Times New Roman, serif" font-size="70" font-weight="600" letter-spacing="-2"><tspan fill="#0A0A14">in Norwich. </tspan><tspan fill="#C13B60">Book in 60s.</tspan></text>
 
   <!-- subhead -->
-  <text x="80" y="460" font-family="Segoe UI, Arial, sans-serif" font-size="27" fill="#5C5C73">Verified, DBS-checked instructors. Real availability. Free for learners.</text>
+  <text x="80" y="460" font-family="Segoe UI, Arial, sans-serif" font-size="27" fill="#5C5C73">DVSA-verified instructors. Real availability. Free for learners.</text>
 
   <!-- bottom rule and badges -->
   <rect x="80" y="516" width="1040" height="2" fill="#E8E8F2"/>
   <text x="80" y="566" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700" fill="#2D6A4F">ADI-qualified</text>
   <circle cx="286" cy="559" r="4" fill="#9B9BB5"/>
-  <text x="306" y="566" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700" fill="#2D6A4F">DBS-checked</text>
+  <text x="306" y="566" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700" fill="#2D6A4F">DVSA verified</text>
   <circle cx="516" cy="559" r="4" fill="#9B9BB5"/>
   <text x="536" y="566" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700" fill="#2D6A4F">0% commission for instructors</text>
 </svg>`;

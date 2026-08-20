@@ -38,8 +38,14 @@ export interface InstructorApplication {
   car_model: string | null;
   car_color: string | null;
   adi_number: string | null;
+  adi_badge_expires_on: string | null;
+  dvsa_verification_consent_at: string | null;
   adi_verified: boolean;
-  dbs_verified: boolean;
+  adi_verification_method: "govuk_directory" | "dvsa_contact" | null;
+  adi_verification_note: string | null;
+  adi_verified_at: string | null;
+  adi_verified_by_email: string | null;
+  adi_recheck_due_on: string | null;
   is_listed: boolean;
   listing_approved: boolean;
   application_notes: string | null;
@@ -66,7 +72,7 @@ export interface InstructorApplication {
     subscription_last_paid_at: string | null;
     subscription_current_period_end: string | null;
   } | null;
-  documents: { adi: InstructorDocument; dbs: InstructorDocument };
+  documents: { adi: InstructorDocument };
 }
 
 export class InstructorApiError extends Error {
@@ -142,7 +148,10 @@ export async function approveInstructor(
   id: string,
   options: {
     adi_verified: boolean;
-    dbs_verified: boolean;
+    adi_badge_expires_on: string;
+    dvsa_verification_consent_confirmed: boolean;
+    adi_verification_method: "govuk_directory" | "dvsa_contact";
+    adi_verification_note: string | null;
     is_listed: boolean;
     monthly_amount_pence: number;
     trial_months: number;
@@ -164,6 +173,23 @@ export async function updateInstructorBilling(
   await call(`/v1/ops/instructor-applications/${id}/billing`, founderEmail, {
     method: "PATCH",
     body: JSON.stringify({ monthly_amount_pence: monthlyAmountPence }),
+  });
+}
+
+export async function updateInstructorVerification(
+  founderEmail: string,
+  id: string,
+  options: {
+    adi_verified: true;
+    adi_badge_expires_on: string;
+    dvsa_verification_consent_confirmed: boolean;
+    adi_verification_method: "govuk_directory" | "dvsa_contact";
+    adi_verification_note: string | null;
+  }
+): Promise<void> {
+  await call(`/v1/ops/instructor-applications/${id}/verification`, founderEmail, {
+    method: "PATCH",
+    body: JSON.stringify(options),
   });
 }
 

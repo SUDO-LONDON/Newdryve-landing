@@ -1251,7 +1251,7 @@ export const seoPages: readonly SeoPage[] = [
     slug: 'guides/how-to-find-a-driving-instructor',
     title: 'How to Find a Good Driving Instructor | Newdryve',
     description:
-      'A practical checklist for choosing a driving instructor: ADI status, DBS checks, availability, reviews, teaching fit, red flags, and how Newdryve helps.',
+      'A practical checklist for choosing a driving instructor: DVSA registration, availability, reviews, teaching fit, red flags, and how Newdryve helps.',
     h1: 'How to find a good driving instructor',
     kicker: 'Instructor choice guide',
     summary:
@@ -1260,7 +1260,7 @@ export const seoPages: readonly SeoPage[] = [
     schemaKind: 'Article',
     quickFacts: [
       { label: 'Qualification', value: 'Look for ADI-qualified instruction' },
-      { label: 'Checks', value: 'DBS-checked where claimed and verified' },
+      { label: 'Checks', value: 'Confirm current registration through DVSA' },
       { label: 'Availability', value: 'Real slots matter more than vague promises' },
       { label: 'Newdryve role', value: 'Verified profiles, rates, pickup areas, and real availability' },
     ],

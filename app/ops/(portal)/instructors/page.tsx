@@ -51,8 +51,8 @@ export default async function InstructorsPage({
       if (status === "billing") {
         applications = applications.filter((item) => item.status === "payment_pending" || item.status === "active");
       }
-      // Listing an application exposes an applicant's name, email, phone and
-      // certificates. That is a personal-data access and is recorded as one.
+      // Listing an application exposes personal and verification data, so the
+      // access is recorded independently of any later approval decision.
       if (applications.length > 0) {
         await logAudit({
           actor_email: email,
