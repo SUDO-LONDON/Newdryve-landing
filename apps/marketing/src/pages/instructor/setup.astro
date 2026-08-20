@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Instructor payout setup | Newdryve"
+  description="Open Newdryve to connect your Stripe payout account."
+  path="/instructor/setup"
+  audience="instructor"
+  noindex
+>
+  <div class="mx-auto flex max-w-lg flex-col justify-center px-5 py-16 sm:py-24">
+    <section class="rounded-2xl border border-border bg-white p-7 text-center shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] sm:p-10">
+      <p class="text-[11px] font-bold uppercase tracking-[1px] text-racing-green">Instructor setup</p>
+      <h1 class="font-display mt-3 text-3xl font-semibold text-ink">Connect your lesson payouts</h1>
+      <p class="mt-4 text-sm leading-6 text-ink-secondary">
+        Open Newdryve, sign in and follow the secure Stripe Connect steps under Payouts. Your £29 membership is arranged separately with Newdryve.
+      </p>
+      <a
+        class="focus-ring mt-7 inline-flex h-12 items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white"
+        href="newdryve://instructor/payouts"
+      >
+        Open Newdryve Payouts
+      </a>
+      <p class="mt-5 text-xs leading-5 text-ink-muted">
+        Need help? Email <a class="font-semibold underline" href="mailto:support@newdryve.com">support@newdryve.com</a>.
+      </p>
+    </section>
+  </div>
+</BaseLayout>

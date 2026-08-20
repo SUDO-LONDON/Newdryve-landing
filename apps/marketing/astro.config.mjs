@@ -26,7 +26,14 @@ export default defineConfig({
 
         return (
           !pathname.startsWith('/ops') &&
-          !['/terms', '/reset-password', '/datadeletion'].includes(pathname)
+          ![
+            '/terms',
+            '/reset-password',
+            '/datadeletion',
+            '/connect/return',
+            '/connect/refresh',
+            '/instructor/setup',
+          ].includes(pathname)
         );
       },
       // Canonical URLs omit trailing slashes, so sitemap entries must use the

@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Stripe payout setup | Newdryve"
+  description="Return to Newdryve after Stripe payout onboarding."
+  path="/connect/return"
+  audience="instructor"
+  noindex
+>
+  <div class="mx-auto flex max-w-lg flex-col justify-center px-5 py-16 sm:py-24">
+    <section class="rounded-2xl border border-border bg-white p-7 text-center shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] sm:p-10">
+      <p class="text-[11px] font-bold uppercase tracking-[1px] text-racing-green">Secure payouts</p>
+      <h1 class="font-display mt-3 text-3xl font-semibold text-ink">Setup submitted</h1>
+      <p class="mt-4 text-sm leading-6 text-ink-secondary">
+        Return to Newdryve. We’ll check your Stripe status and show anything still required.
+      </p>
+      <a
+        class="focus-ring mt-7 inline-flex h-12 items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white"
+        href="newdryve://connect/return"
+        data-open-app
+      >
+        Return to Newdryve
+      </a>
+      <p class="mt-5 text-xs leading-5 text-ink-muted">
+        Stripe may still be reviewing your details. You can continue using the app while verification completes.
+      </p>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  window.setTimeout(() => {
+    window.location.href = 'newdryve://connect/return';
+  }, 600);
+</script>
