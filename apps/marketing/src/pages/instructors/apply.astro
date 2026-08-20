@@ -39,7 +39,6 @@ const inputClass =
 const fileClass =
   'focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-sm text-ink-secondary file:mr-3 file:rounded-full file:border-0 file:bg-ink file:px-4 file:py-2 file:text-xs file:font-bold file:text-white';
 const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondary';
-const optionalClass = 'font-medium normal-case tracking-normal text-ink-muted';
 const stepClass = 'flex flex-col gap-5';
 const legendClass = 'font-display text-xl font-semibold tracking-[-0.5px] text-ink';
 const pillClass =
@@ -69,7 +68,6 @@ const lessonTypes = [
   { code: '1h', label: '1 hour', checked: true },
   { code: '90m', label: '90 minutes', checked: true },
   { code: '2h', label: '2 hours', checked: true },
-  { code: 'mock_test', label: 'Mock test', checked: false },
 ];
 
 const ukCities = [
@@ -268,16 +266,25 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
               </div>
               <div class="flex flex-col gap-1.5">
                 <label class={labelClass} for="apply-phone">
-                  Mobile number <span class={optionalClass}>(optional)</span>
+                  Mobile number <span aria-hidden="true" class="text-deep-rose-ink">*</span>
                 </label>
                 <input
                   id="apply-phone"
                   name="phone"
                   type="tel"
+                  required
                   autocomplete="tel"
+                  inputmode="tel"
+                  pattern="(?:\+44\s?7\d{3}|07\d{3})[\s-]?\d{3}[\s-]?\d{3}"
+                  maxlength="17"
+                  aria-describedby="apply-phone-hint"
+                  title="Enter a valid UK mobile number beginning 07 or +44 7"
                   placeholder="07700 900000"
                   class={inputClass}
                 />
+                <p id="apply-phone-hint" class="text-xs text-ink-muted">
+                  UK mobile format, beginning 07 or +44 7.
+                </p>
               </div>
             </div>
 
@@ -334,10 +341,15 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
                   type="password"
                   required
                   minlength="8"
+                  pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
                   autocomplete="new-password"
-                  placeholder="At least 8 characters"
+                  aria-describedby="apply-password-requirements"
+                  placeholder="Create a strong password"
                   class={inputClass}
                 />
+                <p id="apply-password-requirements" class="text-xs text-ink-muted">
+                  8+ characters with uppercase, lowercase, a number and a symbol.
+                </p>
               </div>
               <div class="flex flex-col gap-1.5">
                 <label class={labelClass} for="apply-password-confirm">
@@ -349,6 +361,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
                   type="password"
                   required
                   minlength="8"
+                  pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
                   autocomplete="new-password"
                   class={inputClass}
                 />
@@ -395,25 +408,27 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
             <div class="grid gap-4 sm:grid-cols-2">
               <div class="flex flex-col gap-1.5">
                 <label class={labelClass} for="apply-adi-number">
-                  ADI badge number <span class={optionalClass}>(optional)</span>
+                  ADI badge number <span aria-hidden="true" class="text-deep-rose-ink">*</span>
                 </label>
                 <input
                   id="apply-adi-number"
                   name="adi_number"
                   type="text"
+                  required
                   placeholder="e.g. 123456"
                   class={inputClass}
                 />
               </div>
               <div class="flex flex-col gap-1.5">
                 <label class={labelClass} for="apply-school">
-                  Driving school name <span class={optionalClass}>(optional)</span>
+                  Driving school name <span aria-hidden="true" class="text-deep-rose-ink">*</span>
                 </label>
                 <input
                   id="apply-school"
                   name="driving_school_name"
                   type="text"
-                  placeholder="Leave blank if you teach under your own name"
+                  required
+                  placeholder="Enter Independent if you teach under your own name"
                   class={inputClass}
                 />
               </div>
@@ -460,7 +475,9 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <span class={labelClass}>Lesson lengths you offer</span>
+              <span class={labelClass}>
+                Lesson lengths you offer <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+              </span>
               <div class="flex flex-wrap gap-2 pt-1">
                 {
                   lessonTypes.map((lesson) => (
@@ -481,12 +498,13 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
 
             <div class="flex flex-col gap-1.5">
               <label class={labelClass} for="apply-specialisms">
-                Specialisms <span class={optionalClass}>(optional)</span>
+                Specialisms <span aria-hidden="true" class="text-deep-rose-ink">*</span>
               </label>
               <input
                 id="apply-specialisms"
                 name="specialisms"
                 type="text"
+                required
                 placeholder="Nervous learners, Pass Plus, refresher lessons"
                 class={inputClass}
               />
@@ -495,11 +513,12 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
 
             <div class="flex flex-col gap-1.5">
               <label class={labelClass} for="apply-bio">
-                Short bio <span class={optionalClass}>(optional)</span>
+                Short bio <span aria-hidden="true" class="text-deep-rose-ink">*</span>
               </label>
               <textarea
                 id="apply-bio"
                 name="bio"
+                required
                 rows="3"
                 placeholder="A couple of sentences learners will see on your profile."
                 class={`${inputClass} resize-none`}></textarea>
@@ -508,21 +527,21 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
             <div class="grid gap-4 sm:grid-cols-3">
               <div class="flex flex-col gap-1.5">
                 <label class={labelClass} for="apply-car-make">
-                  Car make <span class={optionalClass}>(optional)</span>
+                  Car make <span aria-hidden="true" class="text-deep-rose-ink">*</span>
                 </label>
-                <input id="apply-car-make" name="car_make" type="text" placeholder="Vauxhall" class={inputClass} />
+                <input id="apply-car-make" name="car_make" type="text" required placeholder="Vauxhall" class={inputClass} />
               </div>
               <div class="flex flex-col gap-1.5">
                 <label class={labelClass} for="apply-car-model">
-                  Model <span class={optionalClass}>(optional)</span>
+                  Model <span aria-hidden="true" class="text-deep-rose-ink">*</span>
                 </label>
-                <input id="apply-car-model" name="car_model" type="text" placeholder="Corsa" class={inputClass} />
+                <input id="apply-car-model" name="car_model" type="text" required placeholder="Corsa" class={inputClass} />
               </div>
               <div class="flex flex-col gap-1.5">
                 <label class={labelClass} for="apply-car-color">
-                  Colour <span class={optionalClass}>(optional)</span>
+                  Colour <span aria-hidden="true" class="text-deep-rose-ink">*</span>
                 </label>
-                <input id="apply-car-color" name="car_color" type="text" placeholder="Blue" class={inputClass} />
+                <input id="apply-car-color" name="car_color" type="text" required placeholder="Blue" class={inputClass} />
               </div>
             </div>
           </fieldset>
@@ -532,8 +551,8 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
               When you&rsquo;re available
             </legend>
             <p class="-mt-2 text-sm text-ink-secondary">
-              A rough starting point is fine &mdash; you can change all of this in the app once
-              you&rsquo;re approved.
+              Choose at least one day and valid start/end times. You can change all of this in the
+              app once you&rsquo;re approved. <span aria-hidden="true" class="text-deep-rose-ink">*</span>
             </p>
 
             <div class="flex flex-col gap-2">
@@ -576,11 +595,12 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
 
             <div class="flex flex-col gap-1.5">
               <label class={labelClass} for="apply-notes">
-                Anything else we should know <span class={optionalClass}>(optional)</span>
+                Anything else we should know <span aria-hidden="true" class="text-deep-rose-ink">*</span>
               </label>
               <textarea
                 id="apply-notes"
                 name="application_notes"
+                required
                 rows="3"
                 placeholder="Years teaching, pass rates, current availability, anything else."
                 class={`${inputClass} resize-none`}></textarea>
@@ -730,6 +750,18 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         )
       )) {
         if (field.disabled) continue;
+        field.setCustomValidity('');
+        if (field.required && 'value' in field && !field.value.trim()) {
+          field.setCustomValidity('Please fill in this field.');
+        }
+        if (field.id === 'apply-phone' && field.value && !toE164(field.value)) {
+          field.setCustomValidity('Enter a valid UK mobile number beginning 07 or +44 7.');
+        }
+        if (field.id === 'apply-password' && field.value && !isStrongPassword(field.value)) {
+          field.setCustomValidity(
+            'Use 8 or more characters with uppercase, lowercase, a number and a symbol.'
+          );
+        }
         if (!field.checkValidity()) {
           clearError();
           field.reportValidity();
@@ -749,6 +781,26 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         const transmissions = form.querySelectorAll('input[name="transmissions"]:checked');
         if (transmissions.length === 0) {
           return fail('Please choose at least one transmission you teach in.');
+        }
+        const lessonLengths = form.querySelectorAll('input[name="lesson_types"]:checked');
+        if (lessonLengths.length === 0) {
+          return fail('Please choose at least one lesson length you offer.');
+        }
+      }
+
+      if (step === 5) {
+        const activeRows = Array.from(
+          root.querySelectorAll<HTMLElement>('[data-availability-row]')
+        ).filter((row) => row.querySelector<HTMLInputElement>('[data-availability-toggle]')?.checked);
+        if (activeRows.length === 0) {
+          return fail('Please choose at least one day you are available.');
+        }
+        for (const row of activeRows) {
+          const start = row.querySelector<HTMLInputElement>('[data-availability-start]');
+          const end = row.querySelector<HTMLInputElement>('[data-availability-end]');
+          if (!start?.value || !end?.value || end.value <= start.value) {
+            return fail('Each available day needs an end time after its start time.', start);
+          }
         }
       }
 
@@ -817,6 +869,8 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         if (!start || !end) return;
         start.disabled = !toggle.checked;
         end.disabled = !toggle.checked;
+        start.required = toggle.checked;
+        end.required = toggle.checked;
       });
     });
 
@@ -831,13 +885,20 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         (input) => input.value
       );
 
-    /** UK mobile as typed (07…) into the E.164 the API expects. */
+    const isStrongPassword = (value: string): boolean =>
+      value.length >= 8 &&
+      /[a-z]/.test(value) &&
+      /[A-Z]/.test(value) &&
+      /\d/.test(value) &&
+      /[^A-Za-z0-9]/.test(value);
+
+    /** Valid UK mobile as typed (07… or +44 7…) into the E.164 the API expects. */
     const toE164 = (raw: string): string | null => {
-      const trimmed = raw.replace(/[\s()-]/g, '');
-      if (!trimmed) return null;
-      if (trimmed.startsWith('+')) return trimmed;
-      if (trimmed.startsWith('0')) return `+44${trimmed.slice(1)}`;
-      return `+${trimmed}`;
+      const compact = raw.replace(/[\s()-]/g, '');
+      if (/^07\d{9}$/.test(compact)) return `+44${compact.slice(1)}`;
+      if (/^\+447\d{9}$/.test(compact)) return compact;
+      if (/^00447\d{9}$/.test(compact)) return `+${compact.slice(2)}`;
+      return null;
     };
 
     const collectAvailability = () => {
@@ -909,7 +970,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
           '1h': lessonSelected.includes('1h'),
           '90m': lessonSelected.includes('90m'),
           '2h': lessonSelected.includes('2h'),
-          mock_test: lessonSelected.includes('mock_test'),
+          mock_test: false,
         },
         weekly_availability: collectAvailability(),
         documents: [
