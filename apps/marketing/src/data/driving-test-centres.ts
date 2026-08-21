@@ -2851,9 +2851,79 @@ export const drivingTestCentres = [
   },
 ] as const satisfies readonly DrivingTestCentre[];
 
+/**
+ * Search-friendly application groupings for centres whose DVSA locality is a
+ * district, venue name, or suburb rather than the city an instructor would
+ * naturally search for. Stable slugs make these overrides safe across display
+ * name refreshes. Centres not listed here use their recorded locality.
+ */
+export const applicationCityByTestCentreSlug: Readonly<Record<string, string>> = {
+  'aberdeen-north': 'Aberdeen',
+  'aberdeen-south-cove': 'Aberdeen',
+  ashfield: 'Sutton-in-Ashfield',
+  barra: 'Castlebay',
+  'benbecula-island': 'Balivanich',
+  'blackburn-with-darwen': 'Darwen',
+  'carlisle-lgv-cars': 'Carlisle',
+  greenham: 'Newbury',
+  'grimsby-coldwater': 'Grimsby',
+  'isle-of-mull': 'Salen',
+  'isle-of-skye-portree': 'Portree',
+  'medway-ambley-road': 'Gillingham',
+  orkney: 'Kirkwall',
+  'redhill-aerodrome': 'Redhill',
+  'stoke-on-trent-cobridge': 'Stoke-on-Trent',
+  'walton-lgv': 'Walton',
+
+  bishopbriggs: 'Glasgow',
+  horsforth: 'Leeds',
+  gosforth: 'Newcastle',
+
+  'atherton-manchester': 'Manchester',
+  'bolton-manchester': 'Manchester',
+  'bredbury-manchester': 'Manchester',
+  'bury-manchester': 'Manchester',
+  'cheetham-hill-manchester': 'Manchester',
+  'rochdale-manchester': 'Manchester',
+  'sale-manchester': 'Manchester',
+  'west-didsbury-manchester': 'Manchester',
+
+  'norris-green-liverpool': 'Liverpool',
+  'southport-liverpool': 'Liverpool',
+  'speke-liverpool': 'Liverpool',
+  'st-helens-liverpool': 'Liverpool',
+
+  'barnet-london': 'London',
+  'belvedere-london': 'London',
+  'bromley-london': 'London',
+  'chingford-london': 'London',
+  'enfield-brancroft-way': 'London',
+  'enfield-innova-business-park': 'London',
+  'erith-london': 'London',
+  'goodmayes-london': 'London',
+  'greenford-horsenden-lane': 'London',
+  'hendon-london': 'London',
+  'hornchurch-london': 'London',
+  'isleworth-fleming-way': 'London',
+  'mill-hill-london': 'London',
+  'mitcham-london': 'London',
+  'morden-london': 'London',
+  'pinner-london': 'London',
+  'sidcup-london': 'London',
+  'southall-london': 'London',
+  'tolworth-london': 'London',
+  tottenham: 'London',
+  'uxbridge-london': 'London',
+  'wanstead-london': 'London',
+  'west-wickham-london': 'London',
+  'wood-green-london': 'London',
+  'yeading-london': 'London',
+};
+
 export const testCentresByCity = drivingTestCentres.reduce<Record<string, string[]>>(
   (cities, centre) => {
-    (cities[centre.city] ??= []).push(centre.name);
+    const applicationCity = applicationCityByTestCentreSlug[centre.slug] ?? centre.city;
+    (cities[applicationCity] ??= []).push(centre.name);
     return cities;
   },
   {},

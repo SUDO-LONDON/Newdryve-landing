@@ -15,9 +15,17 @@ The downloadable location index was matched by the current DVSA centre name and 
 
 `name` remains the current human-facing DVSA name. `slug` is the stable application/database key: lowercase ASCII, punctuation removed, and words separated by hyphens. Coordinates and postcodes may be refreshed without changing a slug. A genuine DVSA rename must be reviewed rather than automatically replacing an existing slug.
 
+The application picker uses a separate, explicit city-grouping layer keyed by
+those slugs. It groups districts and suburbs under the city an instructor would
+normally search for (for example, Wood Green under London) without changing the
+raw DVSA locality. Larger metro groupings are curated rather than inferred, and
+ambiguous or rural locations remain searchable by their own town. The form also
+indexes every centre name, so searching for a centre selects its canonical city.
+
 ## Validation performed
 
-- 314 centre records across 299 application locality groups
+- 314 centre records across 260 curated application city groups
+- all 56 explicit city overrides reference an existing stable centre slug
 - 314 unique names, slugs, and postcodes
 - every record has finite latitude and longitude
 - every coordinate is inside a broad Great Britain bounding box (`49..61` latitude, `-9..2.5` longitude)
