@@ -70,7 +70,15 @@ const lessonTypes = [
   { code: '2h', label: '2 hours', checked: true },
 ];
 
-const testCentreCities = Object.keys(testCentresByCity);
+const testCentreCities = Object.keys(testCentresByCity).sort((a, b) => a.localeCompare(b, 'en-GB'));
+const testCentreSearchOptions = [
+  ...testCentreCities.map((city) => ({ value: city, label: 'City' })),
+  ...Object.entries(testCentresByCity).flatMap(([city, centres]) =>
+    centres
+      .filter((centre) => centre !== city)
+      .map((centre) => ({ value: centre, label: `Test centre in ${city}` })),
+  ),
+];
 
 const howItWorks = [
   { badge: 'bg-racing-green', text: 'You apply here and choose the password you&rsquo;ll sign in with.' },
@@ -214,20 +222,28 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
 
             <div class="flex flex-col gap-1.5">
               <label class={labelClass} for="apply-service-city">
-                City or area <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                City <span aria-hidden="true" class="text-deep-rose-ink">*</span>
               </label>
-              <select
+              <input
                 id="apply-service-city"
                 name="service_city"
+                type="search"
                 required
+                list="apply-service-city-options"
+                autocomplete="off"
                 aria-describedby="apply-service-city-hint"
+                placeholder="Start typing a city or test centre"
                 class={inputClass}
-              >
-                <option value="">Select a city or area</option>
-                {testCentreCities.map((city) => <option value={city}>{city}</option>)}
-              </select>
+              />
+              <datalist id="apply-service-city-options">
+                {
+                  testCentreSearchOptions.map((option) => (
+                    <option value={option.value} label={option.label}></option>
+                  ))
+                }
+              </datalist>
               <p id="apply-service-city-hint" class="text-xs text-ink-muted">
-                We&rsquo;ll show the current practical test centres for your selection.
+                Search by city or centre name. We&rsquo;ll then show every current practical test centre in that city.
               </p>
             </div>
 
@@ -241,7 +257,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
                 aria-describedby="apply-test-centres-hint"
               >
                 <p data-test-centres-empty class="text-sm text-ink-secondary">
-                  Choose a city or area first.
+                  Choose a city first.
                 </p>
                 {
                   Object.entries(testCentresByCity).map(([city, centres]) => (
@@ -706,7 +722,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
   ) {
     const stepEls = Array.from(root.querySelectorAll<HTMLFieldSetElement>('[data-step]'));
     const ticks = Array.from(root.querySelectorAll<HTMLElement>('[data-step-tick]'));
-    const citySelect = root.querySelector<HTMLSelectElement>('#apply-service-city');
+    const cityInput = root.querySelector<HTMLInputElement>('#apply-service-city');
     const testCentreGroups = Array.from(
       root.querySelectorAll<HTMLElement>('[data-test-centre-group]')
     );
@@ -724,27 +740,55 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
 
     const clearError = () => errorEl.classList.add('hidden');
 
-    const syncTestCentres = (clearPrevious = false) => {
-      const selectedCity = citySelect?.value || '';
+    const cityBySearchValue = new Map<string, string>();
+    for (const group of testCentreGroups) {
+      const city = group.dataset.city;
+      if (!city) continue;
+      cityBySearchValue.set(city.toLocaleLowerCase('en-GB'), city);
+      for (const checkbox of group.querySelectorAll<HTMLInputElement>(
+        'input[name="test_centres"]'
+      )) {
+        cityBySearchValue.set(checkbox.value.toLocaleLowerCase('en-GB'), city);
+      }
+    }
+
+    const resolveSelectedCity = (rewriteCentreAlias = false): string => {
+      const rawValue = cityInput?.value.trim() || '';
+      const city = cityBySearchValue.get(rawValue.toLocaleLowerCase('en-GB')) || '';
+      if (rewriteCentreAlias && cityInput && city && cityInput.value !== city) {
+        cityInput.value = city;
+      }
+      return city;
+    };
+
+    const syncTestCentres = (clearPrevious = false, rewriteCentreAlias = false) => {
+      const selectedCity = resolveSelectedCity(rewriteCentreAlias);
 
       for (const group of testCentreGroups) {
         const active = Boolean(selectedCity) && group.dataset.city === selectedCity;
         group.hidden = !active;
 
-        for (const checkbox of group.querySelectorAll<HTMLInputElement>(
+        const checkboxes = Array.from(group.querySelectorAll<HTMLInputElement>(
           'input[name="test_centres"]'
-        )) {
+        ));
+        for (const checkbox of checkboxes) {
           if (!active && clearPrevious) checkbox.checked = false;
           checkbox.disabled = !active;
         }
+        if (active && checkboxes.length === 1) checkboxes[0].checked = true;
       }
 
       if (testCentresEmpty) testCentresEmpty.hidden = Boolean(selectedCity);
     };
 
     syncTestCentres();
-    citySelect?.addEventListener('change', () => {
-      syncTestCentres(true);
+    cityInput?.addEventListener('input', () => {
+      cityInput.setCustomValidity('');
+      syncTestCentres(true, true);
+      clearError();
+    });
+    cityInput?.addEventListener('change', () => {
+      syncTestCentres(true, true);
       clearError();
     });
 
@@ -767,6 +811,9 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         if (field.required && 'value' in field && !field.value.trim()) {
           field.setCustomValidity('Please fill in this field.');
         }
+        if (field.id === 'apply-service-city' && field.value && !resolveSelectedCity(true)) {
+          field.setCustomValidity('Choose a city or test centre from the list.');
+        }
         if (field.id === 'apply-phone' && field.value && !toE164(field.value)) {
           field.setCustomValidity('Enter a valid UK mobile number beginning 07 or +44 7.');
         }
@@ -788,7 +835,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
           return fail(
             'Please choose at least one practical test centre you cover.',
             el.querySelector<HTMLInputElement>('input[name="test_centres"]:not(:disabled)') ??
-              citySelect
+              cityInput
           );
         }
       }
