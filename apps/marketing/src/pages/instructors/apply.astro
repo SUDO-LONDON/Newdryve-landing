@@ -69,82 +69,9 @@ const lessonTypes = [
   { code: '2h', label: '2 hours', checked: true },
 ];
 
-const ukCities = [
-  'Aberdeen',
-  'Armagh',
-  'Bangor, County Down',
-  'Bangor, Gwynedd',
-  'Bath',
-  'Belfast',
-  'Birmingham',
-  'Bradford',
-  'Brighton and Hove',
-  'Bristol',
-  'Cambridge',
-  'Canterbury',
-  'Cardiff',
-  'Carlisle',
-  'Chelmsford',
-  'Chester',
-  'Chichester',
-  'Colchester',
-  'Coventry',
-  'Derby',
-  'Doncaster',
-  'Dundee',
-  'Dunfermline',
-  'Durham',
-  'Edinburgh',
-  'Ely',
-  'Exeter',
-  'Glasgow',
-  'Gloucester',
-  'Hereford',
-  'Inverness',
-  'Kingston upon Hull',
-  'Lancaster',
-  'Leeds',
-  'Leicester',
-  'Lichfield',
-  'Lincoln',
-  'Lisburn',
-  'Liverpool',
-  'London',
-  'Manchester',
-  'Milton Keynes',
-  'Newcastle upon Tyne',
-  'Newport',
-  'Newry',
-  'Norwich',
-  'Nottingham',
-  'Oxford',
-  'Perth',
-  'Peterborough',
-  'Plymouth',
-  'Portsmouth',
-  'Preston',
-  'Ripon',
-  'Salford',
-  'Salisbury',
-  'Sheffield',
-  'Southampton',
-  'Southend-on-Sea',
-  'St Albans',
-  'St Asaph',
-  'St Davids',
-  'Stirling',
-  'Stoke-on-Trent',
-  'Sunderland',
-  'Swansea',
-  'Truro',
-  'Wakefield',
-  'Wells',
-  'Westminster',
-  'Winchester',
-  'Wolverhampton',
-  'Worcester',
-  'Wrexham',
-  'York',
+const primaryTestCentres = [
+  'Norwich (Jupiter Road)',
+  'Norwich (Peachman Way)',
 ] as const;
 
 const howItWorks = [
@@ -288,20 +215,31 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <label class={labelClass} for="apply-areas">
-                Primary city you cover <span aria-hidden="true" class="text-deep-rose-ink">*</span>
-              </label>
-              <select
-                id="apply-areas"
-                name="service_areas"
-                required
-                class={inputClass}
+              <span id="apply-test-centres-label" class={labelClass}>
+                Primary test centres you cover <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+              </span>
+              <div
+                class="flex flex-wrap gap-2 pt-1"
+                role="group"
+                aria-labelledby="apply-test-centres-label"
+                aria-describedby="apply-test-centres-hint"
               >
-                <option value="">Select a UK city</option>
-                {ukCities.map((city) => <option value={city}>{city}</option>)}
-              </select>
-              <p class="text-xs text-ink-muted">
-                You&rsquo;ll set your coverage radius in the app after approval.
+                {
+                  primaryTestCentres.map((centre) => (
+                    <label class="cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="test_centres"
+                        value={centre}
+                        class="peer sr-only"
+                      />
+                      <span class={pillClass}>{centre}</span>
+                    </label>
+                  ))
+                }
+              </div>
+              <p id="apply-test-centres-hint" class="text-xs text-ink-muted">
+                Choose at least one. You&rsquo;ll set your exact pickup-area radius in the app after approval.
               </p>
             </div>
           </fieldset>
@@ -786,6 +724,16 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         }
       }
 
+      if (step === 1) {
+        const testCentres = el.querySelectorAll('input[name="test_centres"]:checked');
+        if (testCentres.length === 0) {
+          return fail(
+            'Please choose at least one practical test centre you cover.',
+            el.querySelector<HTMLInputElement>('input[name="test_centres"]')
+          );
+        }
+      }
+
       if (step === 2) {
         const password = form.querySelector<HTMLInputElement>('#apply-password');
         const confirm = form.querySelector<HTMLInputElement>('#apply-password-confirm');
@@ -961,6 +909,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
       const adiFile = (form.querySelector<HTMLInputElement>('#apply-adi-doc')?.files || [])[0];
       const files: Record<string, File> = adiFile ? { adi: adiFile } : {};
       const lessonSelected = checkedValues('lesson_types');
+      const testCentres = checkedValues('test_centres');
 
       const payload = {
         full_name: String(data.get('full_name') || '').trim(),
@@ -972,7 +921,10 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         price_per_hour_pounds: Number(data.get('price_per_hour_pounds') || 0),
         transmissions: checkedValues('transmissions'),
         specialisms: splitList(String(data.get('specialisms') || '')),
-        service_areas: splitList(String(data.get('service_areas') || '')),
+        // The backend currently mirrors service_areas[0] into service_city and
+        // measures the pickup radius from it. Keep Norwich as that legacy
+        // anchor while retaining the applicant's more useful centre choices.
+        service_areas: ['Norwich', ...testCentres],
         car_make: String(data.get('car_make') || '').trim() || null,
         car_model: String(data.get('car_model') || '').trim() || null,
         car_color: String(data.get('car_color') || '').trim() || null,
