@@ -18,6 +18,7 @@
  * not the verification itself, and is deleted after review.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { testCentresByCity } from '../../data/driving-test-centres';
 import { organizationSchema, breadcrumbSchema } from '../../lib/schema';
 
 const title = 'Apply to teach with Newdryve | Newdryve';
@@ -69,10 +70,7 @@ const lessonTypes = [
   { code: '2h', label: '2 hours', checked: true },
 ];
 
-const primaryTestCentres = [
-  'Norwich (Jupiter Road)',
-  'Norwich (Peachman Way)',
-] as const;
+const testCentreCities = Object.keys(testCentresByCity);
 
 const howItWorks = [
   { badge: 'bg-racing-green', text: 'You apply here and choose the password you&rsquo;ll sign in with.' },
@@ -110,8 +108,8 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
           Apply to teach with Newdryve.
         </h1>
         <p class="mt-5 max-w-xl text-base leading-relaxed text-ink-secondary md:text-lg">
-          We&rsquo;re building a small founding group of ADI-qualified instructors in Norwich. Tell
-          us about yourself and how you teach, and we&rsquo;ll review your application by hand.
+          We&rsquo;re building a carefully selected founding group of ADI-qualified instructors across
+          Great Britain. Tell us about yourself and how you teach, and we&rsquo;ll review your application by hand.
         </p>
 
         <div class="mt-8 rounded-2xl border border-blush-border bg-blush-surface p-5">
@@ -215,26 +213,57 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
             </div>
 
             <div class="flex flex-col gap-1.5">
+              <label class={labelClass} for="apply-service-city">
+                City or area <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+              </label>
+              <select
+                id="apply-service-city"
+                name="service_city"
+                required
+                aria-describedby="apply-service-city-hint"
+                class={inputClass}
+              >
+                <option value="">Select a city or area</option>
+                {testCentreCities.map((city) => <option value={city}>{city}</option>)}
+              </select>
+              <p id="apply-service-city-hint" class="text-xs text-ink-muted">
+                We&rsquo;ll show the current practical test centres for your selection.
+              </p>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
               <span id="apply-test-centres-label" class={labelClass}>
                 Primary test centres you cover <span aria-hidden="true" class="text-deep-rose-ink">*</span>
               </span>
               <div
-                class="flex flex-wrap gap-2 pt-1"
-                role="group"
+                class="pt-1"
                 aria-labelledby="apply-test-centres-label"
                 aria-describedby="apply-test-centres-hint"
               >
+                <p data-test-centres-empty class="text-sm text-ink-secondary">
+                  Choose a city or area first.
+                </p>
                 {
-                  primaryTestCentres.map((centre) => (
-                    <label class="cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="test_centres"
-                        value={centre}
-                        class="peer sr-only"
-                      />
-                      <span class={pillClass}>{centre}</span>
-                    </label>
+                  Object.entries(testCentresByCity).map(([city, centres]) => (
+                    <div
+                      data-test-centre-group
+                      data-city={city}
+                      class="flex flex-wrap gap-2"
+                      role="group"
+                      aria-label={`${city} practical test centres`}
+                    >
+                      {centres.map((centre) => (
+                        <label class="cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="test_centres"
+                            value={centre}
+                            class="peer sr-only"
+                          />
+                          <span class={pillClass}>{centre}</span>
+                        </label>
+                      ))}
+                    </div>
                   ))
                 }
               </div>
@@ -677,6 +706,11 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
   ) {
     const stepEls = Array.from(root.querySelectorAll<HTMLFieldSetElement>('[data-step]'));
     const ticks = Array.from(root.querySelectorAll<HTMLElement>('[data-step-tick]'));
+    const citySelect = root.querySelector<HTMLSelectElement>('#apply-service-city');
+    const testCentreGroups = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-test-centre-group]')
+    );
+    const testCentresEmpty = root.querySelector<HTMLElement>('[data-test-centres-empty]');
     const names = ['About you', 'Sign-in', 'DVSA check', 'Teaching', 'Availability'];
     const total = stepEls.length;
     let current = 1;
@@ -689,6 +723,30 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
     };
 
     const clearError = () => errorEl.classList.add('hidden');
+
+    const syncTestCentres = (clearPrevious = false) => {
+      const selectedCity = citySelect?.value || '';
+
+      for (const group of testCentreGroups) {
+        const active = Boolean(selectedCity) && group.dataset.city === selectedCity;
+        group.hidden = !active;
+
+        for (const checkbox of group.querySelectorAll<HTMLInputElement>(
+          'input[name="test_centres"]'
+        )) {
+          if (!active && clearPrevious) checkbox.checked = false;
+          checkbox.disabled = !active;
+        }
+      }
+
+      if (testCentresEmpty) testCentresEmpty.hidden = Boolean(selectedCity);
+    };
+
+    syncTestCentres();
+    citySelect?.addEventListener('change', () => {
+      syncTestCentres(true);
+      clearError();
+    });
 
     /**
      * Per-step gate. Native constraints first (required, minlength, type=email)
@@ -729,7 +787,8 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         if (testCentres.length === 0) {
           return fail(
             'Please choose at least one practical test centre you cover.',
-            el.querySelector<HTMLInputElement>('input[name="test_centres"]')
+            el.querySelector<HTMLInputElement>('input[name="test_centres"]:not(:disabled)') ??
+              citySelect
           );
         }
       }
@@ -910,6 +969,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
       const files: Record<string, File> = adiFile ? { adi: adiFile } : {};
       const lessonSelected = checkedValues('lesson_types');
       const testCentres = checkedValues('test_centres');
+      const serviceCity = String(data.get('service_city') || '').trim();
 
       const payload = {
         full_name: String(data.get('full_name') || '').trim(),
@@ -921,10 +981,10 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         price_per_hour_pounds: Number(data.get('price_per_hour_pounds') || 0),
         transmissions: checkedValues('transmissions'),
         specialisms: splitList(String(data.get('specialisms') || '')),
-        // The backend currently mirrors service_areas[0] into service_city and
-        // measures the pickup radius from it. Keep Norwich as that legacy
-        // anchor while retaining the applicant's more useful centre choices.
-        service_areas: ['Norwich', ...testCentres],
+        // Keep the current backend contract until first-class test-centre rows
+        // land: it mirrors the first item into service_city and retains the
+        // selected centre names in the legacy service_areas array.
+        service_areas: [serviceCity, ...testCentres],
         car_make: String(data.get('car_make') || '').trim() || null,
         car_model: String(data.get('car_model') || '').trim() || null,
         car_color: String(data.get('car_color') || '').trim() || null,
