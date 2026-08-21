@@ -18,7 +18,7 @@
  * not the verification itself, and is deleted after review.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { testCentresByCity } from '../../data/driving-test-centres';
+import { testCentresByCity, testCentreOptionsByCity } from '../../data/driving-test-centres';
 import { organizationSchema, breadcrumbSchema } from '../../lib/schema';
 
 const title = 'Apply to teach with Newdryve | Newdryve';
@@ -244,7 +244,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
                   Choose a city first.
                 </p>
                 {
-                  Object.entries(testCentresByCity).map(([city, centres]) => (
+                  Object.entries(testCentreOptionsByCity).map(([city, centres]) => (
                     <div
                       data-test-centre-group
                       data-city={city}
@@ -257,10 +257,11 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
                           <input
                             type="checkbox"
                             name="test_centres"
-                            value={centre}
+                            value={centre.slug}
+                            data-centre-name={centre.name}
                             class="peer sr-only"
                           />
-                          <span class={pillClass}>{centre}</span>
+                          <span class={pillClass}>{centre.name}</span>
                         </label>
                       ))}
                     </div>
@@ -971,7 +972,6 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
       const files: Record<string, File> = adiFile ? { adi: adiFile } : {};
       const lessonSelected = checkedValues('lesson_types');
       const testCentres = checkedValues('test_centres');
-      const serviceCity = String(data.get('service_city') || '').trim();
 
       const payload = {
         full_name: String(data.get('full_name') || '').trim(),
@@ -983,10 +983,11 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         price_per_hour_pounds: Number(data.get('price_per_hour_pounds') || 0),
         transmissions: checkedValues('transmissions'),
         specialisms: splitList(String(data.get('specialisms') || '')),
-        // Keep the current backend contract until first-class test-centre rows
-        // land: it mirrors the first item into service_city and retains the
-        // selected centre names in the legacy service_areas array.
-        service_areas: [serviceCity, ...testCentres],
+        // Stable slugs, not display names: the slug is the join key the API
+        // stores in instructor_test_centres, and DVSA renames sites. The
+        // catchment columns are now derived server-side from these, so the
+        // client no longer constructs service_areas or picks the city anchor.
+        test_centre_slugs: testCentres,
         car_make: String(data.get('car_make') || '').trim() || null,
         car_model: String(data.get('car_model') || '').trim() || null,
         car_color: String(data.get('car_color') || '').trim() || null,

@@ -2928,3 +2928,20 @@ export const testCentresByCity = drivingTestCentres.reduce<Record<string, string
   },
   {},
 );
+
+/**
+ * Same grouping as `testCentresByCity`, but carrying the stable slug alongside
+ * the display name.
+ *
+ * The slug is the join key the backend stores in `instructor_test_centres`;
+ * names are display text and will drift (DVSA renames sites). Submitting names
+ * is what forced the old free-text `service_areas` workaround, so anything
+ * posting a centre to the API should use this and send `slug`.
+ */
+export const testCentreOptionsByCity = drivingTestCentres.reduce<
+  Record<string, Array<{ name: string; slug: string }>>
+>((cities, centre) => {
+  const applicationCity = applicationCityByTestCentreSlug[centre.slug] ?? centre.city;
+  (cities[applicationCity] ??= []).push({ name: centre.name, slug: centre.slug });
+  return cities;
+}, {});
