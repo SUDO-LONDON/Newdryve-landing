@@ -71,6 +71,9 @@ export interface InstructorApplication {
     subscription_last_amount_paid_pence: number | null;
     subscription_last_paid_at: string | null;
     subscription_current_period_end: string | null;
+    subscription_comped_forever: boolean;
+    subscription_comped_at: string | null;
+    subscription_comped_by_email: string | null;
   } | null;
   documents: { adi: InstructorDocument };
 }
@@ -157,6 +160,7 @@ export async function approveInstructor(
     trial_months: number;
     trial_source: "word_of_mouth" | "referral" | "other" | null;
     trial_note: string | null;
+    free_forever: boolean;
   }
 ): Promise<void> {
   await call(`/v1/ops/instructor-applications/${id}/approve`, founderEmail, {
@@ -173,6 +177,16 @@ export async function updateInstructorBilling(
   await call(`/v1/ops/instructor-applications/${id}/billing`, founderEmail, {
     method: "PATCH",
     body: JSON.stringify({ monthly_amount_pence: monthlyAmountPence }),
+  });
+}
+
+export async function grantInstructorFreeForever(
+  founderEmail: string,
+  id: string
+): Promise<void> {
+  await call(`/v1/ops/instructor-applications/${id}/free-forever`, founderEmail, {
+    method: "POST",
+    body: JSON.stringify({ confirmed: true }),
   });
 }
 

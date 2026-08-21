@@ -101,7 +101,7 @@ const sections = [
       'Stripe processing fees and other payment-provider deductions may be deducted before instructor payout.',
       'Founding and launch instructors currently pay a subscription fee of £29 per month after any agreed free trial or introductory period, unless Newdryve has agreed different written terms with that instructor.',
       'Newdryve may offer selected instructors a free trial, including a one-month free trial from account activation. Free trials are discretionary, may be changed or withdrawn, and do not guarantee any bookings, learners, income or enquiries.',
-      "After a free trial ends, the instructor subscription renews at the applicable monthly fee unless cancelled before renewal. Newdryve may change instructor subscription pricing by giving at least 30 days' notice. Any price change will not affect fees already paid.",
+      "After a free trial ends, the instructor subscription renews at the applicable monthly fee unless cancelled before renewal. Newdryve may change instructor subscription pricing by giving at least 30 days' notice. Any price change will not affect fees already paid. If Newdryve confirms in writing that an instructor's platform membership is 'free forever', the monthly platform membership fee remains £0 for that instructor and no membership card setup is required; Stripe Connect may still be required to receive lesson payouts.",
       'If Newdryve introduces or changes a platform fee for instructors or driving schools, the applicable fee should be disclosed before it applies.',
       'Instructors are responsible for checking payout information and for any tax, accounting or business records linked to income received through or recorded in Newdryve.',
     ],

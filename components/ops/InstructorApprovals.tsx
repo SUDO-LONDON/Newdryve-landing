@@ -44,6 +44,7 @@ function ApplicationCard({
   const [trialMonths, setTrialMonths] = useState(0);
   const [trialSource, setTrialSource] = useState<"word_of_mouth" | "referral" | "other" | "">("");
   const [trialNote, setTrialNote] = useState("");
+  const [freeForever, setFreeForever] = useState(false);
 
   const [adiVerified, setAdiVerified] = useState(application.adi_verified);
   const [verificationMethod, setVerificationMethod] = useState<"govuk_directory" | "dvsa_contact" | "">(
@@ -260,6 +261,7 @@ function ApplicationCard({
                         step="0.01"
                         value={monthlyAmount}
                         onChange={(event) => setMonthlyAmount(event.target.value)}
+                        disabled={freeForever}
                         className="min-w-0 flex-1 rounded-r-lg bg-transparent px-1 py-2 text-ink outline-none"
                       />
                     </div>
@@ -268,6 +270,7 @@ function ApplicationCard({
                     Free trial
                     <select
                       value={trialMonths}
+                      disabled={freeForever}
                       onChange={(event) => {
                         const next = Number(event.target.value);
                         setTrialMonths(next);
@@ -285,7 +288,30 @@ function ApplicationCard({
                     </select>
                   </label>
 
-                  {trialMonths > 0 ? (
+                  <label className="sm:col-span-2 flex cursor-pointer items-start gap-3 rounded-lg border border-racing-green/25 bg-white p-4">
+                    <input
+                      type="checkbox"
+                      checked={freeForever}
+                      onChange={(event) => {
+                        const checked = event.target.checked;
+                        setFreeForever(checked);
+                        if (checked) {
+                          setTrialMonths(0);
+                          setTrialSource("");
+                          setTrialNote("");
+                        }
+                      }}
+                      className="mt-1 h-4 w-4 accent-racing-green"
+                    />
+                    <span>
+                      <span className="block font-semibold text-racing-green">Free forever</span>
+                      <span className="mt-1 block text-sm font-normal leading-6 text-ink-secondary">
+                        Unlock the account without a membership payment link. No card is collected and no monthly Newdryve fee is ever charged.
+                      </span>
+                    </span>
+                  </label>
+
+                  {!freeForever && trialMonths > 0 ? (
                     <>
                       <label className="text-sm font-medium text-ink">
                         Why was the trial granted?
@@ -316,7 +342,7 @@ function ApplicationCard({
                   <div className="sm:col-span-2 flex justify-end">
                     <button
                       type="button"
-                      disabled={!Number.isFinite(Number(monthlyAmount)) || Number(monthlyAmount) < 1 || (trialMonths > 0 && !trialSource)}
+                      disabled={!freeForever && (!Number.isFinite(Number(monthlyAmount)) || Number(monthlyAmount) < 1 || (trialMonths > 0 && !trialSource))}
                       onClick={() => setApprovalStep(2)}
                       className="rounded-lg bg-racing-green px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
                     >
@@ -332,12 +358,22 @@ function ApplicationCard({
                       label="DVSA verification"
                       value={verificationMethod === "govuk_directory" ? "GOV.UK directory" : "Direct with DVSA"}
                     />
-                    <Field label="Monthly price" value={`${formatPrice(Math.round(Number(monthlyAmount) * 100))}/month`} />
-                    <Field label="Trial" value={trialMonths ? `${trialMonths} month${trialMonths === 1 ? "" : "s"}` : "None"} />
-                    <Field label="Trial source" value={trialSource ? trialSource.replaceAll("_", " ") : "—"} />
+                    <Field label="Monthly price" value={freeForever ? "Free forever" : `${formatPrice(Math.round(Number(monthlyAmount) * 100))}/month`} />
+                    <Field label="Trial" value={freeForever ? "Not applicable" : trialMonths ? `${trialMonths} month${trialMonths === 1 ? "" : "s"}` : "None"} />
+                    <Field label="Trial source" value={!freeForever && trialSource ? trialSource.replaceAll("_", " ") : "—"} />
+                    <Field
+                      label="Estimated first charge"
+                      value={freeForever
+                        ? "Never"
+                        : trialMonths > 0
+                          ? `${estimatedFirstChargeDate(trialMonths)} if setup completes today`
+                          : "When Stripe setup completes"}
+                    />
                   </dl>
                   <p className="mt-3 text-sm leading-6 text-ink-secondary">
-                    This records your DVSA check, deletes the optional badge image, keeps the account locked, and emails a secure Stripe setup link. Access unlocks only after Stripe confirms setup.
+                    {freeForever
+                      ? "This records your DVSA check, deletes the optional badge image, unlocks the account immediately and emails confirmation that the membership fee is permanently waived."
+                      : "This records your DVSA check, deletes the optional badge image, keeps the account locked, and emails a secure Stripe setup link. Access unlocks only after Stripe confirms setup."}
                   </p>
                   <div className="mt-4 flex flex-wrap justify-end gap-2">
                     <button type="button" onClick={() => setApprovalStep(1)} className="rounded-lg border border-border px-4 py-2 text-sm text-ink">
@@ -357,6 +393,7 @@ function ApplicationCard({
                         trial_months: trialMonths,
                         trial_source: trialSource || null,
                         trial_note: trialNote.trim() || null,
+                        free_forever: freeForever,
                       })}
                       className="rounded-lg bg-racing-green px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
                     >
@@ -504,7 +541,7 @@ function ApplicationCard({
         <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
           <p>
             Approved{application.approved_at ? ` on ${formatDate(application.approved_at)}` : ""}; waiting for Stripe membership setup.
-            {application.tenants ? ` Terms: ${formatPrice(application.tenants.subscription_monthly_amount_pence)}/month${application.tenants.subscription_trial_months ? ` after a ${application.tenants.subscription_trial_months}-month trial` : ""}.` : ""}
+            {application.tenants ? ` Terms: ${formatPrice(application.tenants.subscription_monthly_amount_pence)}/month${application.tenants.subscription_trial_months ? ` after a ${application.tenants.subscription_trial_months}-month trial; estimated first charge ${estimatedFirstChargeDate(application.tenants.subscription_trial_months)} if setup completes today` : ""}.` : ""}
           </p>
           <button
             type="button"
@@ -624,5 +661,24 @@ function formatDateOnly(value: string | null): string {
     day: "numeric",
     month: "short",
     year: "numeric",
+  });
+}
+
+function estimatedFirstChargeDate(months: number): string {
+  const start = new Date();
+  const targetMonthIndex = start.getUTCMonth() + months;
+  const targetYear = start.getUTCFullYear() + Math.floor(targetMonthIndex / 12);
+  const targetMonth = targetMonthIndex % 12;
+  const targetDay = Math.min(
+    start.getUTCDate(),
+    new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate()
+  );
+  const end = new Date(start.getTime());
+  end.setUTCFullYear(targetYear, targetMonth, targetDay);
+  return end.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Europe/London",
   });
 }
