@@ -1,921 +1,2860 @@
 /**
- * Active DVSA car practical driving test centres, grouped by the locality in
- * the official centre name. Source: DRT122F, July 2026.
+ * Active DVSA car practical driving test centres and geocoded locations.
  *
- * https://www.gov.uk/government/statistical-data-sets/driving-test-and-theory-test-data-cars
+ * Centre membership: DVSA DRT122F, July 2026.
+ * Address/postcode matching: current location index checked against the
+ * official DVSA finder on 14 August 2026.
+ * Coordinates: ONS postcode centroids via postcodes.io, except the explicitly
+ * marked site fallback. See DRIVING_TEST_CENTRES.md for provenance and QA.
  */
-export const testCentresByCity = {
-  "Aberdeen North": [
-    "Aberdeen North"
-  ],
-  "Aberdeen South": [
-    "Aberdeen South (Cove)"
-  ],
-  "Aberfeldy": [
-    "Aberfeldy"
-  ],
-  "Abergavenny": [
-    "Abergavenny"
-  ],
-  "Aberystwyth": [
-    "Aberystwyth (Park Avenue)"
-  ],
-  "Airdrie": [
-    "Airdrie"
-  ],
-  "Alness": [
-    "Alness"
-  ],
-  "Alnwick": [
-    "Alnwick"
-  ],
-  "Arbroath": [
-    "Arbroath"
-  ],
-  "Ashfield": [
-    "Ashfield"
-  ],
-  "Ashford": [
-    "Ashford (Kent)"
-  ],
-  "Atherton": [
-    "Atherton (Manchester)"
-  ],
-  "Aylesbury": [
-    "Aylesbury"
-  ],
-  "Ayr": [
-    "Ayr"
-  ],
-  "Bala": [
-    "Bala"
-  ],
-  "Ballater": [
-    "Ballater"
-  ],
-  "Banbury": [
-    "Banbury"
-  ],
-  "Banff": [
-    "Banff"
-  ],
-  "Bangor": [
-    "Bangor"
-  ],
-  "Barnet": [
-    "Barnet (London)"
-  ],
-  "Barnsley": [
-    "Barnsley"
-  ],
-  "Barnstaple": [
-    "Barnstaple"
-  ],
-  "Barra": [
-    "Barra"
-  ],
-  "Barrow In Furness": [
-    "Barrow In Furness"
-  ],
-  "Barry": [
-    "Barry"
-  ],
-  "Basildon": [
-    "Basildon"
-  ],
-  "Basingstoke": [
-    "Basingstoke"
-  ],
-  "Bedford": [
-    "Bedford"
-  ],
-  "Belvedere": [
-    "Belvedere (London)"
-  ],
-  "Benbecula Island": [
-    "Benbecula Island"
-  ],
-  "Berwick-On-Tweed": [
-    "Berwick-On-Tweed"
-  ],
-  "Birmingham": [
-    "Birmingham (Cocks Moors)",
-    "Birmingham (Garretts Green)",
-    "Birmingham (Kings Heath)",
-    "Birmingham (Kingstanding)",
-    "Birmingham (Shirley)",
-    "Birmingham (South Yardley)"
-  ],
-  "Bishopbriggs": [
-    "Bishopbriggs"
-  ],
-  "Bishops Stortford": [
-    "Bishops Stortford"
-  ],
-  "Blackburn with Darwen": [
-    "Blackburn with Darwen"
-  ],
-  "Blackpool": [
-    "Blackpool"
-  ],
-  "Bletchley": [
-    "Bletchley"
-  ],
-  "Blyth": [
-    "Blyth"
-  ],
-  "Bodmin": [
-    "Bodmin"
-  ],
-  "Bolton": [
-    "Bolton (Manchester)"
-  ],
-  "Borehamwood": [
-    "Borehamwood (London)"
-  ],
-  "Boston": [
-    "Boston"
-  ],
-  "Bradford": [
-    "Bradford (Heaton)",
-    "Bradford (Thornbury)"
-  ],
-  "Brecon": [
-    "Brecon"
-  ],
-  "Bredbury": [
-    "Bredbury (Manchester)"
-  ],
-  "Brentwood": [
-    "Brentwood (London)"
-  ],
-  "Bridgend": [
-    "Bridgend"
-  ],
-  "Bridlington": [
-    "Bridlington"
-  ],
-  "Bristol": [
-    "Bristol (Avonmouth)",
-    "Bristol (Kingswood)"
-  ],
-  "Bromley": [
-    "Bromley (London)"
-  ],
-  "Buckie": [
-    "Buckie"
-  ],
-  "Burgess Hill": [
-    "Burgess Hill"
-  ],
-  "Burton on Trent": [
-    "Burton on Trent"
-  ],
-  "Bury": [
-    "Bury (Manchester)"
-  ],
-  "Bury St Edmunds": [
-    "Bury St Edmunds"
-  ],
-  "Buxton": [
-    "Buxton"
-  ],
-  "Callander": [
-    "Callander"
-  ],
-  "Camborne": [
-    "Camborne"
-  ],
-  "Cambridge": [
-    "Cambridge (Brookmount Court)"
-  ],
-  "Campbeltown": [
-    "Campbeltown"
-  ],
-  "Canterbury": [
-    "Canterbury"
-  ],
-  "Cardiff": [
-    "Cardiff (Llanishen)"
-  ],
-  "Cardigan": [
-    "Cardigan"
-  ],
-  "Carlisle": [
-    "Carlisle"
-  ],
-  "Carlisle LGV": [
-    "Carlisle LGV (Cars)"
-  ],
-  "Carmarthen": [
-    "Carmarthen"
-  ],
-  "Castle Douglas": [
-    "Castle Douglas"
-  ],
-  "Chadderton": [
-    "Chadderton"
-  ],
-  "Cheetham Hill": [
-    "Cheetham Hill (Manchester)"
-  ],
-  "Chelmsford": [
-    "Chelmsford"
-  ],
-  "Cheltenham": [
-    "Cheltenham"
-  ],
-  "Chertsey": [
-    "Chertsey (London)"
-  ],
-  "Chester": [
-    "Chester"
-  ],
-  "Chesterfield": [
-    "Chesterfield"
-  ],
-  "Chichester": [
-    "Chichester"
-  ],
-  "Chingford": [
-    "Chingford (London)"
-  ],
-  "Chippenham": [
-    "Chippenham"
-  ],
-  "Chorley": [
-    "Chorley"
-  ],
-  "Clacton-on-Sea": [
-    "Clacton-on-Sea"
-  ],
-  "Colchester": [
-    "Colchester"
-  ],
-  "Coventry": [
-    "Coventry"
-  ],
-  "Crawley": [
-    "Crawley"
-  ],
-  "Crewe": [
-    "Crewe"
-  ],
-  "Crieff": [
-    "Crieff"
-  ],
-  "Cumnock": [
-    "Cumnock"
-  ],
-  "Darlington": [
-    "Darlington"
-  ],
-  "Derby": [
-    "Derby (Alvaston)"
-  ],
-  "Doncaster": [
-    "Doncaster"
-  ],
-  "Dorchester": [
-    "Dorchester"
-  ],
-  "Dudley": [
-    "Dudley"
-  ],
-  "Dumbarton": [
-    "Dumbarton"
-  ],
-  "Dumfries": [
-    "Dumfries"
-  ],
-  "Dundee": [
-    "Dundee"
-  ],
-  "Dunfermline": [
-    "Dunfermline (Vine)"
-  ],
-  "Dunoon": [
-    "Dunoon"
-  ],
-  "Duns": [
-    "Duns"
-  ],
-  "Durham": [
-    "Durham"
-  ],
-  "East Kilbride": [
-    "East Kilbride"
-  ],
-  "Eastbourne": [
-    "Eastbourne"
-  ],
-  "Edinburgh": [
-    "Edinburgh (Currie)",
-    "Edinburgh (Musselburgh)"
-  ],
-  "Elgin": [
-    "Elgin"
-  ],
-  "Enfield": [
-    "Enfield (Brancroft Way)",
-    "Enfield (Innova Business Park)"
-  ],
-  "Erith": [
-    "Erith (London)"
-  ],
-  "Exeter": [
-    "Exeter"
-  ],
-  "Farnborough": [
-    "Farnborough"
-  ],
-  "Featherstone": [
-    "Featherstone"
-  ],
-  "Folkestone": [
-    "Folkestone"
-  ],
-  "Forfar": [
-    "Forfar"
-  ],
-  "Fort William": [
-    "Fort William"
-  ],
-  "Fraserburgh": [
-    "Fraserburgh"
-  ],
-  "Gairloch": [
-    "Gairloch"
-  ],
-  "Galashiels": [
-    "Galashiels"
-  ],
-  "Gateshead": [
-    "Gateshead"
-  ],
-  "Gillingham": [
-    "Gillingham"
-  ],
-  "Girvan": [
-    "Girvan"
-  ],
-  "Glasgow": [
-    "Glasgow (Anniesland)",
-    "Glasgow (Baillieston)",
-    "Glasgow (Shieldhall)"
-  ],
-  "Gloucester": [
-    "Gloucester"
-  ],
-  "Golspie": [
-    "Golspie"
-  ],
-  "Goodmayes": [
-    "Goodmayes (London)"
-  ],
-  "Gosforth": [
-    "Gosforth"
-  ],
-  "Grangemouth": [
-    "Grangemouth"
-  ],
-  "Grantham": [
-    "Grantham (Somerby)"
-  ],
-  "Grantown-On-Spey": [
-    "Grantown-On-Spey"
-  ],
-  "Greenford": [
-    "Greenford (Horsenden Lane)"
-  ],
-  "Greenham": [
-    "Greenham"
-  ],
-  "Greenock": [
-    "Greenock"
-  ],
-  "Grimsby Coldwater": [
-    "Grimsby Coldwater"
-  ],
-  "Guildford": [
-    "Guildford"
-  ],
-  "Haddington": [
-    "Haddington"
-  ],
-  "Halifax": [
-    "Halifax"
-  ],
-  "Hamilton": [
-    "Hamilton"
-  ],
-  "Hartlepool": [
-    "Hartlepool"
-  ],
-  "Hastings": [
-    "Hastings (Ore)"
-  ],
-  "Hawick": [
-    "Hawick"
-  ],
-  "Heckmondwike": [
-    "Heckmondwike"
-  ],
-  "Hendon": [
-    "Hendon (London)"
-  ],
-  "Hereford": [
-    "Hereford"
-  ],
-  "Herne Bay": [
-    "Herne Bay"
-  ],
-  "Hexham": [
-    "Hexham"
-  ],
-  "Heysham": [
-    "Heysham"
-  ],
-  "High Wycombe": [
-    "High Wycombe"
-  ],
-  "Hinckley": [
-    "Hinckley"
-  ],
-  "Hornchurch": [
-    "Hornchurch (London)"
-  ],
-  "Horsforth": [
-    "Horsforth"
-  ],
-  "Huddersfield": [
-    "Huddersfield"
-  ],
-  "Hull": [
-    "Hull"
-  ],
-  "Huntly": [
-    "Huntly"
-  ],
-  "Inveraray": [
-    "Inveraray"
-  ],
-  "Inverness": [
-    "Inverness (Longman Drive)"
-  ],
-  "Inverurie": [
-    "Inverurie"
-  ],
-  "Ipswich": [
-    "Ipswich"
-  ],
-  "Irvine": [
-    "Irvine"
-  ],
-  "Isle of Mull": [
-    "Isle of Mull"
-  ],
-  "Isle of Skye": [
-    "Isle of Skye (Portree)"
-  ],
-  "Isleworth": [
-    "Isleworth (Fleming Way)"
-  ],
-  "Kelso": [
-    "Kelso"
-  ],
-  "Kendal": [
-    "Kendal (Oxenholme Road)"
-  ],
-  "Kettering": [
-    "Kettering"
-  ],
-  "Kings Lynn": [
-    "Kings Lynn"
-  ],
-  "Kingussie": [
-    "Kingussie"
-  ],
-  "Kirkcaldy": [
-    "Kirkcaldy"
-  ],
-  "Knaresborough": [
-    "Knaresborough"
-  ],
-  "Kyle of Lochalsh": [
-    "Kyle of Lochalsh"
-  ],
-  "Lanark": [
-    "Lanark"
-  ],
-  "Launceston": [
-    "Launceston"
-  ],
-  "Lee On The Solent": [
-    "Lee On The Solent"
-  ],
-  "Leeds": [
-    "Leeds (Colton Mill)",
-    "Leeds (Fearnville)"
-  ],
-  "Leicester": [
-    "Leicester (Cannock Street)",
-    "Leicester (Wigston)"
-  ],
-  "Leighton Buzzard": [
-    "Leighton Buzzard (Stanbridge Road)"
-  ],
-  "Lerwick": [
-    "Lerwick"
-  ],
-  "Letchworth": [
-    "Letchworth"
-  ],
-  "Lichfield": [
-    "Lichfield"
-  ],
-  "Lincoln": [
-    "Lincoln"
-  ],
-  "Livingston": [
-    "Livingston"
-  ],
-  "Llanelli": [
-    "Llanelli"
-  ],
-  "Llantrisant": [
-    "Llantrisant"
-  ],
-  "Lochgilphead": [
-    "Lochgilphead"
-  ],
-  "Loughborough": [
-    "Loughborough"
-  ],
-  "Loughton": [
-    "Loughton (London)"
-  ],
-  "Louth": [
-    "Louth"
-  ],
-  "Lowestoft": [
-    "Lowestoft(Mobbs Way)"
-  ],
-  "Ludlow": [
-    "Ludlow"
-  ],
-  "Luton": [
-    "Luton"
-  ],
-  "Macclesfield": [
-    "Macclesfield"
-  ],
-  "Maidstone": [
-    "Maidstone"
-  ],
-  "Mallaig": [
-    "Mallaig"
-  ],
-  "Malton": [
-    "Malton"
-  ],
-  "Medway Ambley Road": [
-    "Medway Ambley Road"
-  ],
-  "Melton Mowbray": [
-    "Melton Mowbray"
-  ],
-  "Merthyr Tydfil": [
-    "Merthyr Tydfil"
-  ],
-  "Middlesbrough": [
-    "Middlesbrough"
-  ],
-  "Mill Hill": [
-    "Mill Hill (London)"
-  ],
-  "Mitcham": [
-    "Mitcham (London)"
-  ],
-  "Monmouth": [
-    "Monmouth"
-  ],
-  "Montrose": [
-    "Montrose"
-  ],
-  "Morden": [
-    "Morden (London)"
-  ],
-  "Nelson": [
-    "Nelson"
-  ],
-  "Newport, Gwent": [
-    "Newport (Gwent)"
-  ],
-  "Newport, Isle of Wight": [
-    "Newport (Isle of Wight)"
-  ],
-  "Newton Abbot": [
-    "Newton Abbot"
-  ],
-  "Newton Stewart": [
-    "Newton Stewart"
-  ],
-  "Newtown": [
-    "Newtown"
-  ],
-  "Norris Green": [
-    "Norris Green (Liverpool)"
-  ],
-  "Northallerton": [
-    "Northallerton"
-  ],
-  "Northampton": [
-    "Northampton"
-  ],
-  "Northwich": [
-    "Northwich"
-  ],
-  "Norwich": [
-    "Norwich (Peachman Way)"
-  ],
-  "Nottingham": [
-    "Nottingham (Chilwell)",
-    "Nottingham (Colwick)"
-  ],
-  "Nuneaton": [
-    "Nuneaton"
-  ],
-  "Oban": [
-    "Oban"
-  ],
-  "Orkney": [
-    "Orkney"
-  ],
-  "Oswestry": [
-    "Oswestry"
-  ],
-  "Oxford": [
-    "Oxford (Cowley)"
-  ],
-  "Paisley": [
-    "Paisley"
-  ],
-  "Peebles": [
-    "Peebles"
-  ],
-  "Pembroke Dock": [
-    "Pembroke Dock"
-  ],
-  "Penzance": [
-    "Penzance"
-  ],
-  "Perth": [
-    "Perth (Arran Road)"
-  ],
-  "Peterborough": [
-    "Peterborough"
-  ],
-  "Peterhead": [
-    "Peterhead"
-  ],
-  "Pinner": [
-    "Pinner (London)"
-  ],
-  "Pitlochry": [
-    "Pitlochry"
-  ],
-  "Plymouth": [
-    "Plymouth"
-  ],
-  "Pontefract": [
-    "Pontefract"
-  ],
-  "Poole": [
-    "Poole"
-  ],
-  "Portsmouth": [
-    "Portsmouth"
-  ],
-  "Preston": [
-    "Preston"
-  ],
-  "Pwllheli": [
-    "Pwllheli"
-  ],
-  "Reading": [
-    "Reading"
-  ],
-  "Redditch": [
-    "Redditch"
-  ],
-  "Redhill Aerodrome": [
-    "Redhill Aerodrome"
-  ],
-  "Rhyl": [
-    "Rhyl"
-  ],
-  "Rochdale": [
-    "Rochdale (Manchester)"
-  ],
-  "Rotherham": [
-    "Rotherham"
-  ],
-  "Rothesay": [
-    "Rothesay"
-  ],
-  "Rugby": [
-    "Rugby"
-  ],
-  "Sale": [
-    "Sale (Manchester)"
-  ],
-  "Salisbury": [
-    "Salisbury"
-  ],
-  "Scarborough": [
-    "Scarborough"
-  ],
-  "Scunthorpe": [
-    "Scunthorpe"
-  ],
-  "Sevenoaks": [
-    "Sevenoaks"
-  ],
-  "Sheffield": [
-    "Sheffield (Handsworth)",
-    "Sheffield (Middlewood Road)"
-  ],
-  "Shrewsbury": [
-    "Shrewsbury"
-  ],
-  "Sidcup": [
-    "Sidcup (London)"
-  ],
-  "Skegness": [
-    "Skegness"
-  ],
-  "Skipton": [
-    "Skipton"
-  ],
-  "Slough": [
-    "Slough (London)"
-  ],
-  "Southall": [
-    "Southall (London)"
-  ],
-  "Southampton": [
-    "Southampton (Maybush)"
-  ],
-  "Southend-on-Sea": [
-    "Southend-on-Sea"
-  ],
-  "Southport": [
-    "Southport (Liverpool)"
-  ],
-  "Speke": [
-    "Speke (Liverpool)"
-  ],
-  "St Albans": [
-    "St Albans"
-  ],
-  "St Helens": [
-    "St Helens (Liverpool)"
-  ],
-  "Stafford": [
-    "Stafford"
-  ],
-  "Steeton": [
-    "Steeton"
-  ],
-  "Stevenage": [
-    "Stevenage"
-  ],
-  "Stirling": [
-    "Stirling"
-  ],
-  "Stoke-On-Trent": [
-    "Stoke-On-Trent (Cobridge)"
-  ],
-  "Stoke-on-Trent": [
-    "Stoke-on-Trent (Newcastle-Under-Lyme)"
-  ],
-  "Stornoway": [
-    "Stornoway"
-  ],
-  "Stranraer": [
-    "Stranraer"
-  ],
-  "Sunderland": [
-    "Sunderland"
-  ],
-  "Swansea": [
-    "Swansea"
-  ],
-  "Swindon": [
-    "Swindon"
-  ],
-  "Taunton": [
-    "Taunton"
-  ],
-  "Telford": [
-    "Telford"
-  ],
-  "Tilbury": [
-    "Tilbury"
-  ],
-  "Tolworth": [
-    "Tolworth (London)"
-  ],
-  "Tottenham": [
-    "Tottenham"
-  ],
-  "Trowbridge": [
-    "Trowbridge"
-  ],
-  "Tunbridge Wells": [
-    "Tunbridge Wells"
-  ],
-  "Upton": [
-    "Upton"
-  ],
-  "Uxbridge": [
-    "Uxbridge (London)"
-  ],
-  "Wakefield": [
-    "Wakefield"
-  ],
-  "Wallasey": [
-    "Wallasey"
-  ],
-  "Walton LGV": [
-    "Walton LGV"
-  ],
-  "Wanstead": [
-    "Wanstead (London)"
-  ],
-  "Warrington": [
-    "Warrington"
-  ],
-  "Warwick": [
-    "Warwick (Wedgenock House)"
-  ],
-  "Watford": [
-    "Watford"
-  ],
-  "Wednesbury": [
-    "Wednesbury"
-  ],
-  "Wellingborough": [
-    "Wellingborough"
-  ],
-  "West Didsbury": [
-    "West Didsbury (Manchester)"
-  ],
-  "West Wickham": [
-    "West Wickham (London)"
-  ],
-  "Weston-super-Mare": [
-    "Weston-super-Mare"
-  ],
-  "Whitby": [
-    "Whitby"
-  ],
-  "Widnes": [
-    "Widnes"
-  ],
-  "Winchester": [
-    "Winchester"
-  ],
-  "Wolverhampton": [
-    "Wolverhampton"
-  ],
-  "Wood Green": [
-    "Wood Green (London)"
-  ],
-  "Worcester": [
-    "Worcester"
-  ],
-  "Workington": [
-    "Workington"
-  ],
-  "Worksop": [
-    "Worksop"
-  ],
-  "Worthing": [
-    "Worthing"
-  ],
-  "Wrexham": [
-    "Wrexham"
-  ],
-  "Yeading": [
-    "Yeading (London)"
-  ],
-  "Yeovil": [
-    "Yeovil"
-  ],
-  "York": [
-    "York"
-  ]
-} as const;
 
+export const drivingTestCentreDataVersion = '2026-07' as const;
+
+export type DrivingTestCentreCoordinatePrecision = 'postcode' | 'site';
+
+export type DrivingTestCentre = {
+  name: string;
+  slug: string;
+  city: string;
+  postcode: string;
+  latitude: number;
+  longitude: number;
+  coordinatePrecision: DrivingTestCentreCoordinatePrecision;
+};
+
+export const drivingTestCentres = [
+  {
+    name: "Aberdeen North",
+    slug: "aberdeen-north",
+    city: "Aberdeen North",
+    postcode: "AB22 8GT",
+    latitude: 57.181048,
+    longitude: -2.119022,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Aberdeen South (Cove)",
+    slug: "aberdeen-south-cove",
+    city: "Aberdeen South",
+    postcode: "AB12 3GQ",
+    latitude: 57.088883,
+    longitude: -2.107541,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Aberfeldy",
+    slug: "aberfeldy",
+    city: "Aberfeldy",
+    postcode: "PH15 2BJ",
+    latitude: 56.618036,
+    longitude: -3.868262,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Abergavenny",
+    slug: "abergavenny",
+    city: "Abergavenny",
+    postcode: "NP7 5HT",
+    latitude: 51.815974,
+    longitude: -3.010609,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Aberystwyth (Park Avenue)",
+    slug: "aberystwyth-park-avenue",
+    city: "Aberystwyth",
+    postcode: "SY23 1PG",
+    latitude: 52.40997,
+    longitude: -4.081257,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Airdrie",
+    slug: "airdrie",
+    city: "Airdrie",
+    postcode: "ML6 0DA",
+    latitude: 55.866849,
+    longitude: -3.989041,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Alness",
+    slug: "alness",
+    city: "Alness",
+    postcode: "IV17 0PJ",
+    latitude: 57.69089,
+    longitude: -4.269382,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Alnwick",
+    slug: "alnwick",
+    city: "Alnwick",
+    postcode: "NE66 1JX",
+    latitude: 55.411815,
+    longitude: -1.705405,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Arbroath",
+    slug: "arbroath",
+    city: "Arbroath",
+    postcode: "DD11 2NQ",
+    latitude: 56.550257,
+    longitude: -2.612605,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Ashfield",
+    slug: "ashfield",
+    city: "Ashfield",
+    postcode: "NG17 5LA",
+    latitude: 53.12456,
+    longitude: -1.236506,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Ashford (Kent)",
+    slug: "ashford-kent",
+    city: "Ashford",
+    postcode: "TN23 1HU",
+    latitude: 51.144648,
+    longitude: 0.87623,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Atherton (Manchester)",
+    slug: "atherton-manchester",
+    city: "Atherton",
+    postcode: "M46 0SU",
+    latitude: 53.530233,
+    longitude: -2.506199,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Aylesbury",
+    slug: "aylesbury",
+    city: "Aylesbury",
+    postcode: "HP19 8JR",
+    latitude: 51.822232,
+    longitude: -0.843134,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Ayr",
+    slug: "ayr",
+    city: "Ayr",
+    postcode: "KA8 9DJ",
+    latitude: 55.482265,
+    longitude: -4.603686,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bala",
+    slug: "bala",
+    city: "Bala",
+    postcode: "LL23 7SP",
+    latitude: 52.908878,
+    longitude: -3.600261,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Ballater",
+    slug: "ballater",
+    city: "Ballater",
+    postcode: "AB35 5QW",
+    latitude: 57.045553,
+    longitude: -3.041236,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Banbury",
+    slug: "banbury",
+    city: "Banbury",
+    postcode: "OX16 9PA",
+    latitude: 52.057782,
+    longitude: -1.349013,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Banff",
+    slug: "banff",
+    city: "Banff",
+    postcode: "AB45 1DL",
+    latitude: 57.66581,
+    longitude: -2.523151,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bangor",
+    slug: "bangor",
+    city: "Bangor",
+    postcode: "LL57 4YH",
+    latitude: 53.217985,
+    longitude: -4.111526,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Barnet (London)",
+    slug: "barnet-london",
+    city: "Barnet",
+    postcode: "EN5 1AD",
+    latitude: 51.645904,
+    longitude: -0.186825,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Barnsley",
+    slug: "barnsley",
+    city: "Barnsley",
+    postcode: "S75 2DH",
+    latitude: 53.554533,
+    longitude: -1.502402,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Barnstaple",
+    slug: "barnstaple",
+    city: "Barnstaple",
+    postcode: "EX31 1AB",
+    latitude: 51.085023,
+    longitude: -4.082581,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Barra",
+    slug: "barra",
+    city: "Barra",
+    postcode: "HS9 5XD",
+    latitude: 56.955044,
+    longitude: -7.488315,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Barrow In Furness",
+    slug: "barrow-in-furness",
+    city: "Barrow In Furness",
+    postcode: "LA14 2PN",
+    latitude: 54.118497,
+    longitude: -3.241647,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Barry",
+    slug: "barry",
+    city: "Barry",
+    postcode: "CF62 5QN",
+    latitude: 51.399702,
+    longitude: -3.279255,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Basildon",
+    slug: "basildon",
+    city: "Basildon",
+    postcode: "SS14 3JS",
+    latitude: 51.589097,
+    longitude: 0.488023,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Basingstoke",
+    slug: "basingstoke",
+    city: "Basingstoke",
+    postcode: "RG22 4LR",
+    latitude: 51.245281,
+    longitude: -1.112622,
+    coordinatePrecision: 'site',
+  },
+  {
+    name: "Bedford",
+    slug: "bedford",
+    city: "Bedford",
+    postcode: "MK41 7NY",
+    latitude: 52.148236,
+    longitude: -0.476541,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Belvedere (London)",
+    slug: "belvedere-london",
+    city: "Belvedere",
+    postcode: "DA17 5EE",
+    latitude: 51.483605,
+    longitude: 0.142249,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Benbecula Island",
+    slug: "benbecula-island",
+    city: "Benbecula Island",
+    postcode: "HS7 5LA",
+    latitude: 57.471241,
+    longitude: -7.371576,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Berwick-On-Tweed",
+    slug: "berwick-on-tweed",
+    city: "Berwick-On-Tweed",
+    postcode: "TD15 2UY",
+    latitude: 55.763235,
+    longitude: -2.016319,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Birmingham (Cocks Moors)",
+    slug: "birmingham-cocks-moors",
+    city: "Birmingham",
+    postcode: "B14 6ER",
+    latitude: 52.417256,
+    longitude: -1.889529,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Birmingham (Garretts Green)",
+    slug: "birmingham-garretts-green",
+    city: "Birmingham",
+    postcode: "B33 0SD",
+    latitude: 52.472708,
+    longitude: -1.771278,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Birmingham (Kings Heath)",
+    slug: "birmingham-kings-heath",
+    city: "Birmingham",
+    postcode: "B14 5JA",
+    latitude: 52.406025,
+    longitude: -1.887116,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Birmingham (Kingstanding)",
+    slug: "birmingham-kingstanding",
+    city: "Birmingham",
+    postcode: "B44 9UL",
+    latitude: 52.543881,
+    longitude: -1.89048,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Birmingham (Shirley)",
+    slug: "birmingham-shirley",
+    city: "Birmingham",
+    postcode: "B90 4AA",
+    latitude: 52.4043,
+    longitude: -1.822019,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Birmingham (South Yardley)",
+    slug: "birmingham-south-yardley",
+    city: "Birmingham",
+    postcode: "B26 1EA",
+    latitude: 52.453979,
+    longitude: -1.810092,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bishopbriggs",
+    slug: "bishopbriggs",
+    city: "Bishopbriggs",
+    postcode: "G64 2QA",
+    latitude: 55.923255,
+    longitude: -4.198994,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bishops Stortford",
+    slug: "bishops-stortford",
+    city: "Bishops Stortford",
+    postcode: "CM23 3JQ",
+    latitude: 51.861419,
+    longitude: 0.164391,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Blackburn with Darwen",
+    slug: "blackburn-with-darwen",
+    city: "Blackburn with Darwen",
+    postcode: "BB3 0DB",
+    latitude: 53.713168,
+    longitude: -2.476362,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Blackpool",
+    slug: "blackpool",
+    city: "Blackpool",
+    postcode: "FY4 2DP",
+    latitude: 53.777146,
+    longitude: -3.035043,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bletchley",
+    slug: "bletchley",
+    city: "Bletchley",
+    postcode: "MK3 6DH",
+    latitude: 51.993933,
+    longitude: -0.742398,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Blyth",
+    slug: "blyth",
+    city: "Blyth",
+    postcode: "NE24 3BA",
+    latitude: 55.124611,
+    longitude: -1.50235,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bodmin",
+    slug: "bodmin",
+    city: "Bodmin",
+    postcode: "PL31 1RD",
+    latitude: 50.45974,
+    longitude: -4.706161,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bolton (Manchester)",
+    slug: "bolton-manchester",
+    city: "Bolton",
+    postcode: "BL3 2AW",
+    latitude: 53.565259,
+    longitude: -2.423318,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Borehamwood (London)",
+    slug: "borehamwood-london",
+    city: "Borehamwood",
+    postcode: "WD6 2BT",
+    latitude: 51.646483,
+    longitude: -0.254073,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Boston",
+    slug: "boston",
+    city: "Boston",
+    postcode: "PE21 8AL",
+    latitude: 52.970314,
+    longitude: -0.030233,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bradford (Heaton)",
+    slug: "bradford-heaton",
+    city: "Bradford",
+    postcode: "BD9 5AS",
+    latitude: 53.808888,
+    longitude: -1.78401,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bradford (Thornbury)",
+    slug: "bradford-thornbury",
+    city: "Bradford",
+    postcode: "BD3 7AY",
+    latitude: 53.79869,
+    longitude: -1.704889,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Brecon",
+    slug: "brecon",
+    city: "Brecon",
+    postcode: "LD3 7RT",
+    latitude: 51.944691,
+    longitude: -3.380151,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bredbury (Manchester)",
+    slug: "bredbury-manchester",
+    city: "Bredbury",
+    postcode: "SK6 2QT",
+    latitude: 53.429024,
+    longitude: -2.124649,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Brentwood (London)",
+    slug: "brentwood-london",
+    city: "Brentwood",
+    postcode: "CM14 5JN",
+    latitude: 51.610538,
+    longitude: 0.29693,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bridgend",
+    slug: "bridgend",
+    city: "Bridgend",
+    postcode: "CF31 4AD",
+    latitude: 51.505273,
+    longitude: -3.57996,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bridlington",
+    slug: "bridlington",
+    city: "Bridlington",
+    postcode: "YO16 4SF",
+    latitude: 54.08113,
+    longitude: -0.211415,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bristol (Avonmouth)",
+    slug: "bristol-avonmouth",
+    city: "Bristol",
+    postcode: "BS11 8AQ",
+    latitude: 51.516372,
+    longitude: -2.681255,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bristol (Kingswood)",
+    slug: "bristol-kingswood",
+    city: "Bristol",
+    postcode: "BS15 4GQ",
+    latitude: 51.47172,
+    longitude: -2.488294,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bromley (London)",
+    slug: "bromley-london",
+    city: "Bromley",
+    postcode: "BR1 5AB",
+    latitude: 51.421271,
+    longitude: 0.021472,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Buckie",
+    slug: "buckie",
+    city: "Buckie",
+    postcode: "AB56 1QJ",
+    latitude: 57.67316,
+    longitude: -2.972518,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Burgess Hill",
+    slug: "burgess-hill",
+    city: "Burgess Hill",
+    postcode: "RH15 9AG",
+    latitude: 50.951148,
+    longitude: -0.152715,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Burton on Trent",
+    slug: "burton-on-trent",
+    city: "Burton on Trent",
+    postcode: "DE14 2TG",
+    latitude: 52.796211,
+    longitude: -1.657231,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bury (Manchester)",
+    slug: "bury-manchester",
+    city: "Bury",
+    postcode: "BL9 6HH",
+    latitude: 53.599311,
+    longitude: -2.285502,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Bury St Edmunds",
+    slug: "bury-st-edmunds",
+    city: "Bury St Edmunds",
+    postcode: "IP33 1TJ",
+    latitude: 52.248677,
+    longitude: 0.711061,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Buxton",
+    slug: "buxton",
+    city: "Buxton",
+    postcode: "SK17 9DS",
+    latitude: 53.252962,
+    longitude: -1.915261,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Callander",
+    slug: "callander",
+    city: "Callander",
+    postcode: "FK17 8AG",
+    latitude: 56.241364,
+    longitude: -4.217767,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Camborne",
+    slug: "camborne",
+    city: "Camborne",
+    postcode: "TR15 3QS",
+    latitude: 50.224086,
+    longitude: -5.267034,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Cambridge (Brookmount Court)",
+    slug: "cambridge-brookmount-court",
+    city: "Cambridge",
+    postcode: "CB4 2QH",
+    latitude: 52.233282,
+    longitude: 0.136117,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Campbeltown",
+    slug: "campbeltown",
+    city: "Campbeltown",
+    postcode: "PA28 6BU",
+    latitude: 55.424169,
+    longitude: -5.603502,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Canterbury",
+    slug: "canterbury",
+    city: "Canterbury",
+    postcode: "CT1 3AS",
+    latitude: 51.274996,
+    longitude: 1.088078,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Cardiff (Llanishen)",
+    slug: "cardiff-llanishen",
+    city: "Cardiff",
+    postcode: "CF14 5GF",
+    latitude: 51.522615,
+    longitude: -3.191498,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Cardigan",
+    slug: "cardigan",
+    city: "Cardigan",
+    postcode: "SA43 1ED",
+    latitude: 52.085124,
+    longitude: -4.657929,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Carlisle",
+    slug: "carlisle",
+    city: "Carlisle",
+    postcode: "CA2 7AF",
+    latitude: 54.896817,
+    longitude: -2.953437,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Carlisle LGV (Cars)",
+    slug: "carlisle-lgv-cars",
+    city: "Carlisle LGV",
+    postcode: "CA3 0HA",
+    latitude: 54.923404,
+    longitude: -2.950602,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Carmarthen",
+    slug: "carmarthen",
+    city: "Carmarthen",
+    postcode: "SA31 1LP",
+    latitude: 51.856353,
+    longitude: -4.302375,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Castle Douglas",
+    slug: "castle-douglas",
+    city: "Castle Douglas",
+    postcode: "DG7 1TH",
+    latitude: 54.931446,
+    longitude: -3.935998,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Chadderton",
+    slug: "chadderton",
+    city: "Chadderton",
+    postcode: "OL9 9XA",
+    latitude: 53.532183,
+    longitude: -2.168839,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Cheetham Hill (Manchester)",
+    slug: "cheetham-hill-manchester",
+    city: "Cheetham Hill",
+    postcode: "M8 0AL",
+    latitude: 53.500813,
+    longitude: -2.2421,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Chelmsford",
+    slug: "chelmsford",
+    city: "Chelmsford",
+    postcode: "CM8 3DR",
+    latitude: 51.806932,
+    longitude: 0.646626,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Cheltenham",
+    slug: "cheltenham",
+    city: "Cheltenham",
+    postcode: "GL52 2HQ",
+    latitude: 51.90346,
+    longitude: -2.064931,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Chertsey (London)",
+    slug: "chertsey-london",
+    city: "Chertsey",
+    postcode: "KT16 9JX",
+    latitude: 51.384649,
+    longitude: -0.509434,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Chester",
+    slug: "chester",
+    city: "Chester",
+    postcode: "CH1 6LT",
+    latitude: 53.246752,
+    longitude: -2.932817,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Chesterfield",
+    slug: "chesterfield",
+    city: "Chesterfield",
+    postcode: "S41 7LT",
+    latitude: 53.244556,
+    longitude: -1.425783,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Chichester",
+    slug: "chichester",
+    city: "Chichester",
+    postcode: "PO20 2FR",
+    latitude: 50.853028,
+    longitude: -0.711001,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Chingford (London)",
+    slug: "chingford-london",
+    city: "Chingford",
+    postcode: "E4 6AD",
+    latitude: 51.633507,
+    longitude: 0.009002,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Chippenham",
+    slug: "chippenham",
+    city: "Chippenham",
+    postcode: "SN14 6LH",
+    latitude: 51.46482,
+    longitude: -2.142746,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Chorley",
+    slug: "chorley",
+    city: "Chorley",
+    postcode: "PR6 0BT",
+    latitude: 53.657511,
+    longitude: -2.618544,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Clacton-on-Sea",
+    slug: "clacton-on-sea",
+    city: "Clacton-on-Sea",
+    postcode: "CO15 6QA",
+    latitude: 51.794043,
+    longitude: 1.152646,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Colchester",
+    slug: "colchester",
+    city: "Colchester",
+    postcode: "CO2 8HF",
+    latitude: 51.872116,
+    longitude: 0.928174,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Coventry",
+    slug: "coventry",
+    city: "Coventry",
+    postcode: "CV7 9EJ",
+    latitude: 52.463794,
+    longitude: -1.475152,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Crawley",
+    slug: "crawley",
+    city: "Crawley",
+    postcode: "RH11 9BJ",
+    latitude: 51.080939,
+    longitude: -0.201718,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Crewe",
+    slug: "crewe",
+    city: "Crewe",
+    postcode: "CW2 7LL",
+    latitude: 53.089877,
+    longitude: -2.444126,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Crieff",
+    slug: "crieff",
+    city: "Crieff",
+    postcode: "PH7 3SB",
+    latitude: 56.367762,
+    longitude: -3.845664,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Cumnock",
+    slug: "cumnock",
+    city: "Cumnock",
+    postcode: "KA18 1DX",
+    latitude: 55.451603,
+    longitude: -4.26414,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Darlington",
+    slug: "darlington",
+    city: "Darlington",
+    postcode: "DL1 4PW",
+    latitude: 54.519156,
+    longitude: -1.515185,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Derby (Alvaston)",
+    slug: "derby-alvaston",
+    city: "Derby",
+    postcode: "DE21 7AY",
+    latitude: 52.901789,
+    longitude: -1.431049,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Doncaster",
+    slug: "doncaster",
+    city: "Doncaster",
+    postcode: "DN2 5YL",
+    latitude: 53.543031,
+    longitude: -1.086532,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Dorchester",
+    slug: "dorchester",
+    city: "Dorchester",
+    postcode: "DT1 3SU",
+    latitude: 50.714022,
+    longitude: -2.469154,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Dudley",
+    slug: "dudley",
+    city: "Dudley",
+    postcode: "DY6 7YE",
+    latitude: 52.501812,
+    longitude: -2.154174,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Dumbarton",
+    slug: "dumbarton",
+    city: "Dumbarton",
+    postcode: "G82 3PD",
+    latitude: 55.969633,
+    longitude: -4.575782,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Dumfries",
+    slug: "dumfries",
+    city: "Dumfries",
+    postcode: "DG1 2SH",
+    latitude: 55.069253,
+    longitude: -3.596713,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Dundee",
+    slug: "dundee",
+    city: "Dundee",
+    postcode: "DD2 3QH",
+    latitude: 56.478572,
+    longitude: -3.010089,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Dunfermline (Vine)",
+    slug: "dunfermline-vine",
+    city: "Dunfermline",
+    postcode: "KY11 4JU",
+    latitude: 56.075884,
+    longitude: -3.426402,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Dunoon",
+    slug: "dunoon",
+    city: "Dunoon",
+    postcode: "PA23 8BP",
+    latitude: 55.953017,
+    longitude: -4.922681,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Duns",
+    slug: "duns",
+    city: "Duns",
+    postcode: "TD11 3AU",
+    latitude: 55.777829,
+    longitude: -2.348189,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Durham",
+    slug: "durham",
+    city: "Durham",
+    postcode: "DH7 8XL",
+    latitude: 54.746493,
+    longitude: -1.609955,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "East Kilbride",
+    slug: "east-kilbride",
+    city: "East Kilbride",
+    postcode: "G74 3EU",
+    latitude: 55.766635,
+    longitude: -4.160976,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Eastbourne",
+    slug: "eastbourne",
+    city: "Eastbourne",
+    postcode: "BN22 7PT",
+    latitude: 50.782493,
+    longitude: 0.309636,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Edinburgh (Currie)",
+    slug: "edinburgh-currie",
+    city: "Edinburgh",
+    postcode: "EH14 5LT",
+    latitude: 55.899917,
+    longitude: -3.308236,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Edinburgh (Musselburgh)",
+    slug: "edinburgh-musselburgh",
+    city: "Edinburgh",
+    postcode: "EH21 6SJ",
+    latitude: 55.942775,
+    longitude: -3.067167,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Elgin",
+    slug: "elgin",
+    city: "Elgin",
+    postcode: "IV30 1UE",
+    latitude: 57.651348,
+    longitude: -3.317999,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Enfield (Brancroft Way)",
+    slug: "enfield-brancroft-way",
+    city: "Enfield",
+    postcode: "EN3 7NJ",
+    latitude: 51.659425,
+    longitude: -0.029829,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Enfield (Innova Business Park)",
+    slug: "enfield-innova-business-park",
+    city: "Enfield",
+    postcode: "EN3 7XY",
+    latitude: 51.676863,
+    longitude: -0.021349,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Erith (London)",
+    slug: "erith-london",
+    city: "Erith",
+    postcode: "DA17 6LJ",
+    latitude: 51.503721,
+    longitude: 0.162905,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Exeter",
+    slug: "exeter",
+    city: "Exeter",
+    postcode: "EX2 8FS",
+    latitude: 50.698758,
+    longitude: -3.515791,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Farnborough",
+    slug: "farnborough",
+    city: "Farnborough",
+    postcode: "GU14 6UU",
+    latitude: 51.274302,
+    longitude: -0.771922,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Featherstone",
+    slug: "featherstone",
+    city: "Featherstone",
+    postcode: "WV10 7JD",
+    latitude: 52.640545,
+    longitude: -2.11383,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Folkestone",
+    slug: "folkestone",
+    city: "Folkestone",
+    postcode: "CT20 2TS",
+    latitude: 51.079076,
+    longitude: 1.167512,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Forfar",
+    slug: "forfar",
+    city: "Forfar",
+    postcode: "DD8 2AE",
+    latitude: 56.642738,
+    longitude: -2.889522,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Fort William",
+    slug: "fort-william",
+    city: "Fort William",
+    postcode: "PH33 6AN",
+    latitude: 56.822151,
+    longitude: -5.105781,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Fraserburgh",
+    slug: "fraserburgh",
+    city: "Fraserburgh",
+    postcode: "AB43 9TN",
+    latitude: 57.690625,
+    longitude: -2.00318,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Gairloch",
+    slug: "gairloch",
+    city: "Gairloch",
+    postcode: "IV21 2BX",
+    latitude: 57.736158,
+    longitude: -5.701534,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Galashiels",
+    slug: "galashiels",
+    city: "Galashiels",
+    postcode: "TD1 3BH",
+    latitude: 55.61259,
+    longitude: -2.802674,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Gateshead",
+    slug: "gateshead",
+    city: "Gateshead",
+    postcode: "NE11 9HU",
+    latitude: 54.95711,
+    longitude: -1.655954,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Gillingham",
+    slug: "gillingham",
+    city: "Gillingham",
+    postcode: "ME8 0EZ",
+    latitude: 51.364811,
+    longitude: 0.580162,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Girvan",
+    slug: "girvan",
+    city: "Girvan",
+    postcode: "KA26 9AL",
+    latitude: 55.241314,
+    longitude: -4.858118,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Glasgow (Anniesland)",
+    slug: "glasgow-anniesland",
+    city: "Glasgow",
+    postcode: "G13 1XS",
+    latitude: 55.889239,
+    longitude: -4.33836,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Glasgow (Baillieston)",
+    slug: "glasgow-baillieston",
+    city: "Glasgow",
+    postcode: "G69 6GA",
+    latitude: 55.860147,
+    longitude: -4.113897,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Glasgow (Shieldhall)",
+    slug: "glasgow-shieldhall",
+    city: "Glasgow",
+    postcode: "G51 4TH",
+    latitude: 55.864157,
+    longitude: -4.34911,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Gloucester",
+    slug: "gloucester",
+    city: "Gloucester",
+    postcode: "GL2 4LY",
+    latitude: 51.833797,
+    longitude: -2.276296,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Golspie",
+    slug: "golspie",
+    city: "Golspie",
+    postcode: "KW10 6SP",
+    latitude: 57.972975,
+    longitude: -3.983718,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Goodmayes (London)",
+    slug: "goodmayes-london",
+    city: "Goodmayes",
+    postcode: "IG3 9UZ",
+    latitude: 51.563696,
+    longitude: 0.109982,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Gosforth",
+    slug: "gosforth",
+    city: "Gosforth",
+    postcode: "NE3 5HB",
+    latitude: 55.041574,
+    longitude: -1.609086,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Grangemouth",
+    slug: "grangemouth",
+    city: "Grangemouth",
+    postcode: "FK3 8WJ",
+    latitude: 56.01125,
+    longitude: -3.741229,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Grantham (Somerby)",
+    slug: "grantham-somerby",
+    city: "Grantham",
+    postcode: "NG31 7TX",
+    latitude: 52.901939,
+    longitude: -0.587337,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Grantown-On-Spey",
+    slug: "grantown-on-spey",
+    city: "Grantown-On-Spey",
+    postcode: "PH26 3JR",
+    latitude: 57.32705,
+    longitude: -3.609318,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Greenford (Horsenden Lane)",
+    slug: "greenford-horsenden-lane",
+    city: "Greenford",
+    postcode: "UB6 7QH",
+    latitude: 51.550231,
+    longitude: -0.330932,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Greenham",
+    slug: "greenham",
+    city: "Greenham",
+    postcode: "RG19 6HX",
+    latitude: 51.377028,
+    longitude: -1.290761,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Greenock",
+    slug: "greenock",
+    city: "Greenock",
+    postcode: "PA16 8DD",
+    latitude: 55.952886,
+    longitude: -4.769268,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Grimsby Coldwater",
+    slug: "grimsby-coldwater",
+    city: "Grimsby Coldwater",
+    postcode: "DN31 2TB",
+    latitude: 53.580895,
+    longitude: -0.115552,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Guildford",
+    slug: "guildford",
+    city: "Guildford",
+    postcode: "GU1 1SA",
+    latitude: 51.259401,
+    longitude: -0.56488,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Haddington",
+    slug: "haddington",
+    city: "Haddington",
+    postcode: "EH41 3NG",
+    latitude: 55.960855,
+    longitude: -2.782095,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Halifax",
+    slug: "halifax",
+    city: "Halifax",
+    postcode: "HX2 0HA",
+    latitude: 53.729885,
+    longitude: -1.891454,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Hamilton",
+    slug: "hamilton",
+    city: "Hamilton",
+    postcode: "ML3 6RQ",
+    latitude: 55.769633,
+    longitude: -4.041909,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Hartlepool",
+    slug: "hartlepool",
+    city: "Hartlepool",
+    postcode: "TS25 1TZ",
+    latitude: 54.6771,
+    longitude: -1.201254,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Hastings (Ore)",
+    slug: "hastings-ore",
+    city: "Hastings",
+    postcode: "TN35 4NN",
+    latitude: 50.880911,
+    longitude: 0.598087,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Hawick",
+    slug: "hawick",
+    city: "Hawick",
+    postcode: "TD9 8EJ",
+    latitude: 55.436313,
+    longitude: -2.767247,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Heckmondwike",
+    slug: "heckmondwike",
+    city: "Heckmondwike",
+    postcode: "WF16 0AS",
+    latitude: 53.707374,
+    longitude: -1.671411,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Hendon (London)",
+    slug: "hendon-london",
+    city: "Hendon",
+    postcode: "NW9 5TZ",
+    latitude: 51.59599,
+    longitude: -0.240141,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Hereford",
+    slug: "hereford",
+    city: "Hereford",
+    postcode: "HR4 9NS",
+    latitude: 52.066506,
+    longitude: -2.729362,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Herne Bay",
+    slug: "herne-bay",
+    city: "Herne Bay",
+    postcode: "CT6 6GZ",
+    latitude: 51.361942,
+    longitude: 1.150016,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Hexham",
+    slug: "hexham",
+    city: "Hexham",
+    postcode: "NE46 3EW",
+    latitude: 54.97453,
+    longitude: -2.109647,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Heysham",
+    slug: "heysham",
+    city: "Heysham",
+    postcode: "LA3 2UZ",
+    latitude: 54.036971,
+    longitude: -2.901605,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "High Wycombe",
+    slug: "high-wycombe",
+    city: "High Wycombe",
+    postcode: "HP11 1TL",
+    latitude: 51.613248,
+    longitude: -0.770712,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Hinckley",
+    slug: "hinckley",
+    city: "Hinckley",
+    postcode: "LE10 2TG",
+    latitude: 52.533846,
+    longitude: -1.370205,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Hornchurch (London)",
+    slug: "hornchurch-london",
+    city: "Hornchurch",
+    postcode: "RM12 6JX",
+    latitude: 51.559275,
+    longitude: 0.220939,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Horsforth",
+    slug: "horsforth",
+    city: "Horsforth",
+    postcode: "LS18 5NY",
+    latitude: 53.839811,
+    longitude: -1.621928,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Huddersfield",
+    slug: "huddersfield",
+    city: "Huddersfield",
+    postcode: "HD2 1HJ",
+    latitude: 53.668626,
+    longitude: -1.767502,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Hull",
+    slug: "hull",
+    city: "Hull",
+    postcode: "HU6 7PY",
+    latitude: 53.767909,
+    longitude: -0.335255,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Huntly",
+    slug: "huntly",
+    city: "Huntly",
+    postcode: "AB54 8JX",
+    latitude: 57.444893,
+    longitude: -2.79466,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Inveraray",
+    slug: "inveraray",
+    city: "Inveraray",
+    postcode: "PA32 8UY",
+    latitude: 56.231332,
+    longitude: -5.07272,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Inverness (Longman Drive)",
+    slug: "inverness-longman-drive",
+    city: "Inverness",
+    postcode: "IV1 1SU",
+    latitude: 57.492565,
+    longitude: -4.229038,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Inverurie",
+    slug: "inverurie",
+    city: "Inverurie",
+    postcode: "AB51 4FR",
+    latitude: 57.293717,
+    longitude: -2.388009,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Ipswich",
+    slug: "ipswich",
+    city: "Ipswich",
+    postcode: "IP3 9SW",
+    latitude: 52.030196,
+    longitude: 1.220362,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Irvine",
+    slug: "irvine",
+    city: "Irvine",
+    postcode: "KA11 5DJ",
+    latitude: 55.603657,
+    longitude: -4.638862,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Isle of Mull",
+    slug: "isle-of-mull",
+    city: "Isle of Mull",
+    postcode: "PA72 6JD",
+    latitude: 56.517293,
+    longitude: -5.944975,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Isle of Skye (Portree)",
+    slug: "isle-of-skye-portree",
+    city: "Isle of Skye",
+    postcode: "IV51 9BD",
+    latitude: 57.41987,
+    longitude: -6.21017,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Isleworth (Fleming Way)",
+    slug: "isleworth-fleming-way",
+    city: "Isleworth",
+    postcode: "TW7 6DB",
+    latitude: 51.46634,
+    longitude: -0.33722,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Kelso",
+    slug: "kelso",
+    city: "Kelso",
+    postcode: "TD5 8DW",
+    latitude: 55.590805,
+    longitude: -2.424877,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Kendal (Oxenholme Road)",
+    slug: "kendal-oxenholme-road",
+    city: "Kendal",
+    postcode: "LA9 7RL",
+    latitude: 54.311117,
+    longitude: -2.735475,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Kettering",
+    slug: "kettering",
+    city: "Kettering",
+    postcode: "NN15 6NL",
+    latitude: 52.378766,
+    longitude: -0.722892,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Kings Lynn",
+    slug: "kings-lynn",
+    city: "Kings Lynn",
+    postcode: "PE30 4LS",
+    latitude: 52.746594,
+    longitude: 0.423121,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Kingussie",
+    slug: "kingussie",
+    city: "Kingussie",
+    postcode: "PH21 1EN",
+    latitude: 57.078603,
+    longitude: -4.053786,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Kirkcaldy",
+    slug: "kirkcaldy",
+    city: "Kirkcaldy",
+    postcode: "KY1 2YX",
+    latitude: 56.135859,
+    longitude: -3.125577,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Knaresborough",
+    slug: "knaresborough",
+    city: "Knaresborough",
+    postcode: "HG5 8QB",
+    latitude: 54.001288,
+    longitude: -1.444051,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Kyle of Lochalsh",
+    slug: "kyle-of-lochalsh",
+    city: "Kyle of Lochalsh",
+    postcode: "IV40 8BP",
+    latitude: 57.280488,
+    longitude: -5.720963,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Lanark",
+    slug: "lanark",
+    city: "Lanark",
+    postcode: "ML11 9AX",
+    latitude: 55.663011,
+    longitude: -3.746855,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Launceston",
+    slug: "launceston",
+    city: "Launceston",
+    postcode: "PL15 9NJ",
+    latitude: 50.612197,
+    longitude: -4.330611,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Lee On The Solent",
+    slug: "lee-on-the-solent",
+    city: "Lee On The Solent",
+    postcode: "PO13 9JY",
+    latitude: 50.809961,
+    longitude: -1.200688,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Leeds (Colton Mill)",
+    slug: "leeds-colton-mill",
+    city: "Leeds",
+    postcode: "LS15 9JN",
+    latitude: 53.792039,
+    longitude: -1.430289,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Leeds (Fearnville)",
+    slug: "leeds-fearnville",
+    city: "Leeds",
+    postcode: "LS8 3LF",
+    latitude: 53.816886,
+    longitude: -1.491102,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Leicester (Cannock Street)",
+    slug: "leicester-cannock-street",
+    city: "Leicester",
+    postcode: "LE4 9HT",
+    latitude: 52.663547,
+    longitude: -1.080357,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Leicester (Wigston)",
+    slug: "leicester-wigston",
+    city: "Leicester",
+    postcode: "LE18 4WS",
+    latitude: 52.583956,
+    longitude: -1.141193,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Leighton Buzzard (Stanbridge Road)",
+    slug: "leighton-buzzard-stanbridge-road",
+    city: "Leighton Buzzard",
+    postcode: "LU7 4QG",
+    latitude: 51.91183,
+    longitude: -0.630852,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Lerwick",
+    slug: "lerwick",
+    city: "Lerwick",
+    postcode: "ZE1 0DJ",
+    latitude: 60.151167,
+    longitude: -1.147348,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Letchworth",
+    slug: "letchworth",
+    city: "Letchworth",
+    postcode: "SG6 1RF",
+    latitude: 51.978213,
+    longitude: -0.21463,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Lichfield",
+    slug: "lichfield",
+    city: "Lichfield",
+    postcode: "WS13 6RB",
+    latitude: 52.681533,
+    longitude: -1.834978,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Lincoln",
+    slug: "lincoln",
+    city: "Lincoln",
+    postcode: "LN6 3RT",
+    latitude: 53.204053,
+    longitude: -0.611999,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Livingston",
+    slug: "livingston",
+    city: "Livingston",
+    postcode: "EH54 5DE",
+    latitude: 55.906177,
+    longitude: -3.501426,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Llanelli",
+    slug: "llanelli",
+    city: "Llanelli",
+    postcode: "SA15 3SB",
+    latitude: 51.686081,
+    longitude: -4.155556,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Llantrisant",
+    slug: "llantrisant",
+    city: "Llantrisant",
+    postcode: "CF72 8YR",
+    latitude: 51.524185,
+    longitude: -3.365064,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Lochgilphead",
+    slug: "lochgilphead",
+    city: "Lochgilphead",
+    postcode: "PA31 8QX",
+    latitude: 56.036243,
+    longitude: -5.427673,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Loughborough",
+    slug: "loughborough",
+    city: "Loughborough",
+    postcode: "LE11 1JP",
+    latitude: 52.780652,
+    longitude: -1.200917,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Loughton (London)",
+    slug: "loughton-london",
+    city: "Loughton",
+    postcode: "IG10 1RB",
+    latitude: 51.649588,
+    longitude: 0.05668,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Louth",
+    slug: "louth",
+    city: "Louth",
+    postcode: "LN11 8RS",
+    latitude: 53.363635,
+    longitude: 0.01554,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Lowestoft(Mobbs Way)",
+    slug: "lowestoft-mobbs-way",
+    city: "Lowestoft",
+    postcode: "NR32 3AL",
+    latitude: 52.486941,
+    longitude: 1.714887,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Ludlow",
+    slug: "ludlow",
+    city: "Ludlow",
+    postcode: "SY8 1FD",
+    latitude: 52.366016,
+    longitude: -2.692999,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Luton",
+    slug: "luton",
+    city: "Luton",
+    postcode: "LU1 5BT",
+    latitude: 51.877727,
+    longitude: -0.420119,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Macclesfield",
+    slug: "macclesfield",
+    city: "Macclesfield",
+    postcode: "SK10 1JQ",
+    latitude: 53.257948,
+    longitude: -2.120116,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Maidstone",
+    slug: "maidstone",
+    city: "Maidstone",
+    postcode: "ME15 6JZ",
+    latitude: 51.260864,
+    longitude: 0.525958,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Mallaig",
+    slug: "mallaig",
+    city: "Mallaig",
+    postcode: "PH41 4PX",
+    latitude: 57.006091,
+    longitude: -5.830185,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Malton",
+    slug: "malton",
+    city: "Malton",
+    postcode: "YO17 7LB",
+    latitude: 54.140671,
+    longitude: -0.790509,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Medway Ambley Road",
+    slug: "medway-ambley-road",
+    city: "Medway Ambley Road",
+    postcode: "ME8 0SJ",
+    latitude: 51.362068,
+    longitude: 0.577709,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Melton Mowbray",
+    slug: "melton-mowbray",
+    city: "Melton Mowbray",
+    postcode: "LE13 0UL",
+    latitude: 52.769571,
+    longitude: -0.893486,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Merthyr Tydfil",
+    slug: "merthyr-tydfil",
+    city: "Merthyr Tydfil",
+    postcode: "CF48 4DR",
+    latitude: 51.720077,
+    longitude: -3.355626,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Middlesbrough",
+    slug: "middlesbrough",
+    city: "Middlesbrough",
+    postcode: "TS3 8TE",
+    latitude: 54.571526,
+    longitude: -1.189598,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Mill Hill (London)",
+    slug: "mill-hill-london",
+    city: "Mill Hill",
+    postcode: "NW7 2DQ",
+    latitude: 51.6103,
+    longitude: -0.246983,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Mitcham (London)",
+    slug: "mitcham-london",
+    city: "Mitcham",
+    postcode: "CR0 3AQ",
+    latitude: 51.390049,
+    longitude: -0.137064,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Monmouth",
+    slug: "monmouth",
+    city: "Monmouth",
+    postcode: "NP25 3DP",
+    latitude: 51.813644,
+    longitude: -2.709809,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Montrose",
+    slug: "montrose",
+    city: "Montrose",
+    postcode: "DD10 8EE",
+    latitude: 56.70617,
+    longitude: -2.461137,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Morden (London)",
+    slug: "morden-london",
+    city: "Morden",
+    postcode: "SM4 4PE",
+    latitude: 51.386583,
+    longitude: -0.212444,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Nelson",
+    slug: "nelson",
+    city: "Nelson",
+    postcode: "BB9 9BT",
+    latitude: 53.834728,
+    longitude: -2.210295,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Newport (Gwent)",
+    slug: "newport-gwent",
+    city: "Newport, Gwent",
+    postcode: "NP19 4XH",
+    latitude: 51.570601,
+    longitude: -2.97249,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Newport (Isle of Wight)",
+    slug: "newport-isle-of-wight",
+    city: "Newport, Isle of Wight",
+    postcode: "PO30 5WB",
+    latitude: 50.712743,
+    longitude: -1.296094,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Newton Abbot",
+    slug: "newton-abbot",
+    city: "Newton Abbot",
+    postcode: "TQ12 4YQ",
+    latitude: 50.52734,
+    longitude: -3.597216,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Newton Stewart",
+    slug: "newton-stewart",
+    city: "Newton Stewart",
+    postcode: "DG8 6JW",
+    latitude: 54.953292,
+    longitude: -4.481736,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Newtown",
+    slug: "newtown",
+    city: "Newtown",
+    postcode: "SY16 1JB",
+    latitude: 52.513212,
+    longitude: -3.315931,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Norris Green (Liverpool)",
+    slug: "norris-green-liverpool",
+    city: "Norris Green",
+    postcode: "L11 5BR",
+    latitude: 53.444079,
+    longitude: -2.930451,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Northallerton",
+    slug: "northallerton",
+    city: "Northallerton",
+    postcode: "DL6 1NU",
+    latitude: 54.340274,
+    longitude: -1.432126,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Northampton",
+    slug: "northampton",
+    city: "Northampton",
+    postcode: "NN5 7QA",
+    latitude: 52.253271,
+    longitude: -0.915935,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Northwich",
+    slug: "northwich",
+    city: "Northwich",
+    postcode: "CW8 4BU",
+    latitude: 53.259667,
+    longitude: -2.526247,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Norwich (Peachman Way)",
+    slug: "norwich-peachman-way",
+    city: "Norwich",
+    postcode: "NR7 0WE",
+    latitude: 52.634347,
+    longitude: 1.37497,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Nottingham (Chilwell)",
+    slug: "nottingham-chilwell",
+    city: "Nottingham",
+    postcode: "NG9 6DZ",
+    latitude: 52.904684,
+    longitude: -1.238322,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Nottingham (Colwick)",
+    slug: "nottingham-colwick",
+    city: "Nottingham",
+    postcode: "NG4 2JU",
+    latitude: 52.95722,
+    longitude: -1.070319,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Nuneaton",
+    slug: "nuneaton",
+    city: "Nuneaton",
+    postcode: "CV10 8AA",
+    latitude: 52.52458,
+    longitude: -1.488385,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Oban",
+    slug: "oban",
+    city: "Oban",
+    postcode: "PA34 4AE",
+    latitude: 56.411006,
+    longitude: -5.474862,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Orkney",
+    slug: "orkney",
+    city: "Orkney",
+    postcode: "KW15 1FL",
+    latitude: 58.991009,
+    longitude: -2.972722,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Oswestry",
+    slug: "oswestry",
+    city: "Oswestry",
+    postcode: "SY10 8GA",
+    latitude: 52.844957,
+    longitude: -3.042145,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Oxford (Cowley)",
+    slug: "oxford-cowley",
+    city: "Oxford",
+    postcode: "OX4 2PY",
+    latitude: 51.740689,
+    longitude: -1.201358,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Paisley",
+    slug: "paisley",
+    city: "Paisley",
+    postcode: "PA1 2FB",
+    latitude: 55.843824,
+    longitude: -4.479303,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Peebles",
+    slug: "peebles",
+    city: "Peebles",
+    postcode: "EH45 8DN",
+    latitude: 55.657469,
+    longitude: -3.194137,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Pembroke Dock",
+    slug: "pembroke-dock",
+    city: "Pembroke Dock",
+    postcode: "SA72 6TD",
+    latitude: 51.694332,
+    longitude: -4.952624,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Penzance",
+    slug: "penzance",
+    city: "Penzance",
+    postcode: "TR18 4JH",
+    latitude: 50.118296,
+    longitude: -5.542124,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Perth (Arran Road)",
+    slug: "perth-arran-road",
+    city: "Perth",
+    postcode: "PH1 3DZ",
+    latitude: 56.416975,
+    longitude: -3.457932,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Peterborough",
+    slug: "peterborough",
+    city: "Peterborough",
+    postcode: "PE1 5XA",
+    latitude: 52.569107,
+    longitude: -0.219335,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Peterhead",
+    slug: "peterhead",
+    city: "Peterhead",
+    postcode: "AB42 3AW",
+    latitude: 57.487082,
+    longitude: -1.801753,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Pinner (London)",
+    slug: "pinner-london",
+    city: "Pinner",
+    postcode: "HA5 2DZ",
+    latitude: 51.596826,
+    longitude: -0.399712,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Pitlochry",
+    slug: "pitlochry",
+    city: "Pitlochry",
+    postcode: "PH16 5EA",
+    latitude: 56.70562,
+    longitude: -3.733262,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Plymouth",
+    slug: "plymouth",
+    city: "Plymouth",
+    postcode: "PL5 2EY",
+    latitude: 50.412703,
+    longitude: -4.181958,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Pontefract",
+    slug: "pontefract",
+    city: "Pontefract",
+    postcode: "WF10 5HW",
+    latitude: 53.707784,
+    longitude: -1.340574,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Poole",
+    slug: "poole",
+    city: "Poole",
+    postcode: "BH17 0SA",
+    latitude: 50.741006,
+    longitude: -1.975664,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Portsmouth",
+    slug: "portsmouth",
+    city: "Portsmouth",
+    postcode: "PO6 4SH",
+    latitude: 50.845765,
+    longitude: -1.090547,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Preston",
+    slug: "preston",
+    city: "Preston",
+    postcode: "PR2 2PD",
+    latitude: 53.760392,
+    longitude: -2.751794,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Pwllheli",
+    slug: "pwllheli",
+    city: "Pwllheli",
+    postcode: "LL53 5NT",
+    latitude: 52.88072,
+    longitude: -4.42331,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Reading",
+    slug: "reading",
+    city: "Reading",
+    postcode: "RG2 0TD",
+    latitude: 51.419656,
+    longitude: -0.974302,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Redditch",
+    slug: "redditch",
+    city: "Redditch",
+    postcode: "B97 6HJ",
+    latitude: 52.308551,
+    longitude: -1.947028,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Redhill Aerodrome",
+    slug: "redhill-aerodrome",
+    city: "Redhill Aerodrome",
+    postcode: "RH1 5JZ",
+    latitude: 51.216021,
+    longitude: -0.138354,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Rhyl",
+    slug: "rhyl",
+    city: "Rhyl",
+    postcode: "LL18 2EL",
+    latitude: 53.314868,
+    longitude: -3.48565,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Rochdale (Manchester)",
+    slug: "rochdale-manchester",
+    city: "Rochdale",
+    postcode: "OL16 5EB",
+    latitude: 53.609916,
+    longitude: -2.139918,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Rotherham",
+    slug: "rotherham",
+    city: "Rotherham",
+    postcode: "S61 4RL",
+    latitude: 53.442217,
+    longitude: -1.358134,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Rothesay",
+    slug: "rothesay",
+    city: "Rothesay",
+    postcode: "PA20 0DG",
+    latitude: 55.836372,
+    longitude: -5.056212,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Rugby",
+    slug: "rugby",
+    city: "Rugby",
+    postcode: "CV22 7DH",
+    latitude: 52.371041,
+    longitude: -1.287521,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Sale (Manchester)",
+    slug: "sale-manchester",
+    city: "Sale",
+    postcode: "M33 7ER",
+    latitude: 53.419437,
+    longitude: -2.320199,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Salisbury",
+    slug: "salisbury",
+    city: "Salisbury",
+    postcode: "SP1 1LY",
+    latitude: 51.071912,
+    longitude: -1.788188,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Scarborough",
+    slug: "scarborough",
+    city: "Scarborough",
+    postcode: "YO12 4AY",
+    latitude: 54.261647,
+    longitude: -0.416998,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Scunthorpe",
+    slug: "scunthorpe",
+    city: "Scunthorpe",
+    postcode: "DN15 6XH",
+    latitude: 53.598253,
+    longitude: -0.646551,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Sevenoaks",
+    slug: "sevenoaks",
+    city: "Sevenoaks",
+    postcode: "TN13 1HJ",
+    latitude: 51.272128,
+    longitude: 0.18864,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Sheffield (Handsworth)",
+    slug: "sheffield-handsworth",
+    city: "Sheffield",
+    postcode: "S13 9LT",
+    latitude: 53.369024,
+    longitude: -1.365139,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Sheffield (Middlewood Road)",
+    slug: "sheffield-middlewood-road",
+    city: "Sheffield",
+    postcode: "S6 1TQ",
+    latitude: 53.416674,
+    longitude: -1.510752,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Shrewsbury",
+    slug: "shrewsbury",
+    city: "Shrewsbury",
+    postcode: "SY1 3BF",
+    latitude: 52.74598,
+    longitude: -2.736462,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Sidcup (London)",
+    slug: "sidcup-london",
+    city: "Sidcup",
+    postcode: "DA14 5AG",
+    latitude: 51.419393,
+    longitude: 0.122601,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Skegness",
+    slug: "skegness",
+    city: "Skegness",
+    postcode: "PE25 2EL",
+    latitude: 53.144049,
+    longitude: 0.3243,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Skipton",
+    slug: "skipton",
+    city: "Skipton",
+    postcode: "BD23 2BE",
+    latitude: 53.953658,
+    longitude: -2.022993,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Slough (London)",
+    slug: "slough-london",
+    city: "Slough",
+    postcode: "SL3 6EZ",
+    latitude: 51.508509,
+    longitude: -0.545873,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Southall (London)",
+    slug: "southall-london",
+    city: "Southall",
+    postcode: "UB1 2HD",
+    latitude: 51.525341,
+    longitude: -0.364825,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Southampton (Maybush)",
+    slug: "southampton-maybush",
+    city: "Southampton",
+    postcode: "SO16 9FP",
+    latitude: 50.932675,
+    longitude: -1.455179,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Southend-on-Sea",
+    slug: "southend-on-sea",
+    city: "Southend-on-Sea",
+    postcode: "SS2 6LL",
+    latitude: 51.548454,
+    longitude: 0.709,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Southport (Liverpool)",
+    slug: "southport-liverpool",
+    city: "Southport",
+    postcode: "PR8 1HE",
+    latitude: 53.64405,
+    longitude: -3.00378,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Speke (Liverpool)",
+    slug: "speke-liverpool",
+    city: "Speke",
+    postcode: "L19 2QR",
+    latitude: 53.348974,
+    longitude: -2.884588,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "St Albans",
+    slug: "st-albans",
+    city: "St Albans",
+    postcode: "AL1 3JX",
+    latitude: 51.753096,
+    longitude: -0.334619,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "St Helens (Liverpool)",
+    slug: "st-helens-liverpool",
+    city: "St Helens",
+    postcode: "WA9 1NS",
+    latitude: 53.457158,
+    longitude: -2.722391,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Stafford",
+    slug: "stafford",
+    city: "Stafford",
+    postcode: "ST16 2RF",
+    latitude: 52.812621,
+    longitude: -2.124505,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Steeton",
+    slug: "steeton",
+    city: "Steeton",
+    postcode: "BD20 6RW",
+    latitude: 53.899463,
+    longitude: -1.95075,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Stevenage",
+    slug: "stevenage",
+    city: "Stevenage",
+    postcode: "SG1 3DT",
+    latitude: 51.910984,
+    longitude: -0.208446,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Stirling",
+    slug: "stirling",
+    city: "Stirling",
+    postcode: "FK8 2HF",
+    latitude: 56.110554,
+    longitude: -3.939523,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Stoke-On-Trent (Cobridge)",
+    slug: "stoke-on-trent-cobridge",
+    city: "Stoke-On-Trent",
+    postcode: "ST6 2HE",
+    latitude: 53.040319,
+    longitude: -2.188028,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Stoke-on-Trent (Newcastle-Under-Lyme)",
+    slug: "stoke-on-trent-newcastle-under-lyme",
+    city: "Stoke-on-Trent",
+    postcode: "ST4 6PQ",
+    latitude: 52.996348,
+    longitude: -2.212167,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Stornoway",
+    slug: "stornoway",
+    city: "Stornoway",
+    postcode: "HS1 2XX",
+    latitude: 58.207787,
+    longitude: -6.39111,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Stranraer",
+    slug: "stranraer",
+    city: "Stranraer",
+    postcode: "DG9 8EH",
+    latitude: 54.90498,
+    longitude: -5.021183,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Sunderland",
+    slug: "sunderland",
+    city: "Sunderland",
+    postcode: "SR5 3JJ",
+    latitude: 54.921227,
+    longitude: -1.428647,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Swansea",
+    slug: "swansea",
+    city: "Swansea",
+    postcode: "SA1 8QY",
+    latitude: 51.620582,
+    longitude: -3.924568,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Swindon",
+    slug: "swindon",
+    city: "Swindon",
+    postcode: "SN5 5BL",
+    latitude: 51.574998,
+    longitude: -1.832425,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Taunton",
+    slug: "taunton",
+    city: "Taunton",
+    postcode: "TA2 8RX",
+    latitude: 51.027793,
+    longitude: -3.08054,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Telford",
+    slug: "telford",
+    city: "Telford",
+    postcode: "TF1 7FR",
+    latitude: 52.720402,
+    longitude: -2.465557,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Tilbury",
+    slug: "tilbury",
+    city: "Tilbury",
+    postcode: "RM18 7AE",
+    latitude: 51.4643,
+    longitude: 0.351418,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Tolworth (London)",
+    slug: "tolworth-london",
+    city: "Tolworth",
+    postcode: "KT6 7RZ",
+    latitude: 51.382972,
+    longitude: -0.293566,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Tottenham",
+    slug: "tottenham",
+    city: "Tottenham",
+    postcode: "N17 8JL",
+    latitude: 51.607455,
+    longitude: -0.079004,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Trowbridge",
+    slug: "trowbridge",
+    city: "Trowbridge",
+    postcode: "BA14 7DZ",
+    latitude: 51.313904,
+    longitude: -2.202237,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Tunbridge Wells",
+    slug: "tunbridge-wells",
+    city: "Tunbridge Wells",
+    postcode: "TN1 2ES",
+    latitude: 51.136357,
+    longitude: 0.264109,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Upton",
+    slug: "upton",
+    city: "Upton",
+    postcode: "CH49 0UF",
+    latitude: 53.37934,
+    longitude: -3.097755,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Uxbridge (London)",
+    slug: "uxbridge-london",
+    city: "Uxbridge",
+    postcode: "UB8 2DB",
+    latitude: 51.536887,
+    longitude: -0.485388,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Wakefield",
+    slug: "wakefield",
+    city: "Wakefield",
+    postcode: "WF5 9TR",
+    latitude: 53.683446,
+    longitude: -1.546565,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Wallasey",
+    slug: "wallasey",
+    city: "Wallasey",
+    postcode: "CH44 8AT",
+    latitude: 53.418817,
+    longitude: -3.027343,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Walton LGV",
+    slug: "walton-lgv",
+    city: "Walton LGV",
+    postcode: "LS23 7DU",
+    latitude: 53.921323,
+    longitude: -1.322843,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Wanstead (London)",
+    slug: "wanstead-london",
+    city: "Wanstead",
+    postcode: "E11 2AW",
+    latitude: 51.580456,
+    longitude: 0.023838,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Warrington",
+    slug: "warrington",
+    city: "Warrington",
+    postcode: "WA2 9EP",
+    latitude: 53.409939,
+    longitude: -2.579295,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Warwick (Wedgenock House)",
+    slug: "warwick-wedgenock-house",
+    city: "Warwick",
+    postcode: "CV34 5AP",
+    latitude: 52.294691,
+    longitude: -1.597924,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Watford",
+    slug: "watford",
+    city: "Watford",
+    postcode: "WD25 8HU",
+    latitude: 51.66641,
+    longitude: -0.365187,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Wednesbury",
+    slug: "wednesbury",
+    city: "Wednesbury",
+    postcode: "WS10 9HN",
+    latitude: 52.554872,
+    longitude: -2.012415,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Wellingborough",
+    slug: "wellingborough",
+    city: "Wellingborough",
+    postcode: "NN8 3RU",
+    latitude: 52.301939,
+    longitude: -0.723664,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "West Didsbury (Manchester)",
+    slug: "west-didsbury-manchester",
+    city: "West Didsbury",
+    postcode: "M21 7QY",
+    latitude: 53.424502,
+    longitude: -2.258643,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "West Wickham (London)",
+    slug: "west-wickham-london",
+    city: "West Wickham",
+    postcode: "BR4 0RL",
+    latitude: 51.375078,
+    longitude: -0.011297,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Weston-super-Mare",
+    slug: "weston-super-mare",
+    city: "Weston-super-Mare",
+    postcode: "BS23 3PZ",
+    latitude: 51.341069,
+    longitude: -2.972677,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Whitby",
+    slug: "whitby",
+    city: "Whitby",
+    postcode: "YO22 4ET",
+    latitude: 54.482499,
+    longitude: -0.608144,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Widnes",
+    slug: "widnes",
+    city: "Widnes",
+    postcode: "WA8 8PT",
+    latitude: 53.362373,
+    longitude: -2.77248,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Winchester",
+    slug: "winchester",
+    city: "Winchester",
+    postcode: "SO23 9SY",
+    latitude: 51.056444,
+    longitude: -1.322086,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Wolverhampton",
+    slug: "wolverhampton",
+    city: "Wolverhampton",
+    postcode: "WV4 6JX",
+    latitude: 52.563665,
+    longitude: -2.102242,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Wood Green (London)",
+    slug: "wood-green-london",
+    city: "Wood Green",
+    postcode: "N22 5LF",
+    latitude: 51.598824,
+    longitude: -0.105113,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Worcester",
+    slug: "worcester",
+    city: "Worcester",
+    postcode: "WR4 9FE",
+    latitude: 52.214001,
+    longitude: -2.178041,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Workington",
+    slug: "workington",
+    city: "Workington",
+    postcode: "CA14 3YT",
+    latitude: 54.634885,
+    longitude: -3.56942,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Worksop",
+    slug: "worksop",
+    city: "Worksop",
+    postcode: "S81 8BW",
+    latitude: 53.32317,
+    longitude: -1.15948,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Worthing",
+    slug: "worthing",
+    city: "Worthing",
+    postcode: "BN13 1NP",
+    latitude: 50.820081,
+    longitude: -0.409426,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Wrexham",
+    slug: "wrexham",
+    city: "Wrexham",
+    postcode: "LL13 7YP",
+    latitude: 53.048988,
+    longitude: -3.01411,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Yeading (London)",
+    slug: "yeading-london",
+    city: "Yeading",
+    postcode: "UB4 9BS",
+    latitude: 51.523514,
+    longitude: -0.390089,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "Yeovil",
+    slug: "yeovil",
+    city: "Yeovil",
+    postcode: "BA20 2EN",
+    latitude: 50.943719,
+    longitude: -2.660903,
+    coordinatePrecision: 'postcode',
+  },
+  {
+    name: "York",
+    slug: "york",
+    city: "York",
+    postcode: "YO32 9GW",
+    latitude: 53.988983,
+    longitude: -1.049142,
+    coordinatePrecision: 'postcode',
+  },
+] as const satisfies readonly DrivingTestCentre[];
+
+export const testCentresByCity = drivingTestCentres.reduce<Record<string, string[]>>(
+  (cities, centre) => {
+    (cities[centre.city] ??= []).push(centre.name);
+    return cities;
+  },
+  {},
+);
