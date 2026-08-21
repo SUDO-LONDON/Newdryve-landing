@@ -3,6 +3,7 @@ import { isGuardError, requireFounder } from "@/lib/ops/auth";
 import { logAudit } from "@/lib/ops/audit";
 import {
   approveInstructor,
+  grantInstructorFreeForever,
   InstructorApiError,
   reinstateInstructor,
   rejectInstructor,
@@ -21,7 +22,7 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type Action = "approve" | "reject" | "reinstate" | "update_billing" | "update_verification" | "resend_activation";
+type Action = "approve" | "reject" | "reinstate" | "update_billing" | "grant_free_forever" | "update_verification" | "resend_activation";
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const guard = await requireFounder();
@@ -45,6 +46,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     trial_months?: number;
     trial_source?: "word_of_mouth" | "referral" | "other" | null;
     trial_note?: string | null;
+    free_forever?: boolean;
   };
   try {
     body = await request.json();
@@ -53,7 +55,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const action = body.action;
-  if (action !== "approve" && action !== "reject" && action !== "reinstate" && action !== "update_billing" && action !== "update_verification" && action !== "resend_activation") {
+  if (action !== "approve" && action !== "reject" && action !== "reinstate" && action !== "update_billing" && action !== "grant_free_forever" && action !== "update_verification" && action !== "resend_activation") {
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   }
 
@@ -73,6 +75,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         trial_months: Number(body.trial_months || 0),
         trial_source: body.trial_source || null,
         trial_note: typeof body.trial_note === "string" ? body.trial_note.trim().slice(0, 500) || null : null,
+        free_forever: body.free_forever === true,
       });
     } else if (action === "reject") {
       const reason = typeof body.reason === "string" ? body.reason.trim().slice(0, 500) : "";
@@ -81,6 +84,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       await reinstateInstructor(guard.email, id);
     } else if (action === "update_billing") {
       await updateInstructorBilling(guard.email, id, Number(body.monthly_amount_pence));
+    } else if (action === "grant_free_forever") {
+      await grantInstructorFreeForever(guard.email, id);
     } else if (action === "update_verification") {
       await updateInstructorVerification(guard.email, id, {
         adi_verified: true,
@@ -123,11 +128,14 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
             trial_months: body.trial_months,
             trial_source: body.trial_source,
             trial_note: body.trial_note,
+            free_forever: body.free_forever === true,
           }
         : action === "reject"
           ? { reason: body.reason ?? null }
           : action === "update_billing"
             ? { monthly_amount_pence: body.monthly_amount_pence }
+            : action === "grant_free_forever"
+              ? { free_forever: true, confirmed: true }
             : action === "update_verification"
               ? {
                   adi_badge_expires_on: body.adi_badge_expires_on,

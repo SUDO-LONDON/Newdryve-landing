@@ -150,8 +150,8 @@ const ukCities = [
 const howItWorks = [
   { badge: 'bg-racing-green', text: 'You apply here and choose the password you&rsquo;ll sign in with.' },
   { badge: 'bg-deep-rose', text: 'With your permission, we confirm your current ADI registration through GOV.UK or directly with DVSA.' },
-  { badge: 'bg-ink', text: 'If approved, we email your agreed membership and trial terms with a secure Stripe setup link.' },
-  { badge: 'bg-racing-green', text: 'Stripe confirms setup, your account unlocks, and you finish payout onboarding in the app.' },
+  { badge: 'bg-ink', text: 'If approved, we email your agreed membership terms and, where required, a secure Stripe setup link.' },
+  { badge: 'bg-racing-green', text: 'Once any required membership setup is confirmed, your account unlocks and you finish payout onboarding in the app.' },
 ];
 
 const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,application/pdf';
@@ -206,8 +206,8 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         </div>
 
         <p class="mt-6 text-sm text-ink-secondary">
-          Already applied? You can&rsquo;t sign in until we&rsquo;ve approved you and Stripe has confirmed
-          your membership setup &mdash; we&rsquo;ll email you the secure link.
+          Already applied? You can&rsquo;t sign in until we&rsquo;ve approved you and any required membership
+          setup is complete &mdash; we&rsquo;ll email you the next step.
         </p>
       </div>
 
@@ -697,7 +697,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
           <p class="mt-2 text-sm text-ink-secondary">
             We&rsquo;re working on getting you approved and we&rsquo;ll email
             <span data-apply-success-email class="font-semibold text-ink"></span> as soon as
-            you&rsquo;re approved. That email will contain the final Stripe membership setup step;
+            you&rsquo;re approved. That email will contain your membership terms and, where required, the final Stripe setup step;
             you&rsquo;ll sign in with the password you just chose once it is complete.
           </p>
           <p data-apply-upload-warning hidden class="mt-4 rounded-xl bg-blush-surface p-4 text-sm text-ink-secondary">

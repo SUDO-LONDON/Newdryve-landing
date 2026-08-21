@@ -80,8 +80,8 @@ export default async function InstructorsPage({
         </h1>
         <p className="max-w-2xl text-sm text-ink-secondary">
           {status === "billing"
-            ? "Track agreed prices, trials, real Stripe payments and renewal dates. Click a monthly amount to change the instructor's next invoice."
-            : "Review applications, agree membership terms and send the Stripe activation email. Access stays locked until Stripe confirms setup."}
+            ? "Track agreed prices, trials, free-forever memberships, real Stripe payments and renewal dates. Click a monthly amount to change the instructor's next invoice."
+            : "Review applications, agree membership terms and either send Stripe setup or grant free-forever access. Paid and trial accounts stay locked until Stripe confirms setup."}
         </p>
       </header>
 
