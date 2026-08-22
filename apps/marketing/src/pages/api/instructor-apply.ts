@@ -78,10 +78,11 @@ const validateApplication = (payload: unknown): string | null => {
   }
   if (
     !isFilledArray(payload.transmissions) ||
+    !isFilledArray(payload.languages) ||
     !isFilledArray(payload.specialisms) ||
-    !isFilledArray(payload.service_areas)
+    !isFilledArray(payload.test_centre_slugs)
   ) {
-    return 'Choose at least one transmission, specialism and service area.';
+    return 'Choose at least one transmission, language, specialism and test centre.';
   }
 
   if (!isRecord(payload.lesson_types)) return 'Choose at least one lesson length.';

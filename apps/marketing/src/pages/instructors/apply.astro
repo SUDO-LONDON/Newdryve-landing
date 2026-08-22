@@ -213,6 +213,22 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
             </div>
 
             <div class="flex flex-col gap-1.5">
+              <label class={labelClass} for="apply-languages">
+                Languages you teach in <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+              </label>
+              <input
+                id="apply-languages"
+                name="languages"
+                type="text"
+                required
+                value="English"
+                placeholder="English, Urdu, Punjabi"
+                class={inputClass}
+              />
+              <p class="text-xs text-ink-muted">Separate languages with commas. Learners can match with any one of them.</p>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
               <label class={labelClass} for="apply-service-city">
                 City <span aria-hidden="true" class="text-deep-rose-ink">*</span>
               </label>
@@ -982,6 +998,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         bio: String(data.get('bio') || '').trim() || null,
         price_per_hour_pounds: Number(data.get('price_per_hour_pounds') || 0),
         transmissions: checkedValues('transmissions'),
+        languages: splitList(String(data.get('languages') || '')),
         specialisms: splitList(String(data.get('specialisms') || '')),
         // Stable slugs, not display names: the slug is the join key the API
         // stores in instructor_test_centres, and DVSA renames sites. The
