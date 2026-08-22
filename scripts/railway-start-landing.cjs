@@ -46,7 +46,14 @@ function routeTarget(req) {
     return { redirect: url.pathname + url.search };
   }
 
-  if (path === "/ops" || path.startsWith("/ops/") || path.startsWith("/_next/")) {
+  if (
+    path === "/ops" ||
+    path.startsWith("/ops/") ||
+    path === "/thedeck" ||
+    path.startsWith("/thedeck/") ||
+    path.startsWith("/thedeck-assets/") ||
+    path.startsWith("/_next/")
+  ) {
     return { port: NEXT_PORT };
   }
 
