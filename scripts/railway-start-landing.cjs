@@ -40,6 +40,14 @@ function routeTarget(req) {
   const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
   const path = url.pathname;
 
+  if (path === "/delete-account.html") {
+    return { redirect: "/delete-account" + url.search };
+  }
+
+  if (path === "/privacy.html") {
+    return { redirect: "/privacy" + url.search };
+  }
+
   if ((path === "/" || path === "") && (url.searchParams.has("code") || url.searchParams.has("token_hash"))) {
     url.pathname = "/ops/auth/confirm";
     if (!url.searchParams.has("next")) url.searchParams.set("next", "/ops");
