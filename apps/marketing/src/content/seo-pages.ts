@@ -129,7 +129,7 @@ export const seoPages: readonly SeoPage[] = [
         value:
           'Thorpe St Andrew, Sprowston, Hellesdon, Costessey, Cringleford, Eaton, Taverham, Drayton and Old Catton',
       },
-      { label: 'Local test centres', value: 'Peachman Way and Jupiter Road' },
+      { label: 'Local test centres', value: 'Peachman Way (car tests) and Jupiter Road (lorries and buses)' },
       { label: 'Learner fee', value: 'Newdryve is free for learners' },
       { label: 'Booking action', value: 'Join the Norwich waitlist or use the Android app' },
     ],
@@ -148,7 +148,7 @@ export const seoPages: readonly SeoPage[] = [
           },
           {
             title: 'Jupiter Road',
-            body: 'A north Norwich option near Hellesdon, Mile Cross, Old Catton, Drayton, Taverham, Horsford, Spixworth and the airport side of the city.',
+            body: 'A north Norwich centre that primarily handles lorry and bus (commercial vehicle) practical tests. Standard car tests in Norwich are generally directed to Peachman Way.',
             href: '/test-centres/norwich-jupiter-road',
           },
           {
@@ -167,8 +167,8 @@ export const seoPages: readonly SeoPage[] = [
         items: [
           {
             title: 'North and north-west Norwich',
-            body: 'Hellesdon, Mile Cross, Old Catton, Drayton, Taverham, Horsford and Spixworth often look toward north Norwich routes and Jupiter Road preparation.',
-            href: '/test-centres/norwich-jupiter-road',
+            body: 'Hellesdon, Mile Cross, Old Catton, Drayton, Taverham, Horsford and Spixworth often look toward north Norwich routes and Peachman Way preparation.',
+            href: '/test-centres/norwich-peachman-way',
           },
           {
             title: 'East and Broadland side',
@@ -221,7 +221,7 @@ export const seoPages: readonly SeoPage[] = [
       },
       {
         q: 'Which Norwich driving test centre should I choose?',
-        a: 'Choose the centre that makes practical sense for your pickup area, lesson routes, and instructor coverage. Compare Peachman Way and Jupiter Road, then confirm with your instructor before booking.',
+        a: 'Standard car tests in Norwich are generally taken at Peachman Way. Jupiter Road mainly handles lorry and bus practical tests, so confirm the car-test option with your instructor before booking.',
       },
       {
         q: 'Does Newdryve charge learner booking fees?',
@@ -255,7 +255,7 @@ export const seoPages: readonly SeoPage[] = [
     quickFacts: [
       { label: 'Coverage status', value: 'No Newdryve instructor coverage is currently confirmed' },
       { label: 'Transmission', value: 'Manual and automatic availability not yet recorded' },
-      { label: 'Likely test-centre area', value: 'Normally Norwich: Jupiter Road or Peachman Way' },
+      { label: 'Likely test-centre area', value: 'Normally Norwich: Peachman Way for car tests' },
       {
         label: 'Nearby places',
         value:
@@ -266,19 +266,19 @@ export const seoPages: readonly SeoPage[] = [
       {
         heading: 'Wymondham and the Norwich test centres',
         body: [
-          'Wymondham normally points toward Norwich for practical test planning. The two Norwich options are Jupiter Road in north Norwich and Peachman Way on the eastern side of the city. Wymondham is about 10 road miles from Norwich, so Norwich is usually more practical than King\'s Lynn, Lowestoft or Bury St Edmunds.',
-          'Jupiter Road may be the more direct Norwich option from Wymondham, depending on route and traffic, because learners can approach Norwich from the A11 and west or north-west side. Peachman Way can still be relevant, but it usually means travelling farther around or across the city.',
+          'Wymondham normally points toward Norwich for practical test planning. Standard car tests in Norwich are generally taken at Peachman Way, on the eastern side of the city; Jupiter Road, north of Norwich, primarily handles lorry and bus (commercial vehicle) practical tests. Wymondham is about 10 road miles from Norwich, so Norwich is usually more practical than King\'s Lynn, Lowestoft or Bury St Edmunds.',
+          'From Wymondham you can approach Norwich via the A11 and the south or west ring, then travel across to Peachman Way. The exact journey depends on route and traffic, so confirm the car-test plan with your instructor rather than assuming one centre is always easiest.',
         ],
         items: [
           {
-            title: 'Jupiter Road',
-            body: 'Often the first Norwich comparison from Wymondham, especially if lessons build toward the A11, Thickthorn and western approaches.',
-            href: '/test-centres/norwich-jupiter-road',
+            title: 'Peachman Way',
+            body: 'The usual Norwich centre for standard car tests, so it is normally the practical comparison from Wymondham even though it sits on the eastern side of the city.',
+            href: '/test-centres/norwich-peachman-way',
           },
           {
-            title: 'Peachman Way',
-            body: 'Still a valid Norwich centre, but the journey from Wymondham can involve more cross-city or ring-road planning.',
-            href: '/test-centres/norwich-peachman-way',
+            title: 'Jupiter Road',
+            body: 'Mostly used for lorry and bus practical tests. Standard car test candidates are generally directed to Peachman Way instead.',
+            href: '/test-centres/norwich-jupiter-road',
           },
           {
             title: 'Choose with your instructor',
@@ -323,7 +323,7 @@ export const seoPages: readonly SeoPage[] = [
       },
       {
         q: 'Which test centre should Wymondham learners use?',
-        a: 'Norwich is normally the nearest practical-test area, with Jupiter Road and Peachman Way as the main options. Confirm the best centre with your instructor.',
+        a: 'Norwich is normally the nearest practical-test area. Standard car tests are generally taken at Peachman Way, while Jupiter Road mainly handles lorry and bus tests. Confirm the plan with your instructor.',
       },
       {
         q: 'Can nearby villages join the Wymondham waitlist?',
@@ -364,14 +364,14 @@ export const seoPages: readonly SeoPage[] = [
       {
         heading: 'Dereham test-centre logic',
         body: [
-          'Dereham normally feeds toward Norwich for practical test planning. Rome2Rio lists Dereham to Norwich at about 17.5 road miles, with a typical drive of about 29 minutes to the city. Jupiter Road will often be the more practical Norwich centre because it sits on the north-west side of Norwich.',
+          'Dereham normally feeds toward Norwich for practical test planning. Rome2Rio lists Dereham to Norwich at about 17.5 road miles, with a typical drive of about 29 minutes to the city. Standard car tests in Norwich are generally taken at Peachman Way, so that is normally the centre to plan around; Jupiter Road mainly handles lorry and bus practical tests.',
           'King\'s Lynn is the main alternative to compare, especially as you move west. Scarning and Dereham itself normally point toward Norwich, while Wendling and Fransham start to approach the divide. Necton and Swaffham increasingly make King\'s Lynn worth checking.',
         ],
         items: [
           {
             title: 'Norwich first for many learners',
-            body: 'Jupiter Road is often the natural Norwich comparison from Dereham, but the right answer still depends on pickup point, instructor coverage and traffic.',
-            href: '/test-centres/norwich-jupiter-road',
+            body: 'Peachman Way is normally the Norwich car-test centre from Dereham, but the right answer still depends on pickup point, instructor coverage and traffic.',
+            href: '/test-centres/norwich-peachman-way',
           },
           {
             title: 'Western boundary',
@@ -421,7 +421,7 @@ export const seoPages: readonly SeoPage[] = [
       },
       {
         q: 'Should Dereham learners choose Norwich or King\'s Lynn?',
-        a: 'Dereham itself normally points toward Norwich, especially Jupiter Road, but west-of-town learners should compare King\'s Lynn as well.',
+        a: 'Dereham itself normally points toward Norwich, and Peachman Way is the usual car-test centre. West-of-town learners should still compare King\'s Lynn as well.',
       },
       {
         q: 'What should the waitlist ask for?',
@@ -462,24 +462,24 @@ export const seoPages: readonly SeoPage[] = [
       {
         heading: 'Attleborough and the Norwich test centres',
         body: [
-          'Attleborough normally points toward Norwich for practical test planning. Rome2Rio lists Attleborough to Norwich at about 16 road miles, with a typical drive of about 23 minutes to the city. The actual test-centre journey is longer because Jupiter Road and Peachman Way sit beyond the southern approach.',
-          'Bury St Edmunds becomes more relevant as you travel south-west toward Thetford, but Norwich remains the natural comparison from Attleborough itself. Jupiter Road may involve routing around the west and north of Norwich, while Peachman Way is farther east, so traffic can change which centre feels easier.',
+          'Attleborough normally points toward Norwich for practical test planning. Rome2Rio lists Attleborough to Norwich at about 16 road miles, with a typical drive of about 23 minutes to the city. The actual test-centre journey is longer because Peachman Way, the usual Norwich car-test centre, sits beyond the eastern approach; Jupiter Road primarily handles lorry and bus practical tests.',
+          'Bury St Edmunds becomes more relevant as you travel south-west toward Thetford, but Norwich remains the natural comparison from Attleborough itself. Traffic can change how the Peachman Way journey feels, so confirm the car-test plan with your instructor.',
         ],
         items: [
           {
             title: 'Norwich is usually the starting point',
-            body: 'Compare Jupiter Road and Peachman Way with your instructor before booking a practical test.',
+            body: 'Confirm the right Norwich car-test centre with your instructor before booking a practical test.',
             href: '/test-centres',
           },
           {
-            title: 'Jupiter Road',
-            body: 'Can make sense if lessons build toward the A11, Thickthorn and north/west Norwich approaches.',
-            href: '/test-centres/norwich-jupiter-road',
+            title: 'Peachman Way',
+            body: 'The usual Norwich car-test centre, so it is normally the practical comparison from Attleborough. Factor in cross-city or ring-road travel.',
+            href: '/test-centres/norwich-peachman-way',
           },
           {
-            title: 'Peachman Way',
-            body: 'Still possible, but learners should factor in cross-city or ring-road travel from Attleborough.',
-            href: '/test-centres/norwich-peachman-way',
+            title: 'Jupiter Road',
+            body: 'Mostly used for lorry and bus practical tests rather than standard car tests.',
+            href: '/test-centres/norwich-jupiter-road',
           },
         ],
       },
@@ -561,12 +561,12 @@ export const seoPages: readonly SeoPage[] = [
         heading: 'Diss is a genuine boundary location',
         body: [
           'Diss should not be treated as a simple Norwich feeder town. Rome2Rio lists Diss to Norwich at about 22 road miles and around 33 minutes by car, while Diss to Bury St Edmunds is about 22.1 road miles and around 32 minutes. That makes postcode, route and traffic genuinely important.',
-          'Learners in Diss commonly compare Norwich and Bury St Edmunds. The nearest or easiest option can vary by postcode, whether you are aiming for Jupiter Road or Peachman Way, where your instructor teaches, test availability, and how the A140 or Bury approach is moving.',
+          'Learners in Diss commonly compare Norwich and Bury St Edmunds. The nearest or easiest option can vary by postcode, where your instructor teaches, test availability, and how the A140 or Bury approach is moving. For a Norwich car test, Peachman Way is normally the centre to plan around.',
         ],
         items: [
           {
             title: 'Norwich comparison',
-            body: 'Norwich may work for some learners, but both Norwich test centres sit north or east of the city rather than on the Diss side.',
+            body: 'Norwich may work for some learners, but the main car-test centre (Peachman Way) sits east of the city rather than on the Diss side.',
             href: '/test-centres',
           },
           {
@@ -679,7 +679,7 @@ export const seoPages: readonly SeoPage[] = [
           },
           {
             title: 'Boundary checks',
-            body: 'If you are further out, compare Peachman Way with Jupiter Road or another regional centre before committing lessons to one plan.',
+            body: 'If you are further out, compare Peachman Way with another regional car-test centre before committing lessons to one plan.',
             href: '/test-centres',
           },
         ],
@@ -709,14 +709,14 @@ export const seoPages: readonly SeoPage[] = [
         heading: 'How to book Peachman Way',
         body: [
           'Book only through the official GOV.UK practical test service or through your instructor if they are helping you with the booking process. You will need your UK driving licence number, a valid theory test pass, and payment details.',
-          'If Peachman Way has no suitable dates, compare Jupiter Road and nearby regional centres with your instructor. A sooner date is not automatically better if it leaves you underprepared.',
+          'If Peachman Way has no suitable dates, compare nearby regional car-test centres with your instructor. A sooner date is not automatically better if it leaves you underprepared.',
         ],
       },
     ],
     faqs: [
       {
         q: 'Is Peachman Way the same as Norwich driving test centre?',
-        a: 'It is one Norwich practical driving test-centre location. Norwich also has Jupiter Road listed in learner searches and local driving-school references.',
+        a: 'It is the usual Norwich centre for standard car practical tests. Jupiter Road is a separate Norwich site that primarily handles lorry and bus (commercial vehicle) tests.',
       },
       {
         q: 'Can I choose Peachman Way if I live outside Norwich?',
@@ -738,55 +738,55 @@ export const seoPages: readonly SeoPage[] = [
   },
   {
     slug: 'test-centres/norwich-jupiter-road',
-    title: 'Norwich Jupiter Road Test Centre | Newdryve Guide',
+    title: 'Norwich Jupiter Road Test Centre (Lorries & Buses) | Newdryve Guide',
     description:
-      'Guide to Norwich Jupiter Road driving test centre for learners around Hellesdon, Old Catton, Mile Cross, Drayton, Taverham, Horsford and north Norwich.',
+      'Guide to Norwich Jupiter Road for lorry and bus (commercial vehicle) driving tests, and what car-test learners need to know before choosing a Norwich test centre.',
     h1: 'Norwich Jupiter Road driving test centre',
     kicker: 'Test centre guide',
     summary:
-      'Jupiter Road is the north Norwich practical test-centre option many learners look for when planning lessons around Hellesdon, the airport side of Norwich, and north-west approaches.',
+      'Jupiter Road primarily handles lorry and bus (commercial vehicle) practical tests. Standard car tests in Norwich are generally directed to Peachman Way.',
     lastReviewed: '11 August 2026',
     updatedNote:
       'DVSA locations and booking availability can change. Treat your official booking confirmation as the source of truth.',
     schemaKind: 'Article',
     quickFacts: [
       { label: 'Address', value: 'Jupiter Road, Norwich NR6 6SS' },
-      { label: 'Use case', value: 'Practical car driving tests booked through GOV.UK' },
+      { label: 'Use case', value: 'Lorry and bus (commercial vehicle) practical tests' },
+      { label: 'Car tests', value: 'Generally directed to Peachman Way' },
       {
         label: 'Nearby areas',
         value:
           'Hellesdon, Old Catton, Mile Cross, Drayton, Taverham, Horsford, Spixworth, Costessey, Aylsham and Reepham',
       },
-      { label: 'Preparation focus', value: 'Urban judgement, roundabouts, lane discipline, and independent driving' },
     ],
     sections: [
       {
-        heading: 'Where it is and who it may suit',
+        heading: 'What Jupiter Road is actually for',
         body: [
-          'Jupiter Road is on the north side of Norwich, close to Hellesdon, Old Catton, Mile Cross and airport-side routes. It can be a practical fit for learners whose lessons often start around Drayton, Taverham, Horsford, Spixworth, Costessey, Aylsham, Reepham or other north and north-west approaches.',
-          'Do not choose it just because a search result says there is a slot. Ask your instructor whether your usual lesson area, pickup point, and current skill level make Jupiter Road a good choice.',
+          'Jupiter Road is a DVSA test centre on the north side of Norwich, close to Hellesdon, Old Catton, Mile Cross and airport-side routes. It is primarily used for lorry (category C) and bus (category D) practical tests, not standard car tests.',
+          'If you are preparing for an ordinary car driving test, your booking is generally directed to Peachman Way. Treat any search result that lists Jupiter Road for a car test with care, and confirm the centre type on GOV.UK before booking.',
         ],
         items: [
           {
-            title: 'North Norwich suburbs',
-            body: 'Hellesdon, Mile Cross, Old Catton and the airport side of Norwich are natural reference points for Jupiter Road preparation.',
+            title: 'Lorry tests',
+            body: 'Category C practical tests for lorry (HGV) drivers are booked through the official GOV.UK service.',
           },
           {
-            title: 'North-west approaches',
-            body: 'Drayton, Taverham, Costessey, Horsford, Spixworth, Aylsham and Reepham learners should check whether their instructor covers both pickup and test-centre practice.',
+            title: 'Bus tests',
+            body: 'Category D practical tests for bus drivers are also handled at larger-vehicle centres such as this one.',
           },
           {
-            title: 'Compare before booking',
-            body: 'Some learners on the edge of the city may still be better served by Peachman Way or a regional centre, depending on routes and availability.',
-            href: '/test-centres',
+            title: 'Car-test learners',
+            body: 'Standard car tests in Norwich are generally taken at Peachman Way instead.',
+            href: '/test-centres/norwich-peachman-way',
           },
         ],
       },
       {
-        heading: 'Local driving character to prepare for',
+        heading: 'North Norwich driving character',
         body: [
-          'Preparation should cover residential roads, larger junctions, lane choice, speed changes, meeting traffic, and independent navigation. The goal is transferable judgement, not memorising a route list.',
-          'North Norwich can require quick but calm decisions where local traffic, parked vehicles, and busier arterial roads meet. Your instructor should build those decisions into lessons before test day.',
+          'Approaching Jupiter Road from the Hellesdon, Old Catton, Drayton, Taverham, Horsford, Spixworth, Costessey, Aylsham or Reepham side means quick but calm decisions where local traffic, parked vehicles, and busier arterial roads meet.',
+          'Whether your test is a car or commercial vehicle practical, build transferable judgement across residential roads, larger junctions, lane choice, speed changes, and meeting traffic rather than memorising route lists.',
         ],
         items: [
           {
@@ -798,31 +798,31 @@ export const seoPages: readonly SeoPage[] = [
             body: 'A test can move quickly between quiet streets and busier junctions. Lessons should reflect that contrast.',
           },
           {
-            title: 'Check your car and documents',
-            body: 'Bring the right licence and use a car that meets DVSA test requirements. Your instructor can talk you through this before the date.',
+            title: 'Check your vehicle and documents',
+            body: 'Bring the right licence and use a vehicle that meets DVSA test requirements. Your instructor can talk you through this before the date.',
           },
         ],
       },
       {
-        heading: 'How to book Jupiter Road',
+        heading: 'How to book at Jupiter Road',
         body: [
-          'Use the official GOV.UK booking service for practical driving tests. Have your driving licence number, theory test pass details, and payment method ready.',
-          'If Jupiter Road dates are limited, compare Peachman Way and nearby centres with your instructor. Waiting-time pressure should not override test readiness.',
+          'Lorry and bus practical tests are booked through the official GOV.UK service, with your licence number, theory pass details, and payment method ready.',
+          'If you are booking a standard car practical test, you will generally be directed to Peachman Way. Comparing cars against lorries or buses does not make sense — these are different test types at different centres.',
         ],
       },
     ],
     faqs: [
       {
-        q: 'Is Jupiter Road better than Peachman Way?',
-        a: 'Neither centre is automatically better. The right choice depends on your location, instructor coverage, lesson routes, and available dates.',
+        q: 'Can I take a standard car test at Jupiter Road?',
+        a: 'Generally no. Jupiter Road primarily handles lorry and bus (commercial vehicle) practical tests. Standard car tests in Norwich are usually directed to Peachman Way.',
+      },
+      {
+        q: 'What vehicles are tested at Jupiter Road?',
+        a: 'Lorry (category C) and bus (category D) practical tests are the main use of the centre.',
       },
       {
         q: 'Should I practise exact Jupiter Road test routes?',
         a: 'No. Practise the local road types and decision-making skills instead. Exact route lists are unreliable and can make learners too narrow in preparation.',
-      },
-      {
-        q: 'Can Newdryve help me find an instructor for Jupiter Road?',
-        a: 'Newdryve lets learners compare verified instructors and real availability. Where an instructor covers north Norwich or Jupiter Road preparation, that can be shown on their profile.',
       },
     ],
     related: [
@@ -848,7 +848,7 @@ export const seoPages: readonly SeoPage[] = [
       'Waiting times change frequently. Check the official booking service before making a decision.',
     schemaKind: 'Article',
     quickFacts: [
-      { label: 'Norwich centres', value: 'Peachman Way and Jupiter Road' },
+      { label: 'Norwich car-test centre', value: 'Peachman Way (Jupiter Road is mainly for lorry and bus tests)' },
       { label: 'Nearby alternatives', value: 'King\'s Lynn, Lowestoft, and Bury St Edmunds' },
       {
         label: 'Norfolk areas',
@@ -862,18 +862,18 @@ export const seoPages: readonly SeoPage[] = [
       {
         heading: 'The Norwich options',
         body: [
-          'Norwich learners commonly compare Peachman Way and Jupiter Road. That includes learners searching from Thorpe St Andrew, Sprowston, Hellesdon, Costessey, Cringleford, Eaton, Taverham, Drayton, Old Catton, Bowthorpe and other Norwich edges. Both centres need broad driving skill: judgement, observations, control, safe speed choices, lane discipline, and calm independent driving.',
-          'The centre that looks closest on a map is not always the best practical choice. Consider your pickup area, lesson routes, instructor familiarity, and whether you can reach the centre calmly on test day.',
+          'For standard car tests, Norwich learners normally plan around Peachman Way, on the eastern side of the city. That includes learners searching from Thorpe St Andrew, Sprowston, Hellesdon, Costessey, Cringleford, Eaton, Taverham, Drayton, Old Catton, Bowthorpe and other Norwich edges. A car test needs broad driving skill: judgement, observations, control, safe speed choices, lane discipline, and calm independent driving.',
+          'The centre that looks closest on a map is not always the best practical choice. Consider your pickup area, lesson routes, instructor familiarity, and whether you can reach the centre calmly on test day. Jupiter Road, north of the city, primarily handles lorry and bus practical tests rather than standard car tests.',
         ],
         items: [
           {
             title: 'Peachman Way',
-            body: 'East Norwich and Broadland-side context. Useful for many learners who practise around the east and north-east of the city.',
+            body: 'The main Norwich centre for standard car practical tests. Most Norwich car-test learners should plan around it.',
             href: '/test-centres/norwich-peachman-way',
           },
           {
             title: 'Jupiter Road',
-            body: 'North Norwich context. Often relevant for learners around Hellesdon, airport-side routes, and north-west approaches.',
+            body: 'A separate Norwich site that primarily handles lorry and bus (commercial vehicle) tests. Car-test learners are generally directed to Peachman Way.',
             href: '/test-centres/norwich-jupiter-road',
           },
         ],
@@ -919,6 +919,10 @@ export const seoPages: readonly SeoPage[] = [
       {
         q: 'Should I switch from Norwich to King\'s Lynn, Lowestoft, or Bury St Edmunds?',
         a: 'Only if your instructor agrees that the travel, road types, and preparation plan make sense. A faster slot is not worth much if it lowers your chance of passing.',
+      },
+      {
+        q: 'Can I take a standard car test at Jupiter Road?',
+        a: 'Generally no. Jupiter Road is primarily used for lorry and bus (commercial vehicle) practical tests. Standard car tests in Norwich are normally taken at Peachman Way.',
       },
     ],
     related: [
@@ -1106,7 +1110,7 @@ export const seoPages: readonly SeoPage[] = [
       { label: 'Book through', value: 'GOV.UK practical driving test service' },
       { label: 'You need', value: 'Driving licence number, theory pass, and payment card' },
       { label: 'Car practical fee', value: '\u00a362 weekday or \u00a375 evening/weekend/bank holiday' },
-      { label: 'Norwich choices', value: 'Peachman Way or Jupiter Road' },
+      { label: 'Norwich car-test choice', value: 'Usually Peachman Way' },
     ],
     sections: [
       {
@@ -1119,7 +1123,7 @@ export const seoPages: readonly SeoPage[] = [
       {
         heading: 'Choosing a test centre',
         body: [
-          'For Norwich learners, Peachman Way and Jupiter Road are the two main local choices. Nearby regional centres can be relevant for some Norfolk learners, but switching centre can mean a different preparation plan.',
+          'For Norwich learners, standard car tests are generally taken at Peachman Way. Jupiter Road, north of the city, mainly handles lorry and bus practical tests. Nearby regional centres can be relevant for some Norfolk learners, but switching centre can mean a different preparation plan.',
           'Use availability as one factor, not the whole decision. A centre with a sooner date can cost more in extra lessons or lower your pass chance if the road context is unfamiliar.',
         ],
         items: [
@@ -1377,7 +1381,7 @@ export const seoPages: readonly SeoPage[] = [
       {
         heading: 'Norwich learner context',
         body: [
-          'Norwich learners usually compare Peachman Way and Jupiter Road first. Nearby centres such as King\'s Lynn, Lowestoft, and Bury St Edmunds may appear in wider searches, but each needs a realistic preparation plan.',
+          'Norwich learners usually plan around Peachman Way for standard car tests, since Jupiter Road primarily handles lorry and bus practical tests. Nearby centres such as King\'s Lynn, Lowestoft, and Bury St Edmunds may appear in wider searches, but each needs a realistic preparation plan.',
           'If you are using Newdryve, choose instructors with availability that helps you keep steady lesson momentum while you wait for the right test date.',
         ],
       },

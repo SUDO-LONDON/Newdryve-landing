@@ -28,6 +28,7 @@ const path = pagePath(page);
 const canonical = new URL(path, SITE_URL).href;
 const relatedPages = getRelatedPages(page);
 const isTestCentreChild = page.slug.startsWith('test-centres/') && page.slug !== 'test-centres';
+const isHub = page.slug === 'test-centres';
 const isTownWaitlistPage =
   page.slug.startsWith('driving-lessons/') && page.slug !== 'driving-lessons/norwich';
 const townName = isTownWaitlistPage ? page.h1.replace('Driving lessons in ', '') : '';
@@ -36,25 +37,26 @@ const breadcrumbTrail = [
   ...(isTestCentreChild ? [{ name: 'Test centres', path: '/test-centres' }] : []),
   { name: page.h1, path },
 ];
+const decisionRule = page.quickFacts.find((fact) => fact.label === 'Decision rule');
 
-function reviewedDateToIso(date: string) {
-  const [day, monthName, year] = date.split(' ');
-  const months: Record<string, string> = {
-    January: '01',
-    February: '02',
-    March: '03',
-    April: '04',
-    May: '05',
-    June: '06',
-    July: '07',
-    August: '08',
-    September: '09',
-    October: '10',
-    November: '11',
-    December: '12',
-  };
+const focusRing =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-racing-green focus-visible:ring-offset-2 focus-visible:ring-offset-canvas';
 
-  return `${year}-${months[monthName]}-${day.padStart(2, '0')}`;
+const norwichCentres = [
+  {
+    name: 'Peachman Way',
+    sub: 'Broadland Business Park · NR7 0WE · Car tests',
+    href: '/test-centres/norwich-peachman-way',
+  },
+  {
+    name: 'Jupiter Road',
+    sub: 'NR6 6SS · Lorries, buses & large vehicles',
+    href: '/test-centres/norwich-jupiter-road',
+  },
+];
+
+function overviewNumber(index: number) {
+  return `${String(index + 1).padStart(2, '0')}`;
 }
 
 const articleSchema = {
@@ -66,7 +68,6 @@ const articleSchema = {
   headline: page.h1,
   description: page.description,
   inLanguage: 'en-GB',
-  dateModified: reviewedDateToIso(page.lastReviewed),
   publisher: { '@id': `${SITE_URL}#organization` },
   mainEntityOfPage: canonical,
 };
@@ -81,20 +82,21 @@ const jsonLd = [
 
 <BaseLayout title={page.title} description={page.description} path={path} jsonLd={jsonLd}>
   <article>
-    <section class="hero-bg relative overflow-hidden border-b border-border">
+    <!-- ─────────────── HERO ─────────────── -->
+    <section class="hero-bg relative overflow-hidden">
       <div class="dot-pattern pointer-events-none absolute inset-0 opacity-50" aria-hidden="true"></div>
-      <div class="relative mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.05fr_0.95fr] md:py-20">
-        <div>
-          <nav aria-label="Breadcrumb" class="mb-6 text-sm font-semibold text-ink-muted">
+      <div class="relative mx-auto grid max-w-6xl items-start gap-12 px-5 pb-20 pt-14 md:pb-24 md:pt-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+        <div class="min-w-0">
+          <nav aria-label="Breadcrumb" class="mb-5 text-sm font-semibold text-ink-muted">
             <ol class="flex flex-wrap items-center gap-2">
               {
                 breadcrumbTrail.map((crumb, index) => (
                   <li class="flex items-center gap-2">
-                    {index > 0 && <span aria-hidden="true">/</span>}
+                    {index > 0 && <span aria-hidden="true" class="text-ink-muted/60">/</span>}
                     {index === breadcrumbTrail.length - 1 ? (
                       <span aria-current="page">{crumb.name}</span>
                     ) : (
-                      <a href={crumb.path} class="focus-ring rounded text-racing-green hover:underline">
+                      <a href={crumb.path} class="focus-ring mt-1 inline-flex min-h-11 items-center text-racing-green hover:underline">
                         {crumb.name}
                       </a>
                     )}
@@ -104,182 +106,408 @@ const jsonLd = [
             </ol>
           </nav>
 
-          <p class="text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+          <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-deep-rose-ink">
             {page.kicker}
           </p>
-          <h1 class="font-display mt-4 text-[clamp(38px,7vw,62px)] font-semibold leading-[1.04] tracking-[-1px] text-balance">
+          <h1 class="font-display mt-4 text-[clamp(40px,7.2vw,64px)] font-semibold leading-[1.02] tracking-[-1.5px] text-balance">
             {page.h1}
           </h1>
-          <p class="mt-6 max-w-2xl text-lg leading-relaxed text-ink-secondary text-pretty">
+          <p class="mt-6 max-w-[56ch] text-lg leading-relaxed text-ink-secondary text-pretty">
             {page.summary}
           </p>
 
           <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <a
               href={conversionHref()}
-              class="focus-ring inline-flex min-h-11 items-center justify-center rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] motion-safe:hover:-translate-y-0.5"
+              class={`focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] motion-safe:hover:-translate-y-0.5`}
             >
               {conversionLabel()}
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
             </a>
             <a
               href="/#join"
-              class="focus-ring inline-flex min-h-11 items-center justify-center rounded-full border border-border bg-white px-6 py-3.5 text-sm font-bold text-ink transition-transform hover:border-ink motion-safe:hover:-translate-y-0.5"
+              class={`focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-[#E8E8F2] bg-white px-6 py-3.5 text-sm font-bold text-ink transition-transform hover:border-ink motion-safe:hover:-translate-y-0.5`}
             >
               Join the waitlist
             </a>
           </div>
+
+          <p class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-1 text-[13.5px] font-semibold text-ink-secondary">
+            <span class="inline-flex items-center gap-1.5 text-racing-green">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"></circle>
+                <path d="M4 7l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+              Free for learners
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-racing-green">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"></circle>
+                <path d="M4 7l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+              Reviewed {page.lastReviewed}
+            </span>
+          </p>
         </div>
 
-        <aside class="self-start rounded-2xl border border-border bg-white p-6 shadow-[0_24px_70px_-40px_rgba(10,10,20,0.4)]">
-          <h2 class="text-base font-bold tracking-[-0.2px]">Quick facts</h2>
-          <dl class="mt-5 divide-y divide-border">
+        <!-- At-a-glance card -->
+        <aside class="reveal min-w-0 self-stretch lg:self-start" data-reveal-delay="120" aria-label="Page quick facts">
+          <div class="overflow-hidden rounded-3xl border border-[#E8E8F2] bg-white shadow-[0_2px_4px_rgba(10,10,20,0.04),0_24px_48px_-20px_rgba(10,10,20,0.22)]">
+            <div class="flex items-center justify-between border-b border-[#E8E8F2] px-5 py-4">
+              <h2 class="text-[13px] font-extrabold uppercase tracking-[0.09em]">At a glance</h2>
+              <span class="flex items-center gap-2 text-[11.5px] font-bold text-ink-muted">
+                <span class="size-1.5 rounded-full bg-racing-green" aria-hidden="true"></span>
+                {isHub ? 'Illustrative map' : 'Local info'}
+              </span>
+            </div>
+
             {
-              page.quickFacts.map((fact) => (
-                <div class="grid gap-1 py-3 sm:grid-cols-[9rem_1fr]">
-                  <dt class="text-sm font-semibold text-ink-muted">{fact.label}</dt>
-                  <dd class="text-sm leading-relaxed text-ink">{fact.value}</dd>
+              isHub && (
+                <div class="bg-[#F6F4F6] p-4">
+                  <svg viewBox="0 0 320 190" fill="none" role="img" aria-label="Illustrative map of Norwich showing Peachman Way as the car test centre and Jupiter Road for lorry and bus tests">
+                    <rect width="320" height="190" rx="16" fill="#F6F4F6"></rect>
+                    <path d="M40 150 C90 120 120 170 170 130 S260 90 300 110" stroke="#E6E1E6" stroke-width="14" stroke-linecap="round"></path>
+                    <path d="M30 60 C90 70 130 40 190 55 S270 45 300 30" stroke="#E6E1E6" stroke-width="10" stroke-linecap="round"></path>
+                    <circle cx="163" cy="148" r="26" fill="#2D6A4F" opacity="0.08"></circle>
+                    <circle cx="163" cy="148" r="4" fill="#2D6A4F"></circle>
+                    <text x="163" y="134" text-anchor="middle" font-family="DM Sans" font-size="9.5" font-weight="800" fill="#2D6A4F" transform="translate(0,-14)">Peachman Way</text>
+                    <text x="163" y="122" text-anchor="middle" font-family="DM Sans" font-size="8" fill="#5C5C73" transform="translate(0,-14)">car tests</text>
+                    <rect x="86" y="26" width="6" height="6" rx="2" fill="#C13B60"></rect>
+                    <text x="99" y="33" font-family="DM Sans" font-size="9.5" font-weight="800" fill="#C13B60">Jupiter Road</text>
+                    <text x="99" y="46" font-family="DM Sans" font-size="8" fill="#78788F">lorries & buses</text>
+                    <path d="M150 42 q-12 10 -4 18" stroke="#C13B60" stroke-width="1.5" stroke-dasharray="2 2" fill="none"></path>
+                    <text x="300" y="176" text-anchor="end" font-family="DM Sans" font-size="8.5" fill="#78788F" opacity="0.85">Not to scale</text>
+                  </svg>
+                  <div class="flex flex-col">
+                    {
+                      norwichCentres.map((centre) => (
+                        <a href={centre.href} class={`focus-ring flex min-h-16 items-center gap-3.5 rounded-xl px-2 py-2 transition-colors hover:bg-white`}>
+                          <span class="grid size-10 flex-shrink-0 place-items-center rounded-xl bg-racing-green/10 text-racing-green">
+                            <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                              <path d="M9 1.5a5.5 5.5 0 0 0-5.5 5.5c0 4.1 5.5 9.5 5.5 9.5s5.5-5.4 5.5-9.5A5.5 5.5 0 0 0 9 1.5z" stroke="currentColor" stroke-width="1.6"></path>
+                              <circle cx="9" cy="7" r="2" stroke="currentColor" stroke-width="1.6"></circle>
+                            </svg>
+                          </span>
+                          <span class="min-w-0">
+                            <span class="block text-[14.5px] font-bold leading-tight">{centre.name}</span>
+                            <span class="block truncate text-[12.5px] text-ink-muted">{centre.sub}</span>
+                          </span>
+                          <svg class="ml-auto flex-shrink-0 text-racing-green" width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                            <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+                          </svg>
+                        </a>
+                      ))
+                    }
+                  </div>
                 </div>
-              ))
+              )
             }
-          </dl>
-          <p class="mt-4 text-xs leading-relaxed text-ink-muted">Last reviewed: {page.lastReviewed}</p>
-          {page.updatedNote && <p class="mt-2 text-xs leading-relaxed text-ink-muted">{page.updatedNote}</p>}
+
+            <dl class="flex flex-col">
+              {
+                page.quickFacts.map((fact, index) => (
+                  <div class={`px-5 py-4 ${index > 0 ? 'border-t border-[#E8E8F2]' : ''}`}>
+                    <dt class="text-[11px] font-bold uppercase tracking-[0.08em] text-ink-muted">{fact.label}</dt>
+                    <dd class="mt-1 text-sm leading-relaxed text-ink">{fact.value}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+
+            <div class="border-t border-[#E8E8F2] bg-canvas/60 px-5 py-3">
+              <p class="text-xs leading-relaxed text-ink-muted">Last reviewed: {page.lastReviewed}</p>
+              {page.updatedNote && <p class="mt-1 text-xs leading-relaxed text-ink-muted">{page.updatedNote}</p>}
+            </div>
+          </div>
         </aside>
       </div>
     </section>
 
-    <section class="bg-canvas">
-      <div class="mx-auto grid max-w-6xl gap-10 px-5 py-14 lg:grid-cols-[minmax(0,1fr)_18rem] lg:py-20">
-        <div class="space-y-10">
-          {
-            page.sections.map((section, sectionIndex) => (
-              <section class="reveal rounded-2xl border border-border bg-white p-6 md:p-8" data-reveal-delay={sectionIndex * 80}>
-                <h2 class="font-display text-[clamp(26px,4vw,36px)] font-semibold leading-tight tracking-[-0.5px]">
+    <!-- ─────────────── META STRIP ─────────────── -->
+    <div class="border-y border-[#E8E8F2] bg-white">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 py-4">
+        <span class="inline-flex items-center gap-2 text-[13px] font-semibold text-ink-secondary">
+          <span class="size-2 rounded-full bg-racing-green" aria-hidden="true"></span>
+          Last reviewed {page.lastReviewed}
+        </span>
+        {page.updatedNote && (
+          <span class="inline-flex items-center gap-2 text-[13px] font-semibold text-ink-secondary">
+            {page.updatedNote}
+          </span>
+        )}
+      </div>
+    </div>
+
+    <!-- ─────────────── EDITORIAL ─────────────── -->
+    <div class="mx-auto grid max-w-6xl gap-14 px-5 py-16 md:py-20 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-16">
+      <div class="flex min-w-0 flex-col gap-16">
+        {
+          page.sections.map((section, sectionIndex) => (
+            <section id={`section-${sectionIndex + 1}`} class="scroll-mt-24">
+              <header class="reveal">
+                <p class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-deep-rose-ink">
+                  <span class="h-0.5 w-4 rounded-full bg-gradient-to-r from-racing-green to-deep-rose" aria-hidden="true"></span>
+                  {overviewNumber(sectionIndex)}
+                </p>
+                <h2 class="font-display mt-3 text-[clamp(26px,4vw,38px)] font-semibold leading-[1.08] tracking-[-0.5px] text-balance">
                   {section.heading}
                 </h2>
-                <div class="mt-5 space-y-4 text-base leading-relaxed text-ink-secondary">
-                  {section.body.map((paragraph) => <p>{paragraph}</p>)}
-                </div>
-                {
-                  section.items && (
-                    <div class="mt-7 grid gap-4 md:grid-cols-3">
-                      {section.items.map((item) => (
-                        <div class="rounded-xl border border-border bg-canvas p-5">
-                          <h3 class="text-base font-bold tracking-[-0.2px]">{item.title}</h3>
-                          <p class="mt-2 text-sm leading-relaxed text-ink-secondary">{item.body}</p>
-                          {item.href && (
-                            <a href={item.href} class="focus-ring mt-4 inline-flex min-h-11 items-center rounded text-sm font-bold text-racing-green underline underline-offset-2">
-                              Read more
-                            </a>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )
-                }
-              </section>
-            ))
-          }
+              </header>
 
-          {
-            isTownWaitlistPage && (
-              <section id="join" class="reveal scroll-mt-20 rounded-2xl border border-border bg-white p-6 md:p-8">
-                <div class="mb-6">
-                  <p class="text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-                    Demand registration
-                  </p>
-                  <h2 class="font-display mt-3 text-[clamp(26px,4vw,34px)] font-semibold leading-tight tracking-[-0.5px]">
-                    Join the {townName} learner waitlist
-                  </h2>
-                  <p class="mt-3 max-w-3xl text-sm leading-relaxed text-ink-secondary">
-                    Tell us your postcode, whether you prefer manual or automatic lessons, and when
-                    you are usually free. Use the notes field for daytime, evening or weekend
-                    preference, and whether you can meet in {townName} if home pickup is not
-                    available.
-                  </p>
-                </div>
-                <WaitlistForm
-                  id={`waitlist-${page.slug.replaceAll('/', '-')}`}
-                  submitLabel={`Join the ${townName} learner waitlist`}
-                />
-              </section>
-            )
-          }
+              <div class="reveal mt-6 max-w-[64ch] space-y-4 text-base leading-relaxed text-ink-secondary">
+                {section.body.map((paragraph) => <p>{paragraph}</p>)}
+              </div>
 
-          <section class="reveal rounded-2xl border border-border bg-white p-6 md:p-8">
-            <h2 class="font-display text-[clamp(26px,4vw,34px)] font-semibold leading-tight tracking-[-0.5px]">
+              {
+                section.items && (
+                  <div class="mt-8 grid gap-4 md:grid-cols-3">
+                    {section.items.map((item, itemIndex) => (
+                      <div
+                        class="reveal rounded-2xl border border-[#E8E8F2] bg-white p-6"
+                        data-reveal-delay={itemIndex * 80}
+                      >
+                        <h3 class="text-base font-bold tracking-[-0.2px]">{item.title}</h3>
+                        <p class="mt-2 text-[13.5px] leading-relaxed text-ink-secondary">{item.body}</p>
+                        {item.href && (
+                          <a href={item.href} class={`focus-ring mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-bold text-racing-green`}>
+                            Read more
+                            <svg width="13" height="13" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                              <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )
+              }
+            </section>
+          ))
+        }
+
+        {
+          decisionRule && (
+            <section class="reveal relative overflow-hidden rounded-3xl bg-racing-green p-8 text-white shadow-[0_24px_60px_-24px_rgba(45,106,79,0.6)]">
+              <div class="absolute -right-16 -top-16 size-56 rounded-full bg-deep-rose/25 blur-2xl" aria-hidden="true"></div>
+              <p class="relative flex items-center gap-2 text-[13px] font-extrabold uppercase tracking-[0.12em] text-white/70">
+                <span class="h-0.5 w-4 rounded-full bg-deep-rose" aria-hidden="true"></span>
+                Decision rule
+              </p>
+              <h3 class="font-display relative mt-4 max-w-[24ch] text-[clamp(22px,3vw,30px)] font-semibold leading-[1.12] tracking-[-0.5px] text-balance">
+                {decisionRule.value}
+              </h3>
+              <p class="relative mt-3 max-w-[46ch] text-sm leading-relaxed text-white/85">
+                A faster slot is not worth much if it lowers your chance of passing.
+              </p>
+            </section>
+          )
+        }
+
+        {
+          isTownWaitlistPage && (
+            <section id="join" class="reveal scroll-mt-24 overflow-hidden rounded-3xl border border-[#E8E8F2] bg-white p-6 md:p-8">
+              <div class="mb-6">
+                <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-deep-rose-ink">
+                  Demand registration
+                </p>
+                <h2 class="font-display mt-3 text-[clamp(24px,3.6vw,32px)] font-semibold leading-tight tracking-[-0.5px]">
+                  Join the {townName} learner waitlist
+                </h2>
+                <p class="mt-3 max-w-3xl text-sm leading-relaxed text-ink-secondary">
+                  Tell us your postcode, whether you prefer manual or automatic lessons, and when
+                  you are usually free. Use the notes field for daytime, evening or weekend
+                  preference, and whether you can meet in {townName} if home pickup is not
+                  available.
+                </p>
+              </div>
+              <WaitlistForm
+                id={`waitlist-${page.slug.replaceAll('/', '-')}`}
+                submitLabel={`Join the ${townName} learner waitlist`}
+              />
+            </section>
+          )
+        }
+
+        <!-- FAQ -->
+        <section id="faq" class="scroll-mt-24">
+          <header class="reveal">
+            <p class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-deep-rose-ink">
+              <span class="h-0.5 w-4 rounded-full bg-gradient-to-r from-racing-green to-deep-rose" aria-hidden="true"></span>
+              {String(page.sections.length + 1).padStart(2, '0')}
+            </p>
+            <h2 class="font-display mt-3 text-[clamp(26px,4vw,38px)] font-semibold leading-[1.08] tracking-[-0.5px] text-balance">
               Frequently asked questions
             </h2>
-            <div class="mt-6 divide-y divide-border">
+          </header>
+
+          <div class="reveal mt-6 overflow-hidden rounded-2xl border border-[#E8E8F2] bg-white">
+            {
+              page.faqs.map((faq) => (
+                <details class="group border-t border-[#E8E8F2] first:border-t-0">
+                  <summary class={`focus-ring flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 px-6 text-left text-[15.5px] font-bold tracking-[-0.01em] [&::-webkit-details-marker]:hidden`}>
+                    <span class="text-pretty">{faq.q}</span>
+                    <span class="relative size-6 flex-shrink-0" aria-hidden="true">
+                      <span class="absolute left-1/2 top-1/2 h-[2px] w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink-muted transition-colors group-open:bg-deep-rose"></span>
+                      <span class="absolute left-1/2 top-1/2 h-3 w-[2px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink-muted transition-all group-open:rotate-90 group-open:bg-deep-rose"></span>
+                    </span>
+                  </summary>
+                  <p class="max-w-[62ch] px-6 pb-6 text-sm leading-relaxed text-ink-secondary">{faq.a}</p>
+                </details>
+              ))
+            }
+          </div>
+        </section>
+      </div>
+
+      <!-- ─────────────── ASIDE ─────────────── -->
+      <aside class="flex flex-col gap-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:self-start lg:overflow-auto">
+        <nav class="rounded-2xl border border-[#E8E8F2] bg-white p-5" aria-label="On this page">
+          <h2 class="text-[12px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">On this page</h2>
+          <ul class="mt-3 flex flex-col gap-0.5">
+            {
+              page.sections.map((section, sectionIndex) => (
+                <li>
+                  <a href={`#section-${sectionIndex + 1}`} class={`focus-ring flex items-baseline gap-2.5 rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-secondary transition-colors hover:bg-canvas hover:text-ink`}>
+                    <span class="font-display text-xs text-deep-rose-ink tabular-nums">{overviewNumber(sectionIndex)}</span>
+                    {section.heading}
+                  </a>
+                </li>
+              ))
+            }
+            <li>
+              <a href="#faq" class={`focus-ring flex items-baseline gap-2.5 rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-secondary transition-colors hover:bg-canvas hover:text-ink`}>
+                <span class="font-display text-xs text-deep-rose-ink tabular-nums">{overviewNumber(page.sections.length)}</span>
+                FAQ
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <nav class="rounded-2xl border border-[#E8E8F2] bg-white p-5" aria-label="Related pages">
+          <h2 class="text-[12px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">Related pages</h2>
+          <ul class="mt-3 flex flex-col gap-0.5">
+            {
+              relatedPages.map((related) => (
+                <li>
+                  <a href={pagePath(related)} class={`focus-ring flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-secondary transition-colors hover:bg-canvas hover:text-ink`}>
+                    <svg class="flex-shrink-0 text-racing-green" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                      <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    {related.h1}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+
+        <nav class="rounded-2xl border border-[#E8E8F2] bg-white p-5" aria-label="Sources">
+          <h2 class="text-[12px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">Sources</h2>
+          <ul class="mt-3 flex flex-col gap-2.5">
+            {
+              page.sources.map((source) => (
+                <li>
+                  <a
+                    href={source.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class={`focus-ring flex min-h-11 items-center text-[13px] font-semibold leading-snug text-racing-green underline underline-offset-2`}
+                  >
+                    {source.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+
+        <div class="rounded-2xl bg-racing-green p-5 text-white">
+          <h2 class="text-[12px] font-extrabold uppercase tracking-[0.1em] text-white/70">Learning in {BRAND.city}?</h2>
+          <p class="mt-2 text-[13.5px] leading-relaxed text-white/85">
+            Find verified instructors, compare real availability, and keep your lessons moving.
+          </p>
+          <a
+            href="/#join"
+            class={`focus-ring mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-bold text-racing-green`}
+          >
+            Join the waitlist
+          </a>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ─────────────── CTA BAND ─────────────── -->
+    <section class="relative overflow-hidden bg-racing-green text-white">
+      <div class="pointer-events-none absolute inset-0" aria-hidden="true" style="background: radial-gradient(ellipse 60% 80% at 90% 10%, rgba(232,82,122,0.25), transparent 60%), radial-gradient(ellipse 50% 70% at 5% 90%, rgba(10,10,20,0.25), transparent 60%);"></div>
+      <div class="relative mx-auto max-w-3xl px-5 py-20 text-center md:py-24">
+        <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-white/75">Learners · {BRAND.city}</p>
+        <h2 class="font-display mt-4 text-[clamp(30px,4.6vw,46px)] font-semibold leading-[1.05] tracking-[-1px] text-balance">
+          Find an instructor who can prepare you properly.
+        </h2>
+        <p class="mx-auto mt-4 max-w-xl text-[15.5px] leading-relaxed text-white/80 text-pretty">
+          Newdryve shows verified instructors, real availability and the areas they cover — so you book with confidence instead of guesswork.
+        </p>
+        <div class="mt-8 flex flex-wrap justify-center gap-3">
+          <a
+            href="/#join"
+            class={`focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-racing-green transition-transform motion-safe:hover:-translate-y-0.5`}
+          >
+            Join the Norwich waitlist
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </a>
+          <a
+            href="/instructors"
+            class={`focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-white/35 px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-white/10`}
+          >
+            I'm an instructor
+          </a>
+        </div>
+        <p class="mt-6 text-[12.5px] text-white/60">Free for learners · 0% commission — you pay your instructor for the lesson.</p>
+      </div>
+    </section>
+
+    <!-- ─────────────── RELATED STRIP ─────────────── -->
+    {
+      relatedPages.length > 0 && (
+        <section class="border-t border-[#E8E8F2] bg-[#F6F4F6]">
+          <div class="mx-auto max-w-6xl px-5 py-16 md:py-20">
+            <header class="reveal">
+              <p class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-deep-rose-ink">
+                <span class="h-0.5 w-4 rounded-full bg-gradient-to-r from-racing-green to-deep-rose" aria-hidden="true"></span>
+                Keep reading
+              </p>
+              <h2 class="font-display mt-3 text-[clamp(24px,3.4vw,32px)] font-semibold leading-tight tracking-[-0.5px]">
+                Related learner guides
+              </h2>
+            </header>
+
+            <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {
-                page.faqs.map((faq) => (
-                  <details class="group py-4">
-                    <summary class="focus-ring flex cursor-pointer list-none items-center justify-between gap-4 rounded text-left text-base font-bold [&::-webkit-details-marker]:hidden">
-                      <span>{faq.q}</span>
-                      <span class="text-xl leading-none text-ink-muted group-open:rotate-45" aria-hidden="true">+</span>
-                    </summary>
-                    <p class="mt-3 max-w-3xl text-sm leading-relaxed text-ink-secondary">{faq.a}</p>
-                  </details>
+                relatedPages.slice(0, 4).map((related, index) => (
+                  <a
+                    href={pagePath(related)}
+                    class={`reveal flex flex-col gap-2.5 rounded-2xl border border-[#E8E8F2] bg-white p-5 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_1px_2px_rgba(10,10,20,0.04),0_12px_32px_-16px_rgba(10,10,20,0.14)] ${focusRing}`}
+                    data-reveal-delay={index * 60}
+                  >
+                    <span class="text-[10.5px] font-extrabold uppercase tracking-[0.09em] text-deep-rose-ink">{related.kicker}</span>
+                    <span class="text-[15px] font-bold leading-snug tracking-[-0.015em]">{related.h1}</span>
+                    <span class="mt-auto inline-flex items-center gap-1.5 text-[13.5px] font-bold text-racing-green">
+                      Read
+                      <svg width="13" height="13" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+                      </svg>
+                    </span>
+                  </a>
                 ))
               }
             </div>
-          </section>
-        </div>
-
-        <aside class="space-y-6 lg:sticky lg:top-24 lg:self-start">
-          <section class="rounded-2xl border border-border bg-white p-5">
-            <h2 class="text-sm font-bold uppercase tracking-[1px] text-deep-rose-ink">
-              Related pages
-            </h2>
-            <ul class="mt-4 space-y-2">
-              {
-                relatedPages.map((related) => (
-                  <li>
-                    <a href={pagePath(related)} class="focus-ring block rounded-lg px-2 py-2 text-sm font-semibold text-ink-secondary hover:bg-canvas hover:text-ink">
-                      {related.h1}
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
-          </section>
-
-          <section class="rounded-2xl border border-border bg-white p-5">
-            <h2 class="text-sm font-bold uppercase tracking-[1px] text-deep-rose-ink">
-              Sources
-            </h2>
-            <ul class="mt-4 space-y-3">
-              {
-                page.sources.map((source) => (
-                  <li>
-                    <a
-                      href={source.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="focus-ring rounded text-sm font-semibold leading-relaxed text-racing-green underline underline-offset-2"
-                    >
-                      {source.label}
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
-          </section>
-
-          <section class="rounded-2xl bg-racing-green p-5 text-white">
-            <h2 class="text-lg font-bold tracking-[-0.2px]">Learning in {BRAND.city}?</h2>
-            <p class="mt-2 text-sm leading-relaxed text-white/80">
-              Find verified instructors, compare real availability, and keep your lessons moving.
-            </p>
-            <a
-              href="/#join"
-              class="focus-ring mt-4 inline-flex min-h-11 items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-bold text-racing-green"
-            >
-              Join the waitlist
-            </a>
-          </section>
-        </aside>
-      </div>
-    </section>
+          </div>
+        </section>
+      )
+    }
   </article>
 </BaseLayout>
