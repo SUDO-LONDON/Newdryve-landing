@@ -38,7 +38,11 @@ server-only secrets:
 - `src/pages/api/data-deletion.ts`
 
 `/reset-password` is the one page with a JS bundle, because it talks to Supabase
-in the browser. It is `noindex`.
+in the browser. It is `noindex`. It needs the live product Supabase public URL
+and anon/publishable key. The Astro-native names are
+`PUBLIC_PRODUCT_SUPABASE_URL` and `PUBLIC_PRODUCT_SUPABASE_ANON_KEY`; the page
+also accepts the existing `NEXT_PUBLIC_PRODUCT_SUPABASE_URL` and
+`NEXT_PUBLIC_PRODUCT_SUPABASE_ANON_KEY` Railway variable names for compatibility.
 
 ## Routes
 
