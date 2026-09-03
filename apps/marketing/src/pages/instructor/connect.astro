@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Set up Stripe Connect | Newdryve"
+  description="Connect your payout account so Newdryve can send lesson payments to you."
+  path="/instructor/connect"
+  audience="instructor"
+  noindex
+>
+  <div class="mx-auto flex max-w-lg flex-col justify-center px-5 py-16 sm:py-24">
+    <section class="rounded-2xl border border-border bg-white p-7 text-center shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] sm:p-10">
+      <p class="text-[11px] font-bold uppercase tracking-[1px] text-racing-green">Instructor payouts</p>
+      <h1 class="font-display mt-3 text-3xl font-semibold text-ink">Set up Stripe Connect</h1>
+      <p class="mt-4 text-sm leading-6 text-ink-secondary">
+        Connect your bank details securely with Stripe so card lesson payments can be paid directly to you. Newdryve never sees your full bank details.
+      </p>
+      <button
+        data-connect-button
+        class="focus-ring mt-7 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60"
+      >
+        Continue to Stripe Connect
+      </button>
+      <p data-connect-error role="alert" class="mt-4 hidden rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-800"></p>
+      <p class="mt-5 text-xs leading-5 text-ink-muted">
+        If the link has expired, ask Newdryve support to resend your payout setup link.
+      </p>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token') || '';
+  const button = document.querySelector<HTMLButtonElement>('[data-connect-button]');
+  const error = document.querySelector<HTMLElement>('[data-connect-error]');
+
+  function showError(message: string) {
+    if (!error) return;
+    error.textContent = message;
+    error.classList.remove('hidden');
+  }
+
+  if (!token) {
+    button?.setAttribute('disabled', 'true');
+    showError('This payout setup link is incomplete. Please use the link from your Newdryve email.');
+  }
+
+  button?.addEventListener('click', async () => {
+    if (!token) return;
+    button.disabled = true;
+    button.textContent = 'Opening Stripe…';
+    error?.classList.add('hidden');
+    try {
+      const response = await fetch('/api/instructor-connect-onboard', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error || 'Could not start Stripe Connect setup.');
+      if (!body.url) throw new Error('Stripe did not return a secure setup link.');
+      window.location.assign(body.url);
+    } catch (cause) {
+      showError(cause instanceof Error ? cause.message : 'Could not start Stripe Connect setup.');
+      button.disabled = false;
+      button.textContent = 'Try again';
+    }
+  });
+</script>

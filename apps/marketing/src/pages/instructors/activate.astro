@@ -15,8 +15,8 @@ import Logo from '../../components/Logo.astro';
           <p class="mt-4 leading-7 text-ink/70">
             Stripe has confirmed your membership setup. We&rsquo;ve emailed you confirmation and unlocked your instructor account.
           </p>
-          <a href="newdryve://instructor/payouts" class="mt-7 inline-flex rounded-xl bg-emerald-800 px-5 py-3 font-semibold text-white">
-            Open Newdryve
+          <a href="/instructor/setup" data-connect-success-link class="mt-7 inline-flex rounded-xl bg-emerald-800 px-5 py-3 font-semibold text-white">
+            Set up Stripe Connect
           </a>
         </div>
         <div class="mt-8 hidden" data-activation-state="cancelled">
@@ -52,9 +52,14 @@ import Logo from '../../components/Logo.astro';
   const params = new URLSearchParams(window.location.search);
   const status = params.get('status');
   const token = params.get('token') || '';
+  const connectToken = params.get('connect_token') || '';
   const state = status === 'success' ? 'success' : status === 'cancelled' ? 'cancelled' : token ? 'ready' : 'invalid';
   document.querySelector<HTMLElement>(`[data-activation-state="${state}"]`)?.classList.remove('hidden');
   if (state === 'success') document.title = 'Membership activated | Newdryve';
+  const connectSuccessLink = document.querySelector<HTMLAnchorElement>('[data-connect-success-link]');
+  if (connectSuccessLink && connectToken) {
+    connectSuccessLink.href = `/instructor/connect?token=${encodeURIComponent(connectToken)}`;
+  }
 
   const button = document.querySelector<HTMLButtonElement>('[data-activate-button]');
   const error = document.querySelector<HTMLElement>('[data-activation-error]');
