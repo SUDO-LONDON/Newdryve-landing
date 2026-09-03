@@ -115,6 +115,9 @@ Required before cutover:
    handled the `?code=` OTP callback at `/`, which the Astro site does not.
 3. Add a redirect from `newdryve.com/ops/*` to `ops.newdryve.com/*` so existing
    founder bookmarks keep working.
+4. Keep `newdryve.com/organisations` pointed at the ops service. The combined
+   Railway router sends it to Next directly; the standalone Astro marketing app
+   has a noindex fallback redirect to `ops.newdryve.com/organisations`.
 
 The old Next app also proxied `/v1/*`, `/healthz` and `/readyz` to the Fastify
 backend via `BACKEND_ORIGIN`. If `newdryve.com` still needs to serve those

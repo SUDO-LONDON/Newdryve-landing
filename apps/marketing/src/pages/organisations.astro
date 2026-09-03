@@ -1,0 +1,25 @@
+---
+const opsOrigin = (import.meta.env.PUBLIC_OPS_ORIGIN || 'https://ops.newdryve.com').replace(/\/$/, '');
+const destination = `${opsOrigin}/organisations`;
+const redirectScript = `window.location.replace(${JSON.stringify(destination)} + window.location.search + window.location.hash);`;
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta http-equiv="refresh" content={`0; url=${destination}`} />
+    <link rel="canonical" href={destination} />
+    <title>Opening Newdryve organisations</title>
+    <script is:inline set:html={redirectScript}></script>
+  </head>
+  <body>
+    <main>
+      <p>
+        Opening <a href={destination}>Newdryve organisations</a>.
+      </p>
+    </main>
+  </body>
+</html>
