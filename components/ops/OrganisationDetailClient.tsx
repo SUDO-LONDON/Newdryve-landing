@@ -18,13 +18,20 @@ export default function OrganisationDetailClient({
   const totals = organisationTotals(organisation.members);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [freshCode, setFreshCode] = useState<string | null>(null);
+  const [adminForm, setAdminForm] = useState({
+    email: "",
+    password: "",
+    display_name: "",
+  });
 
   async function regenerateCode() {
     setBusy("code");
     setError(null);
+    setSuccess(null);
     try {
-      const response = await fetch(`/organisations/api/${organisation.id}`, {
+      const response = await fetch(`/ops/api/organisations/${organisation.id}`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ action: "regenerate_code" }),
@@ -43,10 +50,32 @@ export default function OrganisationDetailClient({
     }
   }
 
+  async function createAdmin(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy("admin");
+    setError(null);
+    setSuccess(null);
+    try {
+      const response = await fetch(`/ops/api/organisations/${organisation.id}/admins`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(adminForm),
+      });
+      const body = (await response.json().catch(() => ({}))) as { error?: string };
+      if (!response.ok) throw new Error(body.error || "Could not create admin login.");
+      setSuccess("Organisation admin login created.");
+      setAdminForm({ email: "", password: "", display_name: "" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not create admin login.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
-        <Link href="/organisations" className="text-sm text-racing-green hover:underline">
+        <Link href="/ops/organisations" className="text-sm text-racing-green hover:underline">
           &lt;- Organisations
         </Link>
         <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -82,6 +111,12 @@ export default function OrganisationDetailClient({
       {error ? (
         <div className="rounded-xl border border-blush-border bg-blush-surface p-4 text-sm text-deep-rose">
           {error}
+        </div>
+      ) : null}
+
+      {success ? (
+        <div className="rounded-xl border border-racing-green/20 bg-racing-green/10 p-4 text-sm font-medium text-racing-green">
+          {success}
         </div>
       ) : null}
 
@@ -124,7 +159,7 @@ export default function OrganisationDetailClient({
                   </td>
                   <td className="px-3 py-3 text-right">
                     <Link
-                      href={`/organisations/${organisation.id}/instructors/${row.id}`}
+                      href={`/ops/organisations/${organisation.id}/instructors/${row.id}`}
                       className="text-sm font-semibold text-racing-green hover:underline"
                     >
                       View
@@ -140,6 +175,59 @@ export default function OrganisationDetailClient({
             </p>
           ) : null}
         </div>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-white p-5">
+        <h2 className="font-display text-lg text-ink">Organisation admin login</h2>
+        <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
+          Create an email/password login for this organisation. They will sign in at
+          newdryve.com/organisations and only see their own linked instructors.
+        </p>
+        <form onSubmit={createAdmin} className="mt-4 grid gap-4 md:grid-cols-3">
+          <label className="text-sm font-medium text-ink">
+            Admin email
+            <input
+              type="email"
+              required
+              value={adminForm.email}
+              onChange={(event) => setAdminForm((cur) => ({ ...cur, email: event.target.value }))}
+              className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-ink outline-none focus:ring-2 focus:ring-ring"
+            />
+          </label>
+          <label className="text-sm font-medium text-ink">
+            Display name
+            <input
+              value={adminForm.display_name}
+              onChange={(event) =>
+                setAdminForm((cur) => ({ ...cur, display_name: event.target.value }))
+              }
+              placeholder="Optional"
+              className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-ink outline-none focus:ring-2 focus:ring-ring"
+            />
+          </label>
+          <label className="text-sm font-medium text-ink">
+            Temporary password
+            <input
+              type="password"
+              required
+              minLength={8}
+              value={adminForm.password}
+              onChange={(event) =>
+                setAdminForm((cur) => ({ ...cur, password: event.target.value }))
+              }
+              className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-ink outline-none focus:ring-2 focus:ring-ring"
+            />
+          </label>
+          <div className="md:col-span-3">
+            <button
+              type="submit"
+              disabled={busy === "admin"}
+              className="rounded-lg bg-racing-green px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {busy === "admin" ? "Creating login..." : "Create admin login"}
+            </button>
+          </div>
+        </form>
       </section>
     </div>
   );

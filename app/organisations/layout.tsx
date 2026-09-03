@@ -1,8 +1,4 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import NavShell from "@/components/ops/NavShell";
-import { isFounderEmail } from "@/lib/ops/env";
-import { getSessionEmail } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Organisations",
@@ -14,14 +10,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function OrganisationsLayout({ children }: { children: React.ReactNode }) {
-  const email = await getSessionEmail();
-  if (!email) redirect("/ops/login?next=/organisations");
-  if (!isFounderEmail(email)) redirect("/ops/denied");
-
-  return (
-    <div className="min-h-full bg-canvas text-ink">
-      <NavShell email={email}>{children}</NavShell>
-    </div>
-  );
+export default function OrganisationsLayout({ children }: { children: React.ReactNode }) {
+  return <div className="min-h-full bg-canvas text-ink">{children}</div>;
 }

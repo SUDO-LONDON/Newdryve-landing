@@ -141,12 +141,11 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/ops", "/ops/:path*", "/organisations", "/organisations/:path*"],
+  matcher: ["/", "/ops", "/ops/:path*"],
 };
 
 function sanitizeFounderNext(next: string | null): string {
   if (!next) return "/ops";
-  if (next === "/organisations" || next.startsWith("/organisations/")) return next;
   if (next.startsWith("/ops") && next !== "/ops/login" && next !== "/ops/denied" && !next.startsWith("/ops/auth")) {
     return next;
   }

@@ -147,7 +147,6 @@ function LoginInner() {
 
 function sanitizeNext(next: string | null): string {
   if (!next) return "/ops";
-  if (next === "/organisations" || next.startsWith("/organisations/")) return next;
   if (
     next === "/ops/login" ||
     next === "/ops/denied" ||

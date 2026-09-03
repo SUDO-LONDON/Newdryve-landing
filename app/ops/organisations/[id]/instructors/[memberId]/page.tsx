@@ -21,7 +21,7 @@ export default async function OrganisationInstructorPage({
   return (
     <div className="space-y-6">
       <div>
-        <Link href={`/organisations/${organisation.id}`} className="text-sm text-racing-green hover:underline">
+        <Link href={`/ops/organisations/${organisation.id}`} className="text-sm text-racing-green hover:underline">
           &lt;- {organisation.name}
         </Link>
         <p className="mt-4 text-[11px] font-semibold uppercase tracking-widest text-racing-green">

@@ -67,7 +67,6 @@ export async function GET(request: NextRequest) {
 // Only permit same-origin founder-portal paths as the post-login destination.
 function sanitizeNext(next: string | null): string {
   if (!next) return "/ops";
-  if (next === "/organisations" || next.startsWith("/organisations/")) return next;
   if (next === "/ops/login" || next === "/ops/denied" || next.startsWith("/ops/auth")) {
     return "/ops";
   }

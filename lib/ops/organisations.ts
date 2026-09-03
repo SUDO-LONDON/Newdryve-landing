@@ -20,6 +20,12 @@ export type OrganisationCreateInput = {
   contact_phone?: string | null;
 };
 
+export type OrganisationAdminCreateInput = {
+  email: string;
+  password: string;
+  display_name?: string | null;
+};
+
 type BackendOrganisation = {
   id: string;
   name: string;
@@ -117,6 +123,17 @@ export async function regenerateOrganisationCode(
     method: "POST",
   });
   return mapOrganisation(data.organisation, data.join_code);
+}
+
+export async function createOrganisationAdmin(
+  id: string,
+  input: OrganisationAdminCreateInput,
+  actor: string
+): Promise<void> {
+  await call(`/v1/ops/organisations/${id}/admins`, actor, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }
 
 async function call<T>(path: string, founderEmail: string, init: RequestInit = {}): Promise<T> {

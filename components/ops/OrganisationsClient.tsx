@@ -41,7 +41,7 @@ export default function OrganisationsClient({
     setError(null);
     setCreatedCode(null);
     try {
-      const response = await fetch("/organisations/api", {
+      const response = await fetch("/ops/api/organisations", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(form),
@@ -211,7 +211,7 @@ export default function OrganisationsClient({
                         <tr key={member.id}>
                           <td className="px-3 py-3">
                             <Link
-                              href={`/organisations/${organisation.id}/instructors/${member.id}`}
+                              href={`/ops/organisations/${organisation.id}/instructors/${member.id}`}
                               className="font-semibold text-ink hover:text-racing-green"
                             >
                               {member.display_name}
@@ -237,7 +237,7 @@ export default function OrganisationsClient({
               </div>
 
               <Link
-                href={`/organisations/${organisation.id}`}
+                href={`/ops/organisations/${organisation.id}`}
                 className="mt-4 inline-flex rounded-lg border border-border px-3 py-2 text-sm font-semibold text-ink hover:bg-blush-surface"
               >
                 View organisation
