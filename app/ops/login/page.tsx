@@ -146,7 +146,8 @@ function LoginInner() {
 }
 
 function sanitizeNext(next: string | null): string {
-  if (!next || !next.startsWith("/ops")) return "/ops";
+  if (!next) return "/ops";
+  if (next === "/organisations" || next.startsWith("/organisations/")) return next;
   if (
     next === "/ops/login" ||
     next === "/ops/denied" ||
@@ -154,7 +155,7 @@ function sanitizeNext(next: string | null): string {
   ) {
     return "/ops";
   }
-  return next;
+  return next.startsWith("/ops") ? next : "/ops";
 }
 
 export default function LoginPage() {

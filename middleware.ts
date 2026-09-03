@@ -1,4 +1,4 @@
-// Ops portal gate. RLS remains the database enforcement layer; this middleware
+// Founder portal gate. RLS remains the database enforcement layer; this middleware
 // handles fast founder gating, inactivity timeout, and Supabase cookie refresh.
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
@@ -94,7 +94,8 @@ export async function middleware(request: NextRequest) {
 
     if (isLogin) {
       const url = request.nextUrl.clone();
-      url.pathname = "/ops";
+      const next = sanitizeFounderNext(request.nextUrl.searchParams.get("next"));
+      url.pathname = next;
       url.searchParams.delete("next");
       return NextResponse.redirect(url);
     }
@@ -128,7 +129,8 @@ export async function middleware(request: NextRequest) {
 
   if (isLogin) {
     const url = request.nextUrl.clone();
-    url.pathname = "/ops";
+    const next = sanitizeFounderNext(request.nextUrl.searchParams.get("next"));
+    url.pathname = next;
     url.searchParams.delete("next");
     return NextResponse.redirect(url);
   }
@@ -139,8 +141,17 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/ops", "/ops/:path*"],
+  matcher: ["/", "/ops", "/ops/:path*", "/organisations", "/organisations/:path*"],
 };
+
+function sanitizeFounderNext(next: string | null): string {
+  if (!next) return "/ops";
+  if (next === "/organisations" || next.startsWith("/organisations/")) return next;
+  if (next.startsWith("/ops") && next !== "/ops/login" && next !== "/ops/denied" && !next.startsWith("/ops/auth")) {
+    return next;
+  }
+  return "/ops";
+}
 
 async function isAllowedFounder(
   supabase: ReturnType<typeof createSupabaseMiddlewareClient>["supabase"],
@@ -163,7 +174,7 @@ async function setOpsSessionCookies(res: NextResponse, email: string, now: numbe
     httpOnly: true,
     sameSite: "lax" as const,
     secure: process.env.NODE_ENV === "production",
-    path: "/ops",
+    path: "/",
     maxAge: OPS_SESSION_TIMEOUT_MINUTES * 60,
   };
 
