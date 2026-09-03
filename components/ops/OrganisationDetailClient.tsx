@@ -179,6 +179,24 @@ export default function OrganisationDetailClient({
 
       <section className="rounded-2xl border border-border bg-white p-5">
         <h2 className="font-display text-lg text-ink">Organisation admin login</h2>
+        {/* An organisation with no login is inert: it exists, it can have
+            instructors linked, and nobody at the school can see any of it.
+            Nothing said so, and this form is a section below the fold on a
+            page you have to open deliberately — so the founder's next step
+            was invisible right after creating one. */}
+        {organisation.admin_count === 0 ? (
+          <p className="mt-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <strong className="font-semibold">No one can sign in to this organisation yet.</strong>{" "}
+            Create a login below and send the school the email and password. There is no
+            invite email — you set the password and pass it on.
+          </p>
+        ) : (
+          <p className="mt-2 text-sm text-ink-secondary">
+            {organisation.admin_count === 1
+              ? "1 admin can sign in."
+              : `${organisation.admin_count} admins can sign in.`}
+          </p>
+        )}
         <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
           Create an email/password login for this organisation. They will sign in at
           newdryve.com/organisations and only see their own linked instructors.

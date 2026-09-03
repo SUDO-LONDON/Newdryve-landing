@@ -116,6 +116,12 @@ export interface OpsOrganisationMember {
 
 export interface OpsOrganisationWithMembers extends OpsOrganisation {
   members: OpsOrganisationMember[];
+  /**
+   * Active admin logins. Zero means nobody at the school can sign in — the
+   * organisation exists and is inert, which is invisible from a list of names
+   * and lesson counts.
+   */
+  admin_count: number;
 }
 
 export function organisationTotals(members: OpsOrganisationMember[]) {

@@ -35,6 +35,7 @@ type BackendOrganisation = {
   contact_phone: string | null;
   status: OrganisationStatus;
   join_code_last4: string | null;
+  admin_count?: number;
   created_at: string;
   updated_at?: string | null;
   members?: BackendOrganisationMember[];
@@ -149,7 +150,15 @@ async function call<T>(path: string, founderEmail: string, init: RequestInit = {
     response = await fetch(`${API_ORIGIN}${path}`, {
       ...init,
       headers: {
-        "Content-Type": "application/json",
+        // Only declare a JSON body when there is one.
+        //
+        // Fastify rejects a request that says content-type: application/json
+        // and then sends nothing — "Body cannot be empty when content-type is
+        // set to 'application/json'". Regenerating a join code takes no body,
+        // so every attempt failed on the header rather than on anything the
+        // route did. Set per request rather than per call site, because the
+        // next bodyless endpoint would hit exactly the same wall.
+        ...(init.body === undefined ? {} : { "Content-Type": "application/json" }),
         "x-ops-secret": OPS_SECRET,
         "x-ops-founder-email": founderEmail,
         ...(init.headers as Record<string, string> | undefined),
@@ -195,6 +204,7 @@ function mapOrganisation(
     members: (organisation.members ?? []).map((member) =>
       mapMember(organisation.id, member, organisation.updated_at || organisation.created_at)
     ),
+    admin_count: organisation.admin_count ?? 0,
   };
 }
 
