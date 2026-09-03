@@ -30,7 +30,7 @@ export const POST: APIRoute = async ({ request }) => {
       cache: 'no-store',
     });
     const body = (await response.json().catch(() => null)) as
-      | { url?: string; error?: { message?: string } }
+      | { client_secret?: string; publishable_key?: string; error?: { message?: string } }
       | null;
     if (!response.ok) {
       return json({ error: body?.error?.message || 'Could not start Stripe Connect setup.' }, response.status);

@@ -14,14 +14,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <p class="text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">Link expired</p>
       <h1 class="font-display mt-3 text-3xl font-semibold text-ink">Let’s create a fresh link</h1>
       <p class="mt-4 text-sm leading-6 text-ink-secondary">
-        Stripe onboarding links are single-use. Continue here and we’ll create a fresh secure Stripe Connect link.
+        Stripe onboarding links are single-use. Continue here and we’ll reopen the secure embedded setup form.
       </p>
-      <button
+      <a
         class="focus-ring mt-7 inline-flex h-12 items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white"
         data-refresh-connect-button
+        href="/instructor/setup"
       >
-        Create fresh Stripe link
-      </button>
+        Reopen setup
+      </a>
       <p data-refresh-connect-error role="alert" class="mt-4 hidden rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-800"></p>
     </section>
   </div>
@@ -30,7 +31,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <script>
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token') || '';
-  const button = document.querySelector<HTMLButtonElement>('[data-refresh-connect-button]');
+  const button = document.querySelector<HTMLAnchorElement>('[data-refresh-connect-button]');
   const error = document.querySelector<HTMLElement>('[data-refresh-connect-error]');
 
   function showError(message: string) {
@@ -40,29 +41,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   if (!token) {
-    button?.setAttribute('disabled', 'true');
+    button?.classList.add('pointer-events-none', 'opacity-60');
     showError('This refresh link is incomplete. Please ask support@newdryve.com to resend your Stripe Connect setup link.');
+  } else if (button) {
+    button.href = `/instructor/connect?token=${encodeURIComponent(token)}`;
   }
-
-  button?.addEventListener('click', async () => {
-    if (!token) return;
-    button.disabled = true;
-    button.textContent = 'Opening Stripe…';
-    error?.classList.add('hidden');
-    try {
-      const response = await fetch('/api/instructor-connect-onboard', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ token }),
-      });
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.error || 'Could not refresh Stripe Connect setup.');
-      if (!body.url) throw new Error('Stripe did not return a secure setup link.');
-      window.location.assign(body.url);
-    } catch (cause) {
-      showError(cause instanceof Error ? cause.message : 'Could not refresh Stripe Connect setup.');
-      button.disabled = false;
-      button.textContent = 'Try again';
-    }
-  });
 </script>

@@ -20,21 +20,33 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         data-connect-button
         class="focus-ring mt-7 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60"
       >
-        Continue to Stripe Connect
+        Start secure setup
       </button>
       <p data-connect-error role="alert" class="mt-4 hidden rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-800"></p>
+      <div data-connect-loading class="mt-5 hidden rounded-xl bg-cream px-4 py-3 text-sm text-ink-secondary">
+        Loading Stripe&rsquo;s secure setup form…
+      </div>
+      <div data-connect-complete class="mt-5 hidden rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        Thanks — Stripe received your payout details. We&rsquo;ll update your Newdryve payout status after Stripe confirms the account.
+      </div>
+      <div data-connect-container class="mt-7 hidden text-left"></div>
       <p class="mt-5 text-xs leading-5 text-ink-muted">
-        If the link has expired, ask Newdryve support to resend your payout setup link.
+        This secure form is provided by Stripe inside Newdryve. If the link has expired, ask Newdryve support to resend your payout setup link.
       </p>
     </section>
   </div>
 </BaseLayout>
 
 <script>
+  import { loadConnectAndInitialize } from '@stripe/connect-js/pure';
+
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token') || '';
   const button = document.querySelector<HTMLButtonElement>('[data-connect-button]');
   const error = document.querySelector<HTMLElement>('[data-connect-error]');
+  const loading = document.querySelector<HTMLElement>('[data-connect-loading]');
+  const complete = document.querySelector<HTMLElement>('[data-connect-complete]');
+  const container = document.querySelector<HTMLElement>('[data-connect-container]');
 
   function showError(message: string) {
     if (!error) return;
@@ -50,8 +62,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   button?.addEventListener('click', async () => {
     if (!token) return;
     button.disabled = true;
-    button.textContent = 'Opening Stripe…';
+    button.textContent = 'Loading secure form…';
     error?.classList.add('hidden');
+    loading?.classList.remove('hidden');
     try {
       const response = await fetch('/api/instructor-connect-onboard', {
         method: 'POST',
@@ -60,12 +73,33 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || 'Could not start Stripe Connect setup.');
-      if (!body.url) throw new Error('Stripe did not return a secure setup link.');
-      window.location.assign(body.url);
+      if (!body.client_secret || !body.publishable_key) {
+        throw new Error('Stripe did not return an embedded setup session.');
+      }
+
+      const stripeConnect = loadConnectAndInitialize({
+        publishableKey: body.publishable_key,
+        fetchClientSecret: async () => body.client_secret,
+      });
+      const onboarding = stripeConnect.create('account-onboarding');
+      onboarding.setFullTermsOfServiceUrl(`${window.location.origin}/terms`);
+      onboarding.setRecipientTermsOfServiceUrl(`${window.location.origin}/terms`);
+      onboarding.setPrivacyPolicyUrl(`${window.location.origin}/privacy`);
+      onboarding.setOnExit(() => {
+        complete?.classList.remove('hidden');
+      });
+
+      if (!container) throw new Error('Could not load the setup container.');
+      container.replaceChildren();
+      container.appendChild(onboarding);
+      container.classList.remove('hidden');
+      loading?.classList.add('hidden');
+      button.classList.add('hidden');
     } catch (cause) {
       showError(cause instanceof Error ? cause.message : 'Could not start Stripe Connect setup.');
       button.disabled = false;
       button.textContent = 'Try again';
+      loading?.classList.add('hidden');
     }
   });
 </script>
