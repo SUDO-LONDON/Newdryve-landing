@@ -76,6 +76,58 @@ export interface Founder {
   role: string | null;
 }
 
+export type OrganisationStatus = "active" | "paused" | "closed";
+export type OrganisationMemberStatus = "linked" | "invited" | "inactive";
+export type LessonPresence = "available" | "in_lesson" | "offline" | "unknown";
+
+export interface OpsOrganisation {
+  id: string;
+  name: string;
+  legal_name: string | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  status: OrganisationStatus;
+  join_code: string;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface OpsOrganisationMember {
+  id: string;
+  organisation_id: string;
+  instructor_id: string;
+  profile_id: string | null;
+  display_name: string;
+  email: string | null;
+  phone: string | null;
+  status: OrganisationMemberStatus;
+  lesson_presence: LessonPresence;
+  active_lesson_label: string | null;
+  revenue_pence: number;
+  lesson_count: number;
+  last_seen_at: string | null;
+  linked_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface OpsOrganisationWithMembers extends OpsOrganisation {
+  members: OpsOrganisationMember[];
+}
+
+export function organisationTotals(members: OpsOrganisationMember[]) {
+  const visible = members.filter((member) => !member.deleted_at);
+  return {
+    instructors: visible.length,
+    inLesson: visible.filter((member) => member.lesson_presence === "in_lesson").length,
+    revenuePence: visible.reduce((sum, member) => sum + Number(member.revenue_pence || 0), 0),
+    lessonCount: visible.reduce((sum, member) => sum + Number(member.lesson_count || 0), 0),
+  };
+}
+
 // Finance — funding + spend. Amounts are integer pence.
 export interface OpsExpense {
   id: string;

@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
-    path: "/ops",
+    path: "/",
     maxAge: OPS_SESSION_TIMEOUT_MINUTES * 60,
   } as const;
   res.cookies.set(LAST_ACTIVE_COOKIE, String(Date.now()), cookieOptions);
@@ -64,13 +64,14 @@ export async function GET(request: NextRequest) {
   return res;
 }
 
-// Only permit same-origin /ops paths as the post-login destination.
+// Only permit same-origin founder-portal paths as the post-login destination.
 function sanitizeNext(next: string | null): string {
-  if (!next || !next.startsWith("/ops")) return "/ops";
+  if (!next) return "/ops";
+  if (next === "/organisations" || next.startsWith("/organisations/")) return next;
   if (next === "/ops/login" || next === "/ops/denied" || next.startsWith("/ops/auth")) {
     return "/ops";
   }
-  return next;
+  return next.startsWith("/ops") ? next : "/ops";
 }
 
 function opsUrl(path: string): URL {

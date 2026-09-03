@@ -9,6 +9,7 @@ const TOP_LINKS = [
   { href: "/ops", label: "Dashboard" },
   { href: "/ops#finance", label: "Funding & Spend" },
   { href: "/ops/instructors", label: "Instructor approvals" },
+  { href: "/organisations", label: "Organisations" },
   { href: "/ops/pipeline", label: "Delivery pipeline" },
   { href: "/ops/due", label: "Due & Overdue" },
   { href: "/ops/data-room", label: "Data Room" },
