@@ -58,6 +58,8 @@ function routeTarget(req) {
   if (
     path === "/ops" ||
     path.startsWith("/ops/") ||
+    path === "/organisations" ||
+    path.startsWith("/organisations/") ||
     path === "/thedeck" ||
     path.startsWith("/thedeck/") ||
     path.startsWith("/thedeck-assets/") ||

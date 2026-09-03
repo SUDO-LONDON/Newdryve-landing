@@ -30,6 +30,7 @@ export default defineConfig({
             '/terms',
             '/reset-password',
             '/datadeletion',
+            '/organisations',
             '/connect/return',
             '/connect/refresh',
             '/instructor/setup',
