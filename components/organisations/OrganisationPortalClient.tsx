@@ -11,6 +11,53 @@ export default function OrganisationPortalClient({
   const allMembers = organisations.flatMap((organisation) => organisation.members);
   const totals = organisationTotals(allMembers);
 
+  // An admin can be mapped to more than one school, so everything here sums
+  // across them rather than assuming a single organisation.
+  const window = organisations[0]?.activity?.window_days ?? 30;
+  const rollup = organisations.reduce(
+    (acc, org) => {
+      const a = org.activity;
+      if (a) {
+        acc.completed += a.completed;
+        acc.cancelled += a.cancelled;
+        acc.no_show += a.no_show;
+        acc.upcoming += a.upcoming;
+        acc.revenue_pence += a.revenue_pence;
+        acc.finished += a.completed + a.cancelled + a.no_show;
+        a.series.forEach((day, i) => {
+          acc.series[i] = acc.series[i]
+            ? {
+                date: day.date,
+                lessons: acc.series[i].lessons + day.lessons,
+                revenue_pence: acc.series[i].revenue_pence + day.revenue_pence,
+              }
+            : { ...day };
+        });
+      }
+      acc.payouts_total_pence += org.payouts_total_pence ?? 0;
+      return acc;
+    },
+    {
+      completed: 0, cancelled: 0, no_show: 0, upcoming: 0, revenue_pence: 0,
+      finished: 0, payouts_total_pence: 0,
+      series: [] as Array<{ date: string; lessons: number; revenue_pence: number }>,
+      completion_rate: null as number | null,
+    }
+  );
+  rollup.completion_rate = rollup.finished > 0 ? Math.round((rollup.completed / rollup.finished) * 100) : null;
+
+  const peak = rollup.series.reduce((n, day) => Math.max(n, day.lessons), 0);
+  const liveLessons = organisations.flatMap((org) => org.live_lessons ?? []);
+  const upcoming = organisations
+    .flatMap((org) => org.upcoming_today ?? [])
+    .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
+  const payouts = organisations
+    .flatMap((org) => org.payouts ?? [])
+    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+  const notes = organisations
+    .flatMap((org) => org.recent_notes ?? [])
+    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+
   return (
     <main className="min-h-screen bg-canvas text-ink">
       <header className="border-b border-border bg-white/80 px-5 py-4">
@@ -47,12 +94,141 @@ export default function OrganisationPortalClient({
           </p>
         </section>
 
+        {/* Now first, then the last month, then the people.
+            A school opening this wants to know what is happening at this
+            moment before it wants a total — a revenue figure answers a
+            question nobody is asking at nine in the morning. */}
         <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <StatTile label="Organisations" value={String(organisations.length)} />
+          <StatTile label="In a lesson now" value={String(totals.inLesson)} accent={totals.inLesson > 0} />
           <StatTile label="Linked instructors" value={String(totals.instructors)} />
-          <StatTile label="In a lesson" value={String(totals.inLesson)} />
-          <StatTile label="Completed revenue" value={formatPence(totals.revenuePence)} />
+          <StatTile
+            label={`Completed · ${window}d`}
+            value={String(rollup.completed)}
+            sub={rollup.completion_rate == null ? undefined : `${rollup.completion_rate}% of finished lessons`}
+          />
+          <StatTile
+            label={`Lesson revenue · ${window}d`}
+            value={formatPence(rollup.revenue_pence)}
+            sub={rollup.payouts_total_pence ? `${formatPence(rollup.payouts_total_pence)} paid out` : undefined}
+          />
         </section>
+
+        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <StatTile label="Booked ahead" value={String(rollup.upcoming)} />
+          <StatTile label={`Cancelled · ${window}d`} value={String(rollup.cancelled)} />
+          <StatTile label={`No-shows · ${window}d`} value={String(rollup.no_show)} />
+          <StatTile label="Lifetime revenue" value={formatPence(totals.revenuePence)} />
+        </section>
+
+        {/* Thirty days, one bar a day. The shape is the point — one month
+            total hides a bad fortnight followed by a good one. */}
+        {rollup.series.length ? (
+          <section className="rounded-2xl border border-border bg-white p-5">
+            <div className="flex items-baseline justify-between gap-3">
+              <h3 className="font-display text-lg text-ink">Lessons a day</h3>
+              <p className="text-xs text-ink-muted">Last {window} days · busiest {peak} in a day</p>
+            </div>
+            <div className="mt-4 flex h-24 items-end gap-[3px]" role="img" aria-label={`Completed lessons a day over the last ${window} days, busiest ${peak}`}>
+              {rollup.series.map((day) => (
+                <div
+                  key={day.date}
+                  title={`${day.date}: ${day.lessons} lesson${day.lessons === 1 ? "" : "s"}, ${formatPence(day.revenue_pence)}`}
+                  className="flex-1 rounded-t bg-racing-green/80"
+                  // A day with nothing still gets a hairline, or the axis
+                  // vanishes and a quiet week reads as missing data.
+                  style={{ height: `${peak ? Math.max(2, Math.round((day.lessons / peak) * 100)) : 2}%` }}
+                />
+              ))}
+            </div>
+            <div className="mt-2 flex justify-between text-[11px] text-ink-muted">
+              <span>{rollup.series[0]?.date}</span>
+              <span>{rollup.series[rollup.series.length - 1]?.date}</span>
+            </div>
+          </section>
+        ) : null}
+
+        {liveLessons.length ? (
+          <section className="rounded-2xl border border-racing-green/40 bg-white p-5">
+            <h3 className="font-display text-lg text-ink">On the road now</h3>
+            <ul className="mt-3 divide-y divide-border">
+              {liveLessons.map((lesson) => (
+                <li key={lesson.id} className="flex flex-wrap items-baseline justify-between gap-2 py-3">
+                  <div>
+                    <p className="text-sm font-medium text-ink">
+                      {lesson.instructor_name} <span className="text-ink-muted">with</span> {lesson.learner_name}
+                    </p>
+                    {lesson.pickup_address ? (
+                      <p className="text-xs text-ink-muted">{lesson.pickup_address}</p>
+                    ) : null}
+                  </div>
+                  <p className="text-xs text-ink-secondary">
+                    {timeOnly(lesson.starts_at)}–{timeOnly(lesson.ends_at)}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {upcoming.length ? (
+          <section className="rounded-2xl border border-border bg-white p-5">
+            <h3 className="font-display text-lg text-ink">Next 24 hours</h3>
+            <ul className="mt-3 divide-y divide-border">
+              {upcoming.slice(0, 8).map((lesson) => (
+                <li key={lesson.id} className="flex flex-wrap items-baseline justify-between gap-2 py-2.5">
+                  <p className="text-sm text-ink">
+                    {lesson.instructor_name} <span className="text-ink-muted">with</span> {lesson.learner_name}
+                  </p>
+                  <p className="text-xs text-ink-secondary">
+                    {timeOnly(lesson.starts_at)}
+                    {lesson.status === "pending" ? " · awaiting confirmation" : ""}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {payouts.length ? (
+          <section className="rounded-2xl border border-border bg-white p-5">
+            <h3 className="font-display text-lg text-ink">Payouts</h3>
+            <p className="mt-1 text-sm text-ink-secondary">
+              Paid by Stripe straight to each instructor&rsquo;s own account.
+            </p>
+            <ul className="mt-3 divide-y divide-border">
+              {payouts.slice(0, 8).map((payout, index) => (
+                <li key={`${payout.created_at}-${index}`} className="flex items-baseline justify-between gap-3 py-2.5">
+                  <span className="text-sm text-ink">{formatPence(payout.amount_pence)}</span>
+                  <span className="text-xs text-ink-secondary">
+                    {payout.status === "paid" ? "Paid" : payout.status}
+                    {payout.arrival_date ? ` · ${dateOnly(payout.arrival_date)}` : ""}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {notes.length ? (
+          <section className="rounded-2xl border border-border bg-white p-5">
+            <h3 className="font-display text-lg text-ink">Recent lesson notes</h3>
+            <p className="mt-1 text-sm text-ink-secondary">
+              Written by your instructors about their learners.
+            </p>
+            <ul className="mt-3 space-y-3">
+              {notes.slice(0, 8).map((note) => (
+                <li key={note.id} className="rounded-xl border border-border p-3">
+                  <p className="text-xs text-ink-muted">
+                    {note.instructor_name} <span aria-hidden>·</span> {note.learner_name}
+                    <span aria-hidden> · </span>
+                    {dateOnly(note.created_at)}
+                  </p>
+                  <p className="mt-1 text-sm text-ink-secondary">{note.note}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         {organisations.map((organisation) => {
           const summary = organisationTotals(organisation.members);
@@ -127,13 +303,38 @@ export default function OrganisationPortalClient({
   );
 }
 
-function StatTile({ label, value }: { label: string; value: string }) {
+function StatTile({
+  label,
+  value,
+  sub,
+  accent,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  accent?: boolean;
+}) {
   return (
-    <div className="rounded-xl border border-border bg-white p-4">
+    <div className={`rounded-xl border bg-white p-4 ${accent ? "border-racing-green" : "border-border"}`}>
       <p className="text-xs text-ink-muted">{label}</p>
-      <p className="mt-1 font-display text-2xl text-ink">{value}</p>
+      <p className={`mt-1 font-display text-2xl ${accent ? "text-racing-green" : "text-ink"}`}>{value}</p>
+      {sub ? <p className="mt-1 text-[11px] text-ink-muted">{sub}</p> : null}
     </div>
   );
+}
+
+function timeOnly(iso: string): string {
+  const d = new Date(iso);
+  return Number.isFinite(d.getTime())
+    ? d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+    : "";
+}
+
+function dateOnly(iso: string): string {
+  const d = new Date(iso);
+  return Number.isFinite(d.getTime())
+    ? d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+    : "";
 }
 
 function presenceLabel(value: string): string {

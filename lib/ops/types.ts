@@ -114,8 +114,58 @@ export interface OpsOrganisationMember {
   deleted_at: string | null;
 }
 
+export interface OrganisationLiveLesson {
+  id: string;
+  instructor_name: string;
+  learner_name: string;
+  starts_at: string;
+  ends_at: string;
+  pickup_address: string | null;
+}
+
+export interface OrganisationUpcomingLesson {
+  id: string;
+  instructor_name: string;
+  learner_name: string;
+  starts_at: string;
+  status: string;
+}
+
+export interface OrganisationActivity {
+  window_days: number;
+  completed: number;
+  cancelled: number;
+  no_show: number;
+  upcoming: number;
+  revenue_pence: number;
+  /** Null until something has actually reached an outcome. */
+  completion_rate: number | null;
+  series: Array<{ date: string; lessons: number; revenue_pence: number }>;
+}
+
+export interface OrganisationPayout {
+  amount_pence: number;
+  arrival_date: string | null;
+  status: string;
+  created_at: string;
+}
+
+export interface OrganisationNote {
+  id: string;
+  instructor_name: string;
+  learner_name: string;
+  note: string;
+  created_at: string;
+}
+
 export interface OpsOrganisationWithMembers extends OpsOrganisation {
   members: OpsOrganisationMember[];
+  live_lessons?: OrganisationLiveLesson[];
+  upcoming_today?: OrganisationUpcomingLesson[];
+  activity?: OrganisationActivity;
+  payouts?: OrganisationPayout[];
+  payouts_total_pence?: number;
+  recent_notes?: OrganisationNote[];
   /**
    * Active admin logins. Zero means nobody at the school can sign in — the
    * organisation exists and is inert, which is invisible from a list of names

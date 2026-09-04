@@ -5,8 +5,13 @@ import type {
   OpsOrganisation,
   OpsOrganisationMember,
   OpsOrganisationWithMembers,
+  OrganisationActivity,
+  OrganisationLiveLesson,
   OrganisationMemberStatus,
+  OrganisationNote,
+  OrganisationPayout,
   OrganisationStatus,
+  OrganisationUpcomingLesson,
 } from "@/lib/ops/types";
 
 const API_ORIGIN = (process.env.NEWDRYVE_API_ORIGIN || "").replace(/\/$/, "");
@@ -36,6 +41,12 @@ type BackendOrganisation = {
   status: OrganisationStatus;
   join_code_last4: string | null;
   admin_count?: number;
+  live_lessons?: OrganisationLiveLesson[];
+  upcoming_today?: OrganisationUpcomingLesson[];
+  activity?: OrganisationActivity;
+  payouts?: OrganisationPayout[];
+  payouts_total_pence?: number;
+  recent_notes?: OrganisationNote[];
   created_at: string;
   updated_at?: string | null;
   members?: BackendOrganisationMember[];
@@ -205,6 +216,12 @@ function mapOrganisation(
       mapMember(organisation.id, member, organisation.updated_at || organisation.created_at)
     ),
     admin_count: organisation.admin_count ?? 0,
+    live_lessons: organisation.live_lessons ?? [],
+    upcoming_today: organisation.upcoming_today ?? [],
+    activity: organisation.activity,
+    payouts: organisation.payouts ?? [],
+    payouts_total_pence: organisation.payouts_total_pence ?? 0,
+    recent_notes: organisation.recent_notes ?? [],
   };
 }
 
