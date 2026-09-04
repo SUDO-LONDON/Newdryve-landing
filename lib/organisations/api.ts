@@ -1,6 +1,7 @@
 import "server-only";
 
 import { NEWDRYVE_API_ORIGIN, assertOrganisationPortalEnv } from "@/lib/organisations/env";
+import { mapOrganisationResponse } from "@/lib/ops/organisations";
 import type { OpsOrganisationWithMembers } from "@/lib/ops/types";
 
 export class OrganisationPortalApiError extends Error {
@@ -27,7 +28,7 @@ export async function loadOrganisationPortal(
   }
 
   const body = (await response.json().catch(() => null)) as {
-    items?: OpsOrganisationWithMembers[];
+    items?: Parameters<typeof mapOrganisationResponse>[0][];
     error?: string | { message?: string };
   } | null;
 
@@ -39,5 +40,8 @@ export async function loadOrganisationPortal(
     throw new OrganisationPortalApiError(message, response.status);
   }
 
-  return body?.items ?? [];
+  // Map, never cast. The API's field names are not the client's, and the ops
+  // panel has always translated them — the portal skipping that step is what
+  // made every member row blank.
+  return (body?.items ?? []).map(mapOrganisationResponse);
 }

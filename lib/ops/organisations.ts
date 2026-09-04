@@ -195,6 +195,23 @@ async function call<T>(path: string, founderEmail: string, init: RequestInit = {
   return body as T;
 }
 
+/**
+ * The organisation portal reads the same endpoint and needs the same
+ * translation.
+ *
+ * It used to cast the raw API response straight to the client type. The two
+ * shapes do not match — the API sends `name`, `in_lesson` and
+ * `completed_lessons` where the client reads `display_name`,
+ * `lesson_presence` and `lesson_count` — so the members table rendered blank
+ * cells and "in a lesson" was permanently zero. `as` is an assertion, not a
+ * check, so nothing complained.
+ */
+export function mapOrganisationResponse(
+  organisation: BackendOrganisation
+): OpsOrganisationWithMembers {
+  return mapOrganisation(organisation);
+}
+
 function mapOrganisation(
   organisation: BackendOrganisation,
   plainJoinCode?: string
