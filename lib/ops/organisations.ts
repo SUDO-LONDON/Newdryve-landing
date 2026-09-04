@@ -8,7 +8,7 @@ import type {
   OrganisationActivity,
   OrganisationLiveLesson,
   OrganisationMemberStatus,
-  OrganisationNote,
+  OrganisationLearnerProgress,
   OrganisationPayout,
   OrganisationStatus,
   OrganisationUpcomingLesson,
@@ -46,7 +46,7 @@ type BackendOrganisation = {
   activity?: OrganisationActivity;
   payouts?: OrganisationPayout[];
   payouts_total_pence?: number;
-  recent_notes?: OrganisationNote[];
+  learner_progress?: OrganisationLearnerProgress[];
   created_at: string;
   updated_at?: string | null;
   members?: BackendOrganisationMember[];
@@ -221,7 +221,7 @@ function mapOrganisation(
     activity: organisation.activity,
     payouts: organisation.payouts ?? [],
     payouts_total_pence: organisation.payouts_total_pence ?? 0,
-    recent_notes: organisation.recent_notes ?? [],
+    learner_progress: organisation.learner_progress ?? [],
   };
 }
 

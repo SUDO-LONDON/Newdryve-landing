@@ -150,12 +150,14 @@ export interface OrganisationPayout {
   created_at: string;
 }
 
-export interface OrganisationNote {
+export interface OrganisationLearnerProgress {
   id: string;
-  instructor_name: string;
-  learner_name: string;
-  note: string;
-  created_at: string;
+  name: string;
+  readiness_percent: number;
+  skills_competent: number;
+  skills_total: number;
+  lessons_completed: number;
+  last_lesson_at: string | null;
 }
 
 export interface OpsOrganisationWithMembers extends OpsOrganisation {
@@ -165,7 +167,7 @@ export interface OpsOrganisationWithMembers extends OpsOrganisation {
   activity?: OrganisationActivity;
   payouts?: OrganisationPayout[];
   payouts_total_pence?: number;
-  recent_notes?: OrganisationNote[];
+  learner_progress?: OrganisationLearnerProgress[];
   /**
    * Active admin logins. Zero means nobody at the school can sign in — the
    * organisation exists and is inert, which is invisible from a list of names

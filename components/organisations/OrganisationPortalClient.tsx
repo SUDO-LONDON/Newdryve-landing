@@ -54,9 +54,10 @@ export default function OrganisationPortalClient({
   const payouts = organisations
     .flatMap((org) => org.payouts ?? [])
     .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
-  const notes = organisations
-    .flatMap((org) => org.recent_notes ?? [])
-    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+  const learners = organisations
+    .flatMap((org) => org.learner_progress ?? [])
+    .sort((a, b) => b.readiness_percent - a.readiness_percent);
+  const testReady = learners.filter((l) => l.readiness_percent >= 85).length;
 
   return (
     <main className="min-h-screen bg-canvas text-ink">
@@ -209,21 +210,47 @@ export default function OrganisationPortalClient({
           </section>
         ) : null}
 
-        {notes.length ? (
+        {/* Learner progress rather than lesson notes.
+            Notes are free text an instructor wrote about a named person, and a
+            school does not need to read them to run itself. Readiness answers
+            the same question — who is close, who is stuck — without handing
+            over someone's written character assessment. */}
+        {learners.length ? (
           <section className="rounded-2xl border border-border bg-white p-5">
-            <h3 className="font-display text-lg text-ink">Recent lesson notes</h3>
-            <p className="mt-1 text-sm text-ink-secondary">
-              Written by your instructors about their learners.
-            </p>
-            <ul className="mt-3 space-y-3">
-              {notes.slice(0, 8).map((note) => (
-                <li key={note.id} className="rounded-xl border border-border p-3">
-                  <p className="text-xs text-ink-muted">
-                    {note.instructor_name} <span aria-hidden>·</span> {note.learner_name}
-                    <span aria-hidden> · </span>
-                    {dateOnly(note.created_at)}
-                  </p>
-                  <p className="mt-1 text-sm text-ink-secondary">{note.note}</p>
+            <div className="flex flex-wrap items-baseline justify-between gap-3">
+              <h3 className="font-display text-lg text-ink">Learner progress</h3>
+              <p className="text-xs text-ink-muted">
+                {learners.length} learner{learners.length === 1 ? "" : "s"}
+                {testReady ? ` · ${testReady} near test standard` : ""}
+              </p>
+            </div>
+            <ul className="mt-4 space-y-3">
+              {learners.slice(0, 20).map((learner) => (
+                <li key={learner.id}>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="text-sm text-ink">{learner.name}</p>
+                    <p className="text-xs text-ink-muted">
+                      {learner.skills_competent}/{learner.skills_total} skills
+                      <span aria-hidden> · </span>
+                      {learner.lessons_completed} lesson{learner.lessons_completed === 1 ? "" : "s"}
+                      {learner.last_lesson_at ? ` · last ${dateOnly(learner.last_lesson_at)}` : ""}
+                    </p>
+                  </div>
+                  <div
+                    className="mt-1.5 h-2 overflow-hidden rounded-full bg-canvas"
+                    role="img"
+                    aria-label={`${learner.name}, ${learner.readiness_percent}% test ready`}
+                  >
+                    {/* Green only near test standard. A full-looking bar on a
+                        learner at 30% would tell a school the opposite of the
+                        truth at a glance. */}
+                    <div
+                      className={`h-full rounded-full ${
+                        learner.readiness_percent >= 85 ? "bg-racing-green" : "bg-racing-green/45"
+                      }`}
+                      style={{ width: `${Math.max(2, learner.readiness_percent)}%` }}
+                    />
+                  </div>
                 </li>
               ))}
             </ul>
