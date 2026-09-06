@@ -40,6 +40,11 @@ type BackendOrganisation = {
   contact_phone: string | null;
   status: OrganisationStatus;
   join_code_last4: string | null;
+  billing_mode?: "per_instructor" | "per_seat";
+  seats_purchased?: number | null;
+  seat_price_pence?: number | null;
+  billing_notes?: string | null;
+  subscription_status?: string | null;
   admin_count?: number;
   live_lessons?: OrganisationLiveLesson[];
   upcoming_today?: OrganisationUpcomingLesson[];
@@ -117,7 +122,13 @@ export async function createOrganisation(
 
 export async function updateOrganisation(
   id: string,
-  input: Partial<OrganisationCreateInput> & { status?: OrganisationStatus },
+  input: Partial<OrganisationCreateInput> & {
+    status?: OrganisationStatus;
+    billing_mode?: "per_instructor" | "per_seat";
+    seats_purchased?: number | null;
+    seat_price_pence?: number | null;
+    billing_notes?: string | null;
+  },
   actor: string
 ): Promise<OpsOrganisation> {
   const data = await call<OrganisationResponse>(`/v1/ops/organisations/${id}`, actor, {
@@ -227,6 +238,11 @@ function mapOrganisation(
     join_code: plainJoinCode || maskCode(organisation.join_code_last4),
     created_by: null,
     created_at: organisation.created_at,
+    billing_mode: organisation.billing_mode ?? "per_instructor",
+    seats_purchased: organisation.seats_purchased ?? null,
+    seat_price_pence: organisation.seat_price_pence ?? null,
+    billing_notes: organisation.billing_notes ?? null,
+    subscription_status: organisation.subscription_status ?? null,
     updated_at: organisation.updated_at || organisation.created_at,
     deleted_at: null,
     members: (organisation.members ?? []).map((member) =>

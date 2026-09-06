@@ -26,6 +26,64 @@ export default function OrganisationDetailClient({
     display_name: "",
   });
 
+  const [billing, setBilling] = useState({
+    billing_mode: organisation.billing_mode ?? "per_instructor",
+    seats_purchased: organisation.seats_purchased?.toString() ?? "",
+    seat_price_pounds:
+      organisation.seat_price_pence != null ? (organisation.seat_price_pence / 100).toFixed(2) : "",
+    billing_notes: organisation.billing_notes ?? "",
+  });
+
+  const linkedCount = organisation.members.filter((m) => !m.deleted_at).length;
+  const seatsNumber = billing.seats_purchased ? Number.parseInt(billing.seats_purchased, 10) : null;
+  const seatPricePenceLive = billing.seat_price_pounds
+    ? Math.round(Number.parseFloat(billing.seat_price_pounds) * 100)
+    : null;
+  const monthlyTotalPence =
+    seatsNumber != null && seatPricePenceLive != null && Number.isFinite(seatsNumber) && Number.isFinite(seatPricePenceLive)
+      ? seatsNumber * seatPricePenceLive
+      : null;
+
+  async function saveBilling(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy("billing");
+    setError(null);
+    setSuccess(null);
+    const perSeat = billing.billing_mode === "per_seat";
+    // Pounds in the form, pence on the wire. Money is never carried as a
+    // float: 29.99 * 100 is 2998.9999999999995, and a rounding slip here is a
+    // school's invoice.
+    const seatPricePence = perSeat
+      ? Math.round(Number.parseFloat(billing.seat_price_pounds || "0") * 100)
+      : null;
+    const seats = perSeat ? Number.parseInt(billing.seats_purchased || "0", 10) : null;
+    if (perSeat && (!Number.isFinite(seatPricePence) || !Number.isFinite(seats))) {
+      setBusy(null);
+      setError("Enter both a seat count and a price per seat.");
+      return;
+    }
+    try {
+      const response = await fetch(`/ops/api/organisations/${organisation.id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          billing_mode: billing.billing_mode,
+          seats_purchased: seats,
+          seat_price_pence: seatPricePence,
+          billing_notes: billing.billing_notes.trim() || null,
+        }),
+      });
+      const body = (await response.json().catch(() => ({}))) as { error?: string };
+      if (!response.ok) throw new Error(body.error || "Could not save billing terms.");
+      setSuccess("Billing terms saved.");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save billing terms.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function regenerateCode() {
     setBusy("code");
     setError(null);
@@ -175,6 +233,114 @@ export default function OrganisationDetailClient({
             </p>
           ) : null}
         </div>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-white p-5">
+        <h2 className="font-display text-lg text-ink">Billing</h2>
+        <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
+          Per instructor is the default: every linked instructor pays their own
+          subscription. Per seat bills this school once for the seats it agreed to,
+          and its instructors are not charged individually.
+        </p>
+
+        <form onSubmit={saveBilling} className="mt-4 space-y-4">
+          <div className="flex flex-wrap gap-2">
+            {[
+              { value: "per_instructor", label: "Per instructor" },
+              { value: "per_seat", label: "Per seat (school pays)" },
+            ].map((option) => {
+              const on = billing.billing_mode === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setBilling((b) => ({ ...b, billing_mode: option.value as typeof b.billing_mode }))}
+                  aria-pressed={on}
+                  className={`rounded-full border px-4 py-2 text-sm ${
+                    on ? "border-racing-green bg-racing-green text-white" : "border-border text-ink"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {billing.billing_mode === "per_seat" ? (
+            <>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="text-sm font-medium text-ink">
+                  Seats purchased
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    required
+                    value={billing.seats_purchased}
+                    onChange={(e) => setBilling((b) => ({ ...b, seats_purchased: e.target.value }))}
+                    className="mt-1 w-full rounded-xl border border-border px-3 py-2 text-ink"
+                  />
+                  {/* Seats bought, not instructors linked: a school buys headroom
+                      and fills it, and tying the two together would re-price them
+                      every time somebody joined or left. */}
+                  <span className="mt-1 block text-xs text-ink-muted">
+                    What they agreed to pay for. {linkedCount} instructor{linkedCount === 1 ? "" : "s"} linked
+                    {seatsNumber != null && linkedCount > seatsNumber ? " — over the agreed seats" : ""}.
+                  </span>
+                </label>
+
+                <label className="text-sm font-medium text-ink">
+                  Price per seat (£ / month)
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    required
+                    value={billing.seat_price_pounds}
+                    onChange={(e) => setBilling((b) => ({ ...b, seat_price_pounds: e.target.value }))}
+                    className="mt-1 w-full rounded-xl border border-border px-3 py-2 text-ink"
+                  />
+                  <span className="mt-1 block text-xs text-ink-muted">
+                    Agreed with this school. A founding rate stays put when the list price moves.
+                  </span>
+                </label>
+              </div>
+
+              {monthlyTotalPence != null ? (
+                <p className="rounded-xl border border-border bg-canvas px-4 py-3 text-sm text-ink">
+                  <strong className="font-semibold">{formatPence(monthlyTotalPence)}</strong> a month
+                  {seatsNumber ? ` · ${seatsNumber} seats` : ""}
+                  {monthlyTotalPence ? ` · ${formatPence(monthlyTotalPence * 12)} a year` : ""}
+                </p>
+              ) : null}
+            </>
+          ) : null}
+
+          <label className="block text-sm font-medium text-ink">
+            Notes
+            <textarea
+              rows={2}
+              value={billing.billing_notes}
+              onChange={(e) => setBilling((b) => ({ ...b, billing_notes: e.target.value }))}
+              placeholder="What was agreed, and with whom"
+              className="mt-1 w-full rounded-xl border border-border px-3 py-2 text-ink"
+            />
+          </label>
+
+          <button
+            type="submit"
+            disabled={busy === "billing"}
+            className="rounded-full bg-racing-green px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            {busy === "billing" ? "Saving…" : "Save billing terms"}
+          </button>
+
+          {/* Recording terms is not collecting money. Saying so here stops a
+              founder assuming a school is paying because the numbers are set. */}
+          <p className="text-xs text-ink-muted">
+            This records what was agreed. It does not start a subscription or take payment yet.
+          </p>
+        </form>
       </section>
 
       <section className="rounded-2xl border border-border bg-white p-5">

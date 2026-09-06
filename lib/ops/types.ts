@@ -93,6 +93,17 @@ export interface OpsOrganisation {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  /**
+   * per_instructor: every linked instructor pays their own subscription.
+   * per_seat: the school pays once for the seats it agreed to.
+   */
+  billing_mode: "per_instructor" | "per_seat";
+  /** Seats bought, not instructors linked — a school buys headroom. */
+  seats_purchased: number | null;
+  /** Agreed price per seat for THIS school, not the list price. */
+  seat_price_pence: number | null;
+  billing_notes: string | null;
+  subscription_status: string | null;
 }
 
 export interface OpsOrganisationMember {
