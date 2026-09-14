@@ -6,8 +6,8 @@
  * Response: 200 { ok: true } | 400 { error } | 502 { error } | 503 { error }
  */
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
 import { escapeHtml, json, sendEmail } from '../../lib/email';
+import { createAdminClient } from '../../lib/supabase';
 
 // Uses the Supabase service-role key, so this route is never prerendered.
 export const prerender = false;
@@ -33,16 +33,6 @@ const NOTIFY_TO = 'admin@newdryve.com';
 
 function clean(value: unknown, maxLength: number): string {
   return typeof value === 'string' ? value.trim().slice(0, maxLength) : '';
-}
-
-function createAdminClient() {
-  const url = process.env.PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url) throw new Error('Supabase URL is not set');
-  if (!serviceRoleKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set');
-  return createClient(url, serviceRoleKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
 }
 
 function renderAdminEmail(request: DeletionRequest) {

@@ -1,14 +1,17 @@
 /**
  * Waitlist intake. Ported from the Next route handler at app/api/waitlist/route.ts
  * with the request contract, validation rules, response bodies and status codes
- * preserved exactly, so the existing form keeps working unchanged.
+ * preserved exactly, so the existing form keeps working unchanged. Now also
+ * stores each signup in Supabase before notifying, mirroring the
+ * data-deletion route's insert-then-notify pattern so a lead survives even if
+ * the email send fails.
  *
  * Request:  POST { email, role: 'student'|'instructor', postcode?, name?, notes? }
- * Response: 200 { ok: true } | 400 { error } | 502 { error }
+ * Response: 200 { ok: true } | 400 { error } | 502 { error } | 503 { error }
  */
 import type { APIRoute } from 'astro';
-import { Resend } from 'resend';
-import { escapeHtml, json } from '../../lib/email';
+import { escapeHtml, json, sendEmail } from '../../lib/email';
+import { createAdminClient } from '../../lib/supabase';
 
 // Holds server-only secrets, so this route is never prerendered.
 export const prerender = false;
@@ -147,56 +150,91 @@ export const POST: APIRoute = async ({ request }) => {
     submittedAt: new Date().toISOString(),
   };
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    // No provider configured (e.g. local dev). Log the signup so it is not lost
-    // and return success so the form UX stays consistent.
-    console.log('[waitlist:no-RESEND_API_KEY]', signup);
+  let signupId: string;
+  try {
+    const supabase = createAdminClient();
+    const insert = {
+      email: signup.email,
+      name: signup.name,
+      postcode: signup.postcode,
+      notes: signup.notes,
+    } as never;
+    const { data, error } = await supabase
+      .from('waitlist_signups')
+      .insert(insert)
+      .select('id')
+      .single();
+
+    if (error || !data) throw error || new Error('Supabase did not return a signup id');
+    signupId = String((data as unknown as { id: string }).id);
+  } catch (error) {
+    console.error('[waitlist:supabase-insert-failed]', signup, error);
+    return json(
+      { error: "We couldn't record your details just now. Please try again in a moment." },
+      503
+    );
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    // No provider configured (e.g. local dev). The signup is already saved in
+    // Supabase, so just log and return success rather than failing the form.
+    console.log('[waitlist:no-RESEND_API_KEY]', signupId, signup);
     return json({ ok: true });
   }
 
-  const resend = new Resend(apiKey);
   const admin = adminEmail(signup);
   const applicant = applicantEmail(signup);
 
-  const adminSend = resend.emails.send({
-    from: FROM,
-    to: NOTIFY_TO,
-    replyTo: signup.email,
-    subject: admin.subject,
-    html: admin.html,
-    text: admin.text,
-  });
+  const [adminResult, applicantResult] = await Promise.all([
+    sendEmail({
+      to: NOTIFY_TO,
+      from: FROM,
+      replyTo: signup.email,
+      subject: admin.subject,
+      html: admin.html,
+      text: admin.text,
+      headers: { 'X-Entity-Ref-ID': signupId },
+    }),
+    sendEmail({
+      to: signup.email,
+      from: FROM,
+      replyTo: REPLY_TO,
+      subject: applicant.subject,
+      html: applicant.html,
+      text: applicant.text,
+    }),
+  ]);
 
-  const applicantSend = resend.emails.send({
-    from: FROM,
-    to: signup.email,
-    replyTo: REPLY_TO,
-    subject: applicant.subject,
-    html: applicant.html,
-    text: applicant.text,
-  });
+  try {
+    const supabase = createAdminClient();
+    const notificationUpdate = {
+      notification_sent_at: adminResult.ok ? new Date().toISOString() : null,
+      notification_error: adminResult.ok ? null : (adminResult.error || 'Unknown email error').slice(0, 500),
+    } as never;
+    const { error: updateError } = await supabase
+      .from('waitlist_signups')
+      .update(notificationUpdate)
+      .eq('id', signupId);
+    if (updateError) {
+      console.error('[waitlist:supabase-notification-update-failed]', signupId, updateError);
+    }
+  } catch (error) {
+    console.error('[waitlist:supabase-notification-update-failed]', signupId, error);
+  }
 
-  const [adminResult, applicantResult] = await Promise.allSettled([adminSend, applicantSend]);
-
-  if (
-    adminResult.status === 'rejected' ||
-    (adminResult.value && 'error' in adminResult.value && adminResult.value.error)
-  ) {
-    // The admin notification is the critical one: without it the lead is lost.
-    console.error('[waitlist:admin-send-failed]', signup, adminResult);
+  if (!adminResult.ok) {
+    // The admin notification is the critical one, but the lead is already
+    // safely stored in Supabase either way.
+    console.error('[waitlist:admin-send-failed]', signupId, adminResult.error);
     return json(
       { error: "We couldn't record your details just now. Please try again in a moment." },
       502
     );
   }
 
-  if (
-    applicantResult.status === 'rejected' ||
-    (applicantResult.value && 'error' in applicantResult.value && applicantResult.value.error)
-  ) {
+  if (!applicantResult.ok) {
     // Confirmation failed but the lead landed. Log and still return success.
-    console.warn('[waitlist:applicant-send-failed]', signup.email, applicantResult);
+    console.warn('[waitlist:applicant-send-failed]', signup.email, applicantResult.error);
   }
 
   return json({ ok: true });
