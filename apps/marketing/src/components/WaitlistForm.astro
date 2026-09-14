@@ -7,8 +7,9 @@
  * longer carries a learner/instructor toggle. `role` is still sent, fixed to
  * 'student', because the API contract and the notification emails expect it.
  *
- * The city field is bound to the same `testCentresByCity` list the instructor
- * application form uses, so both sides agree on what a valid city is.
+ * The city field is a required choice of Norwich or London, checked against
+ * the same `testCentresByCity` list the instructor application form binds
+ * its city <select> to, so both sides agree those are real cities.
  *
  * No framework runtime: one small inline script handles submit, and the form
  * carries a real `action`/`method` so it degrades to a normal POST if JS fails.
@@ -26,7 +27,7 @@ const label = submitLabel || 'Join the Norwich waitlist';
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-base text-ink placeholder:text-ink-muted sm:text-sm';
 const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondary';
-const cities = Object.keys(testCentresByCity).sort((a, b) => a.localeCompare(b, 'en-GB'));
+const cities = ['Norwich', 'London'].filter((city) => city in testCentresByCity);
 ---
 
 <div data-waitlist-root>
@@ -73,10 +74,9 @@ const cities = Object.keys(testCentresByCity).sort((a, b) => a.localeCompare(b, 
 
     <div class="flex flex-col gap-1.5">
       <label class={labelClass} for={`${id}-city`}>
-        City
-        <span class="font-medium normal-case tracking-normal text-ink-muted">(optional)</span>
+        City <span aria-hidden="true" class="text-deep-rose-ink">*</span>
       </label>
-      <select id={`${id}-city`} name="city" class={inputClass}>
+      <select id={`${id}-city`} name="city" required class={inputClass}>
         <option value="">Select a city</option>
         {cities.map((city) => <option value={city}>{city}</option>)}
       </select>

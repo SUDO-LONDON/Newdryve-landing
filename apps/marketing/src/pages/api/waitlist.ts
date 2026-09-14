@@ -6,7 +6,7 @@
  * data-deletion route's insert-then-notify pattern so a lead survives even if
  * the email send fails.
  *
- * Request:  POST { email, role: 'student'|'instructor', postcode?, name?, notes? }
+ * Request:  POST { email, role: 'student'|'instructor', city, name?, notes? }
  * Response: 200 { ok: true } | 400 { error } | 502 { error } | 503 { error }
  */
 import type { APIRoute } from 'astro';
@@ -17,9 +17,12 @@ import { testCentresByCity } from '../../data/driving-test-centres';
 // Holds server-only secrets, so this route is never prerendered.
 export const prerender = false;
 
-// Same city binding the instructor application form uses for its city
-// <select>, so a submitted city is checked against the identical set.
-const VALID_CITIES = new Set(Object.keys(testCentresByCity));
+// Only these two cities are offered on the form. Both are checked against the
+// same `testCentresByCity` binding the instructor application form uses for
+// its city <select>, so a submitted city is a real, known one.
+const VALID_CITIES = new Set(
+  ['Norwich', 'London'].filter((city) => city in testCentresByCity)
+);
 
 type Payload = {
   email?: unknown;
@@ -128,8 +131,8 @@ export const POST: APIRoute = async ({ request }) => {
   if (!EMAIL_RE.test(email) || email.length > 254) {
     return json({ error: 'Please enter a valid email address.' }, 400);
   }
-  if (city && !VALID_CITIES.has(city)) {
-    return json({ error: 'Please choose a valid city.' }, 400);
+  if (!VALID_CITIES.has(city)) {
+    return json({ error: 'Please choose a city.' }, 400);
   }
 
   // Learners only. Instructors no longer join a waitlist — they apply for a
