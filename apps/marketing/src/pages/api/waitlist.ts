@@ -12,14 +12,19 @@
 import type { APIRoute } from 'astro';
 import { escapeHtml, json, sendEmail } from '../../lib/email';
 import { createAdminClient } from '../../lib/supabase';
+import { testCentresByCity } from '../../data/driving-test-centres';
 
 // Holds server-only secrets, so this route is never prerendered.
 export const prerender = false;
 
+// Same city binding the instructor application form uses for its city
+// <select>, so a submitted city is checked against the identical set.
+const VALID_CITIES = new Set(Object.keys(testCentresByCity));
+
 type Payload = {
   email?: unknown;
   role?: unknown;
-  postcode?: unknown;
+  city?: unknown;
   name?: unknown;
   notes?: unknown;
 };
@@ -27,7 +32,7 @@ type Payload = {
 type Signup = {
   email: string;
   role: 'student' | 'instructor';
-  postcode: string;
+  city: string;
   name: string;
   notes: string;
   submittedAt: string;
@@ -43,7 +48,7 @@ function adminEmail(s: Signup) {
     ['Role', roleLabel],
     ['Email', s.email],
     s.name && ['Name', s.name],
-    s.postcode && [s.role === 'instructor' ? 'Where they teach' : 'Postcode / area', s.postcode],
+    s.city && ['City', s.city],
     s.notes && [s.role === 'instructor' ? 'ADI / experience' : 'Notes', s.notes],
     ['Submitted', s.submittedAt],
   ].filter(Boolean) as [string, string][];
@@ -116,12 +121,15 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const email = typeof body.email === 'string' ? body.email.trim() : '';
-  const postcode = typeof body.postcode === 'string' ? body.postcode.trim().slice(0, 16) : '';
+  const city = typeof body.city === 'string' ? body.city.trim() : '';
   const name = typeof body.name === 'string' ? body.name.trim().slice(0, 80) : '';
   const notes = typeof body.notes === 'string' ? body.notes.trim().slice(0, 500) : '';
 
   if (!EMAIL_RE.test(email) || email.length > 254) {
     return json({ error: 'Please enter a valid email address.' }, 400);
+  }
+  if (city && !VALID_CITIES.has(city)) {
+    return json({ error: 'Please choose a valid city.' }, 400);
   }
 
   // Learners only. Instructors no longer join a waitlist — they apply for a
@@ -144,7 +152,7 @@ export const POST: APIRoute = async ({ request }) => {
   const signup: Signup = {
     email,
     role,
-    postcode,
+    city,
     name,
     notes,
     submittedAt: new Date().toISOString(),
@@ -156,7 +164,7 @@ export const POST: APIRoute = async ({ request }) => {
     const insert = {
       email: signup.email,
       name: signup.name,
-      postcode: signup.postcode,
+      city: signup.city,
       notes: signup.notes,
     } as never;
     const { data, error } = await supabase

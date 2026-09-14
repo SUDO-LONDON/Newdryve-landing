@@ -1,15 +1,20 @@
 ---
 /**
- * Learner waitlist form. POSTs /api/waitlist with { email, role, postcode, name, notes }.
+ * Learner waitlist form. POSTs /api/waitlist with { email, role, city, name, notes }.
  *
  * Learners only. Instructors do not join a waitlist — they apply for a real
  * account at /instructors/apply and are approved by a founder, so this form no
  * longer carries a learner/instructor toggle. `role` is still sent, fixed to
  * 'student', because the API contract and the notification emails expect it.
  *
+ * The city field is bound to the same `testCentresByCity` list the instructor
+ * application form uses, so both sides agree on what a valid city is.
+ *
  * No framework runtime: one small inline script handles submit, and the form
  * carries a real `action`/`method` so it degrades to a normal POST if JS fails.
  */
+import { testCentresByCity } from '../data/driving-test-centres';
+
 interface Props {
   id: string;
   submitLabel?: string;
@@ -21,6 +26,7 @@ const label = submitLabel || 'Join the Norwich waitlist';
 const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-base text-ink placeholder:text-ink-muted sm:text-sm';
 const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondary';
+const cities = Object.keys(testCentresByCity).sort((a, b) => a.localeCompare(b, 'en-GB'));
 ---
 
 <div data-waitlist-root>
@@ -66,18 +72,14 @@ const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondar
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <label class={labelClass} for={`${id}-postcode`}>
-        Postcode or area
+      <label class={labelClass} for={`${id}-city`}>
+        City
         <span class="font-medium normal-case tracking-normal text-ink-muted">(optional)</span>
       </label>
-      <input
-        id={`${id}-postcode`}
-        name="postcode"
-        type="text"
-        autocomplete="postal-code"
-        placeholder="e.g. NR1 or Thorpe St Andrew"
-        class={inputClass}
-      />
+      <select id={`${id}-city`} name="city" class={inputClass}>
+        <option value="">Select a city</option>
+        {cities.map((city) => <option value={city}>{city}</option>)}
+      </select>
     </div>
 
     <div class="flex flex-col gap-1.5">
@@ -160,7 +162,7 @@ const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondar
       const payload = {
         email: String(data.get('email') || ''),
         role: 'student',
-        postcode: String(data.get('postcode') || ''),
+        city: String(data.get('city') || ''),
         name: String(data.get('name') || ''),
         notes: String(data.get('notes') || ''),
       };
