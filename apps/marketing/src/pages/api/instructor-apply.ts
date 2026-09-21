@@ -10,10 +10,15 @@
  * a short-lived signed upload URL and the browser PUTs it directly to private
  * Supabase Storage.
  *
+ * The API rate-limits this endpoint per caller IP (5/hour). Because the call is
+ * made server-to-server, every applicant would otherwise share this service's
+ * single egress IP and one global bucket of five applications an hour, so the
+ * applicant's own address is forwarded and the limit is keyed on them instead.
+ *
  * Request:  POST { full_name, email, password, ...application fields, documents[] }
  * Response: 201 { status, instructor_id, uploads[], message }
  *           | 409 { error } when the email already has an account
- *           | 422 { error, issues } | 502 { error }
+ *           | 422 { error, issues } | 429 { error } | 502 { error }
  */
 import type { APIRoute } from 'astro';
 import { json } from '../../lib/email';
@@ -107,7 +112,38 @@ const validateApplication = (payload: unknown): string | null => {
   return null;
 };
 
-export const POST: APIRoute = async ({ request }) => {
+/**
+ * The applicant's address, for the API's per-IP rate limit. `clientAddress` is
+ * the node adapter's `x-forwarded-for` value (Railway's edge sets it), falling
+ * back to the socket peer, and throws rather than returning null on an adapter
+ * that cannot supply one — hence the guard.
+ */
+const applicantIp = (context: { clientAddress: string }): string | null => {
+  try {
+    // Read lazily: `clientAddress` is a getter, so destructuring it up front
+    // would throw before the handler could fall back to the shared limit.
+    const address = context.clientAddress;
+    return address ? address.trim() : null;
+  } catch {
+    return null;
+  }
+};
+
+/** "Retry after 3531s." is the API's wording; applicants need plain minutes. */
+const rateLimitMessage = (upstream: Response): string => {
+  const seconds = Number(upstream.headers.get('retry-after'));
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return 'Too many applications have been submitted from your connection. Please try again later.';
+  }
+  const minutes = Math.ceil(seconds / 60);
+  return minutes < 60
+    ? `Too many applications have been submitted from your connection. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.`
+    : 'Too many applications have been submitted from your connection. Please try again in an hour.';
+};
+
+export const POST: APIRoute = async (context) => {
+  const { request } = context;
+
   if (!BACKEND_ORIGIN) {
     console.error('[instructor-apply] BACKEND_ORIGIN is not set');
     return json(
@@ -131,11 +167,20 @@ export const POST: APIRoute = async ({ request }) => {
   const validationError = validateApplication(payload);
   if (validationError) return json({ error: validationError }, 422);
 
+  // Without this the API sees this service's egress address on every call and
+  // rate-limits all applicants together, five an hour between them.
+  const ip = applicantIp(context);
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (ip) {
+    headers['x-forwarded-for'] = ip;
+    headers['x-real-ip'] = ip;
+  }
+
   let upstream: Response;
   try {
     upstream = await fetch(`${BACKEND_ORIGIN}/v1/instructors/apply`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(payload),
     });
   } catch (err) {
@@ -147,15 +192,27 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const body = (await upstream.json().catch(() => null)) as
-    | { error?: { message?: string }; [key: string]: unknown }
+    | { error?: { code?: string; message?: string; details?: unknown }; [key: string]: unknown }
     | null;
 
   if (!upstream.ok) {
     // The API's error envelope is { error: { code, message, details } }. Flatten
     // it to the { error: string } shape the rest of this site's forms use.
     const message =
-      body?.error?.message || "We couldn't submit your application. Please check your details.";
-    console.warn('[instructor-apply] upstream rejected', upstream.status, message);
+      upstream.status === 429
+        ? rateLimitMessage(upstream)
+        : body?.error?.message ||
+          "We couldn't submit your application. Please check your details.";
+    // The message alone cannot tell a rejected field from a failure inside the
+    // API's handler, so log the code and details too — they are the only record
+    // this side keeps of why an application was turned away. The applicant's
+    // own answers are deliberately not logged.
+    console.warn('[instructor-apply] upstream rejected', {
+      status: upstream.status,
+      code: body?.error?.code ?? null,
+      message,
+      details: body?.error?.details ?? null,
+    });
     return json({ error: message }, upstream.status);
   }
 
