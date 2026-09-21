@@ -37,6 +37,15 @@ function shutdown(code = 0) {
   setTimeout(() => process.exit(code), 250).unref();
 }
 
+// Instructor onboarding lives in Next, not Astro. These pages are noindex and
+// reached only from a private email link, so they gain nothing from the static
+// marketing build and need React state, polling and a session.
+//
+// `/instructor` (singular) is onboarding in its entirety, so the whole prefix
+// routes to Next. `/instructors` (plural) is a marketing page that stays on
+// Astro, so its onboarding children are listed here one at a time.
+const INSTRUCTOR_NEXT_PATHS = new Set(["/instructors/activate"]);
+
 function routeTarget(req) {
   const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
   const path = url.pathname;
@@ -63,6 +72,12 @@ function routeTarget(req) {
     path === "/thedeck" ||
     path.startsWith("/thedeck/") ||
     path.startsWith("/thedeck-assets/") ||
+    path === "/instructor" ||
+    path.startsWith("/instructor/") ||
+    path === "/connect" ||
+    path.startsWith("/connect/") ||
+    path.startsWith("/api/instructor/") ||
+    INSTRUCTOR_NEXT_PATHS.has(path.replace(/\/$/, "")) ||
     path.startsWith("/_next/")
   ) {
     return { port: NEXT_PORT };

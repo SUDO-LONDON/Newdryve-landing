@@ -26,15 +26,15 @@ export default defineConfig({
 
         return (
           !pathname.startsWith('/ops') &&
+          // Instructor onboarding (/instructor/*, /connect/*,
+          // /instructors/activate) moved to the Next app and is served by the
+          // router in scripts/railway-start-landing.cjs, so Astro no longer
+          // builds those pages and cannot emit them here.
           ![
             '/terms',
             '/reset-password',
             '/datadeletion',
             '/organisations',
-            '/connect/return',
-            '/connect/refresh',
-            '/instructor/setup',
-            '/instructors/activate',
           ].includes(pathname)
         );
       },

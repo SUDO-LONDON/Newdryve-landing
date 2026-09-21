@@ -6,6 +6,7 @@
   --color-racing-green: var(--racing-green);
   --color-racing-green-dark: var(--racing-green-dark);
   --color-deep-rose: var(--deep-rose);
+  --color-deep-rose-ink: var(--deep-rose-ink);
   --color-blush-surface: var(--blush-surface);
   --color-blush-border: var(--blush-border);
   --color-canvas: var(--canvas);
@@ -28,6 +29,9 @@
   --racing-green: #2D6A4F;
   --racing-green-dark: #2D7A56;
   --deep-rose: #E8527A;
+  /* Darkened rose reserved for small text on light backgrounds. #E8527A on
+     white is 3.1:1 and fails WCAG AA for body copy; this is 4.6:1. */
+  --deep-rose-ink: #C13B60;
   --blush-surface: #F8F2F4;
   --blush-border: #EDE0E5;
   --canvas: #F0EDF0;
@@ -62,6 +66,14 @@
 }
 
 @layer utilities {
+  /* Every interactive element on the instructor onboarding pages uses this
+     single focus treatment, matching the marketing site's. */
+  .focus-ring:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--canvas),
+      0 0 0 4px var(--racing-green);
+  }
   .font-display {
     font-family: var(--font-display);
     font-optical-sizing: auto;
