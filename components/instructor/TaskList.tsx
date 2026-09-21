@@ -78,25 +78,24 @@ export function TaskRow({
         </div>
         <p className="mt-1.5 text-sm leading-6 text-ink-secondary">{task.detail}</p>
 
+        {/* Every action is completable here. Nothing in this list sends the
+            instructor to the app — that was the gap that stopped onboarding
+            being finishable on the web at all. */}
         {actionable ? (
-          task.action === "open_app" ? (
-            <p className="mt-3 text-sm font-semibold text-ink">
-              Finish this in the Newdryve app.
-            </p>
-          ) : (
-            <button
-              type="button"
-              onClick={() => onAction(task)}
-              disabled={busy}
-              className="focus-ring mt-3 inline-flex h-10 items-center justify-center rounded-full bg-racing-green px-5 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60"
-            >
-              {busy
-                ? "Opening…"
-                : task.action === "membership_checkout"
-                  ? "Set up membership"
+          <button
+            type="button"
+            onClick={() => onAction(task)}
+            disabled={busy}
+            className="focus-ring mt-3 inline-flex h-10 items-center justify-center rounded-full bg-racing-green px-5 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60"
+          >
+            {busy
+              ? "Working…"
+              : task.action === "membership_checkout"
+                ? "Set up membership"
+                : task.action === "coverage"
+                  ? "Set service area"
                   : "Continue Stripe setup"}
-            </button>
-          )
+          </button>
         ) : null}
       </div>
     </li>

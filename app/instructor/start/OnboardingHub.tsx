@@ -19,6 +19,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { OnboardingState, OnboardingTask } from "@/lib/instructor/backend";
 import { Shell, Wordmark } from "@/components/instructor/Shell";
 import { Progress, TaskRow } from "@/components/instructor/TaskList";
+import { CoverageStep } from "@/components/instructor/CoverageStep";
 
 /** Long enough not to hammer the API, short enough to catch a Stripe webhook. */
 const POLL_MS = 15_000;
@@ -37,6 +38,7 @@ export default function OnboardingHub({
   const [actionError, setActionError] = useState<string | null>(null);
   const [busyTask, setBusyTask] = useState<string | null>(null);
   const [connectOpen, setConnectOpen] = useState(false);
+  const [coverageOpen, setCoverageOpen] = useState(false);
   const connectContainer = useRef<HTMLDivElement | null>(null);
 
   /**
@@ -155,10 +157,44 @@ export default function OnboardingHub({
     }
   }, [token, load]);
 
+  const saveCoverage = useCallback(
+    async (mode: "miles" | "minutes", value: number) => {
+      if (!state) return;
+      setBusyTask("coverage");
+      setActionError(null);
+      try {
+        const response = await fetch("/api/instructor/coverage", {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            token,
+            // Echoed from their application rather than chosen here: which
+            // centres they teach for is not what this step is asking.
+            centre_slugs: state.coverage.centres.map((c) => c.slug),
+            coverage_mode: mode,
+            coverage_value: value,
+          }),
+        });
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error || "Could not save your service area.");
+        setCoverageOpen(false);
+        await load();
+      } catch (cause) {
+        setActionError(
+          cause instanceof Error ? cause.message : "Could not save your service area."
+        );
+      } finally {
+        setBusyTask(null);
+      }
+    },
+    [token, state, load]
+  );
+
   const onAction = useCallback(
     (task: OnboardingTask) => {
       if (task.action === "membership_checkout") void startMembership();
       if (task.action === "connect_onboarding") void startPayouts();
+      if (task.action === "coverage") setCoverageOpen(true);
     },
     [startMembership, startPayouts]
   );
@@ -236,6 +272,16 @@ export default function OnboardingHub({
           ))}
         </ul>
       </section>
+
+      {coverageOpen ? (
+        <CoverageStep
+          coverage={state.coverage}
+          busy={busyTask === "coverage"}
+          error={actionError}
+          onSave={saveCoverage}
+          onCancel={() => setCoverageOpen(false)}
+        />
+      ) : null}
 
       {connectOpen ? (
         <section className="mt-6 rounded-2xl border border-border bg-white p-6 shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] sm:p-8">

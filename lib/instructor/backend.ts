@@ -114,7 +114,16 @@ export interface OnboardingTask {
   state: "done" | "todo" | "in_review" | "locked" | "blocked";
   title: string;
   detail: string;
-  action: "membership_checkout" | "connect_onboarding" | "open_app" | null;
+  action: "membership_checkout" | "connect_onboarding" | "coverage" | null;
+}
+
+/** The centres from their application; the step only asks how far they travel. */
+export interface CoverageState {
+  mode: string | null;
+  value: number | null;
+  centres: Array<{ slug: string; name: string; city: string }>;
+  suggested_mode: "miles" | "minutes";
+  suggested_value: number;
 }
 
 export interface OnboardingState {
@@ -123,6 +132,7 @@ export interface OnboardingState {
   complete: boolean;
   listed: boolean;
   tasks: OnboardingTask[];
+  coverage: CoverageState;
   membership: {
     monthly_amount_pence: number | null;
     trial_months: number;
@@ -190,4 +200,48 @@ export async function fetchOnboarding(request: Request, token: string): Promise<
   const result = await loadOnboarding(token, forwardedIp(request));
   if ("error" in result) return json({ error: result.error }, result.status);
   return json(result.state);
+}
+
+/**
+ * Save the instructor's first service area.
+ *
+ * First-time only on the API side: once geometry exists it refuses, and later
+ * changes belong to the signed-in editor in the app.
+ */
+export async function postCoverage(request: Request, body: unknown): Promise<Response> {
+  const origin = backendOrigin();
+  if (!origin) {
+    console.error("[instructor] BACKEND_ORIGIN is not set; coverage save unavailable");
+    return json({ error: "Saving your service area is temporarily unavailable." }, 503);
+  }
+
+  const ip = forwardedIp(request);
+  try {
+    const upstream = await fetch(`${origin}/v1/instructors/onboarding/coverage`, {
+      method: "PUT",
+      headers: {
+        "content-type": "application/json",
+        ...(ip ? { "x-forwarded-for": ip, "x-real-ip": ip } : {}),
+      },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+    const payload = (await upstream.json().catch(() => null)) as
+      | { error?: { code?: string; message?: string } }
+      | null;
+    if (!upstream.ok) {
+      console.warn("[instructor] upstream rejected the coverage save", {
+        status: upstream.status,
+        code: payload?.error?.code ?? null,
+      });
+      return json(
+        { error: payload?.error?.message || "Could not save your service area." },
+        upstream.status
+      );
+    }
+    return json(payload);
+  } catch (cause) {
+    console.error("[instructor] could not reach the coverage endpoint", cause);
+    return json({ error: "Could not save your service area. Please try again." }, 502);
+  }
 }
