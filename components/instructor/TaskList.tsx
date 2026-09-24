@@ -94,6 +94,8 @@ export function TaskRow({
                 ? "Set up membership"
                 : task.action === "coverage"
                   ? "Set service area"
+                  : task.action === "review_listing"
+                    ? "Review listing"
                   : "Continue Stripe setup"}
           </button>
         ) : null}

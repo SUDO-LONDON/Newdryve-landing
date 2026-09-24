@@ -110,11 +110,28 @@ export async function postToken(
 
 /** One task from GET /v1/instructors/onboarding. */
 export interface OnboardingTask {
-  id: "application" | "verification" | "membership" | "payouts" | "coverage" | "listing";
+  id: "application" | "verification" | "membership" | "payouts" | "coverage" | "review" | "listing";
   state: "done" | "todo" | "in_review" | "locked" | "blocked";
   title: string;
   detail: string;
-  action: "membership_checkout" | "connect_onboarding" | "coverage" | null;
+  action: "membership_checkout" | "connect_onboarding" | "coverage" | "review_listing" | null;
+}
+
+/** Public listing fields to confirm before learners can discover the instructor. */
+export interface ListingReview {
+  display_name: string | null;
+  bio: string | null;
+  price_per_hour_pence: number | null;
+  transmissions: string[];
+  languages: string[];
+  specialisms: string[];
+  service_city: string | null;
+  car_make: string | null;
+  car_model: string | null;
+  car_color: string | null;
+  centres: Array<{ name: string; city: string }>;
+  coverage_mode: string | null;
+  coverage_value: number | null;
 }
 
 /** The centres from their application; the step only asks how far they travel. */
@@ -133,6 +150,7 @@ export interface OnboardingState {
   listed: boolean;
   tasks: OnboardingTask[];
   coverage: CoverageState;
+  review: ListingReview;
   membership: {
     monthly_amount_pence: number | null;
     trial_months: number;

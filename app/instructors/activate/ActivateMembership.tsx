@@ -11,13 +11,12 @@
 
 import { useCallback, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ErrorNote, PrimaryButton, PrimaryLink, Shell } from "@/components/instructor/Shell";
+import { ErrorNote, PrimaryButton, Shell } from "@/components/instructor/Shell";
 
 export default function ActivateMembership() {
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
   const token = searchParams.get("token") ?? "";
-  const connectToken = searchParams.get("connect_token") ?? "";
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,16 +47,12 @@ export default function ActivateMembership() {
 
   if (state === "success") {
     return (
-      <Shell eyebrow="Setup complete" title="You're ready to go." align="left">
+      <Shell eyebrow="Membership setup submitted" title="Check your inbox for the next step." align="left">
         <p className="mt-4 leading-7 text-ink-secondary">
-          Stripe has confirmed your membership setup. We&rsquo;ve emailed you confirmation and
-          unlocked your instructor account.
+          Stripe is confirming your membership. As soon as it does, we&rsquo;ll email you a link to finish
+          setup on Newdryve: connect payouts, set your service area and review your listing.
         </p>
-        <PrimaryLink
-          href={connectToken ? `/instructor/connect?token=${encodeURIComponent(connectToken)}` : "/instructor/setup"}
-        >
-          Set up Stripe Connect
-        </PrimaryLink>
+        <p className="mt-3 text-sm leading-6 text-ink-muted">If it doesn&rsquo;t arrive, check spam or email <a href="mailto:support@newdryve.com" className="font-semibold underline">support@newdryve.com</a>.</p>
       </Shell>
     );
   }
@@ -66,8 +61,10 @@ export default function ActivateMembership() {
     return (
       <Shell eyebrow="Setup not completed" eyebrowTone="rose" title="No payment was taken." align="left">
         <p className="mt-4 leading-7 text-ink-secondary">
-          Reopen the approval email whenever you&rsquo;re ready and use the membership button again.
+          You can try again now or reopen your approval email later.
         </p>
+        {token ? <PrimaryButton onClick={activate} disabled={busy}>{busy ? "Opening Stripe…" : "Try again"}</PrimaryButton> : null}
+        <ErrorNote>{error}</ErrorNote>
       </Shell>
     );
   }

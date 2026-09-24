@@ -20,6 +20,7 @@ import type { OnboardingState, OnboardingTask } from "@/lib/instructor/backend";
 import { Shell, Wordmark } from "@/components/instructor/Shell";
 import { Progress, TaskRow } from "@/components/instructor/TaskList";
 import { CoverageStep } from "@/components/instructor/CoverageStep";
+import { ReviewStep } from "@/components/instructor/ReviewStep";
 
 /** Long enough not to hammer the API, short enough to catch a Stripe webhook. */
 const POLL_MS = 15_000;
@@ -39,7 +40,15 @@ export default function OnboardingHub({
   const [busyTask, setBusyTask] = useState<string | null>(null);
   const [connectOpen, setConnectOpen] = useState(false);
   const [coverageOpen, setCoverageOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [connectElement, setConnectElement] = useState<HTMLElement | null>(null);
   const connectContainer = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (connectOpen && connectElement && connectContainer.current) {
+      connectContainer.current.replaceChildren(connectElement);
+    }
+  }, [connectOpen, connectElement]);
 
   /**
    * `signal` lets an in-flight read be abandoned when the component unmounts
@@ -137,17 +146,12 @@ export default function OnboardingHub({
       // so this re-reads the list rather than claiming either.
       onboarding.setOnExit(() => {
         setConnectOpen(false);
+        setConnectElement(null);
         void load();
       });
 
+      setConnectElement(onboarding);
       setConnectOpen(true);
-      // The container only exists once connectOpen has rendered it.
-      queueMicrotask(() => {
-        const node = connectContainer.current;
-        if (!node) return;
-        node.replaceChildren();
-        node.appendChild(onboarding);
-      });
     } catch (cause) {
       setActionError(
         cause instanceof Error ? cause.message : "Could not start Stripe Connect setup."
@@ -190,11 +194,37 @@ export default function OnboardingHub({
     [token, state, load]
   );
 
+  const confirmListing = useCallback(async () => {
+    setBusyTask("review");
+    setActionError(null);
+    try {
+      const response = await fetch("/api/instructor/confirm-listing", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const body = await response.json();
+      if (!response.ok || body.listed !== true) {
+        throw new Error(body.error || "Could not confirm your listing. Please try again.");
+      }
+      setReviewOpen(false);
+      await load();
+    } catch (cause) {
+      setActionError(cause instanceof Error ? cause.message : "Could not confirm your listing.");
+    } finally {
+      setBusyTask(null);
+    }
+  }, [token, load]);
+
   const onAction = useCallback(
     (task: OnboardingTask) => {
       if (task.action === "membership_checkout") void startMembership();
       if (task.action === "connect_onboarding") void startPayouts();
       if (task.action === "coverage") setCoverageOpen(true);
+      if (task.action === "review_listing") {
+        setActionError(null);
+        setReviewOpen(true);
+      }
     },
     [startMembership, startPayouts]
   );
@@ -244,7 +274,7 @@ export default function OnboardingHub({
         <p className="mt-4 leading-7 text-ink-secondary">
           {state.complete
             ? "Everything is done and learners can find you. Manage your lessons from the Newdryve app."
-            : "Work through these in any order. We'll keep this page up to date as each step completes — you can leave it open."}
+            : "Complete each available step here. We'll update this page as Stripe confirms your membership and payout details."}
         </p>
         <Progress tasks={state.tasks} />
       </header>
@@ -280,6 +310,15 @@ export default function OnboardingHub({
           error={actionError}
           onSave={saveCoverage}
           onCancel={() => setCoverageOpen(false)}
+        />
+      ) : null}
+
+      {reviewOpen && state.tasks.some((task) => task.id === "review" && task.action === "review_listing") ? (
+        <ReviewStep
+          review={state.review}
+          busy={busyTask === "review"}
+          onConfirm={() => void confirmListing()}
+          onClose={() => setReviewOpen(false)}
         />
       ) : null}
 

@@ -56,7 +56,7 @@ function ApplicationCard({
     Boolean(application.dvsa_verification_consent_at)
   );
   const [rechecking, setRechecking] = useState(false);
-  const [listNow, setListNow] = useState(false);
+  const [listNow, setListNow] = useState(true);
 
   const name = application.profiles?.display_name || "Unnamed applicant";
   const email = application.profiles?.email || "—";
@@ -199,7 +199,7 @@ function ApplicationCard({
               />
             ) : null}
             <Toggle label="I confirmed their current DVSA registration" checked={adiVerified} onChange={setAdiVerified} />
-            <Toggle label="List after membership and payouts are ready" checked={listNow} onChange={setListNow} />
+            <Toggle label="Approve listing once the instructor finishes setup and confirms their details" checked={listNow} onChange={setListNow} />
           </div>
 
           {rejecting ? (
@@ -361,6 +361,7 @@ function ApplicationCard({
                     <Field label="Monthly price" value={freeForever ? "Free forever" : `${formatPrice(Math.round(Number(monthlyAmount) * 100))}/month`} />
                     <Field label="Trial" value={freeForever ? "Not applicable" : trialMonths ? `${trialMonths} month${trialMonths === 1 ? "" : "s"}` : "None"} />
                     <Field label="Trial source" value={!freeForever && trialSource ? trialSource.replaceAll("_", " ") : "—"} />
+                    <Field label="Listing" value={listNow ? "Eligible after instructor review" : "Held for later approval"} />
                     <Field
                       label="Estimated first charge"
                       value={freeForever
