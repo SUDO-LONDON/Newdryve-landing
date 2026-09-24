@@ -1,24 +1,31 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { Shell } from "@/components/instructor/Shell";
-import ConnectOnboarding from "./ConnectOnboarding";
 
 export const metadata: Metadata = {
-  title: "Set up Stripe Connect",
-  description: "Connect your payout account so Newdryve can send lesson payments to you.",
+  title: "Your Newdryve setup",
+  description: "Continue instructor payout and listing setup on Newdryve.",
   robots: { index: false, follow: false },
 };
 
-export default function InstructorConnectPage() {
+/** Older payout emails used this route; keep their token working in the hub. */
+export default async function InstructorConnectPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ token?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const raw = params.token;
+  const token = (Array.isArray(raw) ? raw[0] : raw)?.trim() ?? "";
+
+  if (token) redirect(`/instructor/start?token=${encodeURIComponent(token)}`);
+
   return (
-    <Suspense
-      fallback={
-        <Shell eyebrow="Instructor payouts" title="Set up Stripe Connect">
-          <p className="mt-4 text-sm leading-6 text-ink-secondary">Loading…</p>
-        </Shell>
-      }
-    >
-      <ConnectOnboarding />
-    </Suspense>
+    <Shell eyebrow="Instructor setup" title="Use your private setup link">
+      <p className="mt-4 leading-7 text-ink-secondary">
+        Open the link from your Newdryve email to connect payouts and finish your listing. If it
+        has expired, email <a className="font-semibold underline" href="mailto:support@newdryve.com">support@newdryve.com</a>.
+      </p>
+    </Shell>
   );
 }
