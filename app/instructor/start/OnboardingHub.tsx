@@ -265,16 +265,31 @@ export default function OnboardingHub({
   );
 
   if (loadError && !state) {
+    const linkUnusable = /invalid|expired/i.test(loadError);
     return (
-      <Shell title="We couldn't load your setup" align="left">
+      <Shell title={linkUnusable ? "This setup link no longer works" : "We couldn't load your setup"} align="left">
         <p className="mt-4 leading-7 text-ink-secondary">{loadError}</p>
-        <button
-          type="button"
-          onClick={() => void load()}
-          className="focus-ring mt-6 inline-flex h-11 items-center justify-center rounded-full bg-racing-green px-5 text-sm font-bold text-white"
-        >
-          Try again
-        </button>
+        {linkUnusable ? (
+          <>
+            <p className="mt-3 leading-7 text-ink-secondary">
+              Email us and we&apos;ll send you a fresh setup link.
+            </p>
+            <a
+              href="mailto:support@newdryve.com?subject=Instructor%20setup%20link"
+              className="focus-ring mt-6 inline-flex h-11 items-center justify-center rounded-full bg-racing-green px-5 text-sm font-bold text-white"
+            >
+              Request a fresh link
+            </a>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={() => void load()}
+            className="focus-ring mt-6 inline-flex h-11 items-center justify-center rounded-full bg-racing-green px-5 text-sm font-bold text-white"
+          >
+            Try again
+          </button>
+        )}
       </Shell>
     );
   }
