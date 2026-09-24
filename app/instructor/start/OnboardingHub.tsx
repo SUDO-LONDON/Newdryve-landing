@@ -43,6 +43,7 @@ export default function OnboardingHub({
   const [reviewError, setReviewError] = useState<string | null>(null);
   const [connectElement, setConnectElement] = useState<HTMLElement | null>(null);
   const connectContainer = useRef<HTMLDivElement | null>(null);
+  const connectSection = useRef<HTMLElement | null>(null);
   const reviewContainer = useRef<HTMLDivElement | null>(null);
   const reviewPending = useRef(false);
   const latestLoad = useRef(0);
@@ -52,6 +53,18 @@ export default function OnboardingHub({
       connectContainer.current.replaceChildren(connectElement);
     }
   }, [connectOpen, connectElement]);
+
+  useEffect(() => {
+    if (!connectOpen) return;
+    const frame = requestAnimationFrame(() => {
+      connectSection.current?.focus({ preventScroll: true });
+      connectSection.current?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        block: "start",
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [connectOpen]);
 
   /**
    * Polling, tab visibility and completed actions can start overlapping reads.
@@ -338,22 +351,8 @@ export default function OnboardingHub({
         />
       ) : null}
 
-      {membershipDone && state.review ? (
-        <div ref={reviewContainer}>
-          <ReviewStep
-            review={state.review}
-            busy={busyTask === "review"}
-            ready={reviewReady}
-            listed={state.listed}
-            error={reviewError}
-            onConfirm={() => void confirmListing()}
-            onRefresh={() => void load()}
-          />
-        </div>
-      ) : null}
-
       {connectOpen ? (
-        <section className="mt-6 rounded-2xl border border-border bg-white p-6 shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] sm:p-8">
+        <section ref={connectSection} tabIndex={-1} aria-label="Stripe payout setup" className="mt-6 rounded-2xl border border-border bg-white p-6 shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] sm:p-8">
           <h2 className="font-display text-2xl text-ink">Connect your bank account</h2>
           <p className="mt-2 text-sm leading-6 text-ink-secondary">
             This secure form is provided by Stripe inside Newdryve. Newdryve never sees your full
@@ -368,6 +367,20 @@ export default function OnboardingHub({
             Close setup and check status
           </button>
         </section>
+      ) : null}
+
+      {membershipDone && state.review ? (
+        <div ref={reviewContainer}>
+          <ReviewStep
+            review={state.review}
+            busy={busyTask === "review"}
+            ready={reviewReady}
+            listed={state.listed}
+            error={reviewError}
+            onConfirm={() => void confirmListing()}
+            onRefresh={() => void load()}
+          />
+        </div>
       ) : null}
 
       <p className="mt-8 text-xs leading-5 text-ink-muted">
