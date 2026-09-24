@@ -45,6 +45,7 @@ export default function OnboardingHub({
   const connectContainer = useRef<HTMLDivElement | null>(null);
   const reviewContainer = useRef<HTMLDivElement | null>(null);
   const reviewPending = useRef(false);
+  const latestLoad = useRef(0);
 
   useEffect(() => {
     if (connectOpen && connectElement && connectContainer.current) {
@@ -53,26 +54,27 @@ export default function OnboardingHub({
   }, [connectOpen, connectElement]);
 
   /**
-   * `signal` lets an in-flight read be abandoned when the component unmounts
-   * or a newer read starts. Without it a slow response can land after a fresh
-   * one and walk the list backwards — which on this page means telling someone
-   * a step they just finished is still outstanding.
+   * Polling, tab visibility and completed actions can start overlapping reads.
+   * Only the newest response may update the page, so a slower pre-confirmation
+   * read cannot replace a freshly confirmed live listing.
    */
   const load = useCallback(
     async (signal?: AbortSignal) => {
       if (!token) return;
+      const requestId = ++latestLoad.current;
       try {
         const response = await fetch(
           `/api/instructor/onboarding?token=${encodeURIComponent(token)}`,
           { cache: "no-store", signal }
         );
         const body = await response.json();
-        if (signal?.aborted) return;
+        if (signal?.aborted || requestId !== latestLoad.current) return;
         if (!response.ok) throw new Error(body.error || "Could not load your setup steps.");
         setState(body as OnboardingState);
         setLoadError(null);
       } catch (cause) {
-        if (signal?.aborted || (cause instanceof DOMException && cause.name === "AbortError")) {
+        if (signal?.aborted || requestId !== latestLoad.current ||
+            (cause instanceof DOMException && cause.name === "AbortError")) {
           return;
         }
         setLoadError(cause instanceof Error ? cause.message : "Could not load your setup steps.");
