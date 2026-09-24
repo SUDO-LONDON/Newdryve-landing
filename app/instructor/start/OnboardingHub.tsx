@@ -40,9 +40,11 @@ export default function OnboardingHub({
   const [busyTask, setBusyTask] = useState<string | null>(null);
   const [connectOpen, setConnectOpen] = useState(false);
   const [coverageOpen, setCoverageOpen] = useState(false);
-  const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
   const [connectElement, setConnectElement] = useState<HTMLElement | null>(null);
   const connectContainer = useRef<HTMLDivElement | null>(null);
+  const reviewContainer = useRef<HTMLDivElement | null>(null);
+  const reviewPending = useRef(false);
 
   useEffect(() => {
     if (connectOpen && connectElement && connectContainer.current) {
@@ -122,21 +124,38 @@ export default function OnboardingHub({
     setBusyTask("payouts");
     setActionError(null);
     try {
-      const response = await fetch("/api/instructor/connect-onboard", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.error || "Could not start Stripe Connect setup.");
-      if (!body.client_secret || !body.publishable_key) {
-        throw new Error("Stripe did not return an embedded setup session.");
-      }
+      const newSession = async (): Promise<{ client_secret: string; publishable_key: string }> => {
+        const response = await fetch("/api/instructor/connect-onboard", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error || "Could not start Stripe Connect setup.");
+        if (!body.client_secret || !body.publishable_key) {
+          throw new Error("Stripe did not return an embedded setup session.");
+        }
+        return body;
+      };
+      const initialSession = await newSession();
+      let firstSecret: string | null = initialSession.client_secret;
 
       const { loadConnectAndInitialize } = await import("@stripe/connect-js/pure");
       const stripeConnect = loadConnectAndInitialize({
-        publishableKey: body.publishable_key,
-        fetchClientSecret: async () => body.client_secret as string,
+        publishableKey: initialSession.publishable_key,
+        fetchClientSecret: async () => {
+          if (firstSecret) {
+            const secret = firstSecret;
+            firstSecret = null;
+            return secret;
+          }
+          try {
+            return (await newSession()).client_secret;
+          } catch (cause) {
+            setActionError(cause instanceof Error ? cause.message : "Could not refresh Stripe Connect setup.");
+            throw cause;
+          }
+        },
       });
       const onboarding = stripeConnect.create("account-onboarding");
       onboarding.setFullTermsOfServiceUrl(`${window.location.origin}/terms`);
@@ -195,8 +214,10 @@ export default function OnboardingHub({
   );
 
   const confirmListing = useCallback(async () => {
+    if (reviewPending.current) return;
+    reviewPending.current = true;
     setBusyTask("review");
-    setActionError(null);
+    setReviewError(null);
     try {
       const response = await fetch("/api/instructor/confirm-listing", {
         method: "POST",
@@ -207,11 +228,11 @@ export default function OnboardingHub({
       if (!response.ok || body.listed !== true) {
         throw new Error(body.error || "Could not confirm your listing. Please try again.");
       }
-      setReviewOpen(false);
       await load();
     } catch (cause) {
-      setActionError(cause instanceof Error ? cause.message : "Could not confirm your listing.");
+      setReviewError(cause instanceof Error ? cause.message : "Could not confirm your listing.");
     } finally {
+      reviewPending.current = false;
       setBusyTask(null);
     }
   }, [token, load]);
@@ -222,8 +243,7 @@ export default function OnboardingHub({
       if (task.action === "connect_onboarding") void startPayouts();
       if (task.action === "coverage") setCoverageOpen(true);
       if (task.action === "review_listing") {
-        setActionError(null);
-        setReviewOpen(true);
+        reviewContainer.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     },
     [startMembership, startPayouts]
@@ -253,6 +273,9 @@ export default function OnboardingHub({
   }
 
   const firstName = state.display_name?.trim().split(/\s+/)[0] ?? null;
+  const membershipDone = state.tasks.some((task) => task.id === "membership" && task.state === "done");
+  const reviewTask = state.tasks.find((task) => task.id === "review");
+  const reviewReady = reviewTask?.state === "todo" && reviewTask.action === "review_listing";
 
   return (
     <main className="mx-auto w-full max-w-2xl px-5 py-12 sm:py-16">
@@ -313,13 +336,18 @@ export default function OnboardingHub({
         />
       ) : null}
 
-      {reviewOpen && state.tasks.some((task) => task.id === "review" && task.action === "review_listing") ? (
-        <ReviewStep
-          review={state.review}
-          busy={busyTask === "review"}
-          onConfirm={() => void confirmListing()}
-          onClose={() => setReviewOpen(false)}
-        />
+      {membershipDone && state.review ? (
+        <div ref={reviewContainer}>
+          <ReviewStep
+            review={state.review}
+            busy={busyTask === "review"}
+            ready={reviewReady}
+            listed={state.listed}
+            error={reviewError}
+            onConfirm={() => void confirmListing()}
+            onRefresh={() => void load()}
+          />
+        </div>
       ) : null}
 
       {connectOpen ? (
@@ -330,6 +358,13 @@ export default function OnboardingHub({
             bank details.
           </p>
           <div ref={connectContainer} className="mt-6" />
+          <button
+            type="button"
+            onClick={() => { setConnectOpen(false); setConnectElement(null); void load(); }}
+            className="focus-ring mt-5 min-h-11 text-sm font-semibold text-racing-green underline"
+          >
+            Close setup and check status
+          </button>
         </section>
       ) : null}
 
