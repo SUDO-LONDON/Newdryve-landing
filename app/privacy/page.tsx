@@ -33,7 +33,7 @@ export default function PrivacyPage() {
         <h1 className="font-display mt-6 text-[clamp(32px,5vw,48px)] font-semibold tracking-[-1px] leading-[1.05]">
           Privacy Policy
         </h1>
-        <p className="mt-4 text-sm text-ink-secondary">Last updated 31 July 2026</p>
+        <p className="mt-4 text-sm text-ink-secondary">Last updated 29 September 2026</p>
 
         <p className="mt-6 rounded-2xl border border-blush-border bg-blush-surface px-5 py-4 text-sm leading-relaxed text-ink-secondary">
           <strong className="text-ink">Data controller:</strong> NEWDRYVE LTD, trading as Newdryve, company number 17234490. Registered office: 10 Greylag Close, Norwich, NR7 8FQ, England. For privacy questions or requests, email{' '}
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
               <li>Stripe, for card payments, payment methods, instructor subscriptions and connected-account payouts.</li>
               <li>Expo, for push-notification delivery.</li>
               <li>Twilio, for communications where SMS is enabled.</li>
-              <li>Mistral AI, when you request receipt extraction or an AI-generated summary.</li>
+              <li>OpenAI, when you request receipt extraction or an AI-generated summary.</li>
               <li>Resend, for website waitlist and service emails.</li>
             </ul>
             <p>We may also share information where required by law, to enforce our rights, respond to a valid legal request, protect people from harm, or obtain professional advice.</p>
