@@ -100,6 +100,11 @@
       animation: none;
     }
   }
+  /* Backdrop fade for the app-handoff modal. */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
   /* Gentle float for the hero phone mockup. */
   .float-slow {
     animation: float-slow 6s ease-in-out infinite;
