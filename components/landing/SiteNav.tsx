@@ -63,8 +63,10 @@ const NAV_LINKS = [
   { href: '#faq', label: 'FAQ' },
 ];
 
+// Shared CTA styling without a display utility — each button sets its own
+// (inline-flex / hidden) so the breakpoint toggle isn't overridden.
 const ctaClasses =
-  'inline-flex items-center gap-1.5 bg-deep-rose text-white rounded-full px-3.5 sm:px-5 py-2.5 text-sm font-bold tracking-tight touch-manipulation motion-safe:transition-all motion-safe:hover:-translate-y-0.5 hover:bg-[#d8406b] shadow-[0_8px_20px_-8px_rgba(232,82,122,0.6)]';
+  'items-center gap-1.5 bg-deep-rose text-white rounded-full px-3.5 sm:px-5 py-2.5 text-sm font-bold tracking-tight touch-manipulation motion-safe:transition-all motion-safe:hover:-translate-y-0.5 hover:bg-[#d8406b] shadow-[0_8px_20px_-8px_rgba(232,82,122,0.6)]';
 
 function CtaArrow() {
   return (
@@ -128,9 +130,9 @@ export function SiteNav() {
           href="https://app.newdryve.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className={`sm:hidden ${ctaClasses} ${focusRing}`}
+          className={`inline-flex sm:hidden ${ctaClasses} ${focusRing}`}
         >
-          Join
+          Join the app
           <CtaArrow />
         </a>
 
