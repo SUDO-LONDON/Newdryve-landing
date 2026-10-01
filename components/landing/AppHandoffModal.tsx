@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { Logo } from './SiteNav';
 
 const APP_URL = 'https://app.newdryve.com/';
 
@@ -96,9 +97,7 @@ export function AppHandoffModal({ open, onClose }: AppHandoffModalProps) {
           </svg>
         </button>
 
-        <span className="inline-flex items-center gap-2 rounded-full bg-blush-surface border border-blush-border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose">
-          Newdryve app
-        </span>
+        <Logo size={20} />
 
         <h2
           id="app-handoff-title"

@@ -40,7 +40,7 @@ function LogoMark({ size = 26 }: { size?: number }) {
   );
 }
 
-function Logo({ size = 22 }: { size?: number }) {
+export function Logo({ size = 22 }: { size?: number }) {
   return (
     <span className="inline-flex items-center gap-2" translate="no">
       <LogoMark size={size + 6} />
