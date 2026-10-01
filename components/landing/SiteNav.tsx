@@ -105,11 +105,13 @@ export function SiteNav() {
         </div>
 
         <a
-          href="#signup"
+          href="https://app.newdryve.com/"
+          target="_blank"
+          rel="noopener noreferrer"
           className={`inline-flex items-center gap-1.5 bg-deep-rose text-white rounded-full px-3.5 sm:px-5 py-2.5 text-sm font-bold tracking-tight touch-manipulation motion-safe:transition-all motion-safe:hover:-translate-y-0.5 hover:bg-[#d8406b] shadow-[0_8px_20px_-8px_rgba(232,82,122,0.6)] ${focusRing}`}
         >
-          <span className="sm:hidden">Apply</span>
-          <span className="hidden sm:inline">Apply for early access</span>
+          <span className="sm:hidden">Join</span>
+          <span className="hidden sm:inline">Join the app</span>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
             <path
               d="M3 9L9 3M9 3H4.5M9 3V7.5"
