@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { AppHandoffModal } from './AppHandoffModal';
 
 const focusRing =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-racing-green focus-visible:ring-offset-2 focus-visible:ring-offset-canvas';
@@ -39,7 +40,7 @@ function LogoMark({ size = 26 }: { size?: number }) {
   );
 }
 
-function Logo({ size = 22 }: { size?: number }) {
+export function Logo({ size = 22 }: { size?: number }) {
   return (
     <span className="inline-flex items-center gap-2" translate="no">
       <LogoMark size={size + 6} />
@@ -62,8 +63,26 @@ const NAV_LINKS = [
   { href: '#faq', label: 'FAQ' },
 ];
 
+const ctaClasses =
+  'inline-flex items-center gap-1.5 bg-deep-rose text-white rounded-full px-3.5 sm:px-5 py-2.5 text-sm font-bold tracking-tight touch-manipulation motion-safe:transition-all motion-safe:hover:-translate-y-0.5 hover:bg-[#d8406b] shadow-[0_8px_20px_-8px_rgba(232,82,122,0.6)]';
+
+function CtaArrow() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+      <path
+        d="M3 9L9 3M9 3H4.5M9 3V7.5"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
+  const [handoffOpen, setHandoffOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -104,23 +123,29 @@ export function SiteNav() {
           ))}
         </div>
 
+        {/* Mobile: open the app directly — it's built for the phone. */}
         <a
-          href="#signup"
-          className={`inline-flex items-center gap-1.5 bg-deep-rose text-white rounded-full px-3.5 sm:px-5 py-2.5 text-sm font-bold tracking-tight touch-manipulation motion-safe:transition-all motion-safe:hover:-translate-y-0.5 hover:bg-[#d8406b] shadow-[0_8px_20px_-8px_rgba(232,82,122,0.6)] ${focusRing}`}
+          href="https://app.newdryve.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`sm:hidden ${ctaClasses} ${focusRing}`}
         >
-          <span className="sm:hidden">Apply</span>
-          <span className="hidden sm:inline">Apply for early access</span>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path
-              d="M3 9L9 3M9 3H4.5M9 3V7.5"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          Join
+          <CtaArrow />
         </a>
+
+        {/* Desktop: hand off to the phone rather than show the narrow app. */}
+        <button
+          type="button"
+          onClick={() => setHandoffOpen(true)}
+          className={`hidden sm:inline-flex ${ctaClasses} ${focusRing}`}
+        >
+          Join the app
+          <CtaArrow />
+        </button>
       </nav>
+
+      <AppHandoffModal open={handoffOpen} onClose={() => setHandoffOpen(false)} />
     </header>
   );
 }

@@ -790,9 +790,26 @@ export default function LandingPage() {
         {/* ───────────────────── FOOTER ───────────────────── */}
         <footer className="bg-white border-t border-[#E8E8F2]">
           <div className="max-w-6xl mx-auto px-5 py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-            <Link href="/" aria-label="Newdryve home" className={`rounded-md p-1 -m-1 self-start ${focusRing}`}>
-              <Logo size={20} />
-            </Link>
+            <div className="flex flex-col gap-4 self-start">
+              <Link href="/" aria-label="Newdryve home" className={`rounded-md p-1 -m-1 self-start ${focusRing}`}>
+                <Logo size={20} />
+              </Link>
+              <div className="flex flex-col gap-1">
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.newdryve.app&hl=en_GB"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Get Newdryve on Google Play"
+                  className={`self-start rounded-lg motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 ${focusRing}`}
+                >
+                  {/* Official Google Play badge; the transparent border is Google's
+                      mandated clear space, so it is used unmodified. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/google-play-badge.png" alt="Get it on Google Play" width={155} height={60} className="h-[60px] w-auto" />
+                </a>
+                <p className="text-xs text-ink-muted">iOS app coming very soon.</p>
+              </div>
+            </div>
             <nav aria-label="Footer" className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-semibold">
               <a href="#how-it-works" className={`text-ink-secondary hover:text-ink motion-safe:transition-colors rounded-md ${focusRing}`}>
                 How it works
