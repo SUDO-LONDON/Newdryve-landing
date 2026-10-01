@@ -132,6 +132,22 @@ export function AppHandoffModal({ open, onClose }: AppHandoffModalProps) {
             />
           </svg>
         </a>
+
+        <div className="mt-6 border-t border-[#E8E8F2] pt-5">
+          <a
+            href="https://play.google.com/store/apps/details?id=com.newdryve.app&hl=en_GB"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Get Newdryve on Google Play"
+            className={`inline-flex rounded-lg motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 ${focusRing}`}
+          >
+            {/* Official Google Play badge; the transparent border is Google's
+                mandated clear space, so it is used unmodified. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/google-play-badge.png" alt="Get it on Google Play" width={168} height={65} className="h-[65px] w-auto" />
+          </a>
+          <p className="mt-1 text-xs text-ink-muted">iOS app coming very soon.</p>
+        </div>
       </div>
     </div>,
     document.body,
