@@ -790,9 +790,32 @@ export default function LandingPage() {
         {/* ───────────────────── FOOTER ───────────────────── */}
         <footer className="bg-white border-t border-[#E8E8F2]">
           <div className="max-w-6xl mx-auto px-5 py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-            <Link href="/" aria-label="Newdryve home" className={`rounded-md p-1 -m-1 self-start ${focusRing}`}>
-              <Logo size={20} />
-            </Link>
+            <div className="flex flex-col gap-4 self-start">
+              <Link href="/" aria-label="Newdryve home" className={`rounded-md p-1 -m-1 self-start ${focusRing}`}>
+                <Logo size={20} />
+              </Link>
+              <div className="flex flex-col gap-2">
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.newdryve.app&hl=en_GB"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Get Newdryve on Google Play"
+                  className={`inline-flex items-center gap-2.5 self-start rounded-xl bg-ink text-white px-4 py-2.5 motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 ${focusRing}`}
+                >
+                  <svg width="18" height="20" viewBox="0 0 512 512" aria-hidden="true" className="flex-shrink-0">
+                    <path fill="#00D2FF" d="M47 24C40 28 36 35 36 46v420c0 11 4 18 11 22l245-232z" />
+                    <path fill="#00F076" d="M47 24c4-2 10-2 17 2l300 175-72 69z" />
+                    <path fill="#FFD200" d="M364 201l76 44c17 10 17 32 0 42l-76 44-72-65z" />
+                    <path fill="#F43249" d="M64 486c-7 4-13 4-17 2l245-232 72 69z" />
+                  </svg>
+                  <span className="flex flex-col leading-none text-left">
+                    <span className="text-[9px] font-semibold uppercase tracking-[1px] text-white/70">Get it on</span>
+                    <span className="text-sm font-bold">Google Play</span>
+                  </span>
+                </a>
+                <p className="text-xs text-ink-muted">iOS app coming very soon.</p>
+              </div>
+            </div>
             <nav aria-label="Footer" className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-semibold">
               <a href="#how-it-works" className={`text-ink-secondary hover:text-ink motion-safe:transition-colors rounded-md ${focusRing}`}>
                 How it works
