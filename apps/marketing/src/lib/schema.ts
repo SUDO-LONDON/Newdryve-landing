@@ -66,7 +66,7 @@ export const instructorAppSchema = {
   url: `${SITE_URL}/instructors`,
   publisher: { '@id': `${SITE_URL}#organization` },
   description:
-    'Newdryve brings driving instructors new learners and applies a 50% cancellation fee when a learner cancels within 24 hours. Newdryve takes 0% commission.',
+    'Newdryve brings driving instructors new learners and applies a 50% cancellation fee when a learner cancels within 24 hours, and the full lesson price within 30 minutes. Newdryve takes 0% commission.',
   offers: {
     '@type': 'Offer',
     price: '29.00',
