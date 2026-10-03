@@ -21,7 +21,7 @@ const FAQ_ITEMS: readonly FaqItem[] = [
   },
   {
     q: 'How does the late cancellation charge actually work?',
-    a: 'Every learner must keep a valid card saved to their account before they can book. Nothing is charged when they book. If the learner cancels within 24 hours of the lesson, a 50% cancellation fee is automatically charged through Stripe and sent to you. Newdryve takes no commission; Stripe’s standard processing fee applies.',
+    a: 'Every learner must keep a valid card saved to their account before they can book. Nothing is charged when they book. If the learner cancels within 24 hours of the lesson, a 50% cancellation fee is automatically charged through Stripe and sent to you, rising to the full lesson price within 30 minutes of the start. Newdryve takes no commission; Stripe’s standard processing fee applies.',
   },
   {
     q: 'Do I keep my own pricing?',
@@ -57,7 +57,7 @@ const SOLUTION = [
   {
     step: '03',
     title: 'Late cancellations are handled automatically',
-    body: 'If the learner cancels within 24 hours, a 50% cancellation fee is charged through Stripe and sent to you. Newdryve takes no commission from it.',
+    body: 'If the learner cancels within 24 hours, a 50% cancellation fee is charged through Stripe and sent to you, or the full price within 30 minutes. Newdryve takes no commission from it.',
     accent: 'pink' as const,
   },
 ];
@@ -102,7 +102,7 @@ const jsonLd = [
         <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-secondary text-pretty">
           Newdryve puts your profile in front of learners looking for an instructor right now, and
           requires a valid card before they can book. If they cancel within 24 hours, your 50%
-          cancellation fee is handled automatically. It is a
+          cancellation fee (or the full price inside 30 minutes) is handled automatically. It is a
           marketplace that brings you work, not another diary to fill in.
         </p>
 
@@ -300,7 +300,7 @@ const jsonLd = [
               [
                 'Puts you in front of learners actively searching in your area',
                 'Brings you pupils you did not already have',
-                'Applies a 50% fee when a learner cancels within 24 hours',
+                'Applies a 50% fee within 24 hours, and the full price within 30 minutes',
                 'Takes 0% commission from lesson payments',
               ].map((item) => (
                 <li class="flex items-start gap-2.5">
@@ -351,7 +351,7 @@ const jsonLd = [
               'Set your price, teaching areas, availability and travel time',
               'Every learner booking is secured by a saved card',
               'Learners can reserve several lessons at once',
-              '50% fee when a learner cancels within 24 hours',
+              '50% fee within 24 hours, full price within 30 minutes',
               PRICING.cancelAnytime,
             ].map((item) => (
               <li class="flex items-start gap-2.5">

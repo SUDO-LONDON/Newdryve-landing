@@ -118,7 +118,7 @@ const sections = [
     body: [
       'Students can usually cancel or request to reschedule a lesson through the app.',
       'If the student cancels more than 24 hours before the scheduled lesson start time, no cancellation fee is charged.',
-      'If the student cancels within 24 hours of the scheduled lesson start time, Newdryve will initiate a charge to the student\'s saved card equal to 50% of the lesson price. The payment is processed through Stripe for the instructor, less any applicable Stripe processing fee. Newdryve takes no commission from it.',
+      'If the student cancels less than 24 hours but at least 30 minutes before the scheduled lesson start time, Newdryve will initiate a charge to the student\'s saved card equal to 50% of the lesson price. If the student cancels less than 30 minutes before the scheduled start time, the charge is equal to the full lesson price. The payment is processed through Stripe for the instructor, less any applicable Stripe processing fee. Newdryve takes no commission from it.',
       'Instructors may cancel or reschedule where needed because of illness, vehicle problems, safety, weather, legal restrictions, emergencies or other reasonable causes. A student will not be charged a cancellation fee where the instructor cancels the lesson.',
       "An instructor may choose not to enforce a student late-cancellation charge, but this is at the instructor's discretion unless Newdryve decides otherwise after reviewing a complaint or dispute.",
       'Repeated cancellations, late cancellations or misuse may lead to account restrictions.',
