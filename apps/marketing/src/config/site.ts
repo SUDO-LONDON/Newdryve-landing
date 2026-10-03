@@ -38,10 +38,15 @@ export const PRICING = {
   lateCancellationShare: '50%',
   /**
    * Cancellation window that triggers the automatic charge. 24 hours, matching
-   * clause 11 of the Terms. The previous Next site said 48 hours in its copy
+   * clause 11 of the Terms. Inside the final 30 minutes the full price applies
+   * (finalCancellationShare / finalCancellationWindow), as in the app since 23 Sep 2026. The previous Next site said 48 hours in its copy
    * and FAQ structured data, which contradicted the binding terms.
    */
   lateCancellationWindow: '24 hours',
+  /** Share charged when a learner cancels inside the final window. Matches the app's policy r3. */
+  finalCancellationShare: '100%',
+  /** The final window: inside this, a learner cancellation costs the full lesson price. */
+  finalCancellationWindow: '30 minutes',
 } as const;
 
 /**
