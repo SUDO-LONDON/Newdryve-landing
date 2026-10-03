@@ -119,7 +119,7 @@ const HOW_IT_WORKS = [
   {
     step: '03',
     title: 'Protected',
-    body: 'Cancel inside 48 hours? Newdryve automatically charges 50% and pays it straight to you. We never take a cut.',
+    body: 'Free to cancel 24 hours ahead. Inside 24 hours a learner pays 50%, inside 30 minutes the full price, and it goes straight to you. We never take a cut.',
     accent: 'pink' as const,
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -453,7 +453,7 @@ export default function LandingPage() {
                       {[
                         'A marketplace of Norwich learners discovers and books you',
                         'Empty diary slots get filled with NEW students',
-                        'Late cancellations auto-charge 50%, paid straight to you',
+                        'Late cancellations auto-charge 50%, or 100% inside 30 minutes, paid to you',
                         '0% commission, forever — keep 100% of every lesson',
                       ].map((t) => (
                         <li key={t} className="flex items-start gap-3">
@@ -547,7 +547,7 @@ export default function LandingPage() {
                 </p>
                 <ul className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-md">
                   {[
-                    'Automatic 50% charge on late cancellations — paid to you',
+                    'Automatic late-cancellation charges (50%, or 100% inside 30 min) — paid to you',
                     'Set your own availability',
                     'Keep your own pricing',
                     '0% commission, forever',
