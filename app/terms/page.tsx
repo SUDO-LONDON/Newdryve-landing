@@ -111,7 +111,8 @@ const sections = [
     body: [
       'Students can usually cancel or request to reschedule a lesson through the app.',
       'Cancelling more than 24 hours before the lesson is free unless the app or instructor clearly says otherwise before booking.',
-      'Cancelling within 24 hours of the lesson may result in a cancellation charge of 50% of the lesson price, paid to the instructor.',
+      'Cancelling at least 24 hours before the lesson is free.',
+      'Cancelling less than 24 hours but at least 30 minutes before the lesson costs 50% of the booked lesson price, paid to the instructor. Cancelling less than 30 minutes before the lesson costs the full booked lesson price, paid to the instructor.',
       'Instructors may cancel or reschedule where needed because of illness, vehicle problems, safety, weather, legal restrictions, emergencies or other reasonable causes. A student will not be charged a cancellation fee where the instructor cancels the lesson.',
       "An instructor may choose not to enforce a student late-cancellation charge, but this is at the instructor's discretion unless Newdryve decides otherwise after reviewing a complaint or dispute.",
       'Repeated cancellations, late cancellations or misuse may lead to account restrictions.',
