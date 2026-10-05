@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import AppHandoffModal from '../components/AppHandoffModal.astro';
 import { SITE_URL, BRAND } from '../config/site';
 
 interface Props {
@@ -110,6 +111,7 @@ const ogImage = new URL('/og.png', SITE_URL).href;
     </main>
 
     <SiteFooter />
+    <AppHandoffModal />
 
     <script>
       // Scroll reveal. Progressive enhancement only: elements are visible by
