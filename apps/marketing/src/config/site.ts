@@ -61,6 +61,14 @@ export const PRICING = {
  * `url` the moment it is approved and the badge appears automatically.
  */
 export const APP = {
+  /**
+   * The web app. A bridge for iPhone users while iOS is in review, and the
+   * no-JavaScript fallback for every "Get the app" button. Once iOS is live the
+   * buttons send iPhones to the App Store instead.
+   */
+  web: {
+    url: 'https://app.newdryve.com/',
+  },
   android: {
     live: true,
     url: 'https://play.google.com/store/apps/details?id=com.newdryve.app',

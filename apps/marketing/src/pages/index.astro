@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductPreview from '../components/ProductPreview.astro';
 import WaitlistForm from '../components/WaitlistForm.astro';
+import GetAppButton from '../components/GetAppButton.astro';
 import Faq from '../components/Faq.astro';
 import { APP, BRAND, FOUNDING_INSTRUCTORS } from '../config/site';
 import {
@@ -125,11 +126,10 @@ const foundingInstructor = FOUNDING_INSTRUCTORS.people[0];
         </p>
 
         <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          <a
-            href="#join"
+          <GetAppButton
             class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] motion-safe:hover:-translate-y-0.5"
           >
-            Join the Norwich waitlist
+            Get the app
             <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
               <path
                 d="M2.5 6h7M6 2.5 9.5 6 6 9.5"
@@ -138,7 +138,7 @@ const foundingInstructor = FOUNDING_INSTRUCTORS.people[0];
                 stroke-linecap="round"
                 stroke-linejoin="round"></path>
             </svg>
-          </a>
+          </GetAppButton>
           <a
             href="/instructors"
             class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-border bg-white px-6 py-3.5 text-sm font-bold text-ink transition-transform hover:border-ink motion-safe:hover:-translate-y-0.5"
@@ -390,12 +390,11 @@ const foundingInstructor = FOUNDING_INSTRUCTORS.people[0];
         Find a verified instructor, see when they are actually free, and book your first lesson.
       </p>
       <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <a
-          href="#join"
+        <GetAppButton
           class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-racing-green transition-transform motion-safe:hover:-translate-y-0.5"
         >
-          Join the waitlist
-        </a>
+          Get the app
+        </GetAppButton>
         {
           APP.android.live && (
             <a

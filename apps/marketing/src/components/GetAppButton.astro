@@ -1,0 +1,43 @@
+---
+/**
+ * "Get the app" call to action. One button, the right destination per device:
+ *   Android  -> Google Play
+ *   iPhone   -> the App Store once APP.ios.live, until then the web app
+ *   Desktop  -> the QR hand-off modal (AppHandoffModal, rendered once in BaseLayout)
+ *
+ * The href is the web app, so the button still works with JavaScript off and
+ * the routing below is only an upgrade.
+ */
+import { APP } from '../config/site';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<a href={APP.web.url} data-get-app class={className}><slot /></a>
+
+<script>
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isIOS =
+    /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+  const isMobile = isAndroid || isIOS || /Mobi/i.test(navigator.userAgent);
+
+  const dialog = document.querySelector<HTMLDialogElement>('[data-app-handoff]');
+  const androidUrl = dialog?.dataset.androidUrl;
+  const iosUrl = dialog?.dataset.iosUrl;
+
+  document.querySelectorAll<HTMLAnchorElement>('[data-get-app]').forEach((button) => {
+    if (isAndroid && androidUrl) button.href = androidUrl;
+    else if (isIOS && iosUrl) button.href = iosUrl;
+
+    button.addEventListener('click', (event) => {
+      if (isMobile || !dialog) return;
+      event.preventDefault();
+      dialog.showModal();
+    });
+  });
+</script>

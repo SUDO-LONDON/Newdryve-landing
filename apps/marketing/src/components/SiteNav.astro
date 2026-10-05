@@ -1,5 +1,6 @@
 ---
 import Logo from './Logo.astro';
+import GetAppButton from './GetAppButton.astro';
 import { NAV_LINKS, INSTRUCTOR_NAV_LINKS } from '../config/site';
 
 interface Props {
@@ -9,10 +10,8 @@ interface Props {
 const { audience = 'learner' } = Astro.props;
 
 const links = audience === 'instructor' ? INSTRUCTOR_NAV_LINKS : NAV_LINKS;
-const ctaHref = audience === 'instructor' ? '/instructors/apply' : '/#join';
-const ctaLabel = audience === 'instructor' ? 'Apply' : 'Join';
-const ctaLabelLong =
-  audience === 'instructor' ? 'Apply as a founding instructor' : 'Join the waitlist';
+const ctaClass =
+  'focus-ring inline-flex min-h-11 items-center gap-1.5 rounded-full bg-deep-rose px-4 py-2.5 text-sm font-bold tracking-tight text-white shadow-[0_8px_20px_-8px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] motion-safe:hover:-translate-y-0.5 sm:px-5';
 ---
 
 <header
@@ -39,13 +38,16 @@ const ctaLabelLong =
     </div>
 
     <div class="flex items-center gap-2">
-      <a
-        href={ctaHref}
-        class="focus-ring inline-flex min-h-11 items-center gap-1.5 rounded-full bg-deep-rose px-4 py-2.5 text-sm font-bold tracking-tight text-white shadow-[0_8px_20px_-8px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] motion-safe:hover:-translate-y-0.5 sm:px-5"
-      >
-        <span class="sm:hidden">{ctaLabel}</span>
-        <span class="hidden sm:inline">{ctaLabelLong}</span>
-      </a>
+      {
+        audience === 'instructor' ? (
+          <a href="/instructors/apply" class={ctaClass}>
+            <span class="sm:hidden">Apply</span>
+            <span class="hidden sm:inline">Apply as a founding instructor</span>
+          </a>
+        ) : (
+          <GetAppButton class={ctaClass}>Get the app</GetAppButton>
+        )
+      }
 
       <!-- Mobile menu: a native disclosure, so it costs zero JavaScript. -->
       <details class="relative md:hidden" data-mobile-menu>
