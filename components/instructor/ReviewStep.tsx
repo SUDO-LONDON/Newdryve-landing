@@ -28,8 +28,8 @@ function list(items: string[]) {
 function Fact({ label, children, wide = false }: { label: string; children: React.ReactNode; wide?: boolean }) {
   return (
     <div className={wide ? "col-span-2" : undefined}>
-      <dt className="text-[11px] font-bold uppercase tracking-[0.5px] text-ink-muted">{label}</dt>
-      <dd className="mt-0.5 text-sm leading-6 text-ink">{children}</dd>
+      <dt className="text-[11px] font-bold uppercase tracking-[0.5px] text-ink-secondary">{label}</dt>
+      <dd className="mt-0.5 text-[15px] leading-6 text-ink sm:text-sm">{children}</dd>
     </div>
   );
 }
@@ -56,7 +56,7 @@ export function ListingSummary({ review }: { review: ListingReview }) {
           {review.price_per_hour_pence == null ? "Price not set" : `${hourly(review.price_per_hour_pence)}/hr`}
         </p>
       </div>
-      <p className="mt-2 text-sm leading-6 text-ink-secondary">{review.bio?.trim() || "No bio provided."}</p>
+      <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">{review.bio?.trim() || "No bio provided."}</p>
 
       <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border pt-4">
         <Fact label="Transmission">{list(review.transmissions.map((t) => TRANSMISSION_LABEL[t] ?? t))}</Fact>
@@ -74,33 +74,48 @@ export function ListingSummary({ review }: { review: ListingReview }) {
 export function ReviewStep({
   review,
   busy,
+  error,
   onConfirm,
 }: {
   review: ListingReview;
   busy: boolean;
+  error: string | null;
   onConfirm: () => void;
 }) {
   return (
     <div className="mt-5">
       <ListingSummary review={review} />
-      <p className="mt-3 text-xs leading-5 text-ink-muted">
+      <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
         Something wrong? Email{" "}
         <a
-          className="font-semibold underline"
+          className="font-semibold text-ink underline"
           href="mailto:support@newdryve.com?subject=Instructor%20listing%20correction"
         >
           support@newdryve.com
         </a>{" "}
         before you go live.
       </p>
-      <button
-        type="button"
-        onClick={onConfirm}
-        disabled={busy}
-        className="focus-ring mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60 sm:w-auto"
-      >
-        {busy ? "Confirming…" : "Confirm and go live"}
-      </button>
+
+      {/* On a phone the listing is taller than the screen, so the button is
+          pinned to the bottom where a thumb already is, rather than waiting
+          at the end of a scroll. From `sm` up it sits inline after the
+          details. The error travels with it so a failed tap is never
+          reported somewhere off screen. */}
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-12px_30px_-20px_rgba(10,10,20,0.35)] sm:static sm:z-auto sm:mt-5 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+        {error ? (
+          <p role="alert" className="mb-3 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-800">
+            {error}
+          </p>
+        ) : null}
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={busy}
+          className="focus-ring inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-[15px] font-bold text-white disabled:cursor-wait disabled:opacity-60 sm:w-auto sm:text-sm"
+        >
+          {busy ? "Confirming…" : "Confirm and go live"}
+        </button>
+      </div>
     </div>
   );
 }

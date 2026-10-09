@@ -54,7 +54,7 @@ function StateIcon({ state, number }: { state: OnboardingTask["state"]; number: 
   }
   if (state === "locked") {
     return (
-      <span aria-hidden="true" className={`${base} border border-border text-ink-muted`}>
+      <span aria-hidden="true" className={`${base} border border-border text-ink-secondary`}>
         {number}
       </span>
     );
@@ -76,7 +76,7 @@ export function StepList({
   onFocus: (task: OnboardingTask) => void;
 }) {
   return (
-    <ol className="divide-y divide-border">
+    <ol className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-white px-4">
       {tasks.map((task, index) => {
         const focused = task.id === focusedId;
         // Finished steps and the one already open above need no explanation;
@@ -88,7 +88,7 @@ export function StepList({
           <li
             key={task.id}
             aria-current={focused ? "step" : undefined}
-            className={`flex items-start gap-3 py-3 ${focused ? "-mx-3 rounded-xl bg-blush-surface px-3" : ""}`}
+            className={`flex items-start gap-3 py-3 ${focused ? "-mx-4 bg-blush-surface px-4" : ""} ${canOpen ? "items-center" : ""}`}
           >
             <StateIcon state={task.state} number={index + 1} />
             <div className="min-w-0 flex-1 pt-0.5">
@@ -104,7 +104,7 @@ export function StepList({
                 {task.title}
               </p>
               {showDetail ? (
-                <p className={`mt-0.5 text-[13px] leading-5 ${task.state === "blocked" ? "text-rose-800" : "text-ink-muted"}`}>
+                <p className={`mt-0.5 text-[13px] leading-5 ${task.state === "blocked" ? "text-rose-800" : "text-ink-secondary"}`}>
                   {task.detail}
                 </p>
               ) : null}
@@ -113,7 +113,7 @@ export function StepList({
               <button
                 type="button"
                 onClick={() => onFocus(task)}
-                className="focus-ring mt-0.5 shrink-0 rounded-full border border-border px-3 py-1 text-xs font-bold text-racing-green hover:bg-canvas"
+                className="focus-ring inline-flex min-h-11 shrink-0 items-center rounded-full border border-racing-green px-4 text-sm font-bold text-racing-green hover:bg-canvas"
               >
                 Start
                 <span className="sr-only">: {task.title}</span>
@@ -127,7 +127,7 @@ export function StepList({
                       ? "text-racing-green"
                       : task.state === "blocked"
                         ? "text-rose-800"
-                        : "text-ink-muted"
+                        : "text-ink-secondary"
                 }`}
               >
                 {focused ? "Now" : STATE_LABEL[task.state]}

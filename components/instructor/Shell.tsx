@@ -32,9 +32,9 @@ export function Shell({
   align?: "center" | "left";
 }) {
   return (
-    <main className="mx-auto flex max-w-lg flex-col justify-center px-5 py-16 sm:py-24">
+    <main className="mx-auto flex max-w-lg flex-col justify-center px-4 py-6 sm:px-5 sm:py-24">
       <section
-        className={`rounded-2xl border border-border bg-white p-7 shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] sm:p-10 ${
+        className={`rounded-2xl border border-border bg-white p-6 shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] sm:p-10 ${
           align === "center" ? "text-center" : ""
         }`}
       >
@@ -74,18 +74,20 @@ export function PrimaryLink({
   children,
   href,
   disabled = false,
+  variant = "primary",
 }: {
   children: ReactNode;
   href: string;
   disabled?: boolean;
+  variant?: "primary" | "secondary";
 }) {
   return (
     <a
       href={href}
       aria-disabled={disabled || undefined}
-      className={`focus-ring mt-7 inline-flex h-12 items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white ${
-        disabled ? "pointer-events-none opacity-60" : ""
-      }`}
+      className={`focus-ring inline-flex h-12 w-full items-center justify-center rounded-full px-6 text-sm font-bold sm:w-auto ${
+        variant === "primary" ? "mt-7 bg-racing-green text-white" : "mt-3 border border-border text-ink"
+      } ${disabled ? "pointer-events-none opacity-60" : ""}`}
     >
       {children}
     </a>
@@ -103,7 +105,7 @@ export function ErrorNote({ children }: { children: ReactNode }) {
 }
 
 export function Note({ children }: { children: ReactNode }) {
-  return <p className="mt-5 text-xs leading-5 text-ink-muted">{children}</p>;
+  return <p className="mt-5 text-[13px] leading-5 text-ink-secondary">{children}</p>;
 }
 
 export function Body({ children }: { children: ReactNode }) {

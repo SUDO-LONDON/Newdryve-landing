@@ -27,9 +27,24 @@ import { StepList, StepProgress } from "@/components/instructor/TaskList";
 import { CoverageStep } from "@/components/instructor/CoverageStep";
 import { ListingSummary, ReviewStep } from "@/components/instructor/ReviewStep";
 import { APP_URL } from "@/lib/env";
+import { SETUP_PAGE_KEY } from "@/lib/instructor/setup-page";
 
 /** Long enough not to hammer the API, short enough to catch a Stripe webhook. */
 const POLL_MS = 15_000;
+
+/**
+ * Stripe Checkout always returns to /instructors/activate, which on its own
+ * can only say "check your inbox". On a phone that means leaving for the mail
+ * app to find this page again, so the way back is left in this tab's session
+ * storage (gone when the tab closes) for that page to offer.
+ */
+function rememberSetupPage() {
+  try {
+    sessionStorage.setItem(SETUP_PAGE_KEY, window.location.pathname + window.location.search);
+  } catch {
+    // Private mode or storage disabled: the return page falls back to email.
+  }
+}
 
 export default function OnboardingHub({
   token,
@@ -147,6 +162,7 @@ export default function OnboardingHub({
       if (!response.ok) throw new Error(body.error || "Could not start membership setup.");
       const destination = body.checkout_url || body.app_url;
       if (!destination) throw new Error("Stripe did not return a secure checkout link.");
+      rememberSetupPage();
       window.location.assign(destination);
     } catch (cause) {
       setActionError(cause instanceof Error ? cause.message : "Could not start membership setup.");
@@ -343,21 +359,24 @@ export default function OnboardingHub({
   const waiting = tasks.filter((task) => task.state === "in_review");
   const membershipDone = tasks.some((task) => task.id === "membership" && task.state === "done");
   const showPreview = membershipDone && state.review && current?.action !== "review_listing";
+  // The review step pins its button to the bottom of a phone screen; leave
+  // room so the bar never covers the end of the page.
+  const reviewing = !state.complete && current?.action === "review_listing";
 
   return (
-    <main className="mx-auto w-full max-w-xl px-5 pb-16 pt-8 sm:pt-12">
+    <main className={`mx-auto w-full max-w-xl px-4 pt-4 sm:px-5 sm:pt-12 ${reviewing ? "pb-36 sm:pb-16" : "pb-16"}`}>
       <div className="flex items-center justify-between">
         <Wordmark />
         <a
           href="mailto:support@newdryve.com?subject=Instructor%20setup"
-          className="focus-ring rounded-full px-2 py-1 text-sm font-semibold text-ink-secondary underline-offset-2 hover:underline"
+          className="focus-ring -mr-3 inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-ink underline-offset-2 hover:underline"
         >
           Need help?
         </a>
       </div>
 
-      <header className="mt-8">
-        <h1 className="font-display text-[32px] leading-tight text-ink sm:text-4xl">
+      <header className="mt-5 sm:mt-8">
+        <h1 className="font-display text-[30px] leading-tight text-ink sm:text-4xl">
           {state.complete
             ? firstName ? `You're live, ${firstName}.` : "You're live."
             : firstName ? `Nearly there, ${firstName}.` : "Nearly there."}
@@ -383,7 +402,7 @@ export default function OnboardingHub({
         ref={currentCard}
         tabIndex={-1}
         aria-labelledby="current-step-title"
-        className={`mt-6 scroll-mt-6 rounded-2xl border bg-white p-5 shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] outline-none sm:p-7 ${
+        className={`mt-5 scroll-mt-4 rounded-2xl border bg-white p-5 shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] outline-none sm:p-7 ${
           !state.complete && !current && blocked ? "border-rose-200" : "border-border"
         }`}
       >
@@ -397,7 +416,7 @@ export default function OnboardingHub({
             <h2 id="current-step-title" className="font-display mt-1.5 text-2xl text-ink">
               {current.title}
             </h2>
-            <p className="mt-2 text-sm leading-6 text-ink-secondary">
+            <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">
               {current.action === "coverage"
                 ? "You won't appear in learners' searches until this is set."
                 : current.detail}
@@ -414,10 +433,12 @@ export default function OnboardingHub({
             {current.id === "payouts" ? (
               connectOpen ? (
                 <>
-                  <p className="mt-4 text-xs leading-5 text-ink-muted">
+                  <p className="mt-4 text-[13px] leading-5 text-ink-secondary">
                     Secure form provided by Stripe. Newdryve never sees your full bank details.
                   </p>
-                  <div ref={connectContainer} className="mt-4" />
+                  {/* Bleeds to the card's edges on a phone: Stripe's form
+                      needs every pixel of width it can get at 320-390px. */}
+                  <div ref={connectContainer} className="-mx-5 mt-4 sm:mx-0" />
                   <button
                     type="button"
                     onClick={closeConnect}
@@ -436,7 +457,7 @@ export default function OnboardingHub({
                   >
                     {busyTask === "payouts" ? "Opening Stripe…" : "Connect bank account"}
                   </button>
-                  <p className="mt-3 text-xs leading-5 text-ink-muted">
+                  <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
                     A secure Stripe form opens on this page. Newdryve never sees your full bank details.
                   </p>
                 </>
@@ -456,6 +477,7 @@ export default function OnboardingHub({
               <ReviewStep
                 review={state.review}
                 busy={busyTask === "review"}
+                error={actionError}
                 onConfirm={() => void confirmListing()}
               />
             ) : null}
@@ -466,7 +488,7 @@ export default function OnboardingHub({
             <h2 id="current-step-title" className="font-display mt-1.5 text-2xl text-ink">
               {blocked.title}
             </h2>
-            <p className="mt-2 text-sm leading-6 text-ink-secondary">{blocked.detail}</p>
+            <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">{blocked.detail}</p>
             <a
               href="mailto:support@newdryve.com?subject=Instructor%20setup%20blocked"
               className="focus-ring mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white sm:w-auto"
@@ -480,7 +502,7 @@ export default function OnboardingHub({
             <h2 id="current-step-title" className="font-display mt-1.5 text-2xl text-ink">
               We&rsquo;re on it.
             </h2>
-            <p className="mt-2 text-sm leading-6 text-ink-secondary">
+            <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">
               {waiting.length
                 ? "Nothing is needed from you while the checks marked \u201cWith us\u201d below finish. "
                 : ""}
@@ -496,15 +518,15 @@ export default function OnboardingHub({
           </>
         )}
 
-        {actionError ? (
+        {actionError && !reviewing ? (
           <p role="alert" className="mt-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-800">
             {actionError}
           </p>
         ) : null}
       </section>
 
-      <section aria-labelledby="all-steps-title" className="mt-8">
-        <h2 id="all-steps-title" className="text-xs font-bold uppercase tracking-[1px] text-ink-muted">
+      <section aria-labelledby="all-steps-title" className="mt-7">
+        <h2 id="all-steps-title" className="text-xs font-bold uppercase tracking-[1px] text-ink">
           All steps
         </h2>
         <div className="mt-2">
@@ -514,15 +536,15 @@ export default function OnboardingHub({
 
       {showPreview ? (
         <details className="group mt-6 rounded-2xl border border-border bg-white">
-          <summary className="focus-ring flex min-h-12 cursor-pointer list-none items-center justify-between rounded-2xl px-5 text-sm font-semibold text-ink [&::-webkit-details-marker]:hidden">
+          <summary className="focus-ring flex min-h-12 cursor-pointer list-none items-center justify-between rounded-2xl px-4 text-[15px] font-semibold sm:px-5 sm:text-sm text-ink [&::-webkit-details-marker]:hidden">
             {state.listed ? "See your public listing" : "Preview what learners will see"}
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" className="transition-transform group-open:rotate-180">
               <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </summary>
-          <div className="px-5 pb-5">
+          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
             <ListingSummary review={state.review} />
-            <p className="mt-3 text-xs leading-5 text-ink-muted">
+            <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
               Need to correct anything? Email{" "}
               <a className="font-semibold underline" href="mailto:support@newdryve.com?subject=Instructor%20listing%20correction">
                 support@newdryve.com
@@ -570,8 +592,8 @@ function MembershipAction({
       >
         {busy ? "Opening Stripe…" : "Continue to Stripe"}
       </button>
-      <p className="mt-3 text-xs leading-5 text-ink-muted">
-        Stripe shows the exact first charge before you confirm. Come back to this page when you&rsquo;re done.
+      <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
+        Stripe shows the exact first charge before you confirm, then sends you back to finish setup.
       </p>
     </>
   );
@@ -584,7 +606,7 @@ function LiveCard() {
       <h2 id="current-step-title" className="font-display mt-1.5 text-2xl text-ink">
         Learners can now find and book you.
       </h2>
-      <p className="mt-2 text-sm leading-6 text-ink-secondary">
+      <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">
         Sign in to the Newdryve app with the email and password you applied with to manage lessons,
         availability and payouts.
       </p>

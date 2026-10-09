@@ -62,7 +62,7 @@ export function CoverageStep({
 
   return (
     <div className="mt-5">
-      <p className="text-xs font-bold uppercase tracking-[0.5px] text-ink-muted">Your test centres</p>
+      <p className="text-xs font-bold uppercase tracking-[0.5px] text-ink-secondary">Your test centres</p>
       <ul className="mt-2 flex flex-wrap gap-1.5">
         {coverage.centres.map((centre) => (
           <li key={centre.slug} className="rounded-full bg-canvas px-3 py-1 text-[13px] font-semibold text-ink">
@@ -71,15 +71,15 @@ export function CoverageStep({
         ))}
       </ul>
 
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-        <p id="coverage-distance-label" className="text-sm font-semibold text-ink">
-          How far will you travel to pick up a learner?
-        </p>
-        <div
-          role="radiogroup"
-          aria-label="Measure your travel in"
-          className="inline-flex rounded-full border border-border p-0.5"
-        >
+      <p id="coverage-distance-label" className="mt-6 text-[15px] font-semibold leading-6 text-ink">
+        How far will you travel to pick up a learner?
+      </p>
+      {/* Full width on a phone so each half is an easy thumb target. */}
+      <div
+        role="radiogroup"
+        aria-label="Measure your travel in"
+        className="mt-3 grid grid-cols-2 rounded-full border border-border p-1 sm:inline-grid"
+      >
           {(["miles", "minutes"] as const).map((option) => (
             <button
               key={option}
@@ -87,14 +87,13 @@ export function CoverageStep({
               role="radio"
               aria-checked={mode === option}
               onClick={() => switchMode(option)}
-              className={`focus-ring rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${
+              className={`focus-ring min-h-11 rounded-full px-5 text-sm font-bold transition-colors ${
                 mode === option ? "bg-racing-green text-white" : "text-ink-secondary"
               }`}
             >
               {option === "miles" ? "Distance" : "Drive time"}
             </button>
           ))}
-        </div>
       </div>
 
       <div role="radiogroup" aria-labelledby="coverage-distance-label" className="mt-3 grid grid-cols-5 gap-1.5">
@@ -105,7 +104,7 @@ export function CoverageStep({
             role="radio"
             aria-checked={value === option}
             onClick={() => setValue(option)}
-            className={`focus-ring min-h-11 rounded-xl border text-sm font-semibold transition-colors ${
+            className={`focus-ring min-h-12 rounded-xl border text-[15px] font-semibold transition-colors ${
               value === option
                 ? "border-racing-green bg-racing-green text-white"
                 : "border-border text-ink hover:bg-canvas"
@@ -117,7 +116,7 @@ export function CoverageStep({
         ))}
       </div>
 
-      <p className="mt-3 text-xs leading-5 text-ink-muted">
+      <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
         Only limits where you&rsquo;ll collect learners from. You can change it later in the app.
       </p>
 
