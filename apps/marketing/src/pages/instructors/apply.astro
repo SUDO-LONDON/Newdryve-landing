@@ -1356,10 +1356,13 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
     });
 
     // Enter should advance rather than submit, except on the final step.
+    // Buttons and links keep their own Enter: on Back it means "back", and
+    // treating it as "next step" sent keyboard users the wrong way.
     form.addEventListener('keydown', (event) => {
       if (event.key !== 'Enter') return;
       const target = event.target as HTMLElement;
       if (target.tagName === 'TEXTAREA') return;
+      if (target.closest('button, a[href], [role="button"]')) return;
       if (current !== total) {
         event.preventDefault();
         if (validateStep(current)) show(current + 1);
