@@ -1,20 +1,72 @@
 "use client";
 
+/**
+ * The details learners will see, and the confirmation that publishes them.
+ *
+ * Laid out like a profile rather than a form readback: short facts sit side by
+ * side so the whole listing fits on roughly one phone screen, and only the bio
+ * and lists get a full line.
+ */
+
 import type { ListingReview } from "@/lib/instructor/backend";
 
-function value(text: string | null | undefined) {
-  return text?.trim() || "Not provided";
+const TRANSMISSION_LABEL: Record<string, string> = { manual: "Manual", auto: "Automatic", automatic: "Automatic" };
+
+/** £42/hr, not £42.00/hr — pence only when there are some. */
+function hourly(pence: number) {
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: "GBP",
+    minimumFractionDigits: pence % 100 === 0 ? 0 : 2,
+  }).format(pence / 100);
 }
 
-function join(items: string[]) {
+function list(items: string[]) {
   return items.length ? items.join(", ") : "Not provided";
 }
 
-function Detail({ label, children }: { label: string; children: React.ReactNode }) {
+function Fact({ label, children, wide = false }: { label: string; children: React.ReactNode; wide?: boolean }) {
   return (
-    <div className="border-b border-border py-3 last:border-b-0">
-      <dt className="text-xs font-bold uppercase tracking-[0.5px] text-ink-muted">{label}</dt>
-      <dd className="mt-1 text-sm leading-6 text-ink">{children}</dd>
+    <div className={wide ? "col-span-2" : undefined}>
+      <dt className="text-[11px] font-bold uppercase tracking-[0.5px] text-ink-muted">{label}</dt>
+      <dd className="mt-0.5 text-sm leading-6 text-ink">{children}</dd>
+    </div>
+  );
+}
+
+export function ListingSummary({ review }: { review: ListingReview }) {
+  const car = [review.car_color, review.car_make, review.car_model].filter(Boolean).join(" ");
+  const area =
+    review.coverage_value != null && review.coverage_mode
+      ? review.coverage_mode === "minutes"
+        ? `${review.coverage_value} minutes' drive from your test centres`
+        : `${review.coverage_value} miles from your test centres`
+      : "Not set yet";
+  // Centre names already carry their town ("Norwich (Peachman Way)"), so the
+  // city is only added when the name would otherwise be ambiguous.
+  const centres = review.centres.map((centre) =>
+    centre.name.toLowerCase().includes(centre.city.toLowerCase()) ? centre.name : `${centre.name}, ${centre.city}`
+  );
+
+  return (
+    <div className="rounded-xl border border-border p-4 sm:p-5">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-base font-bold text-ink">{review.display_name?.trim() || "Name not provided"}</p>
+        <p className="shrink-0 text-sm font-semibold text-ink">
+          {review.price_per_hour_pence == null ? "Price not set" : `${hourly(review.price_per_hour_pence)}/hr`}
+        </p>
+      </div>
+      <p className="mt-2 text-sm leading-6 text-ink-secondary">{review.bio?.trim() || "No bio provided."}</p>
+
+      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border pt-4">
+        <Fact label="Transmission">{list(review.transmissions.map((t) => TRANSMISSION_LABEL[t] ?? t))}</Fact>
+        <Fact label="Languages">{list(review.languages)}</Fact>
+        <Fact label="Car">{car || "Not provided"}</Fact>
+        <Fact label="City">{review.service_city?.trim() || "Not provided"}</Fact>
+        <Fact label="Specialisms" wide>{list(review.specialisms)}</Fact>
+        <Fact label="Test centres" wide>{list(centres)}</Fact>
+        <Fact label="Travel area" wide>{area}</Fact>
+      </dl>
     </div>
   );
 }
@@ -22,66 +74,33 @@ function Detail({ label, children }: { label: string; children: React.ReactNode 
 export function ReviewStep({
   review,
   busy,
-  ready,
-  listed,
-  error,
   onConfirm,
-  onRefresh,
 }: {
   review: ListingReview;
   busy: boolean;
-  ready: boolean;
-  listed: boolean;
-  error: string | null;
   onConfirm: () => void;
-  onRefresh: () => void;
 }) {
-  const car = [review.car_color, review.car_make, review.car_model].filter(Boolean).join(" ");
-  const area = review.coverage_value != null && review.coverage_mode
-    ? `${review.coverage_value} ${review.coverage_mode}`
-    : "Not provided";
-
   return (
-    <section aria-labelledby="listing-review-title" className="mt-6 rounded-2xl border border-racing-green bg-white p-6 shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] sm:p-8">
-      <p className="text-[11px] font-bold uppercase tracking-[1px] text-racing-green">Final review</p>
-      <h2 id="listing-review-title" className="font-display mt-2 text-2xl text-ink">{listed ? "Your listing is live" : "Review your listing"}</h2>
-      <p className="mt-2 text-sm leading-6 text-ink-secondary">
-        {listed
-          ? "Learners can find you in your service area and request bookings. These are the details they see."
-          : ready
-            ? "These details are what learners will see. Confirming will make you visible in your service area and ready to receive bookings."
-            : "Check the details learners will see. Confirmation opens once payouts, your service area and Newdryve’s approval are ready."}
+    <div className="mt-5">
+      <ListingSummary review={review} />
+      <p className="mt-3 text-xs leading-5 text-ink-muted">
+        Something wrong? Email{" "}
+        <a
+          className="font-semibold underline"
+          href="mailto:support@newdryve.com?subject=Instructor%20listing%20correction"
+        >
+          support@newdryve.com
+        </a>{" "}
+        before you go live.
       </p>
-
-      <dl className="mt-5 rounded-xl border border-border px-4 sm:px-5">
-        <Detail label="Name">{value(review.display_name)}</Detail>
-        <Detail label="About you">{value(review.bio)}</Detail>
-        <Detail label="Hourly price">{review.price_per_hour_pence == null ? "Not provided" : new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(review.price_per_hour_pence / 100)}</Detail>
-        <Detail label="Transmission">{join(review.transmissions)}</Detail>
-        <Detail label="Languages">{join(review.languages)}</Detail>
-        <Detail label="Specialisms">{join(review.specialisms)}</Detail>
-        <Detail label="Car">{value(car)}</Detail>
-        <Detail label="Service city">{value(review.service_city)}</Detail>
-        <Detail label="Test centres">{review.centres.length ? review.centres.map((centre) => `${centre.name}, ${centre.city}`).join(" · ") : "Not provided"}</Detail>
-        <Detail label="Travel area">{area} from your test centres</Detail>
-      </dl>
-
-      <p className="mt-5 text-sm leading-6 text-ink-secondary">
-        Need to correct anything? Email <a className="font-semibold underline" href="mailto:support@newdryve.com?subject=Instructor%20listing%20correction">support@newdryve.com</a>{listed ? "." : " before you go live."}
-      </p>
-      {error ? <p role="alert" className="mt-4 text-sm text-rose-800">{error}</p> : null}
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        {ready ? (
-          <button type="button" onClick={onConfirm} disabled={busy} className="focus-ring inline-flex min-h-11 items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60">
-            {busy ? "Confirming…" : "Confirm and go live"}
-          </button>
-        ) : null}
-        {!listed ? (
-          <button type="button" onClick={onRefresh} disabled={busy} className="focus-ring inline-flex min-h-11 items-center justify-center rounded-full px-4 text-sm font-semibold text-racing-green underline">
-            Check status now
-          </button>
-        ) : null}
-      </div>
-    </section>
+      <button
+        type="button"
+        onClick={onConfirm}
+        disabled={busy}
+        className="focus-ring mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+      >
+        {busy ? "Confirming…" : "Confirm and go live"}
+      </button>
+    </div>
   );
 }
