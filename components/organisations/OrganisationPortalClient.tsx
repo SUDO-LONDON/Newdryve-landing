@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { formatPence, organisationTotals, type OpsOrganisationWithMembers } from "@/lib/ops/types";
+import { shortDate, time } from "@/lib/organisations/format";
 
 export default function OrganisationPortalClient({
   organisations,
-  email,
 }: {
   organisations: OpsOrganisationWithMembers[];
-  email: string | null;
 }) {
   const allMembers = organisations.flatMap((organisation) => organisation.members);
   const totals = organisationTotals(allMembers);
@@ -60,29 +59,7 @@ export default function OrganisationPortalClient({
   const testReady = learners.filter((l) => l.readiness_percent >= 85).length;
 
   return (
-    <main className="min-h-screen bg-canvas text-ink">
-      <header className="border-b border-border bg-white/80 px-5 py-4">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-racing-green">
-              Newdryve
-            </p>
-            <h1 className="font-display text-xl text-ink">Organisation portal</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <p className="hidden max-w-[16rem] truncate text-xs text-ink-muted sm:block" title={email ?? undefined}>
-              {email}
-            </p>
-            <form action="/organisations/auth/signout" method="post">
-              <button className="rounded-lg border border-border bg-white px-3 py-2 text-sm text-ink hover:bg-blush-surface">
-                Sign out
-              </button>
-            </form>
-          </div>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-6xl space-y-6 px-5 py-8">
+    <div className="space-y-6">
         <section>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-racing-green">
             Overview
@@ -325,8 +302,7 @@ export default function OrganisationPortalClient({
             </Link>
           </section>
         ) : null}
-      </div>
-    </main>
+    </div>
   );
 }
 
@@ -350,19 +326,10 @@ function StatTile({
   );
 }
 
-function timeOnly(iso: string): string {
-  const d = new Date(iso);
-  return Number.isFinite(d.getTime())
-    ? d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
-    : "";
-}
-
-function dateOnly(iso: string): string {
-  const d = new Date(iso);
-  return Number.isFinite(d.getTime())
-    ? d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })
-    : "";
-}
+// London time, whichever timezone the server renders in: these were showing
+// UTC (an hour early all summer) when rendered on the server.
+const timeOnly = (iso: string) => time(iso);
+const dateOnly = (iso: string) => shortDate(iso);
 
 function presenceLabel(value: string): string {
   if (value === "in_lesson") return "In lesson";
