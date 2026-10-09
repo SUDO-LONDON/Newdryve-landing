@@ -19,6 +19,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { testCentresByCity, testCentreOptionsByCity } from '../../data/driving-test-centres';
+import { defaultInstructorLanguage, instructorLanguages } from '../../data/instructor-languages';
 import { organizationSchema, breadcrumbSchema } from '../../lib/schema';
 
 const title = 'Apply to teach with Newdryve | Newdryve';
@@ -212,20 +213,110 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
               </div>
             </div>
 
-            <div class="flex flex-col gap-1.5">
-              <label class={labelClass} for="apply-languages">
+            <div class="flex flex-col gap-1.5" data-language-field>
+              <label id="apply-languages-label" class={labelClass} for="apply-languages">
                 Languages you teach in <span aria-hidden="true" class="text-deep-rose-ink">*</span>
               </label>
-              <input
-                id="apply-languages"
-                name="languages"
-                type="text"
-                required
-                value="English"
-                placeholder="English, Urdu, Punjabi"
-                class={inputClass}
-              />
-              <p class="text-xs text-ink-muted">Separate languages with commas. Learners can match with any one of them.</p>
+
+              {/* Without JavaScript this checkbox group is the field, so only
+                  listed names can ever be submitted. With JavaScript it is
+                  hidden but stays the form's record of what is chosen; the
+                  picker below ticks and unticks it. */}
+              <div
+                data-language-fallback
+                role="group"
+                aria-labelledby="apply-languages-label"
+                aria-describedby="apply-languages-hint"
+                class="flex flex-wrap gap-2 pt-1"
+              >
+                {
+                  instructorLanguages.map((language) => (
+                    <label class="cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="languages"
+                        value={language.name}
+                        data-aliases={language.aliases?.join('|')}
+                        checked={language.name === defaultInstructorLanguage}
+                        class="peer sr-only"
+                      />
+                      <span class={pillClass}>{language.name}</span>
+                    </label>
+                  ))
+                }
+              </div>
+
+              {/* Searchable multi-select (ARIA combobox + listbox), revealed
+                  by the script. Chosen languages sit above the input as
+                  removable chips; the list opens inline beneath it so it is
+                  never clipped or hidden behind a phone keyboard overlay. */}
+              <div data-language-picker hidden class="flex flex-col gap-2 pt-1">
+                <ul data-language-chips aria-label="Chosen languages" class="flex flex-wrap gap-2"></ul>
+
+                <div class="relative">
+                  <input
+                    id="apply-languages"
+                    type="text"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded="false"
+                    aria-controls="apply-languages-listbox"
+                    aria-describedby="apply-languages-hint apply-languages-instructions"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    autocorrect="off"
+                    spellcheck="false"
+                    enterkeyhint="done"
+                    placeholder="Search languages"
+                    class={`${inputClass} pr-11 aria-[invalid=true]:border-deep-rose-ink`}
+                  />
+                  <svg
+                    class="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-ink-muted"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2.5 4.5 6 8l3.5-3.5"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"></path>
+                  </svg>
+                </div>
+
+                <ul
+                  id="apply-languages-listbox"
+                  role="listbox"
+                  aria-multiselectable="true"
+                  aria-labelledby="apply-languages-label"
+                  data-language-listbox
+                  hidden
+                  class="max-h-64 overflow-y-auto overscroll-contain rounded-xl border border-border bg-white p-1 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.12)]"
+                >
+                </ul>
+
+                <p
+                  data-language-empty
+                  hidden
+                  class="rounded-xl border border-dashed border-border px-4 py-3 text-sm text-ink-secondary"
+                >
+                </p>
+
+                <p id="apply-languages-instructions" class="sr-only">
+                  Type to search. Use the up and down arrow keys to move through the list, and Enter to
+                  add or remove the highlighted language. Backspace in an empty search box removes the
+                  last language you added.
+                </p>
+                <p data-language-status class="sr-only" role="status" aria-live="polite"></p>
+              </div>
+
+              <p id="apply-languages-hint" class="text-xs text-ink-muted">
+                Choose every language you can teach in. Learners can match with any one of them. Not
+                listed? Tell us at the end of the form.
+              </p>
             </div>
 
             <div class="flex flex-col gap-1.5">
@@ -768,6 +859,369 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
     });
 
     /**
+     * Languages: a searchable multi-select over the fallback checkbox group
+     * (ARIA combobox with a multi-selectable listbox). The checkboxes stay the
+     * record of what is chosen, so nothing outside the list can be submitted;
+     * `order` only remembers the order languages were picked in, which is the
+     * order the chips show and the API receives. Returns null, leaving the
+     * plain checkboxes in place, if the markup is not what it expects.
+     */
+    const setUpLanguagePicker = () => {
+      const fallback = root.querySelector<HTMLElement>('[data-language-fallback]');
+      const picker = root.querySelector<HTMLElement>('[data-language-picker]');
+      const chips = picker?.querySelector<HTMLUListElement>('[data-language-chips]');
+      const input = picker?.querySelector<HTMLInputElement>('#apply-languages');
+      const listbox = picker?.querySelector<HTMLUListElement>('[data-language-listbox]');
+      const empty = picker?.querySelector<HTMLElement>('[data-language-empty]');
+      const status = picker?.querySelector<HTMLElement>('[data-language-status]');
+      const boxes = Array.from(
+        fallback?.querySelectorAll<HTMLInputElement>('input[name="languages"]') ?? []
+      );
+      if (!fallback || !picker || !chips || !input || !listbox || !empty || !status) return null;
+      if (boxes.length === 0) return null;
+
+      /** POST /v1/instructors/apply accepts at most 20 languages. */
+      const maxLanguages = 20;
+      const fold = (value: string) =>
+        value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+      const countLabel = (n: number) => `${n} language${n === 1 ? '' : 's'} chosen.`;
+      const checkIcon =
+        '<svg class="invisible shrink-0 text-racing-green group-aria-selected:visible" width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 6.5 5 9l4.5-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+      const removeIcon =
+        '<svg class="shrink-0" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 3l6 6M9 3 3 9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"></path></svg>';
+
+      type LanguageOption = {
+        name: string;
+        folded: string;
+        words: string[];
+        aliases: Array<{ label: string; folded: string }>;
+        box: HTMLInputElement;
+        el: HTMLLIElement;
+        aliasEl: HTMLElement;
+      };
+
+      const options: LanguageOption[] = boxes.map((box, index) => {
+        const name = box.value;
+        const el = document.createElement('li');
+        el.id = `apply-languages-option-${index}`;
+        el.setAttribute('role', 'option');
+        el.className =
+          'group flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 text-base text-ink select-none hover:bg-canvas aria-selected:font-bold data-active:bg-canvas data-active:ring-2 data-active:ring-racing-green data-active:ring-inset sm:text-sm';
+        const text = document.createElement('span');
+        text.textContent = name;
+        const aliasEl = document.createElement('span');
+        aliasEl.className = 'font-normal text-ink-muted';
+        text.append(aliasEl);
+        el.append(text);
+        el.insertAdjacentHTML('beforeend', checkIcon);
+        return {
+          name,
+          folded: fold(name),
+          words: fold(name).split(/[\s()]+/).filter(Boolean),
+          aliases: (box.dataset.aliases || '')
+            .split('|')
+            .filter(Boolean)
+            .map((label) => ({ label, folded: fold(label) })),
+          box,
+          el,
+          aliasEl,
+        };
+      });
+      const byName = new Map(options.map((option) => [option.name, option]));
+
+      let order = boxes.filter((box) => box.checked).map((box) => box.value);
+      let visible: LanguageOption[] = [];
+      let active = -1;
+      let open = false;
+      let statusTimer: number | undefined;
+
+      /** One pending message at a time, so a burst of picks reads only the last. */
+      const announce = (message: string, delay = 50) => {
+        window.clearTimeout(statusTimer);
+        // Cleared first so the same message twice in a row is still read out.
+        status.textContent = '';
+        statusTimer = window.setTimeout(() => {
+          status.textContent = message;
+        }, delay);
+      };
+
+      const values = (): string[] => order.filter((name) => byName.get(name)?.box.checked);
+
+      const renderChips = () => {
+        chips.replaceChildren(
+          ...order.map((name) => {
+            const item = document.createElement('li');
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.dataset.value = name;
+            button.setAttribute('aria-label', `Remove ${name}`);
+            button.className =
+              'focus-ring inline-flex min-h-11 items-center gap-2 rounded-full border border-ink bg-ink pr-3.5 pl-4 text-sm font-bold text-white transition-colors hover:bg-[#1a1a2c]';
+            const label = document.createElement('span');
+            label.textContent = name;
+            button.append(label);
+            button.insertAdjacentHTML('beforeend', removeIcon);
+            item.append(button);
+            return item;
+          })
+        );
+        chips.hidden = order.length === 0;
+      };
+
+      const setActive = (index: number) => {
+        active = index;
+        visible.forEach((option, i) => option.el.toggleAttribute('data-active', i === index));
+        const current = visible[index];
+        if (current) {
+          input.setAttribute('aria-activedescendant', current.el.id);
+          current.el.scrollIntoView({ block: 'nearest' });
+        } else {
+          input.removeAttribute('aria-activedescendant');
+        }
+      };
+
+      /** Shows the listbox, or the "no match" note, to match `visible`. */
+      const paint = () => {
+        const hasQuery = input.value.trim().length > 0;
+        listbox.hidden = !open || visible.length === 0;
+        empty.hidden = !open || visible.length > 0 || !hasQuery;
+        input.setAttribute('aria-expanded', String(!listbox.hidden));
+        if (!empty.hidden) {
+          empty.textContent = `No language matches “${input.value.trim()}”. Check the spelling, or tell us about it in the last step.`;
+        }
+      };
+
+      /**
+       * Best matches first: name prefix, then a later word in the name, then an
+       * alternative name, then anywhere in either. With a query the top match
+       * is highlighted, so typing "pol" then Enter adds Polish.
+       */
+      const filter = () => {
+        const query = fold(input.value);
+        if (!query) {
+          visible = options.slice();
+          options.forEach((option) => (option.aliasEl.textContent = ''));
+        } else {
+          const ranked: Array<{ option: LanguageOption; rank: number; index: number }> = [];
+          options.forEach((option, index) => {
+            const aliasStart = option.aliases.find((alias) => alias.folded.startsWith(query));
+            const aliasAnywhere = option.aliases.find((alias) => alias.folded.includes(query));
+            let rank = -1;
+            let alias: string | undefined;
+            if (option.folded.startsWith(query)) rank = 0;
+            else if (option.words.some((word) => word.startsWith(query))) rank = 1;
+            else if (aliasStart) [rank, alias] = [2, aliasStart.label];
+            else if (option.folded.includes(query)) rank = 3;
+            else if (aliasAnywhere) [rank, alias] = [4, aliasAnywhere.label];
+            option.aliasEl.textContent = alias ? ` (${alias})` : '';
+            if (rank >= 0) ranked.push({ option, rank, index });
+          });
+          ranked.sort((a, b) => a.rank - b.rank || a.index - b.index);
+          visible = ranked.map((entry) => entry.option);
+        }
+        listbox.replaceChildren(...visible.map((option) => option.el));
+        listbox.scrollTop = 0;
+        setActive(query && visible.length ? 0 : -1);
+        paint();
+      };
+
+      const openList = () => {
+        if (open) return;
+        open = true;
+        paint();
+      };
+
+      const closeList = () => {
+        open = false;
+        setActive(-1);
+        paint();
+      };
+
+      /** After a pick, clear the search so the next language can be typed. */
+      const resetQuery = (keepInView?: LanguageOption) => {
+        if (!input.value) return;
+        input.value = '';
+        filter();
+        keepInView?.el.scrollIntoView({ block: 'nearest' });
+      };
+
+      const add = (option: LanguageOption): boolean => {
+        if (option.box.checked) {
+          announce(`${option.name} is already chosen. ${countLabel(values().length)}`);
+          return false;
+        }
+        if (values().length >= maxLanguages) {
+          fail(`You can choose up to ${maxLanguages} languages.`);
+          return false;
+        }
+        option.box.checked = true;
+        order = [...order.filter((name) => name !== option.name), option.name];
+        option.el.setAttribute('aria-selected', 'true');
+        input.removeAttribute('aria-invalid');
+        clearError();
+        renderChips();
+        announce(`${option.name} added. ${countLabel(values().length)}`);
+        return true;
+      };
+
+      const remove = (option: LanguageOption) => {
+        option.box.checked = false;
+        order = order.filter((name) => name !== option.name);
+        option.el.setAttribute('aria-selected', 'false');
+        renderChips();
+        announce(`${option.name} removed. ${countLabel(values().length)}`);
+      };
+
+      // Enhance: swap the checkbox group for the picker.
+      options.forEach((option) => option.el.setAttribute('aria-selected', String(option.box.checked)));
+      fallback.hidden = true;
+      picker.hidden = false;
+      renderChips();
+      filter();
+
+      input.addEventListener('input', () => {
+        open = true;
+        filter();
+        const query = input.value.trim();
+        if (!query) {
+          window.clearTimeout(statusTimer);
+          return;
+        }
+        // Read the match count once typing pauses, not on every keystroke.
+        announce(
+          visible.length === 0
+            ? `No language matches ${query}.`
+            : `${visible.length} ${visible.length === 1 ? 'language matches' : 'languages match'}. Use the arrow keys to choose.`,
+          600
+        );
+      });
+
+      input.addEventListener('click', openList);
+
+      input.addEventListener('keydown', (event) => {
+        if (event.isComposing) return;
+        const hasQuery = input.value.trim().length > 0;
+
+        switch (event.key) {
+          case 'ArrowDown':
+          case 'ArrowUp': {
+            event.preventDefault();
+            const down = event.key === 'ArrowDown';
+            if (!open) {
+              openList();
+              if (event.altKey) return;
+            }
+            const n = visible.length;
+            if (!n) return;
+            if (active < 0) setActive(down ? 0 : n - 1);
+            else setActive((active + (down ? 1 : -1) + n) % n);
+            return;
+          }
+          case 'Enter': {
+            // A closed, empty picker leaves Enter to the stepper (next step).
+            if (!open && !hasQuery) return;
+            event.preventDefault();
+            event.stopPropagation();
+            if (!open) return openList();
+            const option = visible[active];
+            if (!option) {
+              if (!hasQuery) closeList();
+              return;
+            }
+            if (hasQuery) {
+              // Typed then Enter means "add": never untick by accident.
+              add(option);
+              resetQuery(option);
+            } else if (option.box.checked) {
+              remove(option);
+            } else {
+              add(option);
+            }
+            return;
+          }
+          case 'Escape': {
+            if (open) {
+              event.preventDefault();
+              event.stopPropagation();
+              closeList();
+            } else if (input.value) {
+              event.preventDefault();
+              input.value = '';
+              filter();
+            }
+            return;
+          }
+          case 'Backspace': {
+            if (input.value || input.selectionStart !== 0) return;
+            const last = byName.get(order[order.length - 1] ?? '');
+            if (last) {
+              event.preventDefault();
+              remove(last);
+            }
+            return;
+          }
+          case 'Tab':
+            closeList();
+            return;
+        }
+      });
+
+      // Keep focus (and a phone's keyboard) in the search box while picking.
+      listbox.addEventListener('mousedown', (event) => event.preventDefault());
+
+      listbox.addEventListener('click', (event) => {
+        const el = (event.target as HTMLElement).closest<HTMLLIElement>('[role="option"]');
+        const option = options.find((candidate) => candidate.el === el);
+        if (!option) return;
+        if (option.box.checked) remove(option);
+        else add(option);
+        resetQuery(option);
+        const index = visible.indexOf(option);
+        if (document.activeElement === input && index >= 0) setActive(index);
+      });
+
+      chips.addEventListener('click', (event) => {
+        const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button[data-value]');
+        const option = byName.get(button?.dataset.value ?? '');
+        if (!button || !option) return;
+        const index = Array.from(chips.querySelectorAll('button')).indexOf(button);
+        remove(option);
+        // Focus the chip that took its place, else the one before, else search.
+        const remaining = Array.from(chips.querySelectorAll<HTMLButtonElement>('button'));
+        (remaining[Math.min(index, remaining.length - 1)] ?? input).focus();
+      });
+
+      // The stepper treats Enter as "next step", so handle it (and Delete or
+      // Backspace) on a chip here before it gets that far.
+      chips.addEventListener('keydown', (event) => {
+        if (!['Enter', 'Delete', 'Backspace'].includes(event.key)) return;
+        const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button[data-value]');
+        if (!button) return;
+        event.preventDefault();
+        event.stopPropagation();
+        button.click();
+      });
+
+      // Close when focus moves somewhere else or the visitor taps outside. A
+      // blur with nowhere to go (a phone's "Done" key) keeps the list open so
+      // it can still be scrolled and tapped with the keyboard put away.
+      input.addEventListener('blur', (event) => {
+        const next = event.relatedTarget as Node | null;
+        if (next && !listbox.contains(next)) closeList();
+      });
+      document.addEventListener('pointerdown', (event) => {
+        if (open && !picker.contains(event.target as Node)) closeList();
+      });
+
+      return { input, values };
+    };
+
+    const languagePicker = setUpLanguagePicker();
+    /** Chosen languages, in the order picked; the bare checkboxes if no picker. */
+    const chosenLanguages = (): string[] =>
+      languagePicker ? languagePicker.values() : checkedValues('languages');
+
+    /**
      * Per-step gate. Native constraints first (required, minlength, type=email)
      * so the browser shows its own message against the offending field, then
      * the checks the markup cannot express.
@@ -802,6 +1256,14 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
       }
 
       if (step === 1) {
+        if (chosenLanguages().length === 0) {
+          languagePicker?.input.setAttribute('aria-invalid', 'true');
+          return fail(
+            'Please choose at least one language you teach in.',
+            languagePicker?.input ?? el.querySelector<HTMLInputElement>('input[name="languages"]')
+          );
+        }
+
         const testCentres = el.querySelectorAll('input[name="test_centres"]:checked');
         if (testCentres.length === 0) {
           return fail(
@@ -894,10 +1356,13 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
     });
 
     // Enter should advance rather than submit, except on the final step.
+    // Buttons and links keep their own Enter: on Back it means "back", and
+    // treating it as "next step" sent keyboard users the wrong way.
     form.addEventListener('keydown', (event) => {
       if (event.key !== 'Enter') return;
       const target = event.target as HTMLElement;
       if (target.tagName === 'TEXTAREA') return;
+      if (target.closest('button, a[href], [role="button"]')) return;
       if (current !== total) {
         event.preventDefault();
         if (validateStep(current)) show(current + 1);
@@ -998,7 +1463,8 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         bio: String(data.get('bio') || '').trim() || null,
         price_per_hour_pounds: Number(data.get('price_per_hour_pounds') || 0),
         transmissions: checkedValues('transmissions'),
-        languages: splitList(String(data.get('languages') || '')),
+        // Names from the picker's fixed list, never free text.
+        languages: chosenLanguages(),
         specialisms: splitList(String(data.get('specialisms') || '')),
         // Stable slugs, not display names: the slug is the join key the API
         // stores in instructor_test_centres, and DVSA renames sites. The

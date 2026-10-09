@@ -13,17 +13,38 @@
  * Membership and payouts are started from here and finished in Stripe.
  * Membership leaves for hosted Checkout and returns; payouts mount Stripe's
  * embedded form inline, so that step never leaves Newdryve.
+ *
+ * Layout: one card at the top holds the step to do now, and the step is done
+ * inside that card. The checklist below is a one-line-per-step overview. The
+ * earlier version opened each step as a new card under a seven-item list, so
+ * an instructor pressed a button and then had to scroll to find what it did.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { OnboardingState, OnboardingTask } from "@/lib/instructor/backend";
 import { Shell, Wordmark } from "@/components/instructor/Shell";
-import { Progress, TaskRow } from "@/components/instructor/TaskList";
+import { StepList, StepProgress } from "@/components/instructor/TaskList";
 import { CoverageStep } from "@/components/instructor/CoverageStep";
-import { ReviewStep } from "@/components/instructor/ReviewStep";
+import { ListingSummary, ReviewStep } from "@/components/instructor/ReviewStep";
+import { APP_URL } from "@/lib/env";
+import { SETUP_PAGE_KEY } from "@/lib/instructor/setup-page";
 
 /** Long enough not to hammer the API, short enough to catch a Stripe webhook. */
 const POLL_MS = 15_000;
+
+/**
+ * Stripe Checkout always returns to /instructors/activate, which on its own
+ * can only say "check your inbox". On a phone that means leaving for the mail
+ * app to find this page again, so the way back is left in this tab's session
+ * storage (gone when the tab closes) for that page to offer.
+ */
+function rememberSetupPage() {
+  try {
+    sessionStorage.setItem(SETUP_PAGE_KEY, window.location.pathname + window.location.search);
+  } catch {
+    // Private mode or storage disabled: the return page falls back to email.
+  }
+}
 
 export default function OnboardingHub({
   token,
@@ -39,12 +60,12 @@ export default function OnboardingHub({
   const [actionError, setActionError] = useState<string | null>(null);
   const [busyTask, setBusyTask] = useState<string | null>(null);
   const [connectOpen, setConnectOpen] = useState(false);
-  const [coverageOpen, setCoverageOpen] = useState(false);
-  const [reviewError, setReviewError] = useState<string | null>(null);
   const [connectElement, setConnectElement] = useState<HTMLElement | null>(null);
+  /** A step the instructor picked from the list; otherwise the first open one. */
+  const [chosenId, setChosenId] = useState<OnboardingTask["id"] | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const connectContainer = useRef<HTMLDivElement | null>(null);
-  const connectSection = useRef<HTMLElement | null>(null);
-  const reviewContainer = useRef<HTMLDivElement | null>(null);
+  const currentCard = useRef<HTMLElement | null>(null);
   const reviewPending = useRef(false);
   const latestLoad = useRef(0);
 
@@ -54,17 +75,29 @@ export default function OnboardingHub({
     }
   }, [connectOpen, connectElement]);
 
-  useEffect(() => {
-    if (!connectOpen) return;
-    const frame = requestAnimationFrame(() => {
-      connectSection.current?.focus({ preventScroll: true });
-      connectSection.current?.scrollIntoView({
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-        block: "start",
-      });
+  /**
+   * Move focus (and, only if it is off screen, the view) to the current-step
+   * card. Used when the step changes under the instructor's hand, so keyboard
+   * and screen-reader users land on the new step rather than on a button that
+   * no longer exists.
+   */
+  const revealCurrentCard = useCallback(() => {
+    requestAnimationFrame(() => {
+      const card = currentCard.current;
+      if (!card) return;
+      card.focus({ preventScroll: true });
+      if (card.getBoundingClientRect().top < 0) {
+        card.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+          block: "start",
+        });
+      }
     });
-    return () => cancelAnimationFrame(frame);
-  }, [connectOpen]);
+  }, []);
+
+  useEffect(() => {
+    if (connectOpen) revealCurrentCard();
+  }, [connectOpen, revealCurrentCard]);
 
   /**
    * Polling, tab visibility and completed actions can start overlapping reads.
@@ -118,6 +151,7 @@ export default function OnboardingHub({
   const startMembership = useCallback(async () => {
     setBusyTask("membership");
     setActionError(null);
+    setNotice(null);
     try {
       const response = await fetch("/api/instructor/billing-checkout", {
         method: "POST",
@@ -128,6 +162,7 @@ export default function OnboardingHub({
       if (!response.ok) throw new Error(body.error || "Could not start membership setup.");
       const destination = body.checkout_url || body.app_url;
       if (!destination) throw new Error("Stripe did not return a secure checkout link.");
+      rememberSetupPage();
       window.location.assign(destination);
     } catch (cause) {
       setActionError(cause instanceof Error ? cause.message : "Could not start membership setup.");
@@ -138,6 +173,7 @@ export default function OnboardingHub({
   const startPayouts = useCallback(async () => {
     setBusyTask("payouts");
     setActionError(null);
+    setNotice(null);
     try {
       const newSession = async (): Promise<{ client_secret: string; publishable_key: string }> => {
         const response = await fetch("/api/instructor/connect-onboard", {
@@ -215,8 +251,10 @@ export default function OnboardingHub({
         });
         const body = await response.json();
         if (!response.ok) throw new Error(body.error || "Could not save your service area.");
-        setCoverageOpen(false);
+        setChosenId(null);
         await load();
+        setNotice("Service area saved.");
+        revealCurrentCard();
       } catch (cause) {
         setActionError(
           cause instanceof Error ? cause.message : "Could not save your service area."
@@ -225,14 +263,15 @@ export default function OnboardingHub({
         setBusyTask(null);
       }
     },
-    [token, state, load]
+    [token, state, load, revealCurrentCard]
   );
 
   const confirmListing = useCallback(async () => {
     if (reviewPending.current) return;
     reviewPending.current = true;
     setBusyTask("review");
-    setReviewError(null);
+    setActionError(null);
+    setNotice(null);
     try {
       const response = await fetch("/api/instructor/confirm-listing", {
         method: "POST",
@@ -245,24 +284,29 @@ export default function OnboardingHub({
       }
       await load();
     } catch (cause) {
-      setReviewError(cause instanceof Error ? cause.message : "Could not confirm your listing.");
+      setActionError(cause instanceof Error ? cause.message : "Could not confirm your listing.");
     } finally {
       reviewPending.current = false;
       setBusyTask(null);
     }
   }, [token, load]);
 
-  const onAction = useCallback(
+  /** "Start" on a later step in the list brings it into the current-step card. */
+  const chooseStep = useCallback(
     (task: OnboardingTask) => {
-      if (task.action === "membership_checkout") void startMembership();
-      if (task.action === "connect_onboarding") void startPayouts();
-      if (task.action === "coverage") setCoverageOpen(true);
-      if (task.action === "review_listing") {
-        reviewContainer.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+      setChosenId(task.id);
+      setActionError(null);
+      setNotice(null);
+      revealCurrentCard();
     },
-    [startMembership, startPayouts]
+    [revealCurrentCard]
   );
+
+  const closeConnect = useCallback(() => {
+    setConnectOpen(false);
+    setConnectElement(null);
+    void load();
+  }, [load]);
 
   if (loadError && !state) {
     const linkUnusable = /invalid|expired/i.test(loadError);
@@ -303,108 +347,275 @@ export default function OnboardingHub({
   }
 
   const firstName = state.display_name?.trim().split(/\s+/)[0] ?? null;
-  const membershipDone = state.tasks.some((task) => task.id === "membership" && task.state === "done");
-  const reviewTask = state.tasks.find((task) => task.id === "review");
-  const reviewReady = reviewTask?.state === "todo" && reviewTask.action === "review_listing";
+  const tasks = state.tasks;
+  const open = tasks.filter((task) => task.state === "todo" && task.action !== null);
+  const payoutsTask = tasks.find((task) => task.id === "payouts") ?? null;
+  // While Stripe's form is mounted it stays the current step, even if a poll
+  // lands mid-form and reports the account as under review.
+  const current = connectOpen
+    ? payoutsTask
+    : open.find((task) => task.id === chosenId) ?? open[0] ?? null;
+  const blocked = tasks.find((task) => task.state === "blocked") ?? null;
+  const waiting = tasks.filter((task) => task.state === "in_review");
+  const membershipDone = tasks.some((task) => task.id === "membership" && task.state === "done");
+  const showPreview = membershipDone && state.review && current?.action !== "review_listing";
+  // The review step pins its button to the bottom of a phone screen; leave
+  // room so the bar never covers the end of the page.
+  const reviewing = !state.complete && current?.action === "review_listing";
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-5 py-12 sm:py-16">
-      <Wordmark />
+    <main className={`mx-auto w-full max-w-xl px-4 pt-4 sm:px-5 sm:pt-12 ${reviewing ? "pb-36 sm:pb-16" : "pb-16"}`}>
+      <div className="flex items-center justify-between">
+        <Wordmark />
+        <a
+          href="mailto:support@newdryve.com?subject=Instructor%20setup"
+          className="focus-ring -mr-3 inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-ink underline-offset-2 hover:underline"
+        >
+          Need help?
+        </a>
+      </div>
 
-      <header className="mt-8">
-        <p className="text-[11px] font-bold uppercase tracking-[1px] text-racing-green">
-          {state.complete ? "You're all set" : "Getting you set up"}
-        </p>
-        <h1 className="font-display mt-3 text-4xl text-ink">
+      <header className="mt-5 sm:mt-8">
+        <h1 className="font-display text-[30px] leading-tight text-ink sm:text-4xl">
           {state.complete
-            ? firstName
-              ? `You're live, ${firstName}.`
-              : "You're live."
-            : firstName
-              ? `Nearly there, ${firstName}.`
-              : "Nearly there."}
+            ? firstName ? `You're live, ${firstName}.` : "You're live."
+            : firstName ? `Nearly there, ${firstName}.` : "Nearly there."}
         </h1>
-        <p className="mt-4 leading-7 text-ink-secondary">
-          {state.complete
-            ? "Everything is done and learners can find you. Manage your lessons from the Newdryve app."
-            : "Complete each available step here. We'll update this page as Stripe confirms your membership and payout details."}
-        </p>
-        <Progress tasks={state.tasks} />
+        <StepProgress tasks={tasks} />
       </header>
 
-      {actionError ? (
-        <p role="alert" className="mt-6 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-800">
-          {actionError}
-        </p>
-      ) : null}
       {loadError ? (
-        <p role="status" className="mt-6 rounded-xl bg-canvas px-4 py-3 text-sm text-ink-secondary">
+        <p role="status" className="mt-4 rounded-xl bg-white px-4 py-3 text-sm text-ink-secondary">
           {loadError} Showing the last version we loaded.
         </p>
       ) : null}
+      {notice ? (
+        <p role="status" className="mt-4 flex items-center gap-2 text-sm font-semibold text-racing-green">
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M2.5 6.2 5 8.5l4.5-5" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {notice}
+        </p>
+      ) : null}
 
-      <section className="mt-8 rounded-2xl border border-border bg-white p-6 shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] sm:p-8">
-        <ul className="-my-1">
-          {state.tasks.map((task) => (
-            <TaskRow
-              key={task.id}
-              task={task}
-              busy={busyTask === task.id}
-              onAction={onAction}
-            />
-          ))}
-        </ul>
+      <section
+        ref={currentCard}
+        tabIndex={-1}
+        aria-labelledby="current-step-title"
+        className={`mt-5 scroll-mt-4 rounded-2xl border bg-white p-5 shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] outline-none sm:p-7 ${
+          !state.complete && !current && blocked ? "border-rose-200" : "border-border"
+        }`}
+      >
+        {state.complete ? (
+          <LiveCard />
+        ) : current ? (
+          <>
+            <p className="text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+              Step {tasks.indexOf(current) + 1} of {tasks.length}
+            </p>
+            <h2 id="current-step-title" className="font-display mt-1.5 text-2xl text-ink">
+              {current.title}
+            </h2>
+            <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">
+              {current.action === "coverage"
+                ? "You won't appear in learners' searches until this is set."
+                : current.detail}
+            </p>
+
+            {current.action === "membership_checkout" ? (
+              <MembershipAction
+                membership={state.membership}
+                busy={busyTask === "membership"}
+                onStart={() => void startMembership()}
+              />
+            ) : null}
+
+            {current.id === "payouts" ? (
+              connectOpen ? (
+                <>
+                  <p className="mt-4 text-[13px] leading-5 text-ink-secondary">
+                    Secure form provided by Stripe. Newdryve never sees your full bank details.
+                  </p>
+                  {/* Bleeds to the card's edges on a phone: Stripe's form
+                      needs every pixel of width it can get at 320-390px. */}
+                  <div ref={connectContainer} className="-mx-5 mt-4 sm:mx-0" />
+                  <button
+                    type="button"
+                    onClick={closeConnect}
+                    className="focus-ring mt-4 min-h-11 text-sm font-semibold text-racing-green underline"
+                  >
+                    Close and check status
+                  </button>
+                </>
+              ) : current.action === "connect_onboarding" ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => void startPayouts()}
+                    disabled={busyTask === "payouts"}
+                    className="focus-ring mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+                  >
+                    {busyTask === "payouts" ? "Opening Stripe…" : "Connect bank account"}
+                  </button>
+                  <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
+                    A secure Stripe form opens on this page. Newdryve never sees your full bank details.
+                  </p>
+                </>
+              ) : null
+            ) : null}
+
+            {current.action === "coverage" ? (
+              <CoverageStep
+                key={state.coverage.centres.map((centre) => centre.slug).join(",")}
+                coverage={state.coverage}
+                busy={busyTask === "coverage"}
+                onSave={saveCoverage}
+              />
+            ) : null}
+
+            {current.action === "review_listing" && state.review ? (
+              <ReviewStep
+                review={state.review}
+                busy={busyTask === "review"}
+                error={actionError}
+                onConfirm={() => void confirmListing()}
+              />
+            ) : null}
+          </>
+        ) : blocked ? (
+          <>
+            <p className="text-[11px] font-bold uppercase tracking-[1px] text-rose-800">Needs our help</p>
+            <h2 id="current-step-title" className="font-display mt-1.5 text-2xl text-ink">
+              {blocked.title}
+            </h2>
+            <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">{blocked.detail}</p>
+            <a
+              href="mailto:support@newdryve.com?subject=Instructor%20setup%20blocked"
+              className="focus-ring mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white sm:w-auto"
+            >
+              Email support
+            </a>
+          </>
+        ) : (
+          <>
+            <p className="text-[11px] font-bold uppercase tracking-[1px] text-racing-green">Nothing to do right now</p>
+            <h2 id="current-step-title" className="font-display mt-1.5 text-2xl text-ink">
+              We&rsquo;re on it.
+            </h2>
+            <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">
+              {waiting.length
+                ? "Nothing is needed from you while the checks marked \u201cWith us\u201d below finish. "
+                : ""}
+              This page updates by itself, so you can close it and come back.
+            </p>
+            <button
+              type="button"
+              onClick={() => void load()}
+              className="focus-ring mt-4 min-h-11 text-sm font-semibold text-racing-green underline"
+            >
+              Check now
+            </button>
+          </>
+        )}
+
+        {actionError && !reviewing ? (
+          <p role="alert" className="mt-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-800">
+            {actionError}
+          </p>
+        ) : null}
       </section>
 
-      {coverageOpen ? (
-        <CoverageStep
-          coverage={state.coverage}
-          busy={busyTask === "coverage"}
-          error={actionError}
-          onSave={saveCoverage}
-          onCancel={() => setCoverageOpen(false)}
-        />
-      ) : null}
-
-      {connectOpen ? (
-        <section ref={connectSection} tabIndex={-1} aria-label="Stripe payout setup" className="mt-6 rounded-2xl border border-border bg-white p-6 shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] sm:p-8">
-          <h2 className="font-display text-2xl text-ink">Connect your bank account</h2>
-          <p className="mt-2 text-sm leading-6 text-ink-secondary">
-            This secure form is provided by Stripe inside Newdryve. Newdryve never sees your full
-            bank details.
-          </p>
-          <div ref={connectContainer} className="mt-6" />
-          <button
-            type="button"
-            onClick={() => { setConnectOpen(false); setConnectElement(null); void load(); }}
-            className="focus-ring mt-5 min-h-11 text-sm font-semibold text-racing-green underline"
-          >
-            Close setup and check status
-          </button>
-        </section>
-      ) : null}
-
-      {membershipDone && state.review ? (
-        <div ref={reviewContainer}>
-          <ReviewStep
-            review={state.review}
-            busy={busyTask === "review"}
-            ready={reviewReady}
-            listed={state.listed}
-            error={reviewError}
-            onConfirm={() => void confirmListing()}
-            onRefresh={() => void load()}
-          />
+      <section aria-labelledby="all-steps-title" className="mt-7">
+        <h2 id="all-steps-title" className="text-xs font-bold uppercase tracking-[1px] text-ink">
+          All steps
+        </h2>
+        <div className="mt-2">
+          <StepList tasks={tasks} focusedId={state.complete ? null : current?.id ?? null} onFocus={chooseStep} />
         </div>
-      ) : null}
+      </section>
 
-      <p className="mt-8 text-xs leading-5 text-ink-muted">
-        Stuck on something? Email{" "}
-        <a className="font-semibold underline" href="mailto:support@newdryve.com">
-          support@newdryve.com
-        </a>
-        .
-      </p>
+      {showPreview ? (
+        <details className="group mt-6 rounded-2xl border border-border bg-white">
+          <summary className="focus-ring flex min-h-12 cursor-pointer list-none items-center justify-between rounded-2xl px-4 text-[15px] font-semibold sm:px-5 sm:text-sm text-ink [&::-webkit-details-marker]:hidden">
+            {state.listed ? "See your public listing" : "Preview what learners will see"}
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" className="transition-transform group-open:rotate-180">
+              <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </summary>
+          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
+            <ListingSummary review={state.review} />
+            <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
+              Need to correct anything? Email{" "}
+              <a className="font-semibold underline" href="mailto:support@newdryve.com?subject=Instructor%20listing%20correction">
+                support@newdryve.com
+              </a>
+              .
+            </p>
+          </div>
+        </details>
+      ) : null}
     </main>
+  );
+}
+
+function MembershipAction({
+  membership,
+  busy,
+  onStart,
+}: {
+  membership: OnboardingState["membership"];
+  busy: boolean;
+  onStart: () => void;
+}) {
+  const monthly =
+    membership.monthly_amount_pence != null
+      ? new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: 0 }).format(
+          membership.monthly_amount_pence / 100
+        )
+      : null;
+  const terms = monthly
+    ? membership.trial_months > 0
+      ? `${membership.trial_months}-month free trial, then ${monthly} a month.`
+      : `${monthly} a month.`
+    : null;
+
+  return (
+    <>
+      {terms ? (
+        <p className="mt-4 rounded-xl bg-canvas px-4 py-3 text-sm font-semibold text-ink">{terms}</p>
+      ) : null}
+      <button
+        type="button"
+        onClick={onStart}
+        disabled={busy}
+        className="focus-ring mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+      >
+        {busy ? "Opening Stripe…" : "Continue to Stripe"}
+      </button>
+      <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
+        Stripe shows the exact first charge before you confirm, then sends you back to finish setup.
+      </p>
+    </>
+  );
+}
+
+function LiveCard() {
+  return (
+    <>
+      <p className="text-[11px] font-bold uppercase tracking-[1px] text-racing-green">Setup complete</p>
+      <h2 id="current-step-title" className="font-display mt-1.5 text-2xl text-ink">
+        Learners can now find and book you.
+      </h2>
+      <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">
+        Sign in to the Newdryve app with the email and password you applied with to manage lessons,
+        availability and payouts.
+      </p>
+      <a
+        href={APP_URL}
+        className="focus-ring mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white sm:w-auto"
+      >
+        Open Newdryve
+      </a>
+    </>
   );
 }

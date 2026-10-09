@@ -9,9 +9,22 @@
  * unlocked by Stripe's webhook, so nothing here claims it on Stripe's behalf.
  */
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
-import { ErrorNote, PrimaryButton, Shell } from "@/components/instructor/Shell";
+import { ErrorNote, PrimaryButton, PrimaryLink, Shell } from "@/components/instructor/Shell";
+import { isSetupPagePath, SETUP_PAGE_KEY } from "@/lib/instructor/setup-page";
+
+/** Session storage never changes under this page, so there is nothing to watch. */
+const noSubscription = () => () => {};
+
+function readSetupPage(): string | null {
+  try {
+    const stored = sessionStorage.getItem(SETUP_PAGE_KEY);
+    return isSetupPagePath(stored) ? stored : null;
+  } catch {
+    return null; // Storage unavailable: the email route still works.
+  }
+}
 
 export default function ActivateMembership() {
   const searchParams = useSearchParams();
@@ -22,6 +35,11 @@ export default function ActivateMembership() {
 
   const state =
     status === "success" ? "success" : status === "cancelled" ? "cancelled" : token ? "ready" : "invalid";
+
+  // Set when membership was started from the setup page in this tab. Null on
+  // the server render, where session storage does not exist.
+  const storedSetupPage = useSyncExternalStore(noSubscription, readSetupPage, () => null);
+  const setupPage = state === "success" || state === "cancelled" ? storedSetupPage : null;
 
   const activate = useCallback(async () => {
     setBusy(true);
@@ -46,13 +64,24 @@ export default function ActivateMembership() {
   }, [token]);
 
   if (state === "success") {
+    if (setupPage) {
+      return (
+        <Shell eyebrow="Membership submitted" title="Back to your setup." align="left">
+          <p className="mt-4 leading-7 text-ink-secondary">
+            Stripe is confirming your membership. Your setup page updates on its own once it
+            does.
+          </p>
+          <PrimaryLink href={setupPage}>Continue setup</PrimaryLink>
+        </Shell>
+      );
+    }
     return (
-      <Shell eyebrow="Membership setup submitted" title="Check your inbox for the next step." align="left">
+      <Shell eyebrow="Step 1 of 4 done" title="Check your inbox for the next step." align="left">
         <p className="mt-4 leading-7 text-ink-secondary">
-          Stripe is confirming your membership. As soon as it does, we&rsquo;ll email you a link to finish
-          setup on Newdryve: connect payouts, set your service area and review your listing.
+          Stripe is confirming your membership. As soon as it does, we&rsquo;ll email you a link to your
+          setup page to connect your bank account, set your service area and review your listing.
         </p>
-        <p className="mt-3 text-sm leading-6 text-ink-muted">If it doesn&rsquo;t arrive, check spam or email <a href="mailto:support@newdryve.com" className="font-semibold underline">support@newdryve.com</a>.</p>
+        <p className="mt-3 text-sm leading-6 text-ink-secondary">If it doesn&rsquo;t arrive, check spam or email <a href="mailto:support@newdryve.com" className="font-semibold text-ink underline">support@newdryve.com</a>.</p>
       </Shell>
     );
   }
@@ -64,6 +93,7 @@ export default function ActivateMembership() {
           You can try again now or reopen your approval email later.
         </p>
         {token ? <PrimaryButton onClick={activate} disabled={busy}>{busy ? "Opening Stripe…" : "Try again"}</PrimaryButton> : null}
+        {setupPage ? <PrimaryLink href={setupPage} variant="secondary">Back to your setup page</PrimaryLink> : null}
         <ErrorNote>{error}</ErrorNote>
       </Shell>
     );
@@ -84,19 +114,60 @@ export default function ActivateMembership() {
   }
 
   return (
-    <Shell eyebrow="Application approved" title="One last step." align="left">
+    <Shell eyebrow="Application approved" title="Welcome to Newdryve." align="left">
       <p className="mt-4 leading-7 text-ink-secondary">
-        Continue to Stripe to securely add your payment method. If you were granted a trial, you
-        won&rsquo;t be charged until that trial ends.
-      </p>
-      <p className="mt-3 text-sm leading-6 text-ink-muted">
-        Stripe shows the exact first-charge date before you confirm. Your account unlocks only
-        after Stripe confirms setup. Newdryve never receives your full card details.
+        Start by setting up your membership with Stripe. If you were given a free trial, you
+        won&rsquo;t be charged until it ends.
       </p>
       <PrimaryButton onClick={activate} disabled={busy}>
-        {busy ? "Opening Stripe…" : error ? "Try again" : "Continue securely with Stripe"}
+        {busy ? "Opening Stripe…" : error ? "Try again" : "Continue to Stripe"}
       </PrimaryButton>
       <ErrorNote>{error}</ErrorNote>
+      <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
+        Stripe shows the exact first charge before you confirm. Newdryve never sees your full card
+        details.
+      </p>
+      <NextSteps />
     </Shell>
+  );
+}
+
+/**
+ * The whole road from here to going live, so membership is not mistaken for
+ * the final step — it is the first of four, and the rest happen on the setup
+ * page we email once Stripe confirms.
+ */
+function NextSteps() {
+  const steps = [
+    "Set up your membership",
+    "Connect your bank account",
+    "Set your service area",
+    "Review your listing and go live",
+  ];
+  return (
+    <div className="mt-7 border-t border-border pt-5">
+      <p className="text-[11px] font-bold uppercase tracking-[1px] text-ink-secondary">Your setup</p>
+      <ol className="mt-3 space-y-2.5">
+        {steps.map((step, index) => (
+          <li key={step} className="flex items-center gap-3 text-sm">
+            <span
+              aria-hidden="true"
+              className={`flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                index === 0 ? "bg-deep-rose text-white" : "border border-border text-ink-secondary"
+              }`}
+            >
+              {index + 1}
+            </span>
+            <span className={index === 0 ? "font-semibold text-ink" : "text-ink-secondary"}>
+              {step}
+              {index === 0 ? <span className="sr-only"> (now)</span> : null}
+            </span>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-4 text-[13px] leading-5 text-ink-secondary">
+        Once Stripe confirms your membership, we&rsquo;ll email you a link to finish steps 2 to 4.
+      </p>
+    </div>
   );
 }
