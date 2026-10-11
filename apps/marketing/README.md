@@ -128,6 +128,6 @@ Required before cutover:
    The Railway router sends it to the Next app directly because it is the isolated
    organisation admin portal, not an Astro marketing page.
 
-The old Next app also proxied `/v1/*`, `/healthz` and `/readyz` to the Fastify
-backend via `BACKEND_ORIGIN`. If `newdryve.com` still needs to serve those
-paths, that rewrite has to be reproduced at the edge or on the ops service.
+`newdryve.com` does not serve `/v1/*`, `/healthz` or `/readyz`: the combined
+router sends them to Astro, which has no such routes. The API is reached at its
+own origin.
