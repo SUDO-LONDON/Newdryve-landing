@@ -82,10 +82,11 @@ The API rate-limits `POST /v1/instructors/apply` to five requests an hour per
 caller IP. The call is server-to-server, so unless the applicant's address is
 forwarded the API sees this service's single egress IP and the whole site shares
 one bucket of five applications an hour — after which every applicant fails on
-the last step of the form. The route therefore sends the applicant's
-`clientAddress` as `x-forwarded-for`/`x-real-ip`, which only works while the API
-keys its limiter on the forwarded address (Fastify `trustProxy`) rather than on
-the socket peer.
+the last step of the form. The route therefore sends the applicant's address
+(Railway's `X-Real-IP`, falling back to `clientAddress`) as
+`x-forwarded-for`/`x-real-ip`, together with `x-newdryve-proxy-secret` set to
+`NEWDRYVE_API_OPS_SECRET`. The API only believes a forwarded address from a
+caller presenting that secret, so without it every applicant shares one bucket.
 
 ## Content and factual claims
 

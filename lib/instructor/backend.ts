@@ -56,15 +56,30 @@ export function json(body: unknown, status = 200): Response {
  *
  * Without it the API sees this service's single egress address on every call
  * and rate-limits every instructor together, out of one shared bucket.
+ *
+ * `X-Real-IP` first: Railway's edge sets it to the address it accepted the
+ * connection from, whereas the left-most `X-Forwarded-For` entry is whatever
+ * the browser chose to send, so keying on it let anyone reset their limit.
  */
-export function forwardedIp(request: Request): string | null {
+export function forwardedIp(request: { headers: Headers }): string | null {
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
   const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) {
-    // Left-most entry is the original client; the rest are proxies.
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return request.headers.get("x-real-ip")?.trim() || null;
+  // Left-most entry is the original client; the rest are proxies.
+  return forwarded?.split(",")[0]?.trim() || null;
+}
+
+/**
+ * Headers naming the instructor to the API. The API only believes a forwarded
+ * address from a caller holding the shared ops secret (the proxy secret it
+ * also accepts), so without it every instructor shares this service's bucket.
+ */
+function clientHeaders(ip: string | null | undefined): Record<string, string> {
+  const secret = process.env.NEWDRYVE_API_OPS_SECRET || "";
+  return {
+    ...(ip ? { "x-forwarded-for": ip, "x-real-ip": ip } : {}),
+    ...(ip && secret ? { "x-newdryve-proxy-secret": secret } : {}),
+  };
 }
 
 /** Token shape shared by the membership and payout links. */
@@ -109,7 +124,7 @@ export async function postToken(
       method: "POST",
       headers: {
         "content-type": "application/json",
-        ...(ip ? { "x-forwarded-for": ip, "x-real-ip": ip } : {}),
+        ...clientHeaders(ip),
       },
       body: JSON.stringify({ token: parsed.token }),
       cache: "no-store",
@@ -222,7 +237,7 @@ export async function loadOnboarding(
     const upstream = await fetch(
       `${origin}/v1/instructors/onboarding?token=${encodeURIComponent(token)}`,
       {
-        headers: ip ? { "x-forwarded-for": ip, "x-real-ip": ip } : undefined,
+        headers: clientHeaders(ip),
         cache: "no-store",
         signal: AbortSignal.timeout(READ_TIMEOUT_MS),
       }
@@ -274,7 +289,7 @@ export async function postCoverage(request: Request, body: unknown): Promise<Res
       method: "PUT",
       headers: {
         "content-type": "application/json",
-        ...(ip ? { "x-forwarded-for": ip, "x-real-ip": ip } : {}),
+        ...clientHeaders(ip),
       },
       body: JSON.stringify(body),
       cache: "no-store",
