@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
   // Enforce the allowlist immediately — a valid session for a non-founder must
   // not be allowed to persist.
-  if (!email || !isFounderEmail(email)) {
+  if (!email || !(await isAllowedFounder(supabase, email))) {
     await supabase.auth.signOut();
     return NextResponse.redirect(opsUrl("/ops/denied"));
   }
@@ -81,4 +81,19 @@ function sanitizeNext(next: string | null): string {
 
 function opsUrl(path: string): URL {
   return new URL(path, PUBLIC_SITE_URL);
+}
+
+async function isAllowedFounder(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  email: string
+): Promise<boolean> {
+  if (isFounderEmail(email)) return true;
+
+  const { data, error } = await supabase
+    .from("ops_allowlist")
+    .select("email")
+    .eq("email", email.trim().toLowerCase())
+    .maybeSingle();
+
+  return !error && !!data;
 }

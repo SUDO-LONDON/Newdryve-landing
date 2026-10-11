@@ -150,7 +150,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (!isFounderEmail(email)) {
+  if (!(await isAllowedFounder(supabase, email))) {
     if (isDenied) return response();
     const url = request.nextUrl.clone();
     url.pathname = "/ops/denied";
@@ -182,6 +182,22 @@ function sanitizeFounderNext(next: string | null): string {
     return next;
   }
   return "/ops";
+}
+
+async function isAllowedFounder(
+  supabase: ReturnType<typeof createSupabaseMiddlewareClient>["supabase"],
+  email: string | null
+): Promise<boolean> {
+  if (!email) return false;
+  if (isFounderEmail(email)) return true;
+
+  const { data, error } = await supabase
+    .from("ops_allowlist")
+    .select("email")
+    .eq("email", email.trim().toLowerCase())
+    .maybeSingle();
+
+  return !error && !!data;
 }
 
 const cookieOptions = {
