@@ -13,6 +13,9 @@ const eslintConfig = defineConfig([
     "build/**",
     "public/thedeck-assets/**",
     "next-env.d.ts",
+    // Astro build output and generated types; not source.
+    "apps/marketing/dist/**",
+    "apps/marketing/.astro/**",
   ]),
 ]);
 

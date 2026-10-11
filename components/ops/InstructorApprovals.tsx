@@ -1,8 +1,35 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ApplicationStatus, InstructorApplication } from "@/lib/ops/instructors";
+
+type CardAction =
+  | "approve"
+  | "reject"
+  | "reinstate"
+  | "update_verification"
+  | "resend_activation"
+  | "update_listing";
+
+/**
+ * Actions after which the instructor stays on the same tab. Everything else
+ * moves the row to another tab, so its card unmounts on refresh and keeping
+ * the button busy until then is what stops a second click.
+ */
+const STAYS_ON_TAB: ReadonlySet<CardAction> = new Set([
+  "update_verification",
+  "resend_activation",
+  "update_listing",
+]);
+
+/**
+ * Subscription states Stripe has stopped collecting on, for which the API's
+ * resend-activation sends an approved instructor a "restart your membership"
+ * link. Mirrors LAPSED_SUBSCRIPTION_STATUSES in the API. past_due is not here:
+ * Stripe is still retrying it, and a second Checkout would double-bill.
+ */
+const LAPSED_SUBSCRIPTION = new Set(["none", "canceled", "unpaid", "incomplete", "incomplete_expired", "paused"]);
 
 /**
  * Founder-facing approve / reject / reinstate for instructor applications.
@@ -36,6 +63,8 @@ function ApplicationCard({
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
+  /** The last action that succeeded on a row that stays put, shown briefly. */
+  const [done, setDone] = useState<CardAction | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState("");
@@ -66,8 +95,15 @@ function ApplicationCard({
   const badgeCurrent = Boolean(badgeExpiry && badgeExpiry >= new Date().toISOString().slice(0, 10));
   const verificationReady = permissionConfirmed && badgeCurrent && adiVerified && Boolean(verificationMethod);
 
-  async function act(action: "approve" | "reject" | "reinstate" | "update_verification" | "resend_activation", extra: Record<string, unknown> = {}) {
+  useEffect(() => {
+    if (!done) return;
+    const timer = setTimeout(() => setDone(null), 4000);
+    return () => clearTimeout(timer);
+  }, [done]);
+
+  async function act(action: CardAction, extra: Record<string, unknown> = {}) {
     setBusy(action);
+    setDone(null);
     setError(null);
     try {
       const res = await fetch(`/ops/api/instructors/${application.id}`, {
@@ -77,12 +113,139 @@ function ApplicationCard({
       });
       const body = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) throw new Error(body.error || "That didn't work. Try again.");
+      if (STAYS_ON_TAB.has(action)) {
+        setBusy(null);
+        setDone(action);
+        if (action === "update_verification") setRechecking(false);
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "That didn't work. Try again.");
       setBusy(null);
     }
   }
+
+  // Badge expiry can be corrected for any approved instructor, including one
+  // still waiting on membership setup; the API route accepts every status.
+  const recheckSection = (
+    <>
+      {rechecking ? (
+        <div className="mt-4 grid gap-3 rounded-xl border border-border bg-canvas p-4 sm:grid-cols-2">
+          <label className="font-medium text-ink">
+            Badge expiry
+            <input
+              type="date"
+              min={new Date().toISOString().slice(0, 10)}
+              value={badgeExpiry}
+              onChange={(event) => setBadgeExpiry(event.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2"
+            />
+          </label>
+          <label className="font-medium text-ink">
+            Verification method
+            <select
+              value={verificationMethod}
+              onChange={(event) => setVerificationMethod(event.target.value as typeof verificationMethod)}
+              className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2"
+            >
+              <option value="">Select after checking</option>
+              <option value="govuk_directory">GOV.UK instructor directory</option>
+              <option value="dvsa_contact">Confirmed directly with DVSA</option>
+            </select>
+          </label>
+          <label className="font-medium text-ink sm:col-span-2">
+            Verification note <span className="font-normal text-ink-muted">(optional)</span>
+            <input
+              value={verificationNote}
+              maxLength={500}
+              onChange={(event) => setVerificationNote(event.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2"
+            />
+          </label>
+          {!verificationPermission ? (
+            <div className="sm:col-span-2">
+              <Toggle label="I obtained written permission to check with DVSA" checked={permissionConfirmed} onChange={setPermissionConfirmed} />
+            </div>
+          ) : null}
+          <div className="flex flex-wrap justify-end gap-2 sm:col-span-2">
+            <button type="button" onClick={() => setRechecking(false)} className="rounded-lg border border-border bg-white px-3 py-2 text-ink">
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={busy !== null || !permissionConfirmed || !badgeCurrent || !verificationMethod}
+              onClick={() => act("update_verification", {
+                adi_verified: true,
+                adi_badge_expires_on: badgeExpiry,
+                dvsa_verification_consent_confirmed: permissionConfirmed,
+                adi_verification_method: verificationMethod,
+                adi_verification_note: verificationNote.trim() || null,
+              })}
+              className="rounded-lg bg-racing-green px-3 py-2 font-semibold text-white disabled:opacity-50"
+            >
+              {busy === "update_verification" ? "Saving…" : "Save DVSA check"}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            setAdiVerified(true);
+            setRechecking(true);
+          }}
+          className="mt-3 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-ink hover:bg-blush-surface"
+        >
+          {application.adi_verified ? "Record a new DVSA check" : "Verify DVSA registration"}
+        </button>
+      )}
+      {done === "update_verification" ? (
+        <p role="status" className="mt-2 text-xs font-semibold text-racing-green">DVSA check saved.</p>
+      ) : null}
+    </>
+  );
+
+  const subscriptionStatus = application.tenants?.subscription_status || "none";
+  const membershipComped = Boolean(application.tenants?.subscription_comped_forever);
+  const membershipLapsed = !membershipComped && LAPSED_SUBSCRIPTION.has(subscriptionStatus);
+  const membershipOverdue = !membershipComped && subscriptionStatus === "past_due";
+
+  // Approval can hold the listing back; this is the way to release it later
+  // (or to take a live listing down).
+  const listingControl = (
+    <div className="mt-3 flex flex-wrap items-center gap-2">
+      {application.listing_approved ? (
+        <button
+          type="button"
+          disabled={busy !== null}
+          onClick={() => {
+            if (
+              window.confirm(
+                "Withdraw listing approval? They are unlisted now and must be approved and review their listing again."
+              )
+            ) {
+              void act("update_listing", { listing_approved: false });
+            }
+          }}
+          className="rounded-lg border border-border px-3 py-2 text-xs font-semibold text-ink hover:bg-blush-surface disabled:opacity-60"
+        >
+          {busy === "update_listing" ? "Saving…" : "Withdraw listing approval"}
+        </button>
+      ) : (
+        <button
+          type="button"
+          disabled={busy !== null}
+          onClick={() => void act("update_listing", { listing_approved: true })}
+          className="rounded-lg bg-racing-green px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
+        >
+          {busy === "update_listing" ? "Saving…" : "Approve listing"}
+        </button>
+      )}
+      {done === "update_listing" ? (
+        <span role="status" className="text-xs font-semibold text-racing-green">Saved.</span>
+      ) : null}
+    </div>
+  );
 
   return (
     <article className="rounded-xl border border-border bg-white p-5">
@@ -457,84 +620,39 @@ function ApplicationCard({
           <p>
             Approved{application.approved_by_email ? ` by ${application.approved_by_email}` : ""}
             {application.approved_at ? ` on ${formatDate(application.approved_at)}` : ""}.
-            {application.is_listed ? " Listed in the marketplace." : " Not listed yet."}
+            {application.is_listed
+              ? " Listed in the marketplace."
+              : application.listing_approved
+                ? " Listing approved; it goes live once they finish setup and confirm their details."
+                : " Listing held: their setup page waits on us until you approve it."}
           </p>
+          {listingControl}
+          <p className={`mt-3 ${membershipLapsed || membershipOverdue ? "font-semibold text-deep-rose-ink" : ""}`}>
+            {membershipComped
+              ? "Membership: free forever."
+              : membershipLapsed
+                ? `Membership lapsed (${subscriptionStatus === "none" ? "no subscription" : subscriptionStatus.replaceAll("_", " ")}). Send them a link to restart it.`
+                : membershipOverdue
+                  ? "Membership payment overdue. Stripe is still retrying, so ask them to update their card rather than sending a new link."
+                  : `Membership: ${subscriptionStatus.replaceAll("_", " ")}.`}
+          </p>
+          {membershipLapsed ? (
+            <button
+              type="button"
+              disabled={busy !== null}
+              onClick={() => void act("resend_activation")}
+              className="mt-2 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-ink hover:bg-blush-surface disabled:opacity-60"
+            >
+              {busy === "resend_activation" ? "Sending…" : done === "resend_activation" ? "Sent" : "Send restart-membership email"}
+            </button>
+          ) : null}
           <p className="mt-1">
             {application.adi_verified
               ? `DVSA registration checked${application.adi_verified_at ? ` on ${formatDate(application.adi_verified_at)}` : ""}. Recheck due ${formatDateOnly(application.adi_recheck_due_on)}.`
               : "DVSA registration needs checking before displaying the verified badge."}
           </p>
 
-          {rechecking ? (
-            <div className="mt-4 grid gap-3 rounded-xl border border-border bg-canvas p-4 sm:grid-cols-2">
-              <label className="font-medium text-ink">
-                Badge expiry
-                <input
-                  type="date"
-                  min={new Date().toISOString().slice(0, 10)}
-                  value={badgeExpiry}
-                  onChange={(event) => setBadgeExpiry(event.target.value)}
-                  className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2"
-                />
-              </label>
-              <label className="font-medium text-ink">
-                Verification method
-                <select
-                  value={verificationMethod}
-                  onChange={(event) => setVerificationMethod(event.target.value as typeof verificationMethod)}
-                  className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2"
-                >
-                  <option value="">Select after checking</option>
-                  <option value="govuk_directory">GOV.UK instructor directory</option>
-                  <option value="dvsa_contact">Confirmed directly with DVSA</option>
-                </select>
-              </label>
-              <label className="font-medium text-ink sm:col-span-2">
-                Verification note <span className="font-normal text-ink-muted">(optional)</span>
-                <input
-                  value={verificationNote}
-                  maxLength={500}
-                  onChange={(event) => setVerificationNote(event.target.value)}
-                  className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2"
-                />
-              </label>
-              {!verificationPermission ? (
-                <div className="sm:col-span-2">
-                  <Toggle label="I obtained written permission to check with DVSA" checked={permissionConfirmed} onChange={setPermissionConfirmed} />
-                </div>
-              ) : null}
-              <div className="flex flex-wrap justify-end gap-2 sm:col-span-2">
-                <button type="button" onClick={() => setRechecking(false)} className="rounded-lg border border-border bg-white px-3 py-2 text-ink">
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  disabled={busy !== null || !permissionConfirmed || !badgeCurrent || !verificationMethod}
-                  onClick={() => act("update_verification", {
-                    adi_verified: true,
-                    adi_badge_expires_on: badgeExpiry,
-                    dvsa_verification_consent_confirmed: permissionConfirmed,
-                    adi_verification_method: verificationMethod,
-                    adi_verification_note: verificationNote.trim() || null,
-                  })}
-                  className="rounded-lg bg-racing-green px-3 py-2 font-semibold text-white disabled:opacity-50"
-                >
-                  {busy === "update_verification" ? "Saving…" : "Save DVSA check"}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                setAdiVerified(true);
-                setRechecking(true);
-              }}
-              className="mt-3 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-ink hover:bg-blush-surface"
-            >
-              {application.adi_verified ? "Record a new DVSA check" : "Verify DVSA registration"}
-            </button>
-          )}
+          {recheckSection}
         </div>
       ) : null}
 
@@ -550,8 +668,15 @@ function ApplicationCard({
             onClick={() => act("resend_activation")}
             className="mt-3 rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-semibold text-amber-950 disabled:opacity-60"
           >
-            {busy === "resend_activation" ? "Sending…" : "Resend payment email"}
+            {busy === "resend_activation" ? "Sending…" : done === "resend_activation" ? "Sent" : "Resend payment email"}
           </button>
+          <p className="mt-3">
+            {application.listing_approved
+              ? "Listing approved; it goes live once they finish setup and confirm their details."
+              : "Listing held until you approve it."}
+          </p>
+          {listingControl}
+          <div className="text-ink-secondary">{recheckSection}</div>
         </div>
       ) : null}
 

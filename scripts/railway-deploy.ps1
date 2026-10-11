@@ -63,6 +63,7 @@ $requiredKeys = @(
 # Pushed only when present and non-empty. The delivery pipeline works without
 # these — notifications just no-op — so an unset webhook must not block a deploy.
 $optionalKeys = @(
+  "OPS_SESSION_SECRET",
   "OPS_DISCORD_WEBHOOK_URL",
   "OPS_DISCORD_USER_IDS",
   "OPS_BASE_URL"
@@ -83,6 +84,9 @@ $presentOptional = @($optionalKeys | Where-Object {
 $skippedOptional = @($optionalKeys | Where-Object { $presentOptional -notcontains $_ })
 if ($skippedOptional.Count -gt 0) {
   Write-Host "Optional variables not set in .env.local (skipping): $($skippedOptional -join ', ')"
+  if ($skippedOptional -contains "OPS_SESSION_SECRET") {
+    Write-Host "  /ops will re-check Supabase on every request (no signed session cookie)." -ForegroundColor Yellow
+  }
   if ($skippedOptional -contains "OPS_DISCORD_WEBHOOK_URL") {
     Write-Host "  Delivery-pipeline unlocks will NOT notify Discord." -ForegroundColor Yellow
   }

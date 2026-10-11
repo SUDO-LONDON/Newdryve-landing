@@ -66,8 +66,8 @@ instructor account is created. The applicant chooses their own password, the
 account is created immediately but cannot be signed into, and a founder approves
 it in `/ops`.
 
-It needs one env var, which is **not** in `.env.example` because that file is
-gitignored:
+It needs one env var, documented in the repo-root `.env.example` (the combined
+Railway service runs this app and the Next app from one environment):
 
 | Var | Value |
 | --- | --- |

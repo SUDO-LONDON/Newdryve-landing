@@ -12,6 +12,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/ops/env";
+import { FOUNDER_PROOF_HEADER } from "@/lib/ops/session";
 
 /** Header this middleware uses to forward the verified founder identity. */
 export const FOUNDER_EMAIL_HEADER = "x-ops-founder-email";
@@ -23,6 +24,7 @@ export function createSupabaseMiddlewareClient(request: NextRequest) {
   // Never trust an inbound value: downstream route handlers treat this header
   // as proof of identity, so a client-supplied one would be an auth bypass.
   requestHeaders.delete(FOUNDER_EMAIL_HEADER);
+  requestHeaders.delete(FOUNDER_PROOF_HEADER);
 
   // Session cookies Supabase has written during this request. Held separately
   // because the response is rebuilt whenever request headers change, and a
@@ -92,5 +94,6 @@ export function createSupabaseMiddlewareClient(request: NextRequest) {
 export function passThroughWithoutForgedIdentity(request: NextRequest): NextResponse {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.delete(FOUNDER_EMAIL_HEADER);
+  requestHeaders.delete(FOUNDER_PROOF_HEADER);
   return NextResponse.next({ request: { headers: requestHeaders } });
 }

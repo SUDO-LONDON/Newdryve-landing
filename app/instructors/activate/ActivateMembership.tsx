@@ -5,14 +5,20 @@
  *
  * Four states, chosen from the URL because that is all this page ever knows:
  * the approval email arrives with `?token=`, and Stripe Checkout returns with
- * `?status=success&connect_token=` or `?status=cancelled`. The account is only
+ * `?status=success` or `?status=cancelled` (the token for "Try again" is kept
+ * in session storage, since the API no longer gives it to Stripe). The account is only
  * unlocked by Stripe's webhook, so nothing here claims it on Stripe's behalf.
  */
 
 import { useCallback, useState, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 import { ErrorNote, PrimaryButton, PrimaryLink, Shell } from "@/components/instructor/Shell";
-import { isSetupPagePath, SETUP_PAGE_KEY } from "@/lib/instructor/setup-page";
+import {
+  isSetupPagePath,
+  readMembershipToken,
+  rememberMembershipToken,
+  SETUP_PAGE_KEY,
+} from "@/lib/instructor/setup-page";
 
 /** Session storage never changes under this page, so there is nothing to watch. */
 const noSubscription = () => () => {};
@@ -40,6 +46,10 @@ export default function ActivateMembership() {
   // the server render, where session storage does not exist.
   const storedSetupPage = useSyncExternalStore(noSubscription, readSetupPage, () => null);
   const setupPage = state === "success" || state === "cancelled" ? storedSetupPage : null;
+  // Back from a cancelled Checkout the URL has no token; the one that opened
+  // Checkout in this tab was saved before leaving.
+  const storedToken = useSyncExternalStore(noSubscription, readMembershipToken, () => null);
+  const checkoutToken = token || (state === "cancelled" ? storedToken ?? "" : "");
 
   const activate = useCallback(async () => {
     setBusy(true);
@@ -48,10 +58,11 @@ export default function ActivateMembership() {
       const response = await fetch("/api/instructor/billing-checkout", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ token: checkoutToken }),
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || "Could not start membership setup.");
+      if (body.checkout_url) rememberMembershipToken(checkoutToken);
       // `app_url` comes back when membership is already live and only payouts
       // are left — going to Checkout again would charge for nothing.
       const destination = body.checkout_url || body.app_url;
@@ -61,7 +72,7 @@ export default function ActivateMembership() {
       setError(cause instanceof Error ? cause.message : "Could not start membership setup.");
       setBusy(false);
     }
-  }, [token]);
+  }, [checkoutToken]);
 
   if (state === "success") {
     if (setupPage) {
@@ -92,7 +103,7 @@ export default function ActivateMembership() {
         <p className="mt-4 leading-7 text-ink-secondary">
           You can try again now or reopen your approval email later.
         </p>
-        {token ? <PrimaryButton onClick={activate} disabled={busy}>{busy ? "Opening Stripe…" : "Try again"}</PrimaryButton> : null}
+        {checkoutToken ? <PrimaryButton onClick={activate} disabled={busy}>{busy ? "Opening Stripe…" : "Try again"}</PrimaryButton> : null}
         {setupPage ? <PrimaryLink href={setupPage} variant="secondary">Back to your setup page</PrimaryLink> : null}
         <ErrorNote>{error}</ErrorNote>
       </Shell>

@@ -22,6 +22,7 @@ export async function loadOrganisationPortal(
     response = await fetch(`${NEWDRYVE_API_ORIGIN}/v1/organisations/me`, {
       headers: { authorization: `Bearer ${accessToken}` },
       cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
     });
   } catch {
     throw new OrganisationPortalApiError("Could not reach Newdryve.", 502);

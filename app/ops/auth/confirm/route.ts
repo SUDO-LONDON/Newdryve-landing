@@ -6,7 +6,7 @@ import { type EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isFounderEmail, OPS_SESSION_TIMEOUT_MINUTES } from "@/lib/ops/env";
-import { createVerifiedFounderCookie, VERIFIED_COOKIE } from "@/lib/ops/session";
+import { createVerifiedFounderCookie, OPS_REVERIFY_MS, VERIFIED_COOKIE } from "@/lib/ops/session";
 
 const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://newdryve.com";
 const LAST_ACTIVE_COOKIE = "ops_last_active";
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
   // Enforce the allowlist immediately — a valid session for a non-founder must
   // not be allowed to persist.
-  if (!email || !(await isAllowedFounder(supabase, email))) {
+  if (!email || !isFounderEmail(email)) {
     await supabase.auth.signOut();
     return NextResponse.redirect(opsUrl("/ops/denied"));
   }
@@ -60,7 +60,13 @@ export async function GET(request: NextRequest) {
     maxAge: OPS_SESSION_TIMEOUT_MINUTES * 60,
   } as const;
   res.cookies.set(LAST_ACTIVE_COOKIE, String(Date.now()), cookieOptions);
-  res.cookies.set(VERIFIED_COOKIE, await createVerifiedFounderCookie(email), cookieOptions);
+  const verified = await createVerifiedFounderCookie(email);
+  if (verified) {
+    res.cookies.set(VERIFIED_COOKIE, verified, {
+      ...cookieOptions,
+      maxAge: Math.floor(OPS_REVERIFY_MS / 1000),
+    });
+  }
   return res;
 }
 
@@ -75,19 +81,4 @@ function sanitizeNext(next: string | null): string {
 
 function opsUrl(path: string): URL {
   return new URL(path, PUBLIC_SITE_URL);
-}
-
-async function isAllowedFounder(
-  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
-  email: string
-): Promise<boolean> {
-  if (isFounderEmail(email)) return true;
-
-  const { data, error } = await supabase
-    .from("ops_allowlist")
-    .select("email")
-    .eq("email", email.trim().toLowerCase())
-    .maybeSingle();
-
-  return !error && !!data;
 }

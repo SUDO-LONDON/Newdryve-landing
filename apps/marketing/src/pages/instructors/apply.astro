@@ -8,10 +8,13 @@
  * created immediately but cannot be signed into until a founder approves it
  * in /ops.
  *
- * Progressive enhancement: the stepper is applied by script, not baked into the
- * markup. With JavaScript off, every step renders as a plain stacked form with
- * one submit button and a real action/method, exactly as it did before. The
- * step chrome (progress bar, Back/Next) starts `hidden` and is revealed on init.
+ * JavaScript is required to submit. The application is sent as JSON built by
+ * the script (availability rows, picked languages and test-centre slugs have
+ * no plain-form equivalent), so the old no-JS path posted fields the API could
+ * not read and showed the applicant a raw JSON error. Without JavaScript the
+ * steps still render as one stacked form, with a <noscript> notice and the
+ * submit button disabled; the script enables it. The step chrome (progress
+ * bar, Back/Next) starts `hidden` and is revealed on init.
  *
  * An optional ADI badge image is PUT straight from the browser to private
  * Supabase Storage using a short-lived signed URL. It is supporting evidence,
@@ -80,7 +83,10 @@ const howItWorks = [
   { badge: 'bg-racing-green', text: 'After membership or free-trial setup is confirmed, we email your private Newdryve setup page. Connect payouts there, set your service area, and review your listing before it goes live.' },
 ];
 
-const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,application/pdf';
+// Extensions as well as MIME types: several browsers report no type at all for
+// .heic files, and the picker would otherwise grey them out.
+const acceptTypes =
+  'image/jpeg,image/png,image/heic,image/heif,image/webp,application/pdf,.jpg,.jpeg,.png,.heic,.heif,.webp,.pdf';
 ---
 
 {/* audience="instructor" matters: the default learner nav puts a "Join the
@@ -138,9 +144,15 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
       </div>
 
       <div data-apply-root>
+        <noscript>
+          <p class="mb-4 rounded-2xl border border-blush-border bg-blush-surface p-5 text-sm leading-relaxed text-ink-secondary">
+            This application form needs JavaScript to submit. Please turn it on, or email
+            <a href="mailto:hello@newdryve.com" class="font-semibold text-ink underline underline-offset-2">hello@newdryve.com</a>
+            and we&rsquo;ll help you apply.
+          </p>
+        </noscript>
         <form
           id="instructor-apply"
-          action="/api/instructor-apply"
           method="post"
           novalidate
           data-apply-form
@@ -185,6 +197,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
                   name="full_name"
                   type="text"
                   required
+                  maxlength="120"
                   autocomplete="name"
                   placeholder="Jane Smith"
                   class={inputClass}
@@ -397,6 +410,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
                 name="email"
                 type="email"
                 required
+                maxlength="254"
                 autocomplete="email"
                 inputmode="email"
                 placeholder="you@example.com"
@@ -415,6 +429,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
                   type="password"
                   required
                   minlength="8"
+                  maxlength="200"
                   autocomplete="new-password"
                   aria-describedby="apply-password-requirements"
                   placeholder="Create a strong password"
@@ -434,6 +449,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
                   type="password"
                   required
                   minlength="8"
+                  maxlength="200"
                   autocomplete="new-password"
                   class={inputClass}
                 />
@@ -459,6 +475,8 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
                   name="adi_number"
                   type="text"
                   required
+                  minlength="3"
+                  maxlength="40"
                   placeholder="e.g. 123456"
                   class={inputClass}
                 />
@@ -490,9 +508,11 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
                 class={fileClass}
               />
               <p id="apply-adi-doc-help" class="text-xs leading-5 text-ink-muted">
-                Useful only if your details are difficult to match. Stored privately and deleted
-                after review. Your DVSA status is checked separately.
+                Useful only if your details are difficult to match. JPG, PNG, HEIC, WebP or PDF, up
+                to 10&nbsp;MB. Stored privately and deleted after review. Your DVSA status is checked
+                separately.
               </p>
+              <p data-adi-doc-warning hidden role="status" class="text-xs font-semibold leading-5 text-deep-rose-ink"></p>
             </div>
 
             <label class="flex items-start gap-3 rounded-xl border border-border bg-canvas p-4 text-sm leading-6 text-ink-secondary">
@@ -596,10 +616,13 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
                 name="specialisms"
                 type="text"
                 required
+                aria-describedby="apply-specialisms-hint"
                 placeholder="Nervous learners, Pass Plus, refresher lessons"
                 class={inputClass}
               />
-              <p class="text-xs text-ink-muted">Separate each one with a comma.</p>
+              <p id="apply-specialisms-hint" class="text-xs text-ink-muted">
+                Separate each one with a comma. Up to 20, each 60 characters or fewer.
+              </p>
             </div>
 
             <div class="flex flex-col gap-1.5">
@@ -698,6 +721,14 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
             </div>
           </fieldset>
 
+          {/* Honeypot. Hidden from people and assistive technology; a bot that
+              fills every input fills this too, and its application is
+              discarded server-side. */}
+          <div aria-hidden="true" class="absolute -left-[10000px] h-px w-px overflow-hidden">
+            <label for="apply-reference">Leave this field empty</label>
+            <input id="apply-reference" name="apply_reference" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
           <div class="flex flex-col gap-4 border-t border-border pt-6">
             <p data-apply-error role="alert" class="hidden text-sm font-semibold text-deep-rose-ink">
             </p>
@@ -732,6 +763,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
               <button
                 type="submit"
                 data-apply-submit
+                disabled
                 class="focus-ring inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] disabled:cursor-not-allowed disabled:opacity-60 motion-safe:hover:-translate-y-0.5 sm:flex-none"
               >
                 <span data-apply-submit-label>Submit application</span>
@@ -831,6 +863,85 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
     };
 
     const clearError = () => errorEl.classList.add('hidden');
+
+    /**
+     * The optional badge, checked against what the API and the storage bucket
+     * accept. Chrome on Windows and Android report `File.type === ""` for
+     * .heic, and the API rejects the whole application over one unknown type,
+     * so the type falls back to the file extension and an unusable file is
+     * left out (with a warning) rather than sinking the application.
+     */
+    const maxDocumentBytes = 10 * 1024 * 1024; // the bucket's file_size_limit
+    const documentTypeByExtension: Record<string, string> = {
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      heic: 'image/heic',
+      heif: 'image/heif',
+      webp: 'image/webp',
+      pdf: 'application/pdf',
+    };
+    const allowedDocumentTypes = new Set(Object.values(documentTypeByExtension));
+    const adiInput = form.querySelector<HTMLInputElement>('#apply-adi-doc');
+    const adiWarning = root.querySelector<HTMLElement>('[data-adi-doc-warning]');
+
+    type BadgeCheck = { file: File; type: string } | { file: File; problem: string } | null;
+
+    const checkBadge = (): BadgeCheck => {
+      const file = adiInput?.files?.[0];
+      if (!file) return null;
+      const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+      const type = allowedDocumentTypes.has(file.type)
+        ? file.type
+        : documentTypeByExtension[extension] ?? null;
+      if (!type) {
+        return {
+          file,
+          problem:
+            'We can’t upload this type of file. Choose a JPG, PNG, HEIC, WebP or PDF, or carry on without it.',
+        };
+      }
+      if (file.size > maxDocumentBytes) {
+        return {
+          file,
+          problem:
+            'This file is over 10 MB, so we can’t upload it. Choose a smaller photo or carry on without it.',
+        };
+      }
+      return { file, type };
+    };
+
+    adiInput?.addEventListener('change', () => {
+      const badge = checkBadge();
+      if (!adiWarning) return;
+      adiWarning.textContent = badge && 'problem' in badge ? badge.problem : '';
+      adiWarning.hidden = !(badge && 'problem' in badge);
+    });
+
+    /** Where to send the applicant when the API rejects a particular field. */
+    const fieldTargets: Record<string, string> = {
+      full_name: '#apply-full-name',
+      phone_e164: '#apply-phone',
+      languages: '#apply-languages',
+      test_centre_slugs: '#apply-service-city',
+      email: '#apply-email',
+      password: '#apply-password',
+      adi_number: '#apply-adi-number',
+      adi_badge_expires_on: '#apply-adi-expiry',
+      documents: '#apply-adi-doc',
+      dvsa_verification_consent: 'input[name="dvsa_verification_consent"]',
+      driving_school_name: '#apply-school',
+      price_per_hour_pounds: '#apply-price',
+      transmissions: 'input[name="transmissions"]',
+      lesson_types: 'input[name="lesson_types"]',
+      specialisms: '#apply-specialisms',
+      bio: '#apply-bio',
+      car_make: '#apply-car-make',
+      car_model: '#apply-car-model',
+      car_color: '#apply-car-color',
+      weekly_availability: '[data-availability-toggle]',
+      application_notes: '#apply-notes',
+    };
 
     const syncTestCentres = (clearPrevious = false) => {
       const selectedCity = citySelect?.value || '';
@@ -1243,6 +1354,9 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         if (field.id === 'apply-phone' && field.value && !toE164(field.value)) {
           field.setCustomValidity('Enter a valid UK mobile number beginning 07 or +44 7.');
         }
+        if (field.id === 'apply-adi-number' && field.value.trim() && field.value.trim().length < 3) {
+          field.setCustomValidity('Enter your full ADI badge number.');
+        }
         if (field.id === 'apply-password' && field.value && !isStrongPassword(field.value)) {
           field.setCustomValidity(
             'Use 8 or more characters with uppercase, lowercase, a number and a symbol.'
@@ -1290,6 +1404,20 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
         const lessonLengths = form.querySelectorAll('input[name="lesson_types"]:checked');
         if (lessonLengths.length === 0) {
           return fail('Please choose at least one lesson length you offer.');
+        }
+        // The API's limits, checked here so they fail on this step with the
+        // field in view rather than as "invalid body" on the last one.
+        const specialismsInput = form.querySelector<HTMLInputElement>('#apply-specialisms');
+        const specialisms = splitList(specialismsInput?.value || '');
+        if (specialisms.length > 20) {
+          return fail('Please list no more than 20 specialisms.', specialismsInput);
+        }
+        const tooLong = specialisms.find((item) => item.length > 60);
+        if (tooLong) {
+          return fail(
+            `Keep each specialism to 60 characters or fewer. Shorten “${tooLong.slice(0, 40)}…” or split it with commas.`,
+            specialismsInput
+          );
         }
       }
 
@@ -1342,13 +1470,62 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
     // Enhance: reveal the chrome and collapse to one step at a time. Everything
     // above this point renders as a plain stacked form without JavaScript.
     chrome.hidden = false;
+    // Disabled in the markup so a visitor without JavaScript cannot post the
+    // plain form, which the JSON-only endpoint cannot read.
+    submitButton.disabled = false;
     const adiExpiry = form.querySelector<HTMLInputElement>('#apply-adi-expiry');
     if (adiExpiry) adiExpiry.min = new Date().toISOString().slice(0, 10);
     show(1, { focus: false });
 
-    nextButton.addEventListener('click', () => {
-      if (validateStep(current)) show(current + 1);
-    });
+    /**
+     * Whether the API already holds an account for this email. Asked as the
+     * applicant leaves the sign-in step, so a duplicate is caught next to the
+     * email field instead of three steps later. Null when the check itself is
+     * unavailable: it is advisory, and the apply endpoint still enforces it.
+     */
+    const emailChecks = new Map<string, boolean>();
+    const emailTaken = async (email: string): Promise<boolean | null> => {
+      if (emailChecks.has(email)) return emailChecks.get(email) ?? null;
+      try {
+        const res = await fetch('/api/instructor-email-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const body = (await res.json().catch(() => ({}))) as { exists?: unknown };
+        if (!res.ok || typeof body.exists !== 'boolean') return null;
+        emailChecks.set(email, body.exists);
+        return body.exists;
+      } catch {
+        return null;
+      }
+    };
+
+    let advancing = false;
+    const advance = async () => {
+      if (advancing || !validateStep(current)) return;
+      if (current === 2) {
+        const emailInput = form.querySelector<HTMLInputElement>('#apply-email');
+        const email = (emailInput?.value || '').trim().toLowerCase();
+        advancing = true;
+        nextButton.disabled = true;
+        try {
+          if (email && (await emailTaken(email)) === true) {
+            fail(
+              'An account with this email address already exists. If it’s yours, sign in to the Newdryve app, or use a different email to apply.',
+              emailInput
+            );
+            return;
+          }
+        } finally {
+          advancing = false;
+          nextButton.disabled = false;
+        }
+      }
+      show(current + 1);
+    };
+
+    nextButton.addEventListener('click', () => void advance());
 
     backButton.addEventListener('click', () => {
       clearError();
@@ -1365,7 +1542,7 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
       if (target.closest('button, a[href], [role="button"]')) return;
       if (current !== total) {
         event.preventDefault();
-        if (validateStep(current)) show(current + 1);
+        void advance();
       }
     });
 
@@ -1449,8 +1626,9 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
       const data = new FormData(form);
       const email = String(data.get('email') || '').trim().toLowerCase();
 
-      const adiFile = (form.querySelector<HTMLInputElement>('#apply-adi-doc')?.files || [])[0];
-      const files: Record<string, File> = adiFile ? { adi: adiFile } : {};
+      const badge = checkBadge();
+      // Only a badge that can actually be stored is declared to the API.
+      const adiDocument = badge && 'type' in badge ? badge : null;
       const lessonSelected = checkedValues('lesson_types');
       const testCentres = checkedValues('test_centres');
 
@@ -1485,9 +1663,8 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
           mock_test: false,
         },
         weekly_availability: collectAvailability(),
-        documents: adiFile
-          ? [{ kind: 'adi', content_type: adiFile.type || 'application/octet-stream' }]
-          : [],
+        documents: adiDocument ? [{ kind: 'adi', content_type: adiDocument.type }] : [],
+        apply_reference: String(data.get('apply_reference') || ''),
       };
 
       submitting = true;
@@ -1505,30 +1682,45 @@ const acceptTypes = 'image/jpeg,image/png,image/heic,image/heif,image/webp,appli
 
         const body = (await res.json().catch(() => ({}))) as {
           error?: string;
+          field?: string;
           uploads?: Array<{ kind: string; signed_url: string }>;
         };
 
-        if (!res.ok) throw new Error(body.error || 'Something went wrong. Please try again.');
+        if (!res.ok) {
+          // Take the applicant back to the answer the API rejected.
+          const selector = body.field ? fieldTargets[body.field] : undefined;
+          const target = selector ? form.querySelector<HTMLElement>(selector) : null;
+          const step = Number(target?.closest<HTMLElement>('[data-step]')?.dataset.step || 0);
+          if (target && step && step !== current) show(step, { focus: false });
+          fail(body.error || 'Something went wrong. Please try again.', target);
+          submitLabel.textContent = 'Submit application';
+          return;
+        }
 
         // The account exists from here on. The optional badge upload is a follow-up
         // step: if they fail we still show success, because re-submitting the
         // form would only collide with the account we just created.
-        submitLabel.textContent = adiFile ? 'Uploading badge image...' : 'Finishing...';
-        let uploadsOk = true;
+        submitLabel.textContent = adiDocument ? 'Uploading badge image...' : 'Finishing...';
+        // A badge that was chosen but could not be sent counts as a failed upload.
+        let uploadsOk = !badge || Boolean(adiDocument);
+        const adiUpload = (body.uploads || []).find((upload) => upload.kind === 'adi');
+        if (adiDocument && !adiUpload) uploadsOk = false;
 
-        for (const upload of body.uploads || []) {
-          const file = files[upload.kind];
-          if (!file) continue;
-          try {
-            const put = await fetch(upload.signed_url, {
-              method: 'PUT',
-              headers: { 'content-type': file.type || 'application/octet-stream' },
-              body: file,
-            });
-            if (!put.ok) uploadsOk = false;
-          } catch {
-            uploadsOk = false;
-          }
+        if (adiDocument && adiUpload) {
+          const putBadge = async () => {
+            try {
+              const put = await fetch(adiUpload.signed_url, {
+                method: 'PUT',
+                headers: { 'content-type': adiDocument.type },
+                body: adiDocument.file,
+              });
+              return put.ok;
+            } catch {
+              return false;
+            }
+          };
+          // One retry: a phone on a weak signal often drops the first attempt.
+          uploadsOk = (await putBadge()) || (await putBadge());
         }
 
         successEmail.textContent = email;

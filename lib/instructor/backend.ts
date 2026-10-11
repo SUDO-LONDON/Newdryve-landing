@@ -13,6 +13,32 @@
  */
 import "server-only";
 
+/**
+ * Upper bounds on a call to the product API. Without them a stalled API (a
+ * deploy, a Supabase stall) held the connection open forever, and the setup
+ * page, which awaits the read during its server render, spun with no way to
+ * retry. Writes get longer because they create Stripe objects on the way.
+ */
+const READ_TIMEOUT_MS = 10_000;
+const WRITE_TIMEOUT_MS = 20_000;
+
+function isTimeout(cause: unknown): boolean {
+  return cause instanceof DOMException && cause.name === "TimeoutError";
+}
+
+/**
+ * The API's own 429 text is "Rate limit exceeded. Retry after 540s.", which
+ * reads as a fault. Instructors get plain minutes instead.
+ */
+function rateLimitMessage(upstream: Response): string {
+  const seconds = Number(upstream.headers.get("retry-after"));
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return "Too many attempts in a short time. Please wait a few minutes and try again.";
+  }
+  const minutes = Math.ceil(seconds / 60);
+  return `Too many attempts in a short time. Please wait ${minutes} minute${minutes === 1 ? "" : "s"} and try again.`;
+}
+
 /** Same variable the Next rewrites and the working apply route already use. */
 export function backendOrigin(): string {
   return (process.env.BACKEND_ORIGIN || "").replace(/\/$/, "");
@@ -87,6 +113,7 @@ export async function postToken(
       },
       body: JSON.stringify({ token: parsed.token }),
       cache: "no-store",
+      signal: AbortSignal.timeout(WRITE_TIMEOUT_MS),
     });
 
     const body = (await upstream.json().catch(() => null)) as
@@ -94,7 +121,8 @@ export async function postToken(
       | null;
 
     if (!upstream.ok) {
-      const message = body?.error?.message || failureMessage;
+      const message =
+        upstream.status === 429 ? rateLimitMessage(upstream) : body?.error?.message || failureMessage;
       console.warn(`[instructor] upstream rejected ${path}`, {
         status: upstream.status,
         code: body?.error?.code ?? null,
@@ -104,7 +132,7 @@ export async function postToken(
     return json(body);
   } catch (cause) {
     console.error(`[instructor] could not reach ${path}`, cause);
-    return json({ error: failureMessage }, 502);
+    return json({ error: failureMessage }, isTimeout(cause) ? 504 : 502);
   }
 }
 
@@ -196,6 +224,7 @@ export async function loadOnboarding(
       {
         headers: ip ? { "x-forwarded-for": ip, "x-real-ip": ip } : undefined,
         cache: "no-store",
+        signal: AbortSignal.timeout(READ_TIMEOUT_MS),
       }
     );
     const body = (await upstream.json().catch(() => null)) as
@@ -203,14 +232,20 @@ export async function loadOnboarding(
       | null;
     if (!upstream.ok || !body) {
       return {
-        error: body?.error?.message || "Could not load your setup steps.",
+        error:
+          upstream.status === 429
+            ? rateLimitMessage(upstream)
+            : body?.error?.message || "Could not load your setup steps.",
         status: upstream.status || 502,
       };
     }
     return { state: body as OnboardingState };
   } catch (cause) {
     console.error("[instructor] could not reach the onboarding endpoint", cause);
-    return { error: "Could not load your setup steps. Please try again.", status: 502 };
+    return {
+      error: "Could not load your setup steps. Please try again.",
+      status: isTimeout(cause) ? 504 : 502,
+    };
   }
 }
 
@@ -243,6 +278,7 @@ export async function postCoverage(request: Request, body: unknown): Promise<Res
       },
       body: JSON.stringify(body),
       cache: "no-store",
+      signal: AbortSignal.timeout(WRITE_TIMEOUT_MS),
     });
     const payload = (await upstream.json().catch(() => null)) as
       | { error?: { code?: string; message?: string } }
@@ -253,13 +289,21 @@ export async function postCoverage(request: Request, body: unknown): Promise<Res
         code: payload?.error?.code ?? null,
       });
       return json(
-        { error: payload?.error?.message || "Could not save your service area." },
+        {
+          error:
+            upstream.status === 429
+              ? rateLimitMessage(upstream)
+              : payload?.error?.message || "Could not save your service area.",
+        },
         upstream.status
       );
     }
     return json(payload);
   } catch (cause) {
     console.error("[instructor] could not reach the coverage endpoint", cause);
-    return json({ error: "Could not save your service area. Please try again." }, 502);
+    return json(
+      { error: "Could not save your service area. Please try again." },
+      isTimeout(cause) ? 504 : 502
+    );
   }
 }

@@ -115,9 +115,18 @@ async function call<T>(
       },
       // Approval state must never be served from a cache.
       cache: "no-store",
+      // Bounded so a stalled API shows an error instead of hanging the tab.
+      // Writes send email and touch Stripe, so they get longer.
+      signal: AbortSignal.timeout(init.method && init.method !== "GET" ? 20_000 : 10_000),
     });
   } catch (err) {
     console.error("[ops/instructors] API unreachable", err);
+    if (err instanceof DOMException && err.name === "TimeoutError") {
+      throw new InstructorApiError(
+        "The Newdryve API took too long to answer. Refresh to check whether it went through.",
+        504
+      );
+    }
     throw new InstructorApiError("Could not reach the Newdryve API.", 502);
   }
 
@@ -204,6 +213,22 @@ export async function updateInstructorVerification(
   await call(`/v1/ops/instructor-applications/${id}/verification`, founderEmail, {
     method: "PATCH",
     body: JSON.stringify(options),
+  });
+}
+
+/**
+ * Grant or withdraw listing approval after the approval decision. Granting
+ * unlocks the instructor's own review step (it never publishes for them);
+ * withdrawing unlists them until they are approved and review again.
+ */
+export async function setInstructorListingApproval(
+  founderEmail: string,
+  id: string,
+  listingApproved: boolean
+): Promise<void> {
+  await call(`/v1/ops/instructor-applications/${id}/listing`, founderEmail, {
+    method: "PATCH",
+    body: JSON.stringify({ listing_approved: listingApproved }),
   });
 }
 
