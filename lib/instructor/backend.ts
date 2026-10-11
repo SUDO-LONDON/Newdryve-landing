@@ -151,7 +151,7 @@ export async function postToken(
   }
 }
 
-/** One task from GET /v1/instructors/onboarding. */
+/** One task from POST /v1/instructors/onboarding. */
 export interface OnboardingTask {
   id: "application" | "verification" | "membership" | "payouts" | "coverage" | "review" | "listing";
   state: "done" | "todo" | "in_review" | "locked" | "blocked";
@@ -211,10 +211,11 @@ export interface OnboardingState {
 /**
  * Read the onboarding task list.
  *
- * A GET, unlike the POST helpers above, because this one is polled: the hub
- * refreshes after Stripe hands the instructor back, and both sibling endpoints
- * create Stripe objects as a side effect, so neither could be called on a
- * timer.
+ * A read with no side effects, unlike the helpers above, so it is safe to
+ * poll: the hub refreshes after Stripe hands the instructor back, and both
+ * sibling endpoints create Stripe objects, so neither could run on a timer.
+ * It is still a POST: setup tokens are long-lived credentials, and a token in
+ * a query string ends up in the API's and every proxy's access logs.
  *
  * Used twice over — once on the server to render the hub's first paint, and
  * again from the browser on each poll — so it returns parsed data rather than
@@ -234,14 +235,13 @@ export async function loadOnboarding(
   }
 
   try {
-    const upstream = await fetch(
-      `${origin}/v1/instructors/onboarding?token=${encodeURIComponent(token)}`,
-      {
-        headers: clientHeaders(ip),
-        cache: "no-store",
-        signal: AbortSignal.timeout(READ_TIMEOUT_MS),
-      }
-    );
+    const upstream = await fetch(`${origin}/v1/instructors/onboarding`, {
+      method: "POST",
+      headers: { "content-type": "application/json", ...clientHeaders(ip) },
+      body: JSON.stringify({ token }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(READ_TIMEOUT_MS),
+    });
     const body = (await upstream.json().catch(() => null)) as
       | (OnboardingState & { error?: { message?: string } })
       | null;
