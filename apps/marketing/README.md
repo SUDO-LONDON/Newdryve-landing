@@ -57,7 +57,7 @@ also accepts the existing `NEXT_PUBLIC_PRODUCT_SUPABASE_URL` and
 | `/instructors/apply` | Instructor application form and DVSA-verification permission. Optional badge evidence uploads directly to private Supabase Storage. |
 | `/api/waitlist` | `POST {email, role, postcode, name, notes}` |
 | `/api/data-deletion` | `POST {firstName, lastName, email, phone}` |
-| `/api/instructor-apply` | `POST` application → proxies to `POST /v1/instructors/apply` |
+| `/api/instructor-apply` | `POST` application → proxies to `POST /v1/instructors/apply`. Optional private `gender`: `female`, `male`, `non_binary` or null (anything else is a 422 here) |
 
 ### Instructor applications
 

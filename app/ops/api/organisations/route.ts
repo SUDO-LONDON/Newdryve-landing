@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { isGuardError, requireFounder } from "@/lib/ops/auth";
 import { logAudit } from "@/lib/ops/audit";
-import { createOrganisation } from "@/lib/ops/organisations";
+import { createOrganisation, organisationErrorResponse } from "@/lib/ops/organisations";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,13 +22,10 @@ export async function POST(request: Request) {
       action: "organisation_created",
       target_type: "organisation",
       target_id: organisation.id,
-      detail: { name: organisation.name },
+      detail: { name: organisation.name, fee_terms: organisation.fee_terms },
     }).catch(() => {});
     return NextResponse.json({ organisation });
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Could not create organisation." },
-      { status: 400 }
-    );
+    return organisationErrorResponse(err, "Could not create organisation.");
   }
 }

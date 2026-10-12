@@ -3,6 +3,18 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import FeeTermsFields, {
+  FeeTermsSummary,
+  LegacyBadge,
+  draftFromFeeTerms,
+  feeTermsErrorMessage,
+  feeTermsInputFromDraft,
+  type FeeTermsDraft,
+} from "@/components/ops/FeeTermsFields";
+import ListingFields from "@/components/ops/ListingFields";
+import RemoveMemberButton from "@/components/organisations/RemoveMemberButton";
+import { longDate } from "@/lib/organisations/format";
+import { listingInputFromDraft, type ListingDraft } from "@/lib/organisations/listing";
 import {
   formatPence,
   organisationTotals,
@@ -32,6 +44,13 @@ export default function OrganisationDetailClient({
     seat_price_pounds:
       organisation.seat_price_pence != null ? (organisation.seat_price_pence / 100).toFixed(2) : "",
     billing_notes: organisation.billing_notes ?? "",
+  });
+
+  const [feeDraft, setFeeDraft] = useState<FeeTermsDraft>(() => draftFromFeeTerms(organisation.fee_terms));
+  const [listing, setListing] = useState<ListingDraft>({
+    bio: organisation.bio ?? "",
+    logo_url: organisation.logo_url ?? "",
+    primary_color: organisation.primary_color ?? "",
   });
 
   const linkedCount = organisation.members.filter((m) => !m.deleted_at).length;
@@ -79,6 +98,60 @@ export default function OrganisationDetailClient({
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save billing terms.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function saveFeeTerms(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    setSuccess(null);
+    const fees = feeTermsInputFromDraft(feeDraft);
+    if (!fees.ok) {
+      setError(fees.error);
+      return;
+    }
+    setBusy("fees");
+    try {
+      const response = await fetch(`/ops/api/organisations/${organisation.id}/fee-terms`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(fees.input),
+      });
+      const body = (await response.json().catch(() => ({}))) as { error?: string; details?: unknown };
+      if (!response.ok) throw new Error(feeTermsErrorMessage(body, "Could not save the fee terms."));
+      setSuccess("Fee terms saved. The next weekly invoices use them; invoices already raised keep their terms.");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save the fee terms.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function saveListing(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    setSuccess(null);
+    const input = listingInputFromDraft(listing);
+    if (!input.ok) {
+      setError(input.error);
+      return;
+    }
+    setBusy("listing");
+    try {
+      const response = await fetch(`/ops/api/organisations/${organisation.id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input.input),
+      });
+      const body = (await response.json().catch(() => ({}))) as { error?: string };
+      if (!response.ok) throw new Error(body.error || "Could not save the listing.");
+      setSuccess("Listing saved.");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save the listing.");
     } finally {
       setBusy(null);
     }
@@ -188,7 +261,7 @@ export default function OrganisationDetailClient({
       <section className="rounded-2xl border border-border bg-white p-5">
         <h2 className="font-display text-lg text-ink">Instructors</h2>
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[820px] text-left text-sm">
+          <table className="w-full min-w-[920px] text-left text-sm">
             <thead className="border-b border-border bg-blush-surface/60 text-[11px] uppercase tracking-wider text-ink-muted">
               <tr>
                 <th className="px-3 py-3">Instructor</th>
@@ -216,12 +289,20 @@ export default function OrganisationDetailClient({
                     {formatPence(row.revenue_pence)}
                   </td>
                   <td className="px-3 py-3 text-right">
-                    <Link
-                      href={`/ops/organisations/${organisation.id}/instructors/${row.id}`}
-                      className="text-sm font-semibold text-racing-green hover:underline"
-                    >
-                      View
-                    </Link>
+                    <div className="flex items-start justify-end gap-3">
+                      <Link
+                        href={`/ops/organisations/${organisation.id}/instructors/${row.id}`}
+                        className="text-sm font-semibold text-racing-green hover:underline"
+                      >
+                        View
+                      </Link>
+                      <RemoveMemberButton
+                        endpoint={`/ops/api/organisations/${organisation.id}/members/${row.instructor_id}`}
+                        instructorName={row.display_name}
+                        organisationName={organisation.name}
+                        className="text-sm font-semibold text-deep-rose hover:underline disabled:opacity-60"
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -233,6 +314,69 @@ export default function OrganisationDetailClient({
             </p>
           ) : null}
         </div>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-white p-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="font-display text-lg text-ink">Instructor fee terms</h2>
+          {organisation.fee_terms?.legacy ? <LegacyBadge /> : null}
+        </div>
+        <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
+          What this school charges its instructors, invoiced weekly from the school to each
+          instructor and paid by bank transfer. Only Newdryve sets this; the school sees it
+          read-only.
+        </p>
+
+        <div className="mt-4 rounded-xl border border-border bg-canvas px-4 py-3">
+          <p className="text-[11px] uppercase tracking-wider text-ink-muted">Current</p>
+          <FeeTermsSummary terms={organisation.fee_terms} />
+          {organisation.fee_terms?.set_at ? (
+            <p className="mt-1 text-xs text-ink-muted">
+              Set {longDate(organisation.fee_terms.set_at)}
+              {organisation.fee_terms.set_by_email ? ` by ${organisation.fee_terms.set_by_email}` : ""}
+            </p>
+          ) : null}
+        </div>
+
+        {organisation.fee_terms?.legacy ? (
+          <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <strong className="font-semibold">These are the school&rsquo;s earlier terms.</strong>{" "}
+            They are still invoiced as they are, but they are no longer offered. Choose one of the
+            four modes below and save to re-set them.
+          </p>
+        ) : null}
+
+        <form onSubmit={saveFeeTerms} className="mt-4 space-y-4">
+          <FeeTermsFields draft={feeDraft} onChange={setFeeDraft} idPrefix="detail" />
+          <button
+            type="submit"
+            disabled={busy === "fees" || !feeDraft.mode}
+            className="rounded-full bg-racing-green px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            {busy === "fees" ? "Saving…" : "Save fee terms"}
+          </button>
+          <p className="text-xs text-ink-muted">
+            Applies from the next weekly invoice. Invoices already raised keep the terms they were raised on.
+          </p>
+        </form>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-white p-5">
+        <h2 className="font-display text-lg text-ink">Listing</h2>
+        <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
+          Learners see this organisation as one listing with its instructors&rsquo; combined
+          availability. Instructors are never named on it.
+        </p>
+        <form onSubmit={saveListing} className="mt-4 space-y-4">
+          <ListingFields draft={listing} onChange={setListing} idPrefix="detail" />
+          <button
+            type="submit"
+            disabled={busy === "listing"}
+            className="rounded-full bg-racing-green px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            {busy === "listing" ? "Saving…" : "Save listing"}
+          </button>
+        </form>
       </section>
 
       <section className="rounded-2xl border border-border bg-white p-5">

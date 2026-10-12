@@ -3,6 +3,15 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import FeeTermsFields, {
+  EMPTY_FEE_TERMS_DRAFT,
+  FeeTermsSummary,
+  feeTermsErrorMessage,
+  feeTermsInputFromDraft,
+  type FeeTermsDraft,
+} from "@/components/ops/FeeTermsFields";
+import ListingFields from "@/components/ops/ListingFields";
+import { listingInputFromDraft, type ListingDraft } from "@/lib/organisations/listing";
 import {
   formatPence,
   organisationTotals,
@@ -26,6 +35,8 @@ export default function OrganisationsClient({
     contact_email: "",
     contact_phone: "",
   });
+  const [feeDraft, setFeeDraft] = useState<FeeTermsDraft>(EMPTY_FEE_TERMS_DRAFT);
+  const [listing, setListing] = useState<ListingDraft>({ bio: "", logo_url: "", primary_color: "" });
 
   const totals = useMemo(() => {
     const allMembers = organisations.flatMap((org) => org.members);
@@ -37,23 +48,38 @@ export default function OrganisationsClient({
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
-    setBusy(true);
     setError(null);
     setCreatedCode(null);
+    // Fee terms are part of onboarding: Newdryve sets them here, and the
+    // school can only read them.
+    const fees = feeTermsInputFromDraft(feeDraft);
+    if (!fees.ok) {
+      setError(fees.error);
+      return;
+    }
+    const listingInput = listingInputFromDraft(listing);
+    if (!listingInput.ok) {
+      setError(listingInput.error);
+      return;
+    }
+    setBusy(true);
     try {
       const response = await fetch("/ops/api/organisations", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, ...listingInput.input, fee_terms: fees.input }),
       });
       const body = (await response.json().catch(() => ({}))) as {
         error?: string;
+        details?: unknown;
         organisation?: OpsOrganisationWithMembers;
       };
-      if (!response.ok) throw new Error(body.error || "Could not create organisation.");
+      if (!response.ok) throw new Error(feeTermsErrorMessage(body, "Could not create organisation."));
       setCreatedCode(body.organisation?.join_code ?? null);
       setOpen(false);
       setForm({ name: "", legal_name: "", contact_name: "", contact_email: "", contact_phone: "" });
+      setFeeDraft(EMPTY_FEE_TERMS_DRAFT);
+      setListing({ bio: "", logo_url: "", primary_color: "" });
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create organisation.");
@@ -145,7 +171,29 @@ export default function OrganisationsClient({
               className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-ink outline-none focus:ring-2 focus:ring-ring"
             />
           </label>
-          {error ? <p className="mt-3 text-sm text-deep-rose">{error}</p> : null}
+
+          <fieldset className="mt-5 border-t border-border pt-4">
+            <legend className="font-display text-lg text-ink">What it charges its instructors</legend>
+            <p className="mb-3 mt-1 max-w-2xl text-sm text-ink-secondary">
+              Only Newdryve sets this. The school sees it read-only in its portal, and invoices its
+              instructors weekly on these terms.
+            </p>
+            <FeeTermsFields draft={feeDraft} onChange={setFeeDraft} idPrefix="create" />
+          </fieldset>
+
+          <fieldset className="mt-5 border-t border-border pt-4">
+            <legend className="font-display text-lg text-ink">Listing</legend>
+            <p className="mb-3 mt-1 max-w-2xl text-sm text-ink-secondary">
+              Learners find the organisation as one listing. All optional.
+            </p>
+            <ListingFields draft={listing} onChange={setListing} idPrefix="create" />
+          </fieldset>
+
+          {error ? (
+            <p role="alert" className="mt-3 text-sm text-deep-rose">
+              {error}
+            </p>
+          ) : null}
           <div className="mt-4 flex gap-2">
             <button
               type="submit"
@@ -187,6 +235,14 @@ export default function OrganisationsClient({
                 <span className="rounded-full bg-blush-surface px-3 py-1 font-mono text-sm tracking-[0.12em] text-ink">
                   {organisation.join_code}
                 </span>
+              </div>
+
+              <div className="mt-3 rounded-xl border border-border bg-canvas px-3 py-2">
+                <p className="text-[11px] uppercase tracking-wider text-ink-muted">Instructor fee</p>
+                <FeeTermsSummary terms={organisation.fee_terms} />
+                {organisation.fee_terms?.legacy ? (
+                  <p className="mt-1 text-xs text-amber-900">Earlier terms. Open the organisation to re-set them.</p>
+                ) : null}
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">

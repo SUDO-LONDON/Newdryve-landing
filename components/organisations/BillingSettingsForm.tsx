@@ -1,22 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import type { BillingResponse, BillingSettings, FeeMode } from "@/lib/organisations/types";
-import { gbp, sortCode as formatSortCode } from "@/lib/organisations/format";
-
-const MODES: Array<{ value: FeeMode; label: string; hint: string }> = [
-  { value: "per_hour", label: "Per hour taught", hint: "A set amount for every hour of completed lessons." },
-  { value: "per_lesson", label: "Per lesson", hint: "A set amount for every completed lesson." },
-  { value: "percent_of_revenue", label: "Share of takings", hint: "A percentage of what the instructor's lessons earned." },
-  { value: "flat_weekly", label: "Flat weekly fee", hint: "The same amount every week, whatever was taught." },
-  { value: "off", label: "Don't invoice", hint: "No invoices are raised." },
-];
+import type { BillingResponse } from "@/lib/organisations/types";
+import { describeFeeTerms, feeModeLabel, isLegacyFeeMode } from "@/lib/organisations/fees";
+import { longDate, sortCode as formatSortCode } from "@/lib/organisations/format";
+import { apiError, readJson } from "@/lib/organisations/http";
 
 const input =
   "focus-ring w-full rounded-xl border border-border bg-white px-3 py-2.5 text-base text-ink sm:text-sm";
 const label = "text-xs font-bold uppercase tracking-[0.5px] text-ink-secondary";
 
-/** What a school charges its instructors, and where they pay it. */
+/**
+ * What a school charges its instructors, and where they pay it.
+ *
+ * The fee terms are set by Newdryve when it onboards the school, so they are
+ * shown here read-only; the school edits only its own bank and invoice
+ * details. The save sends only those fields — the API refuses a change to the
+ * terms with 403 fee_terms_managed_by_newdryve.
+ */
 export default function BillingSettingsForm({ data }: { data: BillingResponse }) {
   return (
     <div className="space-y-6">
@@ -29,9 +30,6 @@ export default function BillingSettingsForm({ data }: { data: BillingResponse })
 
 function OrganisationBilling({ org, showName }: { org: BillingResponse["organisations"][number]; showName: boolean }) {
   const b = org.billing;
-  const [mode, setMode] = useState<FeeMode>(b.fee_mode);
-  const [amount, setAmount] = useState(b.amount_pence != null ? (b.amount_pence / 100).toFixed(2) : "");
-  const [percent, setPercent] = useState(b.percent_bps != null ? String(b.percent_bps / 100) : "");
   const [terms, setTerms] = useState(String(b.payment_terms_days));
   const [accountName, setAccountName] = useState(b.bank_account_name ?? "");
   const [sortCode, setSortCode] = useState(formatSortCode(b.bank_sort_code));
@@ -41,29 +39,15 @@ function OrganisationBilling({ org, showName }: { org: BillingResponse["organisa
   const [notes, setNotes] = useState(b.invoice_notes ?? "");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
-
-  const amountPence = Math.round(Number(amount) * 100);
-  const percentBps = Math.round(Number(percent) * 100);
-  const example =
-    mode === "per_hour" && amountPence > 0
-      ? `10 hours taught in a week → ${gbp(amountPence * 10)}`
-      : mode === "per_lesson" && amountPence > 0
-        ? `8 lessons in a week → ${gbp(amountPence * 8)}`
-        : mode === "percent_of_revenue" && percentBps > 0
-          ? `£400 of lesson takings → ${gbp(Math.round((40000 * percentBps) / 10000))}`
-          : mode === "flat_weekly" && amountPence > 0
-            ? `${gbp(amountPence)} every week`
-            : null;
+  const invoicesOff = b.fee_mode === "off";
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
     setMessage(null);
-    const body: Partial<BillingSettings> & { organisation_id: string } = {
+    // The school's own fields only. Fee terms are Newdryve's and never sent.
+    const body = {
       organisation_id: org.id,
-      fee_mode: mode,
-      amount_pence: mode === "per_hour" || mode === "per_lesson" || mode === "flat_weekly" ? amountPence : null,
-      percent_bps: mode === "percent_of_revenue" ? percentBps : null,
       payment_terms_days: Number(terms) || 7,
       bank_account_name: accountName.trim() || null,
       bank_sort_code: sortCode.trim() || null,
@@ -78,9 +62,21 @@ function OrganisationBilling({ org, showName }: { org: BillingResponse["organisa
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body),
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Could not save.");
-      setMessage({ ok: true, text: mode === "off" ? "Saved. No invoices will be raised." : "Saved. Invoices will use these terms from next Monday." });
+      const json = await readJson(res);
+      if (!res.ok) {
+        const error = apiError(json, res.status, "Could not save.");
+        throw new Error(
+          error.code === "fee_terms_managed_by_newdryve"
+            ? "Your fee terms are set by Newdryve and can't be changed here. Contact us to change them."
+            : error.message
+        );
+      }
+      setMessage({
+        ok: true,
+        text: invoicesOff
+          ? "Saved. Invoices start once Newdryve sets your fee terms."
+          : "Saved. Invoices will use these details from next Monday.",
+      });
     } catch (cause) {
       setMessage({ ok: false, text: cause instanceof Error ? cause.message : "Could not save." });
     } finally {
@@ -92,56 +88,40 @@ function OrganisationBilling({ org, showName }: { org: BillingResponse["organisa
     <form onSubmit={save} className="rounded-2xl border border-border bg-white p-4 sm:p-6">
       {showName ? <h2 className="mb-4 font-display text-2xl text-ink">{org.name}</h2> : null}
 
-      <fieldset>
-        <legend className="text-base font-bold text-ink">What instructors pay you</legend>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          {MODES.map((m) => (
-            <label
-              key={m.value}
-              className={`flex min-h-11 cursor-pointer gap-3 rounded-xl border p-3 ${mode === m.value ? "border-racing-green bg-emerald-50" : "border-border"}`}
-            >
-              <input type="radio" name={`mode-${org.id}`} value={m.value} checked={mode === m.value} onChange={() => setMode(m.value)} className="mt-1 size-4 accent-racing-green" />
-              <span>
-                <span className="block text-sm font-bold text-ink">{m.label}</span>
-                <span className="block text-xs text-ink-secondary">{m.hint}</span>
-              </span>
-            </label>
-          ))}
+      <section aria-labelledby={`fees-${org.id}`}>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 id={`fees-${org.id}`} className="text-base font-bold text-ink">
+            What instructors pay you
+          </h3>
+          <span className="rounded-full bg-blush-surface px-2.5 py-1 text-xs font-bold text-ink-secondary">Set by Newdryve</span>
         </div>
+        <div className="mt-3 rounded-xl border border-border bg-canvas p-4">
+          <p className="text-sm font-bold text-ink">{feeModeLabel(b.fee_mode)}</p>
+          <p className="mt-1 text-sm text-ink-secondary">{describeFeeTerms(b, "school")}</p>
+          {isLegacyFeeMode(b.fee_mode) ? (
+            <p className="mt-2 text-xs text-ink-secondary">
+              These are your earlier terms. They still apply until Newdryve sets new ones with you.
+            </p>
+          ) : null}
+          {b.fee_terms_set_at ? (
+            <p className="mt-2 text-xs text-ink-muted">Set on {longDate(b.fee_terms_set_at)}.</p>
+          ) : null}
+        </div>
+        <p className="mt-2 text-sm text-ink-secondary">
+          Newdryve agrees these terms with you when you join. To change them, contact us.
+        </p>
 
-        {mode !== "off" ? (
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            {mode === "percent_of_revenue" ? (
-              <label className="flex flex-col gap-1.5">
-                <span className={label}>Percentage</span>
-                <span className="relative">
-                  <input inputMode="decimal" required value={percent} onChange={(e) => setPercent(e.target.value)} className={`${input} pr-8`} placeholder="10" />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-secondary">%</span>
-                </span>
-              </label>
-            ) : (
-              <label className="flex flex-col gap-1.5">
-                <span className={label}>{mode === "per_hour" ? "Amount per hour" : mode === "per_lesson" ? "Amount per lesson" : "Weekly fee"}</span>
-                <span className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-secondary">£</span>
-                  <input inputMode="decimal" required value={amount} onChange={(e) => setAmount(e.target.value)} className={`${input} pl-7`} placeholder="5.00" />
-                </span>
-              </label>
-            )}
-            <label className="flex flex-col gap-1.5">
-              <span className={label}>Pay within</span>
-              <select value={terms} onChange={(e) => setTerms(e.target.value)} className={input}>
-                {[3, 7, 14, 30].map((d) => (
-                  <option key={d} value={d}>
-                    {d} days
-                  </option>
-                ))}
-              </select>
-            </label>
-            {example ? <p className="self-end pb-2.5 text-sm text-ink-secondary">For example: {example}</p> : null}
-          </div>
-        ) : null}
-      </fieldset>
+        <label className="mt-4 flex max-w-xs flex-col gap-1.5">
+          <span className={label}>Pay within</span>
+          <select value={terms} onChange={(e) => setTerms(e.target.value)} className={input}>
+            {[3, 7, 14, 30].map((d) => (
+              <option key={d} value={d}>
+                {d} days
+              </option>
+            ))}
+          </select>
+        </label>
+      </section>
 
       <div className="mt-6 border-t border-border pt-5">
       <fieldset>
@@ -190,7 +170,7 @@ function OrganisationBilling({ org, showName }: { org: BillingResponse["organisa
         </p>
       ) : null}
       <button type="submit" disabled={busy} className="focus-ring mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white disabled:opacity-60 sm:w-auto">
-        {busy ? "Saving…" : "Save billing settings"}
+        {busy ? "Saving…" : "Save bank and invoice details"}
       </button>
     </form>
   );

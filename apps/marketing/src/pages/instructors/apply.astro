@@ -68,6 +68,14 @@ const weekdays = [
   { value: 0, label: 'Sunday' },
 ];
 
+/** Sent as `gender`; "Prefer not to say" is null. The proxy accepts only these. */
+const genderOptions = [
+  { value: '', label: 'Prefer not to say' },
+  { value: 'female', label: 'Female' },
+  { value: 'male', label: 'Male' },
+  { value: 'non_binary', label: 'Non-binary' },
+];
+
 const lessonTypes = [
   { code: '1h', label: '1 hour', checked: true },
   { code: '90m', label: '90 minutes', checked: true },
@@ -224,6 +232,24 @@ const acceptTypes =
                   UK mobile format, beginning 07 or +44 7.
                 </p>
               </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5 sm:max-w-[calc(50%-0.5rem)]">
+              <label class={labelClass} for="apply-gender">Gender (optional)</label>
+              <select
+                id="apply-gender"
+                name="gender"
+                aria-describedby="apply-gender-hint"
+                class={inputClass}
+              >
+                {genderOptions.map((option) => (
+                  <option value={option.value} selected={option.value === ''}>{option.label}</option>
+                ))}
+              </select>
+              <p id="apply-gender-hint" class="text-xs text-ink-muted">
+                Only used when a learner booking through a driving school asks for a female or male
+                instructor. Never shown on your profile.
+              </p>
             </div>
 
             <div class="flex flex-col gap-1.5" data-language-field>
@@ -922,6 +948,7 @@ const acceptTypes =
     const fieldTargets: Record<string, string> = {
       full_name: '#apply-full-name',
       phone_e164: '#apply-phone',
+      gender: '#apply-gender',
       languages: '#apply-languages',
       test_centre_slugs: '#apply-service-city',
       email: '#apply-email',
@@ -1639,6 +1666,8 @@ const acceptTypes =
         phone_e164: toE164(String(data.get('phone') || '')),
         driving_school_name: String(data.get('driving_school_name') || '').trim() || null,
         bio: String(data.get('bio') || '').trim() || null,
+        // Optional and private; "Prefer not to say" is null.
+        gender: String(data.get('gender') || '') || null,
         price_per_hour_pounds: Number(data.get('price_per_hour_pounds') || 0),
         transmissions: checkedValues('transmissions'),
         // Names from the picker's fixed list, never free text.

@@ -1,3 +1,5 @@
+import type { FeeTerms } from "@/lib/organisations/fees";
+
 // Shared types + static navigation for the /ops portal. Board/field config is
 // stored in Postgres (ops_boards / ops_fields) and fetched via lib/ops/config;
 // the nav below is static because the module→board mapping is fixed by spec.
@@ -104,6 +106,17 @@ export interface OpsOrganisation {
   seat_price_pence: number | null;
   billing_notes: string | null;
   subscription_status: string | null;
+  /** The organisation's single public listing. */
+  bio: string | null;
+  /** https only. */
+  logo_url: string | null;
+  /** #RRGGBB. */
+  primary_color: string | null;
+  /**
+   * What the school charges its instructors, set by Newdryve only. Null when
+   * the API predates fee terms on the listing.
+   */
+  fee_terms: FeeTerms | null;
 }
 
 export interface OpsOrganisationMember {

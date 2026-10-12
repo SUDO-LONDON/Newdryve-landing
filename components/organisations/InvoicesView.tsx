@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { BillingResponse, Invoice } from "@/lib/organisations/types";
 import { addDays, day, gbp, londonToday, mondayOf, shortDate } from "@/lib/organisations/format";
+import { apiError, readJson } from "@/lib/organisations/http";
 
 /**
  * Weekly invoices each school raises against its instructors. Raised every
@@ -40,9 +41,9 @@ export default function InvoicesView({ initial, billing }: { initial: Invoice[];
     setNotice(null);
     try {
       const res = await fetch(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Something went wrong.");
-      return json;
+      const json = (await readJson(res)) as Record<string, unknown> | null;
+      if (!res.ok) throw new Error(apiError(json, res.status, "Something went wrong.").message);
+      return json ?? {};
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Something went wrong.");
       return null;
@@ -54,12 +55,12 @@ export default function InvoicesView({ initial, billing }: { initial: Invoice[];
   async function generate() {
     const result = await call("/organisations/api/invoices/generate", { week, send: sendNow, organisation_id: orgs.length > 1 ? orgId : undefined }, "generate");
     if (!result) return;
-    const items = result.items as Invoice[];
+    const items = (result.items ?? []) as Invoice[];
     setInvoices((all) => [...items, ...all.filter((i) => !items.some((n) => n.id === i.id))]);
     setNotice(
       items.length
         ? `${items.length} invoice${items.length === 1 ? "" : "s"} for ${day(week)} – ${day(addDays(week, 6))}${sendNow ? `, ${result.emailed} emailed` : ""}.`
-        : "Nothing to invoice for that week: no lessons were taught."
+        : "Nothing to invoice for that week: no lessons to bill."
     );
   }
 
@@ -83,11 +84,12 @@ export default function InvoicesView({ initial, billing }: { initial: Invoice[];
         <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
           <p className="font-bold">Invoices are off.</p>
           <p className="mt-1">
-            Set what you charge instructors and your bank details in{" "}
+            Newdryve sets what your instructors pay you when you join. Once those terms are set, invoices are raised every
+            Monday for the week before and emailed to each instructor. Add your bank details in{" "}
             <Link href="/organisations/settings" className="font-semibold underline">
               Settings
-            </Link>
-            . Invoices are then raised every Monday for the week before and emailed to each instructor.
+            </Link>{" "}
+            so they can pay you.
           </p>
         </div>
       ) : (
