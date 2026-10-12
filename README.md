@@ -1,95 +1,69 @@
 # Newdryve Landing
 
-Marketing site for **Newdryve**, the UK driving-lesson booking platform. Built with Next.js 16 (Turbopack), Tailwind v4, and an animated phone-mockup hero powered by Remotion's `@remotion/player`.
+One Railway service that serves `newdryve.com` from two apps behind a small
+router (`scripts/railway-start-landing.cjs`):
 
-The dashboard and authenticated app live in a separate repo and are linked from the landing via the `NEXT_PUBLIC_APP_URL` env var.
+- **Astro** (`apps/marketing`): the public marketing site, legal and account
+  pages, `/instructors/apply` and its `/api/*` form endpoints. See
+  `apps/marketing/README.md`.
+- **Next.js 16** (this directory): the founder portal (`/ops`), the
+  organisation portal (`/organisations`), the pitch deck (`/thedeck`) and
+  instructor onboarding (`/instructor/*`, `/connect/*`, `/instructors/activate`,
+  `/api/instructor/*`).
 
-## Stack
-
-- **Next.js 16** (App Router, Turbopack)
-- **React 19**
-- **Tailwind CSS v4** (token-driven, single `globals.css`)
-- **Remotion 4 + `@remotion/player`**: embedded looping 3-scene phone animation (Discover → Slot Picker → Confirmation) with a `prefers-reduced-motion` static fallback
-- **TypeScript**, **ESLint** (next/core-web-vitals + typescript)
+The router sends those Next prefixes (and `/_next/*`) to Next and every other
+path to Astro, so a Next page outside those prefixes is never served. The
+Fastify API is not proxied: it lives at its own origin (`api.newdryve.com`).
 
 ## Quick start
 
 ```bash
-npm install
-cp .env.example .env.local   # set the URLs you want for production
-npm run dev                  # http://localhost:3000
+npm ci && (cd apps/marketing && npm ci)
+cp .env.example .env.local   # fill in what you need
+npm run dev                  # Next only, http://localhost:3000
+```
+
+To run both apps the way production does:
+
+```bash
+npm run build && (cd apps/marketing && npm run build)
+node scripts/railway-start-landing.cjs   # router on $PORT (default 3000)
 ```
 
 ## Scripts
 
 | Command         | Purpose                                  |
 | --------------- | ---------------------------------------- |
-| `npm run dev`   | Dev server (Turbopack)                   |
-| `npm run build` | Production build                         |
-| `npm run start` | Serve the production build               |
+| `npm run dev`   | Next dev server (Turbopack)              |
+| `npm run build` | Next production build                    |
+| `npm run start` | Next alone (`next start`); production runs the router script instead |
 | `npm run lint`  | ESLint                                   |
 | `npm run railway:deploy` | Set ops Supabase env vars on Railway from `.env.local`, then deploy |
 
 ## Environment variables
 
-| Variable                 | Required | Default                       | Used by                                              |
-| ------------------------ | -------- | ----------------------------- | ---------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`   | yes (prod) | `https://newdryve.com`      | Metadata, canonicals, OG tags, sitemap, robots, JSON-LD |
-| `NEXT_PUBLIC_APP_URL`    | yes (prod) | `https://app.newdryve.com`  | "Open Dashboard" and "Log in" CTAs                    |
-| `BACKEND_ORIGIN`         | yes (if sharing domain with API) | unset | Rewrites `/v1/*`, `/healthz`, and `/readyz` to the existing Fastify backend |
+`.env.example` documents every variable. The ones the router's apps cannot
+start sensibly without:
 
-## Layout
-
-```
-app/
-  layout.tsx              # Root layout, DM Sans font, full Metadata + Viewport config
-  page.tsx                # The landing page itself
-  globals.css             # Tailwind v4 + brand tokens (Racing Green / Deep Rose / Canvas / Ink)
-  robots.ts               # → /robots.txt
-  sitemap.ts              # → /sitemap.xml
-  manifest.ts             # → /manifest.webmanifest
-  opengraph-image.tsx     # Dynamic 1200×630 OG image (Edge)
-  icon.tsx                # 32×32 favicon
-  apple-icon.tsx          # 180×180 Apple touch icon
-components/landing/
-  PhoneFrame.tsx          # Phone bezel wrapper
-  BookingFlowComposition.tsx  # Remotion composition (3 scenes, 270 frames)
-  BookingFlowPlayer.tsx   # 'use client' Player wrapper + reduced-motion fallback
-  StaticBookingFlow.tsx   # Static frame shown when prefers-reduced-motion: reduce
-  InstructorCard.tsx      # Reusable instructor card (also used inside Remotion)
-  MiniSlotPicker.tsx      # Static slot picker used in feature illustration
-lib/
-  instructors.ts          # Typed demo data (Sarah, James, Priya, Tom + SLOTS)
-  useReducedMotion.ts     # matchMedia hook
-  structured-data.tsx     # JSON-LD payloads (Organization, DrivingSchool, FAQPage, ItemList, ...)
-  env.ts                  # NEXT_PUBLIC_APP_URL → DASHBOARD_URL / LOGIN_URL
-```
-
-## SEO
-
-The page ships:
-
-- **Metadata**: title template, canonical, full Open Graph + Twitter cards, robots directives, `geo.*` meta, `lang="en-GB"`, dual light/dark `themeColor`.
-- **Routes**: `/robots.txt`, `/sitemap.xml`, `/manifest.webmanifest`, `/opengraph-image`, `/icon`, `/apple-icon`.
-- **Structured data** (7 schemas injected as `application/ld+json`): `Organization`, `WebSite`, `DrivingSchool` (with full `OfferCatalog`, `OpeningHoursSpecification`, `aggregateRating`, `paymentAccepted: [Credit Card, Debit Card, Bank Transfer, Cash]`), `MobileApplication`, `FAQPage` (7 Q&As, eligible for rich results), `BreadcrumbList`, `ItemList` of instructors.
-- **AI-search visibility**: robots explicitly allows GPTBot, OAI-SearchBot, ChatGPT-User, PerplexityBot, Google-Extended, Claude-Web, anthropic-ai.
-
-## Accessibility
-
-- Skip link → `<main id="main">` landmark
-- `focus-visible` ring on every interactive element
-- `motion-safe:` prefix on every transform / transition
-- `prefers-reduced-motion` swaps the Remotion animation for a static frame
-- Curly typography, `tabular-nums` on numbers, `text-balance` on headings
-- All decorative SVGs marked `aria-hidden="true"`
+| Variable | Used by |
+| --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | Canonical origin for redirects and links |
+| `NEXT_PUBLIC_APP_URL` | "Open Newdryve" on the instructor setup page (default `https://app.newdryve.com`) |
+| `BACKEND_ORIGIN` | Live API origin for instructor onboarding (Next) and applications (Astro) |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | `/ops` (its own Supabase project) |
+| `OPS_FOUNDER_ALLOWLIST`, `OPS_SESSION_SECRET` | `/ops` sign-in |
+| `NEWDRYVE_API_ORIGIN`, `NEWDRYVE_API_OPS_SECRET` | `/ops` instructor and organisation actions |
 
 ## Deployment
 
-The site is a standard Next.js App Router project. Deploy anywhere Next.js 16 runs (Vercel recommended). Set the two `NEXT_PUBLIC_*` env vars on the deploy target.
-
-If `newdryve.com` should serve this landing page while the existing backend remains unchanged, point `newdryve.com` at this Next.js app and set `BACKEND_ORIGIN` to the backend service's public origin, for example the Railway-generated backend domain. Next.js will proxy `/v1/*`, `/healthz`, and `/readyz` to that backend so existing API and webhook paths continue to work.
-
-For Railway, `npm run railway:deploy` reads `.env.local`, sets the ops Supabase variables on the linked Railway service, and runs `railway up`. Use `npm run railway:deploy -- -SkipDeploy` to update variables without deploying. Optional parameters: `-Environment`, `-Service`, and `-Project`.
+The Railway service must build both apps and start
+`node scripts/railway-start-landing.cjs`; those commands live in the Railway
+service settings, not in this repo. `npm start` alone would serve only the
+Next prefixes and 404 the marketing site.
+For Railway, `npm run railway:deploy` reads `.env.local`, sets the ops Supabase
+variables on the linked Railway service, and runs `railway up`. Use
+`npm run railway:deploy -- -SkipDeploy` to update variables without deploying.
+Optional parameters: `-Environment`, `-Service`, and `-Project`.
 
 ## License
 
