@@ -15,7 +15,8 @@
  * single egress IP and one global bucket of five applications an hour, so the
  * applicant's own address is forwarded and the limit is keyed on them instead.
  *
- * Request:  POST { full_name, email, password, ...application fields, documents[] }
+ * Request:  POST { full_name, email, password, ...application fields, gender?, documents[] }
+ *           `gender` is optional and private: 'female' | 'male' | 'non_binary' | null.
  * Response: 201 { status, instructor_id, uploads[], message }
  *           | 409 { error, field: 'email' } when the email already has an account
  *           | 422 { error, field? } | 429 { error } | 502 { error } | 504 { error }
@@ -62,6 +63,7 @@ const FIELD_LABELS: Record<string, string> = {
   email: 'Email',
   password: 'Password',
   phone_e164: 'Mobile number',
+  gender: 'Gender',
   driving_school_name: 'Driving school name',
   bio: 'Short bio',
   price_per_hour_pounds: 'Price per hour',
@@ -125,6 +127,21 @@ const describeIssue = (details: unknown): { field: string; message: string } | n
   }
   return { field, message: `Please check this answer: ${label}.` };
 };
+
+/**
+ * The only values the API takes for the optional, private `gender`. Absent,
+ * null or "" (the form's "Prefer not to say") all mean not stated.
+ */
+const GENDER_VALUES = ['female', 'male', 'non_binary'] as const;
+
+/** Null when `gender` is absent, unstated or one of GENDER_VALUES; otherwise the applicant's message. */
+const validateGender = (gender: unknown): string | null =>
+  gender === undefined ||
+  gender === null ||
+  gender === '' ||
+  (typeof gender === 'string' && (GENDER_VALUES as readonly string[]).includes(gender))
+    ? null
+    : 'Choose female, male, non-binary or prefer not to say for gender.';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -253,9 +270,13 @@ export const POST: APIRoute = async (context) => {
 
   const validationError = validateApplication(payload);
   if (validationError) return json({ error: validationError }, 422);
+  const genderError = validateGender((payload as Record<string, unknown>).gender);
+  if (genderError) return json({ error: genderError, field: 'gender' }, 422);
 
   const application = { ...(payload as Record<string, unknown>) };
   delete application[HONEYPOT_FIELD];
+  // "Prefer not to say" is null to the API, never an empty string.
+  if (application.gender === '' || application.gender === undefined) application.gender = null;
   // The badge is optional, and the API rejects the WHOLE application over one
   // unsupported content type (a .heic from Chrome on Windows reports no type
   // at all). Drop it instead; the form then shows its upload warning.

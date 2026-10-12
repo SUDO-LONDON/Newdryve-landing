@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { isGuardError, requireFounder } from "@/lib/ops/auth";
 import { logAudit } from "@/lib/ops/audit";
-import { regenerateOrganisationCode, updateOrganisation } from "@/lib/ops/organisations";
+import {
+  organisationErrorResponse,
+  regenerateOrganisationCode,
+  updateOrganisation,
+} from "@/lib/ops/organisations";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,10 +29,7 @@ export async function PATCH(request: Request, context: Params) {
     }).catch(() => {});
     return NextResponse.json({ organisation });
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Could not update organisation." },
-      { status: 400 }
-    );
+    return organisationErrorResponse(err, "Could not update organisation.");
   }
 }
 
@@ -53,9 +54,6 @@ export async function POST(request: Request, context: Params) {
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Could not update organisation." },
-      { status: 400 }
-    );
+    return organisationErrorResponse(err, "Could not update organisation.");
   }
 }

@@ -6,11 +6,21 @@
  */
 
 import type { Invoice } from "@/lib/organisations/types";
-import { day, gbp, hours, longDate, sortCode } from "@/lib/organisations/format";
+import { day, gbp, hours, londonDateOf, longDate, sortCode, time } from "@/lib/organisations/format";
+import { percentLabel } from "@/lib/organisations/fees";
+
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 function quantity(invoice: Invoice): { qty: string; rate: string } {
   const t = invoice.terms;
   switch (t.fee_mode) {
+    case "lead_percent":
+      // The basis is what the billed lessons collected, net of refunds.
+      return { qty: gbp(invoice.revenue_pence), rate: percentLabel(t.percent_bps) };
+    case "lead_fixed":
+      return { qty: plural(invoice.lessons, "lesson"), rate: `${gbp(t.amount_pence ?? 0)} / lesson` };
+    case "flat_weekly":
+      return { qty: "1 week", rate: `${gbp(t.amount_pence ?? invoice.amount_pence)} / week` };
     case "per_hour":
       return { qty: hours(invoice.lesson_minutes), rate: `${gbp(t.amount_pence ?? 0)} / hour` };
     case "per_lesson":
@@ -25,6 +35,8 @@ function quantity(invoice: Invoice): { qty: string; rate: string } {
 export default function InvoiceDocument({ invoice }: { invoice: Invoice }) {
   const t = invoice.terms;
   const { qty, rate } = quantity(invoice);
+  const lead = t.fee_mode === "lead_percent" || t.fee_mode === "lead_fixed";
+  const lines = invoice.line_items ?? [];
 
   return (
     <article className="mx-auto w-full max-w-[820px] overflow-hidden rounded-2xl border border-border bg-white p-6 text-ink sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
@@ -85,7 +97,10 @@ export default function InvoiceDocument({ invoice }: { invoice: Invoice }) {
             <td className="py-3 pr-3">
               <p className="font-semibold">{t.description}</p>
               <p className="text-xs text-ink-secondary">
-                {day(invoice.period_start)} – {day(invoice.period_end)} · {invoice.lessons} lesson{invoice.lessons === 1 ? "" : "s"},{" "}
+                {day(invoice.period_start)} – {day(invoice.period_end)} ·{" "}
+                {/* For a lead fee these count only the billed lessons, with
+                    learners the school introduced. */}
+                {lead ? `${plural(invoice.lessons, "lesson")} with learners introduced by ${t.organisation_name}` : plural(invoice.lessons, "lesson")},{" "}
                 {hours(invoice.lesson_minutes)} taught
               </p>
             </td>
@@ -102,6 +117,8 @@ export default function InvoiceDocument({ invoice }: { invoice: Invoice }) {
           </tr>
         </tfoot>
       </table>
+
+      {lead && lines.length ? <LineItems invoice={invoice} /> : null}
 
       <section className="mt-8 rounded-xl bg-canvas p-5 text-sm print:border print:border-border print:bg-white">
         <h2 className="font-bold">Pay by bank transfer</h2>
@@ -136,5 +153,59 @@ export default function InvoiceDocument({ invoice }: { invoice: Invoice }) {
         Issued by {t.organisation_name} through Newdryve · newdryve.com
       </footer>
     </article>
+  );
+}
+
+/**
+ * One row per billed lesson, so an instructor can check a lead-fee invoice
+ * against their own diary. The API rounds each line on its own, so the fees
+ * add up to the total exactly.
+ */
+function LineItems({ invoice }: { invoice: Invoice }) {
+  const lines = invoice.line_items ?? [];
+  const percent = invoice.terms.fee_mode === "lead_percent";
+  const totalFee = lines.reduce((n, l) => n + l.fee_pence, 0);
+  return (
+    <section className="mt-8" aria-labelledby={`lines-${invoice.id}`}>
+      <h2 id={`lines-${invoice.id}`} className="text-sm font-bold">
+        Lessons billed
+      </h2>
+      <p className="mt-1 text-xs text-ink-secondary">
+        {percent
+          ? `${percentLabel(invoice.terms.percent_bps)} of what each lesson collected, after any refund.`
+          : `${gbp(invoice.terms.amount_pence ?? 0)} for each completed lesson. What the lesson collected is shown for reference.`}
+      </p>
+      <table className="mt-3 w-full text-left text-sm">
+        <thead className="border-y border-border text-[11px] uppercase tracking-[1px] text-ink-secondary">
+          <tr>
+            <th scope="col" className="py-2 pr-3">Date</th>
+            <th scope="col" className="py-2 pr-3 text-right">Minutes</th>
+            <th scope="col" className="py-2 pr-3 text-right">{percent ? "Basis" : "Collected"}</th>
+            <th scope="col" className="py-2 text-right">Fee</th>
+          </tr>
+        </thead>
+        <tbody>
+          {lines.map((line) => (
+            <tr key={line.booking_id} className="border-b border-border">
+              <td className="py-2 pr-3">
+                {day(londonDateOf(line.starts_at))}
+                <span className="text-ink-secondary"> · {time(line.starts_at)}</span>
+              </td>
+              <td className="py-2 pr-3 text-right tabular-nums">{line.minutes}</td>
+              <td className="py-2 pr-3 text-right tabular-nums">{gbp(line.basis_pence)}</td>
+              <td className="py-2 text-right font-semibold tabular-nums">{gbp(line.fee_pence)}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colSpan={3} className="pt-2 pr-3 text-right text-xs font-bold text-ink-secondary">
+              {plural(lines.length, "lesson")}
+            </td>
+            <td className="pt-2 text-right font-bold tabular-nums">{gbp(totalFee)}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
   );
 }

@@ -1,5 +1,7 @@
 import "server-only";
 
+import { NextResponse } from "next/server";
+import type { FeeTerms, FeeTermsInput } from "@/lib/organisations/fees";
 import type {
   LessonPresence,
   OpsOrganisation,
@@ -23,6 +25,11 @@ export type OrganisationCreateInput = {
   contact_name?: string | null;
   contact_email?: string | null;
   contact_phone?: string | null;
+  bio?: string | null;
+  logo_url?: string | null;
+  primary_color?: string | null;
+  /** Omitted means off until ops sets terms. */
+  fee_terms?: FeeTermsInput;
 };
 
 export type OrganisationAdminCreateInput = {
@@ -45,6 +52,10 @@ type BackendOrganisation = {
   seat_price_pence?: number | null;
   billing_notes?: string | null;
   subscription_status?: string | null;
+  bio?: string | null;
+  logo_url?: string | null;
+  primary_color?: string | null;
+  fee_terms?: FeeTerms | null;
   admin_count?: number;
   live_lessons?: OrganisationLiveLesson[];
   upcoming_today?: OrganisationUpcomingLesson[];
@@ -75,15 +86,42 @@ type BackendOrganisationMember = {
 type OrganisationResponse = {
   organisation: BackendOrganisation;
   join_code?: string;
+  fee_terms?: FeeTerms;
 };
 
 export class OrganisationApiError extends Error {
   constructor(
     message: string,
-    public readonly status: number
+    public readonly status: number,
+    /** `details.code` when the API gave one, else the envelope's code. */
+    public readonly code: string | null = null,
+    public readonly details: Record<string, unknown> | null = null
   ) {
     super(message);
   }
+}
+
+/**
+ * The JSON an /ops route handler answers with when a call fails: the API's
+ * status (or `fallbackStatus` for anything that is not an API error), its
+ * message, and its code and details, so the browser can act on, say,
+ * `details.allowed_modes`.
+ */
+export function organisationErrorResponse(err: unknown, fallbackMessage: string, fallbackStatus = 400): NextResponse {
+  if (err instanceof OrganisationApiError) {
+    return NextResponse.json(
+      {
+        error: err.message,
+        ...(err.code ? { code: err.code } : {}),
+        ...(err.details ? { details: err.details } : {}),
+      },
+      { status: err.status >= 400 && err.status < 600 ? err.status : fallbackStatus }
+    );
+  }
+  return NextResponse.json(
+    { error: err instanceof Error ? err.message : fallbackMessage },
+    { status: fallbackStatus }
+  );
 }
 
 export function isOrganisationApiConfigured(): boolean {
@@ -117,7 +155,7 @@ export async function createOrganisation(
     method: "POST",
     body: JSON.stringify(input),
   });
-  return mapOrganisation(data.organisation, data.join_code);
+  return mapOrganisation({ ...data.organisation, fee_terms: data.fee_terms ?? null }, data.join_code);
 }
 
 export async function updateOrganisation(
@@ -135,7 +173,32 @@ export async function updateOrganisation(
     method: "PATCH",
     body: JSON.stringify(input),
   });
-  return mapOrganisation(data.organisation);
+  return mapOrganisation({ ...data.organisation, fee_terms: data.fee_terms ?? null });
+}
+
+/** PUT /v1/ops/organisations/:id/fee-terms. Newdryve is the only writer of these. */
+export async function setOrganisationFeeTerms(
+  id: string,
+  input: FeeTermsInput,
+  actor: string
+): Promise<FeeTerms> {
+  const data = await call<{ fee_terms: FeeTerms }>(`/v1/ops/organisations/${id}/fee-terms`, actor, {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
+  return data.fee_terms;
+}
+
+/**
+ * End an instructor's active membership. The API notifies the organisation;
+ * 404 when they are not an active member.
+ */
+export async function removeOrganisationMember(
+  id: string,
+  instructorId: string,
+  actor: string
+): Promise<void> {
+  await call(`/v1/ops/organisations/${id}/members/${instructorId}`, actor, { method: "DELETE" });
 }
 
 export async function regenerateOrganisationCode(
@@ -197,12 +260,16 @@ async function call<T>(path: string, founderEmail: string, init: RequestInit = {
   const body = (await response.json().catch(() => null)) as T | null;
 
   if (!response.ok) {
-    const errorBody = body as { error?: string | { message?: string } } | null;
+    const errorBody = body as {
+      error?: string | { message?: string; code?: string; details?: Record<string, unknown> };
+    } | null;
+    const error = errorBody?.error;
     const message =
-      typeof errorBody?.error === "string"
-        ? errorBody.error
-        : errorBody?.error?.message || "The Newdryve API rejected that request.";
-    throw new OrganisationApiError(message, response.status);
+      typeof error === "string" ? error : error?.message || "The Newdryve API rejected that request.";
+    const details = typeof error === "object" && error?.details && typeof error.details === "object" ? error.details : null;
+    const code =
+      typeof details?.code === "string" ? details.code : typeof error === "object" ? error?.code ?? null : null;
+    throw new OrganisationApiError(message, response.status, code, details);
   }
 
   return body as T;
@@ -245,6 +312,10 @@ function mapOrganisation(
     seat_price_pence: organisation.seat_price_pence ?? null,
     billing_notes: organisation.billing_notes ?? null,
     subscription_status: organisation.subscription_status ?? null,
+    bio: organisation.bio ?? null,
+    logo_url: organisation.logo_url ?? null,
+    primary_color: organisation.primary_color ?? null,
+    fee_terms: organisation.fee_terms ?? null,
     updated_at: organisation.updated_at || organisation.created_at,
     deleted_at: null,
     members: (organisation.members ?? []).map((member) =>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import NotificationBell from "@/components/organisations/NotificationBell";
 
 const NAV = [
   { href: "/organisations", label: "Overview" },
@@ -30,6 +31,7 @@ export default function PortalShell({ email, children }: { email: string | null;
             <span className="hidden text-sm font-semibold text-ink-secondary sm:inline">Organisation portal</span>
           </Link>
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <p className="hidden max-w-[16rem] truncate text-xs text-ink-secondary md:block" title={email ?? undefined}>
               {email}
             </p>

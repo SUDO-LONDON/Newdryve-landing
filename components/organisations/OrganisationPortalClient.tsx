@@ -1,4 +1,5 @@
 import Link from "next/link";
+import RemoveMemberButton from "@/components/organisations/RemoveMemberButton";
 import { formatPence, organisationTotals, type OpsOrganisationWithMembers } from "@/lib/ops/types";
 import { shortDate, time } from "@/lib/organisations/format";
 
@@ -251,7 +252,7 @@ export default function OrganisationPortalClient({
               </div>
 
               <div className="mt-5 overflow-x-auto">
-                <table className="w-full min-w-[760px] text-left text-sm">
+                <table className="w-full min-w-[900px] text-left text-sm">
                   <thead className="border-b border-border bg-blush-surface/60 text-[11px] uppercase tracking-wider text-ink-muted">
                     <tr>
                       <th className="px-3 py-3">Instructor</th>
@@ -259,6 +260,9 @@ export default function OrganisationPortalClient({
                       <th className="px-3 py-3">Current lesson</th>
                       <th className="px-3 py-3 text-right">Lessons</th>
                       <th className="px-3 py-3 text-right">Revenue</th>
+                      <th className="px-3 py-3">
+                        <span className="sr-only">Actions</span>
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -276,6 +280,13 @@ export default function OrganisationPortalClient({
                         <td className="px-3 py-3 text-right text-ink">{member.lesson_count}</td>
                         <td className="px-3 py-3 text-right font-medium text-ink">
                           {formatPence(member.revenue_pence)}
+                        </td>
+                        <td className="px-3 py-3 text-right">
+                          <RemoveMemberButton
+                            endpoint={`/organisations/api/members/${encodeURIComponent(member.instructor_id)}?organisation_id=${encodeURIComponent(organisation.id)}`}
+                            instructorName={member.display_name}
+                            organisationName={organisation.name}
+                          />
                         </td>
                       </tr>
                     ))}

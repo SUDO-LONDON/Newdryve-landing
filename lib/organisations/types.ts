@@ -4,6 +4,8 @@
  * Kept client-safe: no server imports, so components can use them.
  */
 
+import type { FeeMode } from "@/lib/organisations/fees";
+
 export interface OrgRef {
   id: string;
   name: string;
@@ -126,7 +128,7 @@ export interface LearnersResponse {
   learners: LearnerRow[];
 }
 
-export type FeeMode = "off" | "per_hour" | "per_lesson" | "percent_of_revenue" | "flat_weekly";
+export type { FeeMode } from "@/lib/organisations/fees";
 
 export interface BillingSettings {
   organisation_id: string;
@@ -140,10 +142,48 @@ export interface BillingSettings {
   invoice_from_name: string | null;
   invoice_from_address: string | null;
   invoice_notes: string | null;
+  /** Who at Newdryve last set the fee terms, and when. Null until ops sets them. */
+  fee_terms_set_by_email?: string | null;
+  fee_terms_set_at?: string | null;
 }
 
 export interface BillingResponse {
-  organisations: Array<{ id: string; name: string; legal_name: string | null; billing: BillingSettings }>;
+  organisations: Array<{
+    id: string;
+    name: string;
+    legal_name: string | null;
+    billing: BillingSettings;
+    /** Always false: Newdryve sets the fee terms. */
+    fee_terms_editable?: boolean;
+  }>;
+}
+
+/** One billed lesson on a lead-fee invoice. */
+export interface InvoiceLineItem {
+  booking_id: string;
+  starts_at: string;
+  minutes: number;
+  /** What the lesson collected, net of refunds. The fee for lead_percent; for reference on lead_fixed. */
+  basis_pence: number;
+  fee_pence: number;
+}
+
+/** GET /v1/organisations/me/notifications. */
+export interface OrganisationNotification {
+  id: string;
+  organisation_id: string;
+  kind: "instructor_joined" | "instructor_left" | (string & {});
+  instructor_id: string | null;
+  title: string;
+  body: string;
+  created_at: string;
+  read_at: string | null;
+}
+
+export interface NotificationsResponse {
+  items: OrganisationNotification[];
+  unread_count: number;
+  next_offset: number | null;
 }
 
 export interface Invoice {
@@ -170,6 +210,8 @@ export interface Invoice {
     organisation_name: string;
     instructor_name: string;
   };
+  /** One line per billed lesson for the lead modes; empty (or absent on older rows) otherwise. */
+  line_items?: InvoiceLineItem[];
   status: "issued" | "paid" | "void";
   issued_at: string;
   due_on: string;

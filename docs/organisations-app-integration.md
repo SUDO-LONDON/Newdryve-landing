@@ -29,3 +29,22 @@ Required deployment environment:
 4. The website organisation portal must have `NEXT_PUBLIC_PRODUCT_SUPABASE_URL`
    and `NEXT_PUBLIC_PRODUCT_SUPABASE_ANON_KEY` set to the live product Supabase
    project so organisation admins can sign in with their Newdryve auth account.
+
+## Organisations v2 (requires the API from Newdryve#407)
+
+- **Fee terms are Newdryve's.** `/ops/organisations` sets what each school
+  charges its instructors, at creation and on the organisation page, through
+  `PUT /v1/ops/organisations/:id/fee-terms`. Four modes only: off, lead fee as a
+  % of each lesson (`percent_bps`), lead fee as a fixed £ per lesson
+  (`amount_pence`), and a flat weekly £ per instructor (`amount_pence`).
+  Schools on an earlier mode (`per_hour`, `per_lesson`, `percent_of_revenue`)
+  show a "Legacy" badge until ops re-sets them; they are still invoiced.
+- **The school portal shows the terms read-only** ("Set by Newdryve") and saves
+  only its bank and invoice details. A change to the terms gets 403
+  `fee_terms_managed_by_newdryve`.
+- **Invoices** for the lead modes list each billed lesson (`line_items`).
+- **Member removal** from ops and from the school portal, behind a confirm.
+- **Notification bell** in the portal header: instructors joining and leaving,
+  polled every 60 seconds while the tab is visible.
+- **Listing** fields (bio, https logo URL, `#RRGGBB` brand colour) are edited
+  in ops; learners see each organisation as one listing.
