@@ -21,13 +21,21 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { StripeConnectInstance } from "@stripe/connect-js/pure";
 import type { OnboardingState, OnboardingTask } from "@/lib/instructor/backend";
 import { Shell, Wordmark } from "@/components/instructor/Shell";
 import { StepList, StepProgress } from "@/components/instructor/TaskList";
 import { CoverageStep } from "@/components/instructor/CoverageStep";
 import { ListingSummary, ReviewStep } from "@/components/instructor/ReviewStep";
 import { APP_URL } from "@/lib/env";
-import { SETUP_PAGE_KEY } from "@/lib/instructor/setup-page";
+import { rememberMembershipToken, SETUP_PAGE_KEY } from "@/lib/instructor/setup-page";
+
+/**
+ * The Android app, verified live (apps/marketing/src/config/site.ts). The iOS
+ * app is still in review, so iPhone instructors use the web app at APP_URL,
+ * which works on every device and stays the primary button.
+ */
+const ANDROID_APP_URL = "https://play.google.com/store/apps/details?id=com.newdryve.app";
 
 /** Long enough not to hammer the API, short enough to catch a Stripe webhook. */
 const POLL_MS = 15_000;
@@ -68,6 +76,12 @@ export default function OnboardingHub({
   const currentCard = useRef<HTMLElement | null>(null);
   const reviewPending = useRef(false);
   const latestLoad = useRef(0);
+  /**
+   * One Stripe Connect instance per page. Each new instance POSTs for a fresh
+   * Account Session (rate-limited to 10 per 10 minutes), so re-creating it on
+   * every "Connect bank account" click soon locked the instructor out.
+   */
+  const stripeConnectRef = useRef<StripeConnectInstance | null>(null);
 
   useEffect(() => {
     if (connectOpen && connectElement && connectContainer.current) {
@@ -109,10 +123,13 @@ export default function OnboardingHub({
       if (!token) return;
       const requestId = ++latestLoad.current;
       try {
-        const response = await fetch(
-          `/api/instructor/onboarding?token=${encodeURIComponent(token)}`,
-          { cache: "no-store", signal }
-        );
+        const response = await fetch("/api/instructor/onboarding", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ token }),
+          cache: "no-store",
+          signal,
+        });
         const body = await response.json();
         if (signal?.aborted || requestId !== latestLoad.current) return;
         if (!response.ok) throw new Error(body.error || "Could not load your setup steps.");
@@ -163,6 +180,8 @@ export default function OnboardingHub({
       const destination = body.checkout_url || body.app_url;
       if (!destination) throw new Error("Stripe did not return a secure checkout link.");
       rememberSetupPage();
+      // Checkout's cancel URL carries no token; the cancelled page reads this.
+      if (body.checkout_url) rememberMembershipToken(token);
       window.location.assign(destination);
     } catch (cause) {
       setActionError(cause instanceof Error ? cause.message : "Could not start membership setup.");
@@ -175,39 +194,46 @@ export default function OnboardingHub({
     setActionError(null);
     setNotice(null);
     try {
-      const newSession = async (): Promise<{ client_secret: string; publishable_key: string }> => {
-        const response = await fetch("/api/instructor/connect-onboard", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ token }),
-        });
-        const body = await response.json();
-        if (!response.ok) throw new Error(body.error || "Could not start Stripe Connect setup.");
-        if (!body.client_secret || !body.publishable_key) {
-          throw new Error("Stripe did not return an embedded setup session.");
-        }
-        return body;
-      };
-      const initialSession = await newSession();
-      let firstSecret: string | null = initialSession.client_secret;
+      let stripeConnect = stripeConnectRef.current;
+      if (!stripeConnect) {
+        const newSession = async (): Promise<{ client_secret: string; publishable_key: string }> => {
+          const response = await fetch("/api/instructor/connect-onboard", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ token }),
+          });
+          const body = await response.json();
+          if (!response.ok) throw new Error(body.error || "Could not start Stripe Connect setup.");
+          if (!body.client_secret || !body.publishable_key) {
+            throw new Error("Stripe did not return an embedded setup session.");
+          }
+          return body;
+        };
+        const initialSession = await newSession();
+        let firstSecret: string | null = initialSession.client_secret;
 
-      const { loadConnectAndInitialize } = await import("@stripe/connect-js/pure");
-      const stripeConnect = loadConnectAndInitialize({
-        publishableKey: initialSession.publishable_key,
-        fetchClientSecret: async () => {
-          if (firstSecret) {
-            const secret = firstSecret;
-            firstSecret = null;
-            return secret;
-          }
-          try {
-            return (await newSession()).client_secret;
-          } catch (cause) {
-            setActionError(cause instanceof Error ? cause.message : "Could not refresh Stripe Connect setup.");
-            throw cause;
-          }
-        },
-      });
+        const { loadConnectAndInitialize } = await import("@stripe/connect-js/pure");
+        stripeConnect = loadConnectAndInitialize({
+          publishableKey: initialSession.publishable_key,
+          // Stripe calls this again only when the session itself expires.
+          fetchClientSecret: async () => {
+            if (firstSecret) {
+              const secret = firstSecret;
+              firstSecret = null;
+              return secret;
+            }
+            try {
+              return (await newSession()).client_secret;
+            } catch (cause) {
+              // Start over with a fresh instance on the next click.
+              stripeConnectRef.current = null;
+              setActionError(cause instanceof Error ? cause.message : "Could not refresh Stripe Connect setup.");
+              throw cause;
+            }
+          },
+        });
+        stripeConnectRef.current = stripeConnect;
+      }
       const onboarding = stripeConnect.create("account-onboarding");
       onboarding.setFullTermsOfServiceUrl(`${window.location.origin}/terms`);
       onboarding.setRecipientTermsOfServiceUrl(`${window.location.origin}/terms`);
@@ -388,6 +414,15 @@ export default function OnboardingHub({
         <p role="status" className="mt-4 rounded-xl bg-white px-4 py-3 text-sm text-ink-secondary">
           {loadError} Showing the last version we loaded.
         </p>
+      ) : null}
+      {!state.complete && current && blocked ? (
+        // A blocked step (e.g. an overdue membership payment) needs support,
+        // not a button, so it would otherwise only show in the list below
+        // while the card asks for something else.
+        <div role="status" className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+          <p className="font-semibold">{blocked.title}</p>
+          <p className="mt-1 leading-6">{blocked.detail}</p>
+        </div>
       ) : null}
       {notice ? (
         <p role="status" className="mt-4 flex items-center gap-2 text-sm font-semibold text-racing-green">
@@ -616,6 +651,13 @@ function LiveCard() {
       >
         Open Newdryve
       </a>
+      <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
+        On Android?{" "}
+        <a className="font-semibold underline" href={ANDROID_APP_URL}>
+          Get the app on Google Play
+        </a>
+        .
+      </p>
     </>
   );
 }

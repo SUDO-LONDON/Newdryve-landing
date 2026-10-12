@@ -8,6 +8,7 @@ import {
   reinstateInstructor,
   rejectInstructor,
   resendInstructorActivation,
+  setInstructorListingApproval,
   updateInstructorBilling,
   updateInstructorVerification,
 } from "@/lib/ops/instructors";
@@ -22,7 +23,7 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type Action = "approve" | "reject" | "reinstate" | "update_billing" | "grant_free_forever" | "update_verification" | "resend_activation";
+type Action = "approve" | "reject" | "reinstate" | "update_billing" | "grant_free_forever" | "update_verification" | "resend_activation" | "update_listing";
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const guard = await requireFounder();
@@ -47,6 +48,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     trial_source?: "word_of_mouth" | "referral" | "other" | null;
     trial_note?: string | null;
     free_forever?: boolean;
+    listing_approved?: boolean;
   };
   try {
     body = await request.json();
@@ -55,7 +57,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const action = body.action;
-  if (action !== "approve" && action !== "reject" && action !== "reinstate" && action !== "update_billing" && action !== "grant_free_forever" && action !== "update_verification" && action !== "resend_activation") {
+  if (action !== "approve" && action !== "reject" && action !== "reinstate" && action !== "update_billing" && action !== "grant_free_forever" && action !== "update_verification" && action !== "resend_activation" && action !== "update_listing") {
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   }
 
@@ -97,6 +99,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
             ? body.adi_verification_note.trim().slice(0, 500) || null
             : null,
       });
+    } else if (action === "update_listing") {
+      if (typeof body.listing_approved !== "boolean") {
+        return NextResponse.json({ error: "listing_approved must be true or false" }, { status: 400 });
+      }
+      await setInstructorListingApproval(guard.email, id, body.listing_approved);
     } else {
       await resendInstructorActivation(guard.email, id);
     }
@@ -144,6 +151,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
                 }
             : action === "resend_activation"
               ? { email_resent: true }
+            : action === "update_listing"
+              ? { listing_approved: body.listing_approved }
               : undefined,
   }).catch((err) => {
     // The decision already landed upstream; a failed audit write must not

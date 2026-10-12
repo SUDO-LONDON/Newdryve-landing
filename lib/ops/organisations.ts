@@ -186,6 +186,8 @@ async function call<T>(path: string, founderEmail: string, init: RequestInit = {
         ...(init.headers as Record<string, string> | undefined),
       },
       cache: "no-store",
+      // A stalled API must surface as an error, not a page that never loads.
+      signal: AbortSignal.timeout(init.method && init.method !== "GET" ? 20_000 : 10_000),
     });
   } catch (err) {
     console.error("[ops/organisations] API unreachable", err);

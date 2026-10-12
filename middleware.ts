@@ -1,7 +1,11 @@
 // Founder portal gate. RLS remains the database enforcement layer; this middleware
 // handles fast founder gating, inactivity timeout, and Supabase cookie refresh.
 import { NextResponse, type NextRequest } from "next/server";
-import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
+import {
+  createSupabaseMiddlewareClient,
+  FOUNDER_EMAIL_HEADER,
+  passThroughWithoutForgedIdentity,
+} from "@/lib/supabase/middleware";
 import {
   isFounderEmail,
   OPS_SESSION_TIMEOUT_MINUTES,
@@ -10,7 +14,10 @@ import {
 } from "@/lib/ops/env";
 import {
   createVerifiedFounderCookie,
+  FOUNDER_PROOF_HEADER,
+  OPS_REVERIFY_MS,
   readVerifiedFounderCookie,
+  signFounderHeader,
   VERIFIED_COOKIE,
 } from "@/lib/ops/session";
 
@@ -24,8 +31,10 @@ export async function middleware(request: NextRequest) {
   // by an unauthenticated phone, so they bypass the founder gate here; each of
   // those routes enforces its own auth (token capability for the phone-facing
   // upload/poll, requireFounder for session creation and consumption).
+  // requireFounder trusts the founder-email header, so even on this bypass an
+  // inbound copy of it must be stripped rather than passed through.
   if (pathname.startsWith("/ops/capture") || pathname.startsWith("/ops/api/capture")) {
-    return NextResponse.next();
+    return passThroughWithoutForgedIdentity(request);
   }
 
   if (pathname === "/") {
@@ -33,7 +42,7 @@ export async function middleware(request: NextRequest) {
       request.nextUrl.searchParams.has("code") ||
       request.nextUrl.searchParams.has("token_hash");
 
-    if (!hasOtpParams) return NextResponse.next();
+    if (!hasOtpParams) return passThroughWithoutForgedIdentity(request);
 
     const url = new URL("/ops/auth/confirm", PUBLIC_SITE_URL);
     request.nextUrl.searchParams.forEach((value, key) => {
@@ -54,17 +63,28 @@ export async function middleware(request: NextRequest) {
     .getAll()
     .some((cookie) => cookie.name.startsWith("sb-"));
 
-  if (isLogin && !hasAuthCookie) return NextResponse.next();
+  if (isLogin && !hasAuthCookie) return passThroughWithoutForgedIdentity(request);
 
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    if (isLogin || isDenied) return NextResponse.next();
+    if (isLogin || isDenied) return passThroughWithoutForgedIdentity(request);
     const url = request.nextUrl.clone();
     url.pathname = "/ops/login";
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 
-  const { supabase, setRequestHeader, response } = createSupabaseMiddlewareClient(request);
+  const { supabase, setRequestHeader, response, applyAuthCookies } =
+    createSupabaseMiddlewareClient(request);
+
+  // Downstream handlers trust the email header only alongside a proof that
+  // this middleware signed, so a header that reached them some other way is
+  // ignored. Without OPS_SESSION_SECRET there is no proof and they fall back
+  // to asking Supabase themselves.
+  const forwardFounder = async (founderEmail: string) => {
+    setRequestHeader(FOUNDER_EMAIL_HEADER, founderEmail);
+    const proof = await signFounderHeader(founderEmail);
+    if (proof) setRequestHeader(FOUNDER_PROOF_HEADER, proof);
+  };
 
   if (isAuthRoute) return response();
 
@@ -86,23 +106,35 @@ export async function middleware(request: NextRequest) {
     return timedOut;
   }
 
+  // Fast path: a cookie signed within the last OPS_REVERIFY_MS vouches for
+  // the founder without a Supabase round trip. It is deliberately not
+  // re-issued here, so Supabase is asked again once it ages out. getSession()
+  // reads the local session (refreshing it only when it has expired), so a
+  // founder who signed out elsewhere, or whose token needs rotating, still
+  // goes through Supabase rather than riding on the cookie.
   const verifiedEmail = activityExpired
     ? null
-    : await readVerifiedFounderCookie(request.cookies.get(VERIFIED_COOKIE)?.value, timeoutMs);
+    : await readVerifiedFounderCookie(request.cookies.get(VERIFIED_COOKIE)?.value);
   if (verifiedEmail && isFounderEmail(verifiedEmail)) {
-    setRequestHeader("x-ops-founder-email", verifiedEmail);
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    if (isLogin) {
-      const url = request.nextUrl.clone();
-      const next = sanitizeFounderNext(request.nextUrl.searchParams.get("next"));
-      url.pathname = next;
-      url.searchParams.delete("next");
-      return NextResponse.redirect(url);
+    if (session) {
+      await forwardFounder(verifiedEmail);
+
+      if (isLogin) {
+        const url = request.nextUrl.clone();
+        const next = sanitizeFounderNext(request.nextUrl.searchParams.get("next"));
+        url.pathname = next;
+        url.searchParams.delete("next");
+        return applyAuthCookies(NextResponse.redirect(url));
+      }
+
+      const res = response();
+      setLastActiveCookie(res, now);
+      return res;
     }
-
-    const res = response();
-    await setOpsSessionCookies(res, verifiedEmail, now);
-    return res;
   }
 
   const {
@@ -125,14 +157,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (email) setRequestHeader("x-ops-founder-email", email);
+  if (email) await forwardFounder(email);
 
   if (isLogin) {
     const url = request.nextUrl.clone();
     const next = sanitizeFounderNext(request.nextUrl.searchParams.get("next"));
     url.pathname = next;
     url.searchParams.delete("next");
-    return NextResponse.redirect(url);
+    return applyAuthCookies(NextResponse.redirect(url));
   }
 
   const res = response();
@@ -168,15 +200,28 @@ async function isAllowedFounder(
   return !error && !!data;
 }
 
-async function setOpsSessionCookies(res: NextResponse, email: string, now: number) {
-  const cookieOptions = {
-    httpOnly: true,
-    sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: OPS_SESSION_TIMEOUT_MINUTES * 60,
-  };
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: "lax" as const,
+  secure: process.env.NODE_ENV === "production",
+  path: "/",
+};
 
-  res.cookies.set(LAST_ACTIVE_COOKIE, String(now), cookieOptions);
-  res.cookies.set(VERIFIED_COOKIE, await createVerifiedFounderCookie(email), cookieOptions);
+function setLastActiveCookie(res: NextResponse, now: number) {
+  res.cookies.set(LAST_ACTIVE_COOKIE, String(now), {
+    ...cookieOptions,
+    maxAge: OPS_SESSION_TIMEOUT_MINUTES * 60,
+  });
+}
+
+/** Called only after Supabase itself has confirmed the founder's session. */
+async function setOpsSessionCookies(res: NextResponse, email: string, now: number) {
+  setLastActiveCookie(res, now);
+  const verified = await createVerifiedFounderCookie(email);
+  if (verified) {
+    res.cookies.set(VERIFIED_COOKIE, verified, {
+      ...cookieOptions,
+      maxAge: Math.floor(OPS_REVERIFY_MS / 1000),
+    });
+  }
 }

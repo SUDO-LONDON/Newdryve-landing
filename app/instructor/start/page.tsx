@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { Shell } from "@/components/instructor/Shell";
-import { loadOnboarding } from "@/lib/instructor/backend";
+import { forwardedIp, loadOnboarding } from "@/lib/instructor/backend";
 import OnboardingHub from "./OnboardingHub";
 
 export const metadata: Metadata = {
@@ -46,7 +46,7 @@ export default async function InstructorStartPage({
 
   // Forwarded so the API's per-IP rate limit is keyed on the instructor rather
   // than on this service's single egress address.
-  const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const ip = forwardedIp({ headers: await headers() });
   const result = await loadOnboarding(token, ip);
 
   return (

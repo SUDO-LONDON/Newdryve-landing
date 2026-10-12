@@ -2,8 +2,9 @@
 
 /**
  * Stripe's `refresh_url`: the hosted Account Link it sends the mobile app to
- * is single-use and expires. Stripe does not pass our token back, so this can
- * only reopen the embedded form when the token survived in the URL.
+ * is single-use and expires. The API puts a payout-setup refresh token (valid
+ * 24 hours) on that URL, which /instructor/connect hands to the setup hub like
+ * the emailed one. Older links without it can only ask for a resend.
  */
 
 import { useSearchParams } from "next/navigation";

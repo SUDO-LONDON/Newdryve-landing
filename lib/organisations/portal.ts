@@ -21,6 +21,7 @@ export async function orgRead<T>(path: string): Promise<T> {
     response = await fetch(`${NEWDRYVE_API_ORIGIN}${path}`, {
       headers: { authorization: `Bearer ${token}` },
       cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
     });
   } catch {
     throw new OrganisationPortalApiError("Could not reach Newdryve.", 502);
@@ -69,6 +70,7 @@ export async function orgProxy(request: Request, path: string, method: "GET" | "
       },
       body: method === "GET" ? undefined : await request.text(),
       cache: "no-store",
+      signal: AbortSignal.timeout(method === "GET" ? 10_000 : 20_000),
     });
   } catch {
     return json({ error: "Could not reach Newdryve. Try again." }, 502);
