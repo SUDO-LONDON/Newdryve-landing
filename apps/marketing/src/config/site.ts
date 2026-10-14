@@ -50,18 +50,19 @@ export const PRICING = {
 } as const;
 
 /**
- * App availability. Newdryve is phone-only: both stores are live and the web
- * app (app.newdryve.com) has been retired.
+ * App availability. Both stores are live.
  *
  * android: `https://play.google.com/store/apps/details?id=com.newdryve.app`.
  * ios: approved and live on the UK App Store.
  *
- * `getApp` is the device-neutral page every "Get the app" link and the
- * desktop QR code point at: it sends iPhones to the App Store and Android
- * phones to Google Play, and shows both badges to everything else.
+ * web: app.newdryve.com is no longer the web app. It is a download page with
+ * App Store and Google Play buttons. It stays the no-JavaScript fallback for
+ * every "Get the app" button and the target of the desktop QR code.
  */
 export const APP = {
-  getApp: '/app',
+  web: {
+    url: 'https://app.newdryve.com/',
+  },
   android: {
     live: true,
     url: 'https://play.google.com/store/apps/details?id=com.newdryve.app',
@@ -106,6 +107,7 @@ export const NAV_LINKS = [
 ] as const;
 
 export const INSTRUCTOR_NAV_LINKS = [
+  { href: '/instructors/features', label: 'Features' },
   { href: '/instructors#how-it-works', label: 'How it works' },
   { href: '/instructors#pricing', label: 'Pricing' },
   { href: '/instructors#faq', label: 'FAQ' },

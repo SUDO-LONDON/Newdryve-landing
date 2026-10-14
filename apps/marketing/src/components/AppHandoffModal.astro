@@ -1,10 +1,11 @@
 ---
 /**
  * Desktop hand-off for "Get the app": Newdryve is a phone app, so on desktop we
- * show a QR code to open it on a phone, a Google Play badge, and an honest
- * "open it here anyway" link. Opened by GetAppButton. Rendered once per page.
+ * show a QR code (to app.newdryve.com, the download page) and both store
+ * buttons. Opened by GetAppButton. Rendered once per page.
  */
 import { APP } from '../config/site';
+import StoreBadges from './StoreBadges.astro';
 ---
 
 <dialog
@@ -30,38 +31,19 @@ import { APP } from '../config/site';
       Get Newdryve on your phone
     </h2>
     <p class="mx-auto mt-3 max-w-[30ch] text-sm leading-relaxed text-ink-secondary">
-      Scan the code with your phone camera to open
-      <span class="font-semibold text-ink">app.newdryve.com</span>.
+      Newdryve is on the App Store and Google Play. Scan the code with your phone camera to
+      download it.
     </p>
 
     <img
       src="/qr-app.svg"
-      alt="QR code linking to app.newdryve.com"
+      alt="QR code linking to the Newdryve download page"
       width="180"
       height="180"
       class="mx-auto mt-5 block size-[180px]"
     />
 
-    {
-      APP.android.live && (
-        <a
-          href={APP.android.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="focus-ring mx-auto mt-5 inline-block rounded-lg"
-        >
-          <img src="/google-play-badge.png" alt="Get it on Google Play" width="168" height="65" class="h-[56px] w-auto" />
-        </a>
-      )
-    }
-    {!APP.ios.live && <p class="mt-2 text-xs text-ink-muted">iPhone app is in App Store review.</p>}
-
-    <a
-      href={APP.web.url}
-      class="focus-ring mt-5 inline-block rounded text-sm font-semibold text-racing-green underline underline-offset-2"
-    >
-      Open it in this browser instead
-    </a>
+    <StoreBadges class="mt-5 justify-center" />
   </div>
 </dialog>
 

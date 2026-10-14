@@ -1,0 +1,34 @@
+---
+/**
+ * App Store and Google Play download buttons, side by side. The App Store
+ * artwork is a hand-drawn stand-in at /app-store-badge.svg; replace it with
+ * Apple's official badge (same filename) when it is downloaded from
+ * https://developer.apple.com/app-store/marketing/guidelines/.
+ */
+import { APP } from '../config/site';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<div class={`flex flex-wrap items-center gap-3 ${className}`}>
+  <a
+    href={APP.ios.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="focus-ring inline-block rounded-lg transition-transform motion-safe:hover:-translate-y-0.5"
+  >
+    <img src="/app-store-badge.svg" alt="Download on the App Store" width="150" height="50" class="h-[50px] w-auto" />
+  </a>
+  <a
+    href={APP.android.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="focus-ring -my-2.5 -mx-1.5 inline-block rounded-lg transition-transform motion-safe:hover:-translate-y-0.5"
+  >
+    <img src="/google-play-badge.png" alt="Get it on Google Play" width="181" height="70" class="h-[70px] w-auto" />
+  </a>
+</div>

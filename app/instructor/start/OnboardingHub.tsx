@@ -30,8 +30,8 @@ import { ListingSummary, ReviewStep } from "@/components/instructor/ReviewStep";
 import { rememberMembershipToken, SETUP_PAGE_KEY } from "@/lib/instructor/setup-page";
 
 /**
- * The store listings, the same as apps/marketing/src/config/site.ts. Newdryve
- * is phone-only: the web app has been retired now both stores are live.
+ * The store listings, the same as apps/marketing/src/config/site.ts. Both
+ * stores are live; app.newdryve.com is now a download page, not the web app.
  */
 const IOS_APP_URL = "https://apps.apple.com/gb/app/newdryve/id6795593802";
 const ANDROID_APP_URL = "https://play.google.com/store/apps/details?id=com.newdryve.app";
@@ -644,18 +644,15 @@ function LiveCard() {
         Sign in to the Newdryve app with the email and password you applied with to manage lessons,
         availability and payouts.
       </p>
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-        <a
-          href={IOS_APP_URL}
-          className="focus-ring inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white sm:w-auto"
-        >
-          Get it on the App Store
+      <p className="mt-4 text-sm font-semibold text-racing-green">Newdryve is on the App Store and Google Play.</p>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <a href={IOS_APP_URL} className="focus-ring inline-block rounded-lg">
+          {/* eslint-disable-next-line @next/next/no-img-element -- static badge artwork */}
+          <img src="/app-store-badge.svg" alt="Download on the App Store" width={150} height={50} className="h-[50px] w-auto" />
         </a>
-        <a
-          href={ANDROID_APP_URL}
-          className="focus-ring inline-flex h-12 w-full items-center justify-center rounded-full border border-border bg-white px-6 text-sm font-bold text-ink sm:w-auto"
-        >
-          Get it on Google Play
+        <a href={ANDROID_APP_URL} className="focus-ring -mx-1.5 -my-2.5 inline-block rounded-lg">
+          {/* eslint-disable-next-line @next/next/no-img-element -- static badge artwork */}
+          <img src="/google-play-badge.png" alt="Get it on Google Play" width={181} height={70} className="h-[70px] w-auto" />
         </a>
       </div>
     </>

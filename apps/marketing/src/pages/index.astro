@@ -3,8 +3,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductPreview from '../components/ProductPreview.astro';
 import WaitlistForm from '../components/WaitlistForm.astro';
 import GetAppButton from '../components/GetAppButton.astro';
+import StoreBadges from '../components/StoreBadges.astro';
 import Faq from '../components/Faq.astro';
-import { APP, BRAND, FOUNDING_INSTRUCTORS } from '../config/site';
+import { BRAND, FOUNDING_INSTRUCTORS } from '../config/site';
 import {
   organizationSchema,
   websiteSchema,
@@ -147,21 +148,10 @@ const foundingInstructor = FOUNDING_INSTRUCTORS.people[0];
           </a>
         </div>
 
-        <p class="mt-4 text-sm text-ink-secondary">
-          On the <a
-            href={APP.ios.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="focus-ring rounded font-semibold text-racing-green underline underline-offset-2"
-            >App Store</a
-          > and <a
-            href={APP.android.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="focus-ring rounded font-semibold text-racing-green underline underline-offset-2"
-            >Google Play</a
-          >.
+        <p class="mt-6 text-sm font-semibold text-racing-green">
+          Newdryve is now on the App Store and Google Play.
         </p>
+        <StoreBadges class="mt-3" />
 
         <p class="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-secondary">
           <span class="inline-flex items-center gap-1.5 font-semibold text-racing-green">
@@ -392,17 +382,7 @@ const foundingInstructor = FOUNDING_INSTRUCTORS.people[0];
         Find a verified instructor, see when they are actually free, and book your first lesson.
       </p>
       <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <GetAppButton
-          class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-racing-green transition-transform motion-safe:hover:-translate-y-0.5"
-        >
-          Get the app
-        </GetAppButton>
-        <a
-          href="/instructors"
-          class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-white/30 px-6 py-3.5 text-sm font-bold text-white transition-transform hover:bg-white/10 motion-safe:hover:-translate-y-0.5"
-        >
-          I&rsquo;m an instructor
-        </a>
+        <StoreBadges class="justify-center" />
       </div>
       <p class="mt-6 text-sm text-white/70">
         Questions? Email <a

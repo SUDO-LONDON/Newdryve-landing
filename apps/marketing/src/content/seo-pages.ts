@@ -21,7 +21,7 @@ export type SeoPage = {
   sources: readonly { label: string; href: string }[];
 };
 
-const getAppHref = APP.getApp;
+const getAppHref = APP.web.url;
 
 const sources = {
   govBookTest: {

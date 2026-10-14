@@ -2,11 +2,12 @@
 /**
  * "Get the app" call to action. One button, the right destination per device:
  *   Android  -> Google Play
- *   iPhone   -> the App Store once APP.ios.live, until then the web app
+ *   iPhone   -> the App Store
  *   Desktop  -> the QR hand-off modal (AppHandoffModal, rendered once in BaseLayout)
  *
- * The href is the web app, so the button still works with JavaScript off and
- * the routing below is only an upgrade.
+ * The href is app.newdryve.com, a download page with both store buttons, so
+ * the button still works with JavaScript off and the routing below is only an
+ * upgrade.
  */
 import { APP } from '../config/site';
 

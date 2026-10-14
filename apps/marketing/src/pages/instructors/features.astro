@@ -1,0 +1,196 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Faq from '../../components/Faq.astro';
+import StoreBadges from '../../components/StoreBadges.astro';
+import { PRICING, BRAND } from '../../config/site';
+import { INSTRUCTOR_FEATURES, SCHOOL_FEATURES } from '../../content/instructor-features';
+import {
+  organizationSchema,
+  instructorAppSchema,
+  breadcrumbSchema,
+  faqSchema,
+  type FaqItem,
+} from '../../lib/schema';
+
+const title = 'Driving Instructor Management Software with Built-In Pupil Booking | Newdryve';
+const description =
+  'Every Newdryve feature for driving instructors: diary, existing pupils, DVSA progress tracking, payments, cancellation protection, expenses, accountant exports and new learners.';
+
+const FAQ_ITEMS: readonly FaqItem[] = [
+  {
+    q: 'Can Newdryve replace TotalDrive or another driving instructor management app?',
+    a: 'Newdryve covers the same day-to-day work: a diary with working hours, time off and travel time; your pupils and their lesson history; progress mapped to the DVSA practical test; card, cash and bank-transfer payments; earnings, receipt scanning and PDF and CSV exports for your accountant. On top of that it brings you new learners from its marketplace and charges late cancellations automatically. Notes and progress kept in your old app do not transfer automatically, and we help you move your pupils across.',
+  },
+  {
+    q: 'Can I bring the pupils I already teach?',
+    a: 'Yes. Send them your Newdryve link. Once they sign in it takes them to your profile, where they book their lessons with you. Until a pupil is moved over, you can block out their lesson times in your diary by hand.',
+  },
+  {
+    q: 'Who books the lesson, me or the pupil?',
+    a: 'The pupil books, from the free slots in your diary. You control those slots through your working hours, time off and travel time.',
+  },
+  {
+    q: 'Does Newdryve sync with Google or Apple Calendar?',
+    a: 'Not yet. Your Newdryve diary is the record of your lessons.',
+  },
+  {
+    q: 'Who owns a pupil’s progress record?',
+    a: 'The learner. Progress is recorded against them, and you see it as their instructor. It stays with them if they change instructor.',
+  },
+  {
+    q: 'What does it cost?',
+    a: `${PRICING.monthlyWithPeriod}, with ${PRICING.commission} Newdryve commission on lesson payments. Stripe’s standard processing fee applies only when a learner pays by card. ${PRICING.cancelAnytime}.`,
+  },
+];
+
+const jsonLd = [
+  organizationSchema,
+  instructorAppSchema,
+  faqSchema(FAQ_ITEMS),
+  breadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'For instructors', path: '/instructors' },
+    { name: 'Features', path: '/instructors/features' },
+  ]),
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path="/instructors/features"
+  jsonLd={jsonLd}
+  audience="instructor"
+>
+  <!-- HERO -->
+  <section class="hero-bg relative overflow-hidden">
+    <div class="relative mx-auto max-w-4xl px-5 pb-14 pt-12 md:pb-20 md:pt-20">
+      <p class="text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">Newdryve for instructors</p>
+      <h1 class="font-display mt-4 text-[clamp(34px,6vw,56px)] font-semibold leading-[1.05] tracking-[-1.5px] text-balance">
+        Driving instructor management software, with pupils who book you built in.
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-ink-secondary text-pretty">
+        Everything you get from an instructor management app, plus a marketplace that brings you new
+        learners. {PRICING.monthlyWithPeriod}, {PRICING.commission} commission, on iPhone and Android.
+      </p>
+
+      <nav aria-label="Features on this page" class="mt-8">
+        <ul class="flex flex-wrap gap-2">
+          {
+            INSTRUCTOR_FEATURES.map((feature) => (
+              <li>
+                <a
+                  href={`#${feature.id}`}
+                  class="focus-ring inline-flex min-h-11 items-center rounded-full border border-border bg-white px-4 text-sm font-semibold text-ink hover:border-ink"
+                >
+                  {feature.title}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <div class="border-t border-border bg-white">
+    <div class="mx-auto max-w-4xl divide-y divide-border px-5">
+      {
+        INSTRUCTOR_FEATURES.map((feature) => (
+          <section id={feature.id} class="scroll-mt-20 py-12 md:py-16" aria-labelledby={`${feature.id}-title`}>
+            <h2 id={`${feature.id}-title`} class="font-display text-[clamp(26px,3.6vw,36px)] font-semibold leading-[1.1] tracking-[-0.8px]">
+              {feature.title}
+            </h2>
+            <div class="mt-4 space-y-3 text-base leading-relaxed text-ink-secondary text-pretty">
+              {feature.detail.map((paragraph) => <p>{paragraph}</p>)}
+            </div>
+            <ul class="mt-5 grid gap-2.5 sm:grid-cols-2">
+              {
+                feature.points.map((point) => (
+                  <li class="flex items-start gap-2.5 text-sm text-ink">
+                    <span class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-racing-green/10 text-racing-green" aria-hidden="true">
+                      <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 7l3 3 5-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </span>
+                    {point}
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+        ))
+      }
+
+      <section id="schools" class="scroll-mt-20 py-12 md:py-16" aria-labelledby="schools-title">
+        <h2 id="schools-title" class="font-display text-[clamp(26px,3.6vw,36px)] font-semibold leading-[1.1] tracking-[-0.8px]">
+          {SCHOOL_FEATURES.title}
+        </h2>
+        <p class="mt-4 text-base leading-relaxed text-ink-secondary text-pretty">{SCHOOL_FEATURES.body}</p>
+        <a
+          href={`mailto:${BRAND.email}?subject=Newdryve%20for%20driving%20schools`}
+          class="focus-ring mt-5 inline-flex min-h-11 items-center rounded-full border border-border px-5 text-sm font-bold text-ink hover:border-ink"
+        >
+          Talk to us about your school
+        </a>
+      </section>
+    </div>
+  </div>
+
+  <!-- SWITCHING -->
+  <section class="border-y border-border bg-canvas">
+    <div class="mx-auto max-w-4xl px-5 py-14 md:py-20">
+      <h2 class="font-display text-[clamp(26px,3.6vw,36px)] font-semibold leading-[1.1] tracking-[-0.8px]">
+        Switching from another app
+      </h2>
+      <div class="mt-4 space-y-3 text-base leading-relaxed text-ink-secondary text-pretty">
+        <p>
+          We sit down with you, set up your profile and diary together, and show you round the app.
+          Then we help you bring your existing pupils across: send them your link and they land on
+          your profile to book.
+        </p>
+        <p>
+          If you are coming from TotalDrive, MyDriveTime or another diary app, everything you use day
+          to day is here. Notes and progress records kept in your old app do not transfer
+          automatically; from the moment a pupil joins Newdryve, everything is recorded against them.
+        </p>
+      </div>
+      <a
+        href="/instructors#switching"
+        class="focus-ring mt-6 inline-flex min-h-11 items-center gap-1.5 rounded text-sm font-bold text-racing-green underline underline-offset-4"
+      >
+        How switching works
+      </a>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="bg-white">
+    <div class="mx-auto max-w-6xl px-5 py-14 md:py-20">
+      <h2 class="font-display mb-8 text-center text-[clamp(26px,3.6vw,36px)] font-semibold leading-[1.1] tracking-[-0.8px]">
+        Questions about features
+      </h2>
+      <Faq items={FAQ_ITEMS} />
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-racing-green text-white">
+    <div class="mx-auto max-w-4xl px-5 py-14 text-center md:py-20">
+      <h2 class="font-display text-[clamp(28px,4.5vw,44px)] font-semibold leading-[1.05] tracking-[-1px] text-balance">
+        One app for your whole business.
+      </h2>
+      <p class="mx-auto mt-4 max-w-xl text-base leading-relaxed text-white/80">
+        {PRICING.monthlyWithPeriod}. {PRICING.commission} Newdryve commission. {PRICING.cancelAnytime}.
+      </p>
+      <a
+        href="/instructors/apply"
+        class="focus-ring mt-7 inline-flex min-h-11 items-center justify-center rounded-full bg-white px-6 py-3.5 text-sm font-bold text-racing-green"
+      >
+        Apply as a founding instructor
+      </a>
+      <StoreBadges class="mt-6 justify-center" />
+    </div>
+  </section>
+</BaseLayout>
