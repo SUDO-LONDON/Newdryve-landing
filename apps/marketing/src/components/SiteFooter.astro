@@ -46,18 +46,22 @@ const footerLinks = [
       >
         Instagram
       </a>
-      {
-        APP.android.live && (
-          <a
-            href={APP.android.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="focus-ring inline-flex min-h-11 items-center rounded-md text-ink-secondary transition-colors hover:text-ink"
-          >
-            Google Play
-          </a>
-        )
-      }
+      <a
+        href={APP.ios.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="focus-ring inline-flex min-h-11 items-center rounded-md text-ink-secondary transition-colors hover:text-ink"
+      >
+        App Store
+      </a>
+      <a
+        href={APP.android.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="focus-ring inline-flex min-h-11 items-center rounded-md text-ink-secondary transition-colors hover:text-ink"
+      >
+        Google Play
+      </a>
     </nav>
   </div>
 

@@ -27,14 +27,13 @@ import { Shell, Wordmark } from "@/components/instructor/Shell";
 import { StepList, StepProgress } from "@/components/instructor/TaskList";
 import { CoverageStep } from "@/components/instructor/CoverageStep";
 import { ListingSummary, ReviewStep } from "@/components/instructor/ReviewStep";
-import { APP_URL } from "@/lib/env";
 import { rememberMembershipToken, SETUP_PAGE_KEY } from "@/lib/instructor/setup-page";
 
 /**
- * The Android app, verified live (apps/marketing/src/config/site.ts). The iOS
- * app is still in review, so iPhone instructors use the web app at APP_URL,
- * which works on every device and stays the primary button.
+ * The store listings, the same as apps/marketing/src/config/site.ts. Newdryve
+ * is phone-only: the web app has been retired now both stores are live.
  */
+const IOS_APP_URL = "https://apps.apple.com/gb/app/newdryve/id6795593802";
 const ANDROID_APP_URL = "https://play.google.com/store/apps/details?id=com.newdryve.app";
 
 /** Long enough not to hammer the API, short enough to catch a Stripe webhook. */
@@ -645,19 +644,20 @@ function LiveCard() {
         Sign in to the Newdryve app with the email and password you applied with to manage lessons,
         availability and payouts.
       </p>
-      <a
-        href={APP_URL}
-        className="focus-ring mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white sm:w-auto"
-      >
-        Open Newdryve
-      </a>
-      <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
-        On Android?{" "}
-        <a className="font-semibold underline" href={ANDROID_APP_URL}>
-          Get the app on Google Play
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+        <a
+          href={IOS_APP_URL}
+          className="focus-ring inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white sm:w-auto"
+        >
+          Get it on the App Store
         </a>
-        .
-      </p>
+        <a
+          href={ANDROID_APP_URL}
+          className="focus-ring inline-flex h-12 w-full items-center justify-center rounded-full border border-border bg-white px-6 text-sm font-bold text-ink sm:w-auto"
+        >
+          Get it on Google Play
+        </a>
+      </div>
     </>
   );
 }

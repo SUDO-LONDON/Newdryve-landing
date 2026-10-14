@@ -50,32 +50,25 @@ export const PRICING = {
 } as const;
 
 /**
- * App availability.
+ * App availability. Newdryve is phone-only: both stores are live and the web
+ * app (app.newdryve.com) has been retired.
  *
- * android: verified live. `https://play.google.com/store/apps/details?id=com.newdryve.app`
- * returns HTTP 200 with og:title "Newdryve - Apps on Google Play", while a
- * non-existent package id on the same host returns 404.
+ * android: `https://play.google.com/store/apps/details?id=com.newdryve.app`.
+ * ios: approved and live on the UK App Store.
  *
- * ios: reported as in App Store review. No public listing URL exists yet, so
- * the UI shows "coming soon" text and deliberately renders no link. Fill in
- * `url` the moment it is approved and the badge appears automatically.
+ * `getApp` is the device-neutral page every "Get the app" link and the
+ * desktop QR code point at: it sends iPhones to the App Store and Android
+ * phones to Google Play, and shows both badges to everything else.
  */
 export const APP = {
-  /**
-   * The web app. A bridge for iPhone users while iOS is in review, and the
-   * no-JavaScript fallback for every "Get the app" button. Once iOS is live the
-   * buttons send iPhones to the App Store instead.
-   */
-  web: {
-    url: 'https://app.newdryve.com/',
-  },
+  getApp: '/app',
   android: {
     live: true,
     url: 'https://play.google.com/store/apps/details?id=com.newdryve.app',
   },
   ios: {
-    live: false,
-    url: null as string | null,
+    live: true,
+    url: 'https://apps.apple.com/gb/app/newdryve/id6795593802',
   },
 } as const;
 
