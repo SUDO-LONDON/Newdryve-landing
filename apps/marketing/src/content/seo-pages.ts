@@ -21,8 +21,7 @@ export type SeoPage = {
   sources: readonly { label: string; href: string }[];
 };
 
-const waitlistHref = '/#join';
-const googlePlayHref = APP.android.live ? APP.android.url : waitlistHref;
+const getAppHref = APP.web.url;
 
 const sources = {
   govBookTest: {
@@ -131,7 +130,7 @@ export const seoPages: readonly SeoPage[] = [
       },
       { label: 'Local test centres', value: 'Peachman Way (car tests) and Jupiter Road (lorries and buses)' },
       { label: 'Learner fee', value: 'Newdryve is free for learners' },
-      { label: 'Booking action', value: 'Join the Norwich waitlist or use the Android app' },
+      { label: 'Booking action', value: 'Get the app on iPhone or Android, or join the Norwich waitlist' },
     ],
     sections: [
       {
@@ -186,7 +185,7 @@ export const seoPages: readonly SeoPage[] = [
         heading: 'How Newdryve helps learners find an instructor',
         body: [
           'Newdryve is built around real instructor availability. Instead of sending messages and waiting for replies, learners can see instructors, lesson types, rates, specialisms, pickup areas, and open slots.',
-          `Every Newdryve instructor profile is checked before it goes live. Learners do not pay Newdryve a booking fee or platform fee; you pay your instructor for lessons. Android learners can use Google Play now, and iOS learners can join the waitlist while the iOS app is prepared.`,
+          `Every Newdryve instructor profile is checked before it goes live. Learners do not pay Newdryve a booking fee or platform fee; you pay your instructor for lessons. The app is on the App Store and Google Play.`,
         ],
         items: [
           {
@@ -217,7 +216,7 @@ export const seoPages: readonly SeoPage[] = [
     faqs: [
       {
         q: 'Is Newdryve available for driving lessons in Norwich?',
-        a: 'Newdryve is focused on Norwich first. Android is live, iOS learners can join the waitlist, and coverage depends on verified instructors opening real lesson slots.',
+        a: 'Newdryve is focused on Norwich first. The app is live on iPhone and Android, and coverage depends on verified instructors opening real lesson slots.',
       },
       {
         q: 'Which Norwich driving test centre should I choose?',
@@ -1423,11 +1422,11 @@ export function pagePath(page: Pick<SeoPage, 'slug'>) {
 }
 
 export function conversionHref() {
-  return googlePlayHref;
+  return getAppHref;
 }
 
 export function conversionLabel() {
-  return APP.android.live ? 'Get the Android app' : 'Join the waitlist';
+  return 'Get the app';
 }
 
 export function waitlistLabel() {

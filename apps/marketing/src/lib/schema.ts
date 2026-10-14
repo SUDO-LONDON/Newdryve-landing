@@ -62,11 +62,11 @@ export const instructorAppSchema = {
   '@id': `${SITE_URL}#instructor-app`,
   name: 'Newdryve for instructors',
   applicationCategory: 'BusinessApplication',
-  operatingSystem: 'Android, iOS, Web',
+  operatingSystem: 'Android, iOS',
   url: `${SITE_URL}/instructors`,
   publisher: { '@id': `${SITE_URL}#organization` },
   description:
-    'Newdryve brings driving instructors new learners and applies a 50% cancellation fee when a learner cancels within 24 hours, and the full lesson price within 30 minutes. Newdryve takes 0% commission.',
+    'The all-in-one app for driving instructors: diary and availability, existing pupils, progress mapped to the DVSA test, card, cash and bank-transfer payments, earnings, receipt scanning and PDF and CSV accountant exports, plus new learners from the Newdryve marketplace. A 50% cancellation fee applies automatically when a learner cancels within 24 hours, and the full lesson price within 30 minutes. Newdryve takes 0% commission.',
   offers: {
     '@type': 'Offer',
     price: '29.00',

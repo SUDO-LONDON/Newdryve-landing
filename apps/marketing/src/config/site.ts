@@ -50,22 +50,16 @@ export const PRICING = {
 } as const;
 
 /**
- * App availability.
+ * App availability. Both stores are live.
  *
- * android: verified live. `https://play.google.com/store/apps/details?id=com.newdryve.app`
- * returns HTTP 200 with og:title "Newdryve - Apps on Google Play", while a
- * non-existent package id on the same host returns 404.
+ * android: `https://play.google.com/store/apps/details?id=com.newdryve.app`.
+ * ios: approved and live on the UK App Store.
  *
- * ios: reported as in App Store review. No public listing URL exists yet, so
- * the UI shows "coming soon" text and deliberately renders no link. Fill in
- * `url` the moment it is approved and the badge appears automatically.
+ * web: app.newdryve.com is no longer the web app. It is a download page with
+ * App Store and Google Play buttons. It stays the no-JavaScript fallback for
+ * every "Get the app" button and the target of the desktop QR code.
  */
 export const APP = {
-  /**
-   * The web app. A bridge for iPhone users while iOS is in review, and the
-   * no-JavaScript fallback for every "Get the app" button. Once iOS is live the
-   * buttons send iPhones to the App Store instead.
-   */
   web: {
     url: 'https://app.newdryve.com/',
   },
@@ -74,8 +68,8 @@ export const APP = {
     url: 'https://play.google.com/store/apps/details?id=com.newdryve.app',
   },
   ios: {
-    live: false,
-    url: null as string | null,
+    live: true,
+    url: 'https://apps.apple.com/gb/app/newdryve/id6795593802',
   },
 } as const;
 
@@ -113,6 +107,7 @@ export const NAV_LINKS = [
 ] as const;
 
 export const INSTRUCTOR_NAV_LINKS = [
+  { href: '/instructors/features', label: 'Features' },
   { href: '/instructors#how-it-works', label: 'How it works' },
   { href: '/instructors#pricing', label: 'Pricing' },
   { href: '/instructors#faq', label: 'FAQ' },

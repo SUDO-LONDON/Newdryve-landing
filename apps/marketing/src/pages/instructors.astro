@@ -2,19 +2,42 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductPreview from '../components/ProductPreview.astro';
 import Faq from '../components/Faq.astro';
+import StoreBadges from '../components/StoreBadges.astro';
 import { PRICING, BRAND } from '../config/site';
+import { INSTRUCTOR_FEATURES, SCHOOL_FEATURES } from '../content/instructor-features';
 import {
   organizationSchema,
   instructorAppSchema,
   breadcrumbSchema,
+  faqSchema,
   type FaqItem,
 } from '../lib/schema';
 
-const title = 'Driving Instructor App for New Learners | Newdryve';
+const title = 'Driving Instructor App: Diary, Pupils, Payments and New Learners | Newdryve';
 const description =
-  'Newdryve helps driving instructors get discovered by local learners and protect their income from late cancellations for GBP29/month with 0% Newdryve commission.';
+  'The all-in-one app for driving instructors: diary, pupils, DVSA progress tracking, payments, expenses and cancellation protection, plus new learners. GBP29/month, 0% commission.';
 
 const FAQ_ITEMS: readonly FaqItem[] = [
+  {
+    q: 'Can I bring my existing pupils onto Newdryve?',
+    a: 'Yes. Send your pupils your own Newdryve link. Once they sign in it takes them straight to your profile, where they book their lessons with you. Pupils you have not moved over yet can still go in your diary: block out the time by hand. Payments, cancellation protection and progress tracking work once a pupil is on Newdryve.',
+  },
+  {
+    q: 'Can Newdryve replace TotalDrive or another driving instructor app?',
+    a: 'For most instructors, yes. Newdryve covers the day-to-day: diary and availability, your pupils and their lesson history, progress mapped to the DVSA test, card, cash and bank-transfer payments, earnings, receipt scanning and PDF and CSV exports for your accountant. On top of that it brings you new learners and charges late cancellations automatically. Notes and progress stored in your old app do not transfer automatically, and we sit down with you to help move your pupils across.',
+  },
+  {
+    q: 'Do my pupils need the app?',
+    a: 'To use payments, cancellation protection and progress tracking, yes: they download Newdryve and sign in with your link. Until then you can keep them in your diary by blocking out their lesson times.',
+  },
+  {
+    q: 'Can I give my figures to my accountant?',
+    a: 'Yes. Newdryve tracks your earnings and the expenses you scan from receipts, and exports them as PDF and CSV files to send to your accountant. It does not file your tax return.',
+  },
+  {
+    q: 'Is it on iPhone and Android?',
+    a: 'Yes. Newdryve is on the App Store and Google Play.',
+  },
   {
     q: 'How do I get paid?',
     a: 'At the end of each lesson, you choose whether the learner pays by cash, bank transfer or card through Stripe. Newdryve takes 0% commission from lesson payments. Stripe’s standard processing fee applies only when you choose card payment.',
@@ -44,27 +67,43 @@ const FAQ_ITEMS: readonly FaqItem[] = [
 const SOLUTION = [
   {
     step: '01',
-    title: 'Get discovered by new learners',
-    body: 'Your profile appears to learners searching in your area, with your rate, your specialisms and your real availability. These are pupils you did not already have.',
+    title: 'Set up your diary',
+    body: 'Add your rate, the areas you cover, your working hours and travel time. Learners can only ever book the slots you really have free.',
     accent: 'green' as const,
   },
   {
     step: '02',
-    title: 'They book with a card on file',
-    body: 'A learner cannot book without a valid card saved to their account. Nothing is charged when they book; the card secures every lesson they reserve.',
+    title: 'Bring your pupils, get new ones',
+    body: 'Send your existing pupils your link and they book you directly. New learners searching in your area find your profile and book too, each with a card on file.',
     accent: 'green' as const,
   },
   {
     step: '03',
-    title: 'Late cancellations are handled automatically',
-    body: 'If the learner cancels within 24 hours, a 50% cancellation fee is charged through Stripe and sent to you, or the full price within 30 minutes. Newdryve takes no commission from it.',
+    title: 'Teach, track and get paid',
+    body: `Record progress against the DVSA test, take card, cash or bank transfer, and let Newdryve charge late cancellations for you: ${PRICING.lateCancellationShare} within ${PRICING.lateCancellationWindow}, the full price within ${PRICING.finalCancellationWindow}.`,
     accent: 'pink' as const,
+  },
+];
+
+const SWITCH_STEPS = [
+  {
+    title: 'We set you up in person',
+    body: 'We sit down with you, set up your profile and diary with you, and show you round the app.',
+  },
+  {
+    title: 'We help move your pupils across',
+    body: 'Send your pupils your link and they land on your profile to book. We help you onboard them, and you can block out time for anyone not moved over yet.',
+  },
+  {
+    title: 'Your diary carries on',
+    body: 'Your working hours, prices and areas are yours to set, so the week you are used to carries straight on.',
   },
 ];
 
 const jsonLd = [
   organizationSchema,
   instructorAppSchema,
+  faqSchema(FAQ_ITEMS),
   breadcrumbSchema([
     { name: 'Home', path: '/' },
     { name: 'For instructors', path: '/instructors' },
@@ -96,14 +135,13 @@ const jsonLd = [
         <h1
           class="font-display mt-5 text-[clamp(36px,6.5vw,60px)] font-semibold leading-[1.03] tracking-[-1.5px] text-balance"
         >
-          Fill your diary. <span class="gradient-text">Protect your income from late cancellations.</span>
+          Run your business. Fill your diary. <span class="gradient-text">Protect your income.</span>
         </h1>
 
         <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-secondary text-pretty">
-          Newdryve puts your profile in front of learners looking for an instructor right now, and
-          requires a valid card before they can book. If they cancel within 24 hours, your 50%
-          cancellation fee (or the full price inside 30 minutes) is handled automatically. It is a
-          marketplace that brings you work, not another diary to fill in.
+          Everything you use an instructor app for, in one place: your diary, your pupils, progress
+          mapped to the DVSA test, payments and expenses. Plus a marketplace that brings new learners
+          to you, and late cancellations charged automatically.
         </p>
 
         <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
@@ -122,16 +160,16 @@ const jsonLd = [
             </svg>
           </a>
           <a
-            href="#pricing"
+            href="/instructors/features"
             class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-border bg-white px-6 py-3.5 text-sm font-bold text-ink transition-transform hover:border-ink motion-safe:hover:-translate-y-0.5"
           >
-            See pricing
+            See every feature
           </a>
         </div>
 
         <ul class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-semibold">
           {
-            [PRICING.commission + ' Newdryve commission', PRICING.monthlyWithPeriod, 'Every booking card-secured'].map(
+            [PRICING.commission + ' Newdryve commission', PRICING.monthlyWithPeriod, 'On iPhone and Android'].map(
               (item) => (
                 <li class="inline-flex items-center gap-1.5 text-racing-green">
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -153,6 +191,57 @@ const jsonLd = [
           float
         />
       </div>
+    </div>
+  </section>
+
+  <!-- EVERYTHING YOUR BUSINESS NEEDS -->
+  <section id="features" class="scroll-mt-20 bg-canvas">
+    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
+      <div class="reveal max-w-2xl">
+        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+          One app for the whole job
+        </p>
+        <h2
+          class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
+        >
+          Everything your business needs. Nothing extra to juggle.
+        </h2>
+        <p class="mt-5 text-base leading-relaxed text-ink-secondary text-pretty">
+          Newdryve is your instructor management app and your source of new pupils in one. No separate
+          diary app, no spreadsheet of who owes what, no chasing cancellations.
+        </p>
+      </div>
+
+      <ul class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          INSTRUCTOR_FEATURES.map((feature, index) => (
+            <li class="reveal rounded-2xl border border-border bg-white p-6" data-reveal-delay={(index % 3) * 100}>
+              <h3 class="text-lg font-bold tracking-[-0.3px]">{feature.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-ink-secondary">{feature.summary}</p>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="reveal mt-5 flex flex-col gap-4 rounded-2xl border border-blush-border bg-blush-surface p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 class="text-lg font-bold tracking-[-0.3px]">{SCHOOL_FEATURES.title}</h3>
+          <p class="mt-1 max-w-2xl text-sm leading-relaxed text-ink-secondary">{SCHOOL_FEATURES.body}</p>
+        </div>
+        <a
+          href={`mailto:${BRAND.email}?subject=Newdryve%20for%20driving%20schools`}
+          class="focus-ring inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-ink/15 bg-white px-5 py-3 text-sm font-bold text-ink"
+        >
+          Talk to us
+        </a>
+      </div>
+
+      <a
+        href="/instructors/features"
+        class="focus-ring mt-8 inline-flex min-h-11 items-center gap-1.5 rounded text-sm font-bold text-racing-green underline underline-offset-4"
+      >
+        See every feature in detail
+      </a>
     </div>
   </section>
 
@@ -223,7 +312,7 @@ const jsonLd = [
         <h2
           class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
         >
-          New learners in, income protected.
+          Your diary, your pupils, your income protected.
         </h2>
       </div>
 
@@ -254,66 +343,53 @@ const jsonLd = [
     </div>
   </section>
 
-  <!-- DIFFERENTIATOR -->
-  <section class="border-y border-border bg-ink text-white">
+  <!-- SWITCHING FROM ANOTHER APP -->
+  <section id="switching" class="scroll-mt-20 border-y border-border bg-ink text-white">
     <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
-      <div class="reveal mx-auto max-w-2xl text-center">
+      <div class="reveal max-w-2xl">
         <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose">
-          The difference
+          Switching from another app
         </p>
         <h2
           class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
         >
-          Most instructor apps organise the pupils you already have.
+          Moving over is easier than you think. We do it with you.
         </h2>
-        <p class="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/70 text-pretty">
-          Diary and admin tools are genuinely useful, and they solve a real problem. They just solve
-          a different one. Newdryve is a marketplace: its job is to bring you learners you did not
-          have, and to apply your cancellation fee automatically when one of them cancels late.
+        <p class="mt-5 text-base leading-relaxed text-white/70 text-pretty">
+          You should not have to rebuild your business to change app. We sit down with you, teach
+          you Newdryve and help bring your existing pupils across.
         </p>
       </div>
 
-      <div class="mt-12 grid gap-5 md:grid-cols-2">
-        <div class="reveal rounded-2xl border border-white/15 bg-white/5 p-7">
-          <h3 class="text-lg font-bold tracking-[-0.3px] text-white/90">Diary and admin software</h3>
-          <ul class="mt-5 space-y-3 text-sm leading-relaxed text-white/70">
-            {
-              [
-                'Schedules the pupils already in your book',
-                'You still have to find new learners yourself',
-                'A late cancellation is still your loss to absorb',
-                'Invoicing and chasing payment stays your job',
-              ].map((item) => (
-                <li class="flex items-start gap-2.5">
-                  <span class="mt-1.5 size-1.5 shrink-0 rounded-full bg-white/40" aria-hidden="true" />
-                  {item}
-                </li>
-              ))
-            }
-          </ul>
-        </div>
+      <ol class="mt-12 grid gap-5 md:grid-cols-3">
+        {
+          SWITCH_STEPS.map((item, index) => (
+            <li class="reveal rounded-2xl border border-white/15 bg-white/5 p-7" data-reveal-delay={index * 100}>
+              <span class="font-display text-3xl font-semibold tabular-nums text-deep-rose">0{index + 1}</span>
+              <h3 class="mt-4 text-lg font-bold tracking-[-0.3px]">{item.title}</h3>
+              <p class="mt-2.5 text-sm leading-relaxed text-white/70">{item.body}</p>
+            </li>
+          ))
+        }
+      </ol>
 
-        <div class="reveal rounded-2xl border border-deep-rose/40 bg-deep-rose/10 p-7" data-reveal-delay="100">
-          <h3 class="text-lg font-bold tracking-[-0.3px]">Newdryve</h3>
-          <ul class="mt-5 space-y-3 text-sm leading-relaxed text-white/85">
-            {
-              [
-                'Puts you in front of learners actively searching in your area',
-                'Brings you pupils you did not already have',
-                'Applies a 50% fee within 24 hours, and the full price within 30 minutes',
-                'Takes 0% commission from lesson payments',
-              ].map((item) => (
-                <li class="flex items-start gap-2.5">
-                  <span class="mt-0.5 shrink-0 text-deep-rose" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
-                      <path d="M3 7l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                  </span>
-                  {item}
-                </li>
-              ))
-            }
-          </ul>
+      <div class="reveal mt-12 grid gap-8 border-t border-white/15 pt-10 md:grid-cols-2">
+        <div>
+          <h3 class="text-lg font-bold tracking-[-0.3px]">Coming from TotalDrive, MyDriveTime or another diary app?</h3>
+          <p class="mt-3 text-sm leading-relaxed text-white/70 text-pretty">
+            Your diary, pupils, progress tracking, payments, earnings, receipts and accountant
+            exports are all in Newdryve. Diary apps are built to organise the pupils you already
+            have; Newdryve also brings you new learners and charges late cancellations
+            automatically, for {PRICING.monthlyWithPeriod} with {PRICING.commission} commission.
+          </p>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold tracking-[-0.3px]">What does not come with you</h3>
+          <p class="mt-3 text-sm leading-relaxed text-white/70 text-pretty">
+            Notes and progress records kept in your old app are tied to that app and do not transfer
+            automatically. Once a pupil is on Newdryve, everything from then on is recorded against
+            them, and it belongs to them.
+          </p>
         </div>
       </div>
     </div>
@@ -346,12 +422,12 @@ const jsonLd = [
           {
             [
               `${PRICING.commission} Newdryve commission on lesson payments`,
-              'Choose cash, bank transfer or card after each lesson',
-              'Stripe fees apply only when you choose card payment',
-              'Set your price, teaching areas, availability and travel time',
-              'Every learner booking is secured by a saved card',
-              'Learners can reserve several lessons at once',
-              '50% fee within 24 hours, full price within 30 minutes',
+              'Diary, pupils and progress mapped to the DVSA test',
+              'Card, cash or bank transfer; Stripe fees only on card',
+              'Earnings, receipt scanning, PDF and CSV exports',
+              'New learners from the Newdryve marketplace',
+              `${PRICING.lateCancellationShare} fee within ${PRICING.lateCancellationWindow}, full price within ${PRICING.finalCancellationWindow}`,
+              'Help moving your existing pupils across',
               PRICING.cancelAnytime,
             ].map((item) => (
               <li class="flex items-start gap-2.5">
@@ -480,11 +556,11 @@ const jsonLd = [
       <h2
         class="font-display text-[clamp(30px,5vw,48px)] font-semibold leading-[1.05] tracking-[-1px] text-balance"
       >
-        Stop absorbing other people&rsquo;s cancellations.
+        One app for your whole driving instruction business.
       </h2>
       <p class="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/80 text-pretty">
-        {PRICING.commission} Newdryve commission, {PRICING.monthlyWithPeriod}, and every learner
-        booking secured by a valid card.
+        Diary, pupils, progress, payments and new learners. {PRICING.commission} Newdryve commission,
+        {PRICING.monthlyWithPeriod}. On the App Store and Google Play.
       </p>
       <div class="mt-8">
         <a
@@ -494,6 +570,7 @@ const jsonLd = [
           Apply as a founding instructor
         </a>
       </div>
+      <StoreBadges class="mt-6 justify-center" />
       <p class="mt-6 text-sm text-white/70">
         Questions? Email <a
           href={`mailto:${BRAND.email}`}

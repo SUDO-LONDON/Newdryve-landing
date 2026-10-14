@@ -27,14 +27,13 @@ import { Shell, Wordmark } from "@/components/instructor/Shell";
 import { StepList, StepProgress } from "@/components/instructor/TaskList";
 import { CoverageStep } from "@/components/instructor/CoverageStep";
 import { ListingSummary, ReviewStep } from "@/components/instructor/ReviewStep";
-import { APP_URL } from "@/lib/env";
 import { rememberMembershipToken, SETUP_PAGE_KEY } from "@/lib/instructor/setup-page";
 
 /**
- * The Android app, verified live (apps/marketing/src/config/site.ts). The iOS
- * app is still in review, so iPhone instructors use the web app at APP_URL,
- * which works on every device and stays the primary button.
+ * The store listings, the same as apps/marketing/src/config/site.ts. Both
+ * stores are live; app.newdryve.com is now a download page, not the web app.
  */
+const IOS_APP_URL = "https://apps.apple.com/gb/app/newdryve/id6795593802";
 const ANDROID_APP_URL = "https://play.google.com/store/apps/details?id=com.newdryve.app";
 
 /** Long enough not to hammer the API, short enough to catch a Stripe webhook. */
@@ -645,19 +644,17 @@ function LiveCard() {
         Sign in to the Newdryve app with the email and password you applied with to manage lessons,
         availability and payouts.
       </p>
-      <a
-        href={APP_URL}
-        className="focus-ring mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white sm:w-auto"
-      >
-        Open Newdryve
-      </a>
-      <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
-        On Android?{" "}
-        <a className="font-semibold underline" href={ANDROID_APP_URL}>
-          Get the app on Google Play
+      <p className="mt-4 text-sm font-semibold text-racing-green">Newdryve is on the App Store and Google Play.</p>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <a href={IOS_APP_URL} className="focus-ring inline-block rounded-lg">
+          {/* eslint-disable-next-line @next/next/no-img-element -- static badge artwork */}
+          <img src="/app-store-badge.svg" alt="Download on the App Store" width={150} height={50} className="h-[50px] w-auto" />
         </a>
-        .
-      </p>
+        <a href={ANDROID_APP_URL} className="focus-ring -mx-1.5 -my-2.5 inline-block rounded-lg">
+          {/* eslint-disable-next-line @next/next/no-img-element -- static badge artwork */}
+          <img src="/google-play-badge.png" alt="Get it on Google Play" width={181} height={70} className="h-[70px] w-auto" />
+        </a>
+      </div>
     </>
   );
 }
