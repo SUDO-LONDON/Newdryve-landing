@@ -35,6 +35,41 @@ export async function orgRead<T>(path: string): Promise<T> {
   return body;
 }
 
+/** What orgReadSection gives back: the body, or why there is none. */
+export type SectionRead<T> = { ok: true; data: T } | { ok: false; status: number; message: string };
+
+/**
+ * Read an endpoint for one section of a server-rendered page, as the signed-in
+ * admin. Like orgRead, a missing or expired session goes to the login page;
+ * any other failure comes back for the section to explain, so an endpoint the
+ * API does not have yet (a 404 from an older deploy) or a slow upstream does
+ * not take the rest of the page down with it.
+ */
+export async function orgReadSection<T>(path: string): Promise<SectionRead<T>> {
+  assertOrganisationPortalEnv();
+  const token = await getOrganisationAccessToken();
+  if (!token) redirect("/organisations/login");
+
+  let response: Response;
+  try {
+    response = await fetch(`${NEWDRYVE_API_ORIGIN}${path}`, {
+      headers: { authorization: `Bearer ${token}` },
+      cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch {
+    return { ok: false, status: 502, message: "Could not reach Newdryve." };
+  }
+  if (response.status === 401) redirect("/organisations/login");
+  const body = (await response.json().catch(() => null)) as (T & { error?: { message?: string } | string }) | null;
+  if (!response.ok || !body) {
+    const error = body?.error;
+    const message = typeof error === "string" ? error : error?.message;
+    return { ok: false, status: response.status, message: message || "Could not load this section." };
+  }
+  return { ok: true, data: body };
+}
+
 /**
  * Forward a browser request from the portal to the API with the admin's
  * session, for the portal's own route handlers.
@@ -47,11 +82,15 @@ export async function orgRead<T>(path: string): Promise<T> {
  * string, which every portal form already reads, plus the API's
  * machine-readable reason (`details.code`, else the envelope's `code`) so a
  * form can tell, say, "fee terms are Newdryve's" from a bad sort code.
+ *
+ * `body`, when given, is sent instead of the request's own: a route that has
+ * already read and checked the body forwards its cleaned copy.
  */
 export async function orgProxy(
   request: Request,
   path: string,
-  method: "GET" | "POST" | "PUT" | "DELETE"
+  method: "GET" | "POST" | "PUT" | "DELETE",
+  body?: string
 ): Promise<Response> {
   const json = (body: unknown, status: number) =>
     new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
@@ -71,8 +110,8 @@ export async function orgProxy(
 
   // Fastify rejects a request that declares a JSON body and sends none, so a
   // bodyless write (DELETE, mark-as-read) goes without the header.
-  const body = method === "GET" ? "" : await request.text();
-  const hasBody = body.trim().length > 0;
+  const payload = method === "GET" ? "" : (body ?? (await request.text()));
+  const hasBody = payload.trim().length > 0;
 
   let upstream: Response;
   try {
@@ -82,7 +121,7 @@ export async function orgProxy(
         authorization: `Bearer ${token}`,
         ...(hasBody ? { "content-type": "application/json" } : {}),
       },
-      body: hasBody ? body : undefined,
+      body: hasBody ? payload : undefined,
       cache: "no-store",
       signal: AbortSignal.timeout(method === "GET" ? 10_000 : 20_000),
     });
