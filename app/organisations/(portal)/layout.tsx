@@ -9,9 +9,12 @@ export const dynamic = "force-dynamic";
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   assertOrganisationPortalEnv();
   if (!(await getOrganisationAccessToken())) redirect("/organisations/login");
+  // The email is for the header only: the session already holds it, and the
+  // API checks the token on every page read. getUser() would be one more
+  // round trip to Supabase before any tab could render.
   const supabase = await createOrganisationSupabaseServerClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return <PortalShell email={user?.email ?? null}>{children}</PortalShell>;
+    data: { session },
+  } = await supabase.auth.getSession();
+  return <PortalShell email={session?.user.email ?? null}>{children}</PortalShell>;
 }
