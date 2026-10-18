@@ -10,6 +10,7 @@ import {
   isLateFeeBps,
   isNoticeHours,
   noticeLabel,
+  policyApplied,
   policyFrom,
   type CancellationPolicyLoad,
   type LateFeeBps,
@@ -52,6 +53,7 @@ function OrganisationCancellationPolicy({ org, showName }: { org: CancellationPo
   const [lateFee, setLateFee] = useState<LateFeeBps>(initial.late_fee_bps);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [applied, setApplied] = useState(load.status === "ready" ? load.applied : true);
   const available = load.status === "ready";
   const ids = { notice: `notice-${org.id}`, lateFee: `late-fee-${org.id}`, title: `policy-${org.id}` };
 
@@ -75,9 +77,13 @@ function OrganisationCancellationPolicy({ org, showName }: { org: CancellationPo
         setNotice(policy.notice_hours);
         setLateFee(policy.late_fee_bps);
       }
+      const inForce = policyApplied(saved);
+      setApplied(inForce);
       setMessage({
         ok: true,
-        text: "Saved. Lessons booked from now on use this policy. Lessons already booked keep the one they were booked with.",
+        text: inForce
+          ? "Saved. Lessons booked from now on use this policy. Lessons already booked keep the one they were booked with."
+          : "Saved. It applies to new bookings once this school is active again.",
       });
     } catch (cause) {
       setMessage({ ok: false, text: saveErrorText(cause) });
@@ -98,6 +104,13 @@ function OrganisationCancellationPolicy({ org, showName }: { org: CancellationPo
         <p role="status" className="mb-5 rounded-xl bg-blush-surface px-4 py-3 text-sm text-ink">
           Setting your own cancellation policy is not available yet. Until it is, lessons use Newdryve&rsquo;s standard
           policy, shown below.
+        </p>
+      ) : null}
+
+      {available && !applied ? (
+        <p role="status" className="mb-5 rounded-xl bg-blush-surface px-4 py-3 text-sm text-ink">
+          This school is paused, so this policy is not in force. Until it is active again, new bookings use each
+          instructor&rsquo;s own cancellation policy.
         </p>
       ) : null}
 

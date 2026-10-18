@@ -132,6 +132,12 @@ export interface OpsOrganisationMember {
   active_lesson_label: string | null;
   revenue_pence: number;
   lesson_count: number;
+  /**
+   * Lessons this instructor cancelled inside the last 30 minutes or after the
+   * start, among lessons starting in the last 90 days. Absent on an API
+   * deployed before late cancellations were recorded.
+   */
+  late_instructor_cancellations_90d?: number;
   last_seen_at: string | null;
   linked_at: string;
   updated_at: string;
@@ -404,4 +410,10 @@ export function boardBasePath(boardId: string): string | null {
     if (m.boards.some((b) => b.id === boardId)) return m.basePath;
   }
   return null;
+}
+
+/** A member's late instructor cancellations for a table cell: "—" when the API does not report them. */
+export function lateCancellationsLabel(member: Pick<OpsOrganisationMember, "late_instructor_cancellations_90d">): string {
+  const count = member.late_instructor_cancellations_90d;
+  return typeof count === "number" && Number.isFinite(count) ? String(count) : "—";
 }

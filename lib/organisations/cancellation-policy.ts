@@ -26,6 +26,13 @@ export interface CancellationPolicy {
 /** GET and PUT /v1/organisations/me/cancellation-policy. */
 export interface CancellationPolicyResponse {
   cancellation_policy: CancellationPolicy;
+  /** False while the school is paused or closed: new bookings then use each instructor's own policy. */
+  applied?: boolean;
+}
+
+/** Whether the school's policy is in force. Absent (an older API) counts as in force. */
+export function policyApplied(raw: unknown): boolean {
+  return !(isRecord(raw) && raw.applied === false);
 }
 
 /** Newdryve's standard policy, which every school has until it sets its own. */
@@ -123,7 +130,7 @@ export function parseCancellationPolicyInput(
  * that failed for another reason.
  */
 export type CancellationPolicyLoad =
-  | { status: "ready"; policy: CancellationPolicy }
+  | { status: "ready"; policy: CancellationPolicy; applied: boolean }
   | { status: "unavailable" }
   | { status: "error"; message: string };
 
@@ -135,7 +142,7 @@ export function cancellationPolicyLoad(
   read: { ok: true; data: unknown } | { ok: false; status: number }
 ): CancellationPolicyLoad {
   const policy = read.ok ? policyFrom(read.data) : null;
-  if (policy) return { status: "ready", policy };
+  if (policy) return { status: "ready", policy, applied: read.ok ? policyApplied(read.data) : true };
   if (!read.ok && read.status === 404) return { status: "unavailable" };
   return { status: "error", message: "Could not load your cancellation policy." };
 }

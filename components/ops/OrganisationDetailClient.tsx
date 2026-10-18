@@ -17,6 +17,7 @@ import { longDate } from "@/lib/organisations/format";
 import { listingInputFromDraft, type ListingDraft } from "@/lib/organisations/listing";
 import {
   formatPence,
+  lateCancellationsLabel,
   organisationTotals,
   type OpsOrganisationWithMembers,
 } from "@/lib/ops/types";
@@ -268,6 +269,9 @@ export default function OrganisationDetailClient({
                 <th className="px-3 py-3">Status</th>
                 <th className="px-3 py-3">Current lesson</th>
                 <th className="px-3 py-3 text-right">Lessons</th>
+                <th className="px-3 py-3 text-right" title="Lessons the instructor cancelled within 30 minutes of the start, or after it, in the last 90 days">
+                  Late cancels (90d)
+                </th>
                 <th className="px-3 py-3 text-right">Revenue</th>
                 <th className="px-3 py-3"></th>
               </tr>
@@ -285,6 +289,7 @@ export default function OrganisationDetailClient({
                     {row.active_lesson_label ? ` · ${row.active_lesson_label}` : ""}
                   </td>
                   <td className="px-3 py-3 text-right text-ink">{row.lesson_count}</td>
+                  <td className="px-3 py-3 text-right text-ink">{lateCancellationsLabel(row)}</td>
                   <td className="px-3 py-3 text-right font-medium text-ink">
                     {formatPence(row.revenue_pence)}
                   </td>
