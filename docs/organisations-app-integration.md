@@ -48,3 +48,18 @@ Required deployment environment:
   polled every 60 seconds while the tab is visible.
 - **Listing** fields (bio, https logo URL, `#RRGGBB` brand colour) are edited
   in ops; learners see each organisation as one listing.
+
+## Cancellation policy (requires the API from Newdryve `feat/cancellation-policy-api`)
+
+- **Settings → Cancellation policy** sets one policy per school, for every
+  instructor in it: free cancellation up to `notice_hours` (2, 6, 12, 24, 48 or
+  72) before a lesson, then `late_fee_bps` (0, 5000 or 10000: no fee, half or
+  the full lesson price). The fixed rules are shown read-only: inside 30 minutes
+  a learner pays the full price, and instructors can cancel for free up to 30
+  minutes before. A change only reaches lessons booked after it.
+- `/organisations/api/cancellation-policy` proxies `GET` and `PUT
+  /v1/organisations/me/cancellation-policy` with the admin's session, and sends
+  `organisation_id` as the billing form does. The `PUT` body is checked against
+  the allowed values and rebuilt before it is forwarded.
+- Against an API without the endpoint (404) the section shows the standard
+  policy (24 hours, half price) with a "not available yet" note and no Save.
