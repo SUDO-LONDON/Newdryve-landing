@@ -38,6 +38,9 @@ export default async function OrganisationInstructorPage({
         <StatTile label="Revenue" value={formatPence(member.revenue_pence)} />
         <StatTile label="Lessons" value={String(member.lesson_count)} />
         <StatTile label="Linked" value={formatDate(member.linked_at)} />
+        {/* Counted by the API over a rolling 90 days; "—" when it sent neither. */}
+        <StatTile label="Late cancellations · 90d" value={countLabel(member.late_instructor_cancellations_90d)} />
+        <StatTile label="Sick days · 90d" value={countLabel(member.sick_days_90d)} />
       </div>
 
       <section className="rounded-2xl border border-border bg-white p-5">
@@ -78,6 +81,10 @@ function presenceLabel(value: string): string {
   if (value === "available") return "Available";
   if (value === "offline") return "Offline";
   return "Unknown";
+}
+
+function countLabel(value: number | null): string {
+  return value == null ? "—" : String(value);
 }
 
 function formatDate(value: string | null): string {

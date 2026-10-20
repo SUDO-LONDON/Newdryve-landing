@@ -67,7 +67,13 @@ export default function InvoicesView({ initial, billing }: { initial: Invoice[];
   async function setStatus(invoice: Invoice, status: Invoice["status"]) {
     if (status === "void" && !window.confirm(`Void invoice ${invoice.number}? It will no longer be owed.`)) return;
     const result = await call(`/organisations/api/invoices/${invoice.id}/status`, { status }, `status-${invoice.id}`);
-    if (result?.invoice) setInvoices((all) => all.map((i) => (i.id === invoice.id ? (result.invoice as Invoice) : i)));
+    if (result?.invoice) {
+      setInvoices((all) => all.map((i) => (i.id === invoice.id ? (result.invoice as Invoice) : i)));
+      // Void is not one-way: the API accepts "issued" on a void invoice (#499).
+      if (invoice.status === "void" && status === "issued") {
+        setNotice(`Invoice ${invoice.number} restored. ${invoice.terms.instructor_name} owes it again.`);
+      }
+    }
   }
 
   async function send(invoice: Invoice) {
@@ -201,6 +207,10 @@ export default function InvoicesView({ initial, billing }: { initial: Invoice[];
                         ) : invoice.status === "paid" ? (
                           <button type="button" onClick={() => void setStatus(invoice, "issued")} disabled={busy !== null} className="focus-ring inline-flex min-h-11 items-center rounded-full border border-border px-3 text-sm font-semibold text-ink disabled:opacity-60">
                             Mark unpaid
+                          </button>
+                        ) : invoice.status === "void" ? (
+                          <button type="button" onClick={() => void setStatus(invoice, "issued")} disabled={busy !== null} className="focus-ring inline-flex min-h-11 items-center rounded-full border border-border px-3 text-sm font-semibold text-ink disabled:opacity-60">
+                            {busy === `status-${invoice.id}` ? "Restoring…" : "Restore"}
                           </button>
                         ) : null}
                         {invoice.status !== "void" ? (

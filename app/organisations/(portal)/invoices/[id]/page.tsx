@@ -10,7 +10,9 @@ export const dynamic = "force-dynamic";
 
 export default async function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { invoice } = await orgRead<{ invoice: Invoice }>(`/v1/organisations/me/invoices/${encodeURIComponent(id)}`);
+  const { invoice } = await orgRead<{ invoice: Invoice }>(`/v1/organisations/me/invoices/${encodeURIComponent(id)}`, {
+    returnTo: "/organisations/invoices",
+  });
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">

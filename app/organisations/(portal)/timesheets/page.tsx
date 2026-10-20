@@ -10,7 +10,9 @@ export const dynamic = "force-dynamic";
 export default async function TimesheetsPage({ searchParams }: { searchParams: Promise<{ week?: string }> }) {
   const { week } = await searchParams;
   const valid = week && /^\d{4}-\d{2}-\d{2}$/.test(week) ? week : null;
-  const data = await orgRead<TimesheetResponse>(`/v1/organisations/me/timesheet${valid ? `?week=${valid}` : ""}`);
+  const data = await orgRead<TimesheetResponse>(`/v1/organisations/me/timesheet${valid ? `?week=${valid}` : ""}`, {
+    returnTo: "/organisations/timesheets",
+  });
   return (
     <>
       <PageHeading eyebrow="Hours" title="Timesheets">

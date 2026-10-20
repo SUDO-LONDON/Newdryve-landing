@@ -79,6 +79,9 @@ export interface Founder {
 }
 
 export type OrganisationStatus = "active" | "paused" | "closed";
+
+/** The seat subscription states ops may record (PATCH subscription_status, Newdryve PR #511). */
+export const SEAT_SUBSCRIPTION_STATUSES = ["trialing", "active", "past_due", "canceled", "incomplete", "unpaid", "paused"] as const;
 export type OrganisationMemberStatus = "linked" | "invited" | "inactive";
 export type LessonPresence = "available" | "in_lesson" | "offline" | "unknown";
 
@@ -136,6 +139,25 @@ export interface OpsOrganisationMember {
   linked_at: string;
   updated_at: string;
   deleted_at: string | null;
+  /**
+   * Lessons this instructor cancelled late in the last 90 days, and sick days
+   * they called in over the same window (ADR-045). Null when the API did not
+   * send them, so a missing count never reads as a clean record.
+   */
+  late_instructor_cancellations_90d: number | null;
+  sick_days_90d: number | null;
+}
+
+/** "2 late cancellations · 1 sick day", "None", or "Not available" from an older API. */
+export function memberRecord90d(member: Pick<OpsOrganisationMember, "late_instructor_cancellations_90d" | "sick_days_90d">): string {
+  const late = member.late_instructor_cancellations_90d;
+  const sick = member.sick_days_90d;
+  if (late == null && sick == null) return "Not available";
+  const parts = [
+    late ? `${late} late cancellation${late === 1 ? "" : "s"}` : "",
+    sick ? `${sick} sick day${sick === 1 ? "" : "s"}` : "",
+  ].filter(Boolean);
+  return parts.length ? parts.join(" · ") : "None";
 }
 
 export interface OrganisationLiveLesson {

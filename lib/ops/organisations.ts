@@ -34,7 +34,11 @@ export type OrganisationCreateInput = {
 
 export type OrganisationAdminCreateInput = {
   email: string;
-  password: string;
+  /**
+   * Only for a new login. An email that is already a school admin login gains
+   * this school and keeps its own password (Newdryve PR #511).
+   */
+  password?: string;
   display_name?: string | null;
 };
 
@@ -81,6 +85,8 @@ type BackendOrganisationMember = {
   current_lesson_id: string | null;
   completed_lessons: number;
   revenue_pence: number;
+  late_instructor_cancellations_90d?: number | null;
+  sick_days_90d?: number | null;
 };
 
 type OrganisationResponse = {
@@ -166,6 +172,7 @@ export async function updateOrganisation(
     seats_purchased?: number | null;
     seat_price_pence?: number | null;
     billing_notes?: string | null;
+    subscription_status?: string | null;
   },
   actor: string
 ): Promise<OpsOrganisation> {
@@ -211,15 +218,33 @@ export async function regenerateOrganisationCode(
   return mapOrganisation(data.organisation, data.join_code);
 }
 
+/**
+ * Create a school admin login, or add this school to an existing one
+ * (`existing_login: true`). A blank password is left out of the request: the
+ * API wants none for an existing login and answers 422 `password_required`
+ * when the email is new.
+ */
 export async function createOrganisationAdmin(
   id: string,
   input: OrganisationAdminCreateInput,
   actor: string
-): Promise<void> {
-  await call(`/v1/ops/organisations/${id}/admins`, actor, {
+): Promise<{ existing_login: boolean }> {
+  const data = await call<{ existing_login?: boolean }>(`/v1/ops/organisations/${id}/admins`, actor, {
     method: "POST",
-    body: JSON.stringify(input),
+    body: JSON.stringify(adminRequestBody(input)),
   });
+  return { existing_login: data?.existing_login === true };
+}
+
+export function adminRequestBody(input: Partial<OrganisationAdminCreateInput> | null | undefined): OrganisationAdminCreateInput {
+  const email = typeof input?.email === "string" ? input.email.trim() : "";
+  const password = typeof input?.password === "string" ? input.password : "";
+  const displayName = typeof input?.display_name === "string" ? input.display_name.trim() : "";
+  return {
+    email,
+    ...(password ? { password } : {}),
+    display_name: displayName || null,
+  };
 }
 
 async function call<T>(path: string, founderEmail: string, init: RequestInit = {}): Promise<T> {
@@ -355,7 +380,15 @@ function mapMember(
     linked_at: member.linked_at,
     updated_at: fallbackUpdatedAt,
     deleted_at: null,
+    late_instructor_cancellations_90d: countOrNull(member.late_instructor_cancellations_90d),
+    sick_days_90d: countOrNull(member.sick_days_90d),
   };
+}
+
+function countOrNull(value: number | null | undefined): number | null {
+  if (value == null) return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
 function maskCode(last4: string | null): string {

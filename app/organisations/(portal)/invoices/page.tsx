@@ -9,8 +9,8 @@ export const dynamic = "force-dynamic";
 
 export default async function InvoicesPage() {
   const [invoices, billing] = await Promise.all([
-    orgRead<{ items: Invoice[] }>("/v1/organisations/me/invoices"),
-    orgRead<BillingResponse>("/v1/organisations/me/billing"),
+    orgRead<{ items: Invoice[] }>("/v1/organisations/me/invoices", { returnTo: "/organisations/invoices" }),
+    orgRead<BillingResponse>("/v1/organisations/me/billing", { returnTo: "/organisations/invoices" }),
   ]);
   return (
     <>

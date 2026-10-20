@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Live" };
 export const dynamic = "force-dynamic";
 
 export default async function LivePage() {
-  const live = await orgRead<LiveResponse>("/v1/organisations/me/live");
+  const live = await orgRead<LiveResponse>("/v1/organisations/me/live", { returnTo: "/organisations/live" });
   return (
     <>
       <PageHeading eyebrow="Right now" title="Instructors">

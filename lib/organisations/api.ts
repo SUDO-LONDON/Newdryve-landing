@@ -3,6 +3,7 @@ import "server-only";
 import { NEWDRYVE_API_ORIGIN, assertOrganisationPortalEnv } from "@/lib/organisations/env";
 import { mapOrganisationResponse } from "@/lib/ops/organisations";
 import type { OpsOrganisationWithMembers } from "@/lib/ops/types";
+import { readUnavailable, type UnavailableOrganisation } from "@/lib/organisations/unavailable";
 
 export class OrganisationPortalApiError extends Error {
   constructor(
@@ -13,9 +14,15 @@ export class OrganisationPortalApiError extends Error {
   }
 }
 
+export interface OrganisationPortalData {
+  organisations: OpsOrganisationWithMembers[];
+  /** This admin's schools that Newdryve paused or closed (#499); empty from an older API. */
+  unavailable: UnavailableOrganisation[];
+}
+
 export async function loadOrganisationPortal(
   accessToken: string
-): Promise<OpsOrganisationWithMembers[]> {
+): Promise<OrganisationPortalData> {
   assertOrganisationPortalEnv();
   let response: Response;
   try {
@@ -30,6 +37,7 @@ export async function loadOrganisationPortal(
 
   const body = (await response.json().catch(() => null)) as {
     items?: Parameters<typeof mapOrganisationResponse>[0][];
+    unavailable?: unknown;
     error?: string | { message?: string };
   } | null;
 
@@ -44,5 +52,8 @@ export async function loadOrganisationPortal(
   // Map, never cast. The API's field names are not the client's, and the ops
   // panel has always translated them — the portal skipping that step is what
   // made every member row blank.
-  return (body?.items ?? []).map(mapOrganisationResponse);
+  return {
+    organisations: (body?.items ?? []).map(mapOrganisationResponse),
+    unavailable: readUnavailable(body?.unavailable),
+  };
 }

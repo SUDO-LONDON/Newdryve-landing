@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Learners" };
 export const dynamic = "force-dynamic";
 
 export default async function LearnersPage() {
-  const data = await orgRead<LearnersResponse>("/v1/organisations/me/learners");
+  const data = await orgRead<LearnersResponse>("/v1/organisations/me/learners", { returnTo: "/organisations/learners" });
   return (
     <>
       <PageHeading eyebrow="Learner attention" title="Learners">

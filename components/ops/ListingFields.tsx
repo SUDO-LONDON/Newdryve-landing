@@ -7,7 +7,7 @@ const inputClass =
 
 /**
  * What learners see on the organisation's single listing: a bio, a logo and a
- * brand colour. Instructors are never named there.
+ * brand colour. Members who agreed to it appear there as named cards (ADR-042).
  */
 export default function ListingFields({
   draft,

@@ -38,6 +38,8 @@ node scripts/railway-start-landing.cjs   # router on $PORT (default 3000)
 | `npm run build` | Next production build                    |
 | `npm run start` | Next alone (`next start`); production runs the router script instead |
 | `npm run lint`  | ESLint                                   |
+| `npm run typecheck` | TypeScript, no emit                  |
+| `npm test`      | Vitest: portal and ops helpers, route handlers and rendered forms (`test/`) |
 | `npm run railway:deploy` | Set ops Supabase env vars on Railway from `.env.local`, then deploy |
 
 ## Environment variables

@@ -14,7 +14,16 @@ const NAV = [
 ];
 
 /** Header and section tabs for every signed-in portal page. Hidden when printing. */
-export default function PortalShell({ email, children }: { email: string | null; children: React.ReactNode }) {
+export default function PortalShell({
+  email,
+  schoolChosen = false,
+  children,
+}: {
+  email: string | null;
+  /** A school was chosen in the picker, so offer to change it. */
+  schoolChosen?: boolean;
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const active = (href: string) => (href === "/organisations" ? pathname === href : pathname.startsWith(href));
 
@@ -32,6 +41,14 @@ export default function PortalShell({ email, children }: { email: string | null;
           </Link>
           <div className="flex items-center gap-3">
             <NotificationBell />
+            {schoolChosen ? (
+              <Link
+                href={`/organisations/choose?next=${encodeURIComponent(pathname || "/organisations")}`}
+                className="focus-ring inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-racing-green underline"
+              >
+                Change school
+              </Link>
+            ) : null}
             <p className="hidden max-w-[16rem] truncate text-xs text-ink-secondary md:block" title={email ?? undefined}>
               {email}
             </p>

@@ -4,21 +4,29 @@ import { redirect } from "next/navigation";
 import { NEWDRYVE_API_ORIGIN, assertOrganisationPortalEnv } from "@/lib/organisations/env";
 import { getOrganisationAccessToken } from "@/lib/organisations/supabase-server";
 import { OrganisationPortalApiError } from "@/lib/organisations/api";
+import { apiError } from "@/lib/organisations/http";
+import { getChosenSchool } from "@/lib/organisations/school";
+import { portalReadOutcome, safePortalNext, withSchool, withSchoolBody } from "@/lib/organisations/scope";
 
 /**
  * Read a school-portal endpoint for a server-rendered page, as the signed-in
  * admin. A missing or expired session goes to the login page, and a login
  * that is not a school admin goes to the denied page, rather than rendering a
- * portal full of zeroes that looks like a quiet week.
+ * portal full of zeroes that looks like a quiet week. A school Newdryve paused
+ * or closed goes to the denied page too, which says so (#499). When the API
+ * needs a school named (a super admin, 422 `organisation_required`) or the
+ * chosen one is no longer this admin's, the school picker opens and returns
+ * to `returnTo` afterwards.
  */
-export async function orgRead<T>(path: string): Promise<T> {
+export async function orgRead<T>(path: string, { returnTo = "/organisations" }: { returnTo?: string } = {}): Promise<T> {
   assertOrganisationPortalEnv();
   const token = await getOrganisationAccessToken();
   if (!token) redirect("/organisations/login");
+  const school = await getChosenSchool();
 
   let response: Response;
   try {
-    response = await fetch(`${NEWDRYVE_API_ORIGIN}${path}`, {
+    response = await fetch(`${NEWDRYVE_API_ORIGIN}${withSchool(path, school)}`, {
       headers: { authorization: `Bearer ${token}` },
       cache: "no-store",
       signal: AbortSignal.timeout(10_000),
@@ -26,13 +34,16 @@ export async function orgRead<T>(path: string): Promise<T> {
   } catch {
     throw new OrganisationPortalApiError("Could not reach Newdryve.", 502);
   }
-  if (response.status === 401) redirect("/organisations/login");
-  if (response.status === 403) redirect("/organisations/denied");
-  const body = (await response.json().catch(() => null)) as (T & { error?: { message?: string } }) | null;
-  if (!response.ok || !body) {
-    throw new OrganisationPortalApiError(body?.error?.message || "Could not load this page.", response.status);
+  const body = await response.json().catch(() => null);
+  const error = apiError(body, response.status, "Could not load this page.");
+  const outcome = portalReadOutcome(response.status, error, school);
+  if (outcome.kind === "login") redirect("/organisations/login");
+  if (outcome.kind === "denied") redirect(outcome.reason ? `/organisations/denied?reason=${outcome.reason}` : "/organisations/denied");
+  if (outcome.kind === "choose") {
+    redirect(`/organisations/choose?reason=${outcome.reason}&next=${encodeURIComponent(safePortalNext(returnTo))}`);
   }
-  return body;
+  if (outcome.kind === "error" || !body) throw new OrganisationPortalApiError(error.message, response.status);
+  return body as T;
 }
 
 /**
@@ -71,12 +82,15 @@ export async function orgProxy(
 
   // Fastify rejects a request that declares a JSON body and sends none, so a
   // bodyless write (DELETE, mark-as-read) goes without the header.
-  const body = method === "GET" ? "" : await request.text();
+  // The school chosen in the picker goes on every call that does not already
+  // name one, so a super admin's writes are scoped like their reads.
+  const school = await getChosenSchool();
+  const body = method === "GET" ? "" : withSchoolBody(await request.text(), method === "DELETE" ? null : school);
   const hasBody = body.trim().length > 0;
 
   let upstream: Response;
   try {
-    upstream = await fetch(`${NEWDRYVE_API_ORIGIN}${path}`, {
+    upstream = await fetch(`${NEWDRYVE_API_ORIGIN}${withSchool(path, school)}`, {
       method,
       headers: {
         authorization: `Bearer ${token}`,

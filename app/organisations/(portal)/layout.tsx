@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import PortalShell from "@/components/organisations/PortalShell";
 import { assertOrganisationPortalEnv } from "@/lib/organisations/env";
+import { getChosenSchool } from "@/lib/organisations/school";
 import { createOrganisationSupabaseServerClient, getOrganisationAccessToken } from "@/lib/organisations/supabase-server";
 
 export const dynamic = "force-dynamic";
@@ -16,5 +17,10 @@ export default async function PortalLayout({ children }: { children: React.React
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  return <PortalShell email={session?.user.email ?? null}>{children}</PortalShell>;
+  const schoolChosen = Boolean(await getChosenSchool());
+  return (
+    <PortalShell email={session?.user.email ?? null} schoolChosen={schoolChosen}>
+      {children}
+    </PortalShell>
+  );
 }

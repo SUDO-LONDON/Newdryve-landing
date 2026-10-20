@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { isGuardError, requireFounder } from "@/lib/ops/auth";
 import { logAudit } from "@/lib/ops/audit";
-import { createOrganisationAdmin } from "@/lib/ops/organisations";
+import { createOrganisationAdmin, organisationErrorResponse } from "@/lib/ops/organisations";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,19 +15,21 @@ export async function POST(request: Request, context: Params) {
   const body = await request.json().catch(() => null);
 
   try {
-    await createOrganisationAdmin(id, body ?? {}, guard.email);
+    const result = await createOrganisationAdmin(id, body ?? {}, guard.email);
     await logAudit({
       actor_email: guard.email,
       action: "organisation_admin_created",
       target_type: "organisation",
       target_id: id,
-      detail: { email: typeof body?.email === "string" ? body.email.trim().toLowerCase() : null },
+      detail: {
+        email: typeof body?.email === "string" ? body.email.trim().toLowerCase() : null,
+        existing_login: result.existing_login,
+      },
     }).catch(() => {});
-    return NextResponse.json({ ok: true }, { status: 201 });
+    return NextResponse.json({ ok: true, existing_login: result.existing_login }, { status: 201 });
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Could not create organisation admin." },
-      { status: 400 }
-    );
+    // The API's status and code (password_required, email_in_use) reach the
+    // form, which words them.
+    return organisationErrorResponse(err, "Could not create organisation admin.");
   }
 }
