@@ -4,7 +4,9 @@ import { POST } from "@/app/organisations/api/school/route";
 const SCHOOL = "11111111-2222-4333-8444-555555555555";
 
 function post(fields: Record<string, string>, headers: Record<string, string> = {}) {
-  const body = new URLSearchParams(fields);
+  // A string body: under jsdom, URLSearchParams is jsdom's class, which
+  // Node's Request rejects as a body.
+  const body = new URLSearchParams(fields).toString();
   return POST(
     new Request("http://internal:3000/organisations/api/school", {
       method: "POST",
