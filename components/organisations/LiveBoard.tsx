@@ -12,6 +12,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { LiveInstructor, LiveResponse, LiveStatusCode } from "@/lib/organisations/types";
 import { hours, time } from "@/lib/organisations/format";
+import { readableLive } from "@/lib/organisations/live";
 
 const POLL_MS = 30_000;
 
@@ -37,7 +38,9 @@ const GROUPS: Array<{ label: string; codes: LiveStatusCode[] }> = [
 ];
 
 export default function LiveBoard({ initial, organisationId }: { initial: LiveResponse; organisationId?: string }) {
-  const [data, setData] = useState(initial);
+  // Worded once here, so a sick day reads "Off sick" in the status line and
+  // the timeline alike, on the first render and every refresh.
+  const [data, setData] = useState(() => readableLive(initial));
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.parse(initial.generated_at));
 
@@ -46,7 +49,7 @@ export default function LiveBoard({ initial, organisationId }: { initial: LiveRe
       const res = await fetch(`/organisations/api/live${organisationId ? `?organisation_id=${organisationId}` : ""}`, { cache: "no-store" });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error || "Could not refresh.");
-      setData(body as LiveResponse);
+      setData(readableLive(body as LiveResponse));
       setNow(Date.parse((body as LiveResponse).generated_at));
       setError(null);
     } catch (cause) {

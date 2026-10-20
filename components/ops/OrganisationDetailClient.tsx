@@ -17,9 +17,39 @@ import { longDate } from "@/lib/organisations/format";
 import { listingInputFromDraft, type ListingDraft } from "@/lib/organisations/listing";
 import {
   formatPence,
+  memberRecord90d,
   organisationTotals,
+  SEAT_SUBSCRIPTION_STATUSES,
   type OpsOrganisationWithMembers,
+  type OrganisationStatus,
 } from "@/lib/ops/types";
+import { apiError } from "@/lib/organisations/http";
+
+const STATUS_COPY: Record<OrganisationStatus, { label: string; tone: string }> = {
+  active: { label: "Active", tone: "bg-racing-green/10 text-racing-green" },
+  paused: { label: "Paused", tone: "bg-amber-100 text-amber-900" },
+  closed: { label: "Closed", tone: "bg-canvas text-ink-secondary" },
+};
+
+/** What a status change does, asked before it is made. */
+function statusChangeConfirm(name: string, next: OrganisationStatus): string {
+  if (next === "paused") {
+    return `Pause ${name}? Its admins are told the school is paused by Newdryve and can't open the portal until you reactivate it.`;
+  }
+  if (next === "closed") {
+    return `Close ${name}? Its admins are told the school is closed and lose the portal. You can reactivate it later.`;
+  }
+  return `Reactivate ${name}? Its admins get the portal back.`;
+}
+
+/** The admin form's error, worded from the API's code. */
+function adminErrorMessage(code: string | null, message: string): string {
+  if (code === "password_required") return "That email has no login yet. Set a temporary password to create one.";
+  if (code === "email_in_use") {
+    return "That email already has a Newdryve account that is not a school admin login. Use a different email.";
+  }
+  return message;
+}
 
 export default function OrganisationDetailClient({
   organisation,
@@ -37,6 +67,13 @@ export default function OrganisationDetailClient({
     password: "",
     display_name: "",
   });
+  const [details, setDetails] = useState({
+    name: organisation.name,
+    legal_name: organisation.legal_name ?? "",
+    contact_name: organisation.contact_name ?? "",
+    contact_email: organisation.contact_email ?? "",
+    contact_phone: organisation.contact_phone ?? "",
+  });
 
   const [billing, setBilling] = useState({
     billing_mode: organisation.billing_mode ?? "per_instructor",
@@ -44,6 +81,7 @@ export default function OrganisationDetailClient({
     seat_price_pounds:
       organisation.seat_price_pence != null ? (organisation.seat_price_pence / 100).toFixed(2) : "",
     billing_notes: organisation.billing_notes ?? "",
+    subscription_status: organisation.subscription_status ?? "",
   });
 
   const [feeDraft, setFeeDraft] = useState<FeeTermsDraft>(() => draftFromFeeTerms(organisation.fee_terms));
@@ -90,11 +128,25 @@ export default function OrganisationDetailClient({
           seats_purchased: seats,
           seat_price_pence: seatPricePence,
           billing_notes: billing.billing_notes.trim() || null,
+          // Whether the seats are paid for. Only meaningful per seat.
+          ...(perSeat ? { subscription_status: billing.subscription_status || null } : {}),
         }),
       });
-      const body = (await response.json().catch(() => ({}))) as { error?: string };
+      const body = (await response.json().catch(() => ({}))) as {
+        error?: string;
+        organisation?: { subscription_status?: string | null };
+      };
       if (!response.ok) throw new Error(body.error || "Could not save billing terms.");
-      setSuccess("Billing terms saved.");
+      const wanted = billing.subscription_status || null;
+      const recorded = body.organisation?.subscription_status ?? null;
+      // An API without PR #511 drops the field without an error.
+      if (perSeat && wanted !== (organisation.subscription_status ?? null) && recorded !== wanted) {
+        setSuccess(
+          "Billing terms saved, but the API did not record the seat subscription status. It needs the Newdryve API update that accepts it."
+        );
+      } else {
+        setSuccess("Billing terms saved.");
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save billing terms.");
@@ -190,18 +242,100 @@ export default function OrganisationDetailClient({
       const response = await fetch(`/ops/api/organisations/${organisation.id}/admins`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(adminForm),
+        // A blank password is left out: an existing school admin login keeps
+        // its own, and the API says when a new one needs one.
+        body: JSON.stringify({
+          email: adminForm.email.trim(),
+          display_name: adminForm.display_name.trim() || null,
+          ...(adminForm.password ? { password: adminForm.password } : {}),
+        }),
       });
-      const body = (await response.json().catch(() => ({}))) as { error?: string };
-      if (!response.ok) throw new Error(body.error || "Could not create admin login.");
-      setSuccess("Organisation admin login created.");
+      const body = (await response.json().catch(() => ({}))) as { existing_login?: boolean };
+      if (!response.ok) {
+        const info = apiError(body, response.status, "Could not create admin login.");
+        throw new Error(adminErrorMessage(info.code, info.message));
+      }
+      setSuccess(
+        body.existing_login
+          ? `${adminForm.email.trim()} already had a school admin login, so ${organisation.name} was added to it. They sign in with their current password.`
+          : "Organisation admin login created."
+      );
       setAdminForm({ email: "", password: "", display_name: "" });
+      // Re-read the admin count, so "No one can sign in" clears.
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create admin login.");
     } finally {
       setBusy(null);
     }
   }
+
+  async function patchOrganisation(fields: Record<string, unknown>, key: string, fallback: string): Promise<boolean> {
+    setBusy(key);
+    setError(null);
+    setSuccess(null);
+    try {
+      const response = await fetch(`/ops/api/organisations/${organisation.id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(fields),
+      });
+      const body = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(apiError(body, response.status, fallback).message);
+      router.refresh();
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : fallback);
+      return false;
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function saveDetails(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const name = details.name.trim();
+    const email = details.contact_email.trim();
+    if (!name) {
+      setSuccess(null);
+      setError("The school needs a name.");
+      return;
+    }
+    if (name.length > 160) {
+      setSuccess(null);
+      setError("The name must be 160 characters or fewer.");
+      return;
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setSuccess(null);
+      setError("The contact email doesn't look right.");
+      return;
+    }
+    const ok = await patchOrganisation(
+      {
+        name,
+        legal_name: details.legal_name.trim() || null,
+        contact_name: details.contact_name.trim() || null,
+        contact_email: email || null,
+        contact_phone: details.contact_phone.trim() || null,
+      },
+      "details",
+      "Could not save the details."
+    );
+    if (ok) setSuccess("Details saved.");
+  }
+
+  async function changeStatus(next: OrganisationStatus) {
+    if (!window.confirm(statusChangeConfirm(organisation.name, next))) return;
+    const ok = await patchOrganisation({ status: next }, `status-${next}`, "Could not change the status.");
+    if (ok) {
+      setSuccess(
+        next === "active" ? `${organisation.name} is active again.` : next === "paused" ? `${organisation.name} is paused.` : `${organisation.name} is closed.`
+      );
+    }
+  }
+
+  const status = STATUS_COPY[organisation.status] ?? STATUS_COPY.active;
 
   return (
     <div className="space-y-6">
@@ -214,7 +348,10 @@ export default function OrganisationDetailClient({
             <p className="text-[11px] font-semibold uppercase tracking-widest text-racing-green">
               Organisation
             </p>
-            <h1 className="mt-1 font-display text-2xl text-ink">{organisation.name}</h1>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <h1 className="font-display text-2xl text-ink">{organisation.name}</h1>
+              <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${status.tone}`}>{status.label}</span>
+            </div>
             <p className="mt-1 text-sm text-ink-secondary">
               {organisation.legal_name || "No legal name"} · {organisation.contact_email || "No contact email"}
             </p>
@@ -258,10 +395,110 @@ export default function OrganisationDetailClient({
         <StatTile label="Revenue" value={formatPence(totals.revenuePence)} />
       </div>
 
+      <section className="rounded-2xl border border-border bg-white p-5" aria-labelledby="status-title">
+        <h2 id="status-title" className="font-display text-lg text-ink">Status and details</h2>
+        <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
+          {organisation.status === "active"
+            ? "Active: its admins use the portal and its members are listed through it."
+            : organisation.status === "paused"
+              ? "Paused: its admins are told the school is paused by Newdryve and can't open the portal."
+              : "Closed: its admins are told the school is closed and can't open the portal."}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {organisation.status !== "active" ? (
+            <button
+              type="button"
+              onClick={() => void changeStatus("active")}
+              disabled={busy !== null}
+              className="rounded-full bg-racing-green px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {busy === "status-active" ? "Reactivating…" : "Reactivate"}
+            </button>
+          ) : null}
+          {organisation.status !== "paused" ? (
+            <button
+              type="button"
+              onClick={() => void changeStatus("paused")}
+              disabled={busy !== null}
+              className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink disabled:opacity-60"
+            >
+              {busy === "status-paused" ? "Pausing…" : "Pause"}
+            </button>
+          ) : null}
+          {organisation.status !== "closed" ? (
+            <button
+              type="button"
+              onClick={() => void changeStatus("closed")}
+              disabled={busy !== null}
+              className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-deep-rose disabled:opacity-60"
+            >
+              {busy === "status-closed" ? "Closing…" : "Close"}
+            </button>
+          ) : null}
+        </div>
+
+        <form onSubmit={saveDetails} className="mt-5 grid gap-4 md:grid-cols-2" aria-label="School details">
+          <label className="text-sm font-medium text-ink">
+            Name
+            <input
+              required
+              maxLength={160}
+              value={details.name}
+              onChange={(e) => setDetails((d) => ({ ...d, name: e.target.value }))}
+              className="mt-1 w-full rounded-xl border border-border px-3 py-2 text-ink"
+            />
+          </label>
+          <label className="text-sm font-medium text-ink">
+            Legal name
+            <input
+              value={details.legal_name}
+              onChange={(e) => setDetails((d) => ({ ...d, legal_name: e.target.value }))}
+              placeholder="Optional"
+              className="mt-1 w-full rounded-xl border border-border px-3 py-2 text-ink"
+            />
+          </label>
+          <label className="text-sm font-medium text-ink">
+            Contact name
+            <input
+              value={details.contact_name}
+              onChange={(e) => setDetails((d) => ({ ...d, contact_name: e.target.value }))}
+              className="mt-1 w-full rounded-xl border border-border px-3 py-2 text-ink"
+            />
+          </label>
+          <label className="text-sm font-medium text-ink">
+            Contact email
+            <input
+              type="email"
+              value={details.contact_email}
+              onChange={(e) => setDetails((d) => ({ ...d, contact_email: e.target.value }))}
+              className="mt-1 w-full rounded-xl border border-border px-3 py-2 text-ink"
+            />
+          </label>
+          <label className="text-sm font-medium text-ink">
+            Contact phone
+            <input
+              type="tel"
+              value={details.contact_phone}
+              onChange={(e) => setDetails((d) => ({ ...d, contact_phone: e.target.value }))}
+              className="mt-1 w-full rounded-xl border border-border px-3 py-2 text-ink"
+            />
+          </label>
+          <div className="md:col-span-2">
+            <button
+              type="submit"
+              disabled={busy === "details"}
+              className="rounded-full bg-racing-green px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {busy === "details" ? "Saving…" : "Save details"}
+            </button>
+          </div>
+        </form>
+      </section>
+
       <section className="rounded-2xl border border-border bg-white p-5">
         <h2 className="font-display text-lg text-ink">Instructors</h2>
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[920px] text-left text-sm">
+          <table className="w-full min-w-[1060px] text-left text-sm">
             <thead className="border-b border-border bg-blush-surface/60 text-[11px] uppercase tracking-wider text-ink-muted">
               <tr>
                 <th className="px-3 py-3">Instructor</th>
@@ -269,6 +506,7 @@ export default function OrganisationDetailClient({
                 <th className="px-3 py-3">Current lesson</th>
                 <th className="px-3 py-3 text-right">Lessons</th>
                 <th className="px-3 py-3 text-right">Revenue</th>
+                <th className="px-3 py-3">Last 90 days</th>
                 <th className="px-3 py-3"></th>
               </tr>
             </thead>
@@ -288,6 +526,7 @@ export default function OrganisationDetailClient({
                   <td className="px-3 py-3 text-right font-medium text-ink">
                     {formatPence(row.revenue_pence)}
                   </td>
+                  <td className="px-3 py-3 text-ink-secondary">{memberRecord90d(row)}</td>
                   <td className="px-3 py-3 text-right">
                     <div className="flex items-start justify-end gap-3">
                       <Link
@@ -365,7 +604,8 @@ export default function OrganisationDetailClient({
         <h2 className="font-display text-lg text-ink">Listing</h2>
         <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
           Learners see this organisation as one listing with its instructors&rsquo; combined
-          availability. Instructors are never named on it.
+          availability. Instructors who agreed to be named appear on it as cards a learner can
+          pick (ADR-042); anyone who opted out stays unnamed.
         </p>
         <form onSubmit={saveListing} className="mt-4 space-y-4">
           <ListingFields draft={listing} onChange={setListing} idPrefix="detail" />
@@ -450,6 +690,26 @@ export default function OrganisationDetailClient({
                 </label>
               </div>
 
+              <label className="block max-w-sm text-sm font-medium text-ink">
+                Seat subscription
+                <select
+                  value={billing.subscription_status}
+                  onChange={(e) => setBilling((b) => ({ ...b, subscription_status: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-border bg-white px-3 py-2 text-ink"
+                >
+                  <option value="">Not recorded</option>
+                  {SEAT_SUBSCRIPTION_STATUSES.map((value) => (
+                    <option key={value} value={value}>
+                      {value.replace("_", " ")}
+                    </option>
+                  ))}
+                </select>
+                <span className="mt-1 block text-xs text-ink-muted">
+                  Active or trialing covers every member&rsquo;s Newdryve membership. Recorded by hand until schools are billed
+                  through Stripe.
+                </span>
+              </label>
+
               {monthlyTotalPence != null ? (
                 <p className="rounded-xl border border-border bg-canvas px-4 py-3 text-sm text-ink">
                   <strong className="font-semibold">{formatPence(monthlyTotalPence)}</strong> a month
@@ -509,7 +769,9 @@ export default function OrganisationDetailClient({
         )}
         <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
           Create an email/password login for this organisation. They will sign in at
-          newdryve.com/organisations and only see their own linked instructors.
+          newdryve.com/organisations and only see their own linked instructors. For someone who
+          already runs another school, leave the password blank: this school is added to their
+          existing login.
         </p>
         <form onSubmit={createAdmin} className="mt-4 grid gap-4 md:grid-cols-3">
           <label className="text-sm font-medium text-ink">
@@ -537,8 +799,9 @@ export default function OrganisationDetailClient({
             Temporary password
             <input
               type="password"
-              required
               minLength={8}
+              placeholder="New logins only"
+              autoComplete="new-password"
               value={adminForm.password}
               onChange={(event) =>
                 setAdminForm((cur) => ({ ...cur, password: event.target.value }))
