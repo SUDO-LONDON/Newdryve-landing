@@ -27,7 +27,7 @@ const linkClass = 'focus-ring rounded font-semibold text-ink underline underline
     <h1 class="font-display text-[clamp(32px,5vw,48px)] font-semibold leading-[1.05] tracking-[-1px]">
       Privacy Policy
     </h1>
-    <p class="mt-4 text-sm text-ink-secondary">Last updated 29 September 2026</p>
+    <p class="mt-4 text-sm text-ink-secondary">Last updated 22 October 2026</p>
 
     <p
       class="mt-6 rounded-2xl border border-blush-border bg-blush-surface px-5 py-4 text-sm leading-relaxed text-ink-secondary"
@@ -72,7 +72,7 @@ const linkClass = 'focus-ring rounded font-semibold text-ink underline underline
           </li>
           <li>
             <strong class="text-ink">Account and profile information:</strong> your name, email address,
-            telephone number, account and authentication identifiers, role, age, driving experience, language
+            telephone number, account and authentication identifiers, role, age and date of birth, driving experience, language
             preferences, transmission and instructor preferences, and learning goal.
           </li>
           <li>
@@ -87,8 +87,10 @@ const linkClass = 'focus-ring rounded font-semibold text-ink underline underline
           </li>
           <li>
             <strong class="text-ink">Payment and payout information:</strong> payment references, transaction
-            history, limited card details such as brand and last four digits, and instructor bank-transfer
-            or payout details. Stripe handles card details and connected-account onboarding.
+            history, limited card details such as brand and last four digits, a card fingerprint (an
+            identifier Stripe gives a card, which lets us recognise the same card without seeing its number),
+            and instructor bank-transfer or payout details. Stripe handles card details and connected-account
+            onboarding.
           </li>
           <li>
             <strong class="text-ink">Optional uploads and content:</strong> receipt images, expense details,
@@ -115,6 +117,19 @@ const linkClass = 'focus-ring rounded font-semibold text-ink underline underline
           For instructor verification, we use the applicant&rsquo;s name and ADI number only to confirm
           current DVSA registration. We record the verification method, date, reviewer and next recheck
           date. We do not independently assess criminal-record information or publish a Newdryve DBS claim.
+        </p>
+        <p>
+          <strong class="text-ink">Unpaid card payments and fraud prevention.</strong> If a card payment
+          a learner owes, such as a lesson, a late-cancellation fee or a no-show charge, cannot be
+          collected (the card is declined and our retries fail, or the bank&rsquo;s authentication is not
+          completed), we pause booking and saving cards until it is paid or the instructor settles it.
+          To stop the same person avoiding it with another account or the same card, the pause also
+          applies to any account with the same full name and date of birth, and to the card used, which
+          we recognise by its card fingerprint. We tell the person concerned that a payment linked to
+          their details is outstanding, but we never show them another account&rsquo;s name, email or
+          the amount owed. The learner can pay it in the app, and the pause lifts as soon as it is paid,
+          refunded or settled. We do this under our legitimate interests in preventing fraud and
+          recovering money owed to instructors.
         </p>
         <p>
           Where UK data-protection law applies, we rely on the performance of a contract, legal
@@ -187,6 +202,13 @@ const linkClass = 'focus-ring rounded font-semibold text-ink underline underline
           appropriate. We may retain transaction, tax, accounting, payment, dispute, fraud-prevention
           and security records for as long as required or permitted by law, which may be up to seven
           years for accounting records.
+        </p>
+        <p>
+          If you delete your account while you still owe a card payment, or while a lesson you missed
+          can still be recorded as a no-show (up to 30 days after the lesson), we keep a record of your
+          full name and date of birth, held in a normalised form, and the fingerprint of the card
+          involved. We use it only to apply the unpaid-payment pause described in section 3, and we
+          erase it once nothing is owed and no missed lesson can still be recorded.
         </p>
         <p>
           We keep waitlist information only for as long as needed to manage early access and launch
