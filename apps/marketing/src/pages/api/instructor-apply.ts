@@ -15,10 +15,16 @@
  * single egress IP and one global bucket of five applications an hour, so the
  * applicant's own address is forwarded and the limit is keyed on them instead.
  *
- * Request:  POST { full_name, email, password, ...application fields, gender?, documents[] }
+ * Request:  POST { full_name, email, password, email_verification_code, ...application
+ *           fields, gender?, documents[] }
  *           `gender` is optional and private: 'female' | 'male' | 'non_binary' | null.
+ *           `email_verification_code` is the six digits /api/instructor-email-code
+ *           had the API email to `email`; the API creates nothing without it. It
+ *           is absent only while the API asks for no code, and the API enforces it.
  * Response: 201 { status, instructor_id, uploads[], message }
  *           | 409 { error, field: 'email' } when the email already has an account
+ *           | 422 { error, field: 'email_verification_code' } when the code is wrong,
+ *             expired or used up
  *           | 422 { error, field? } | 429 { error } | 502 { error } | 504 { error }
  *
  * `field` names the application field the API rejected, so the form can take
@@ -61,6 +67,7 @@ const HONEYPOT_FIELD = 'apply_reference';
 const FIELD_LABELS: Record<string, string> = {
   full_name: 'Full name',
   email: 'Email',
+  email_verification_code: 'Email code',
   password: 'Password',
   phone_e164: 'Mobile number',
   gender: 'Gender',
@@ -270,11 +277,20 @@ export const POST: APIRoute = async (context) => {
 
   const validationError = validateApplication(payload);
   if (validationError) return json({ error: validationError }, 422);
+  const code = (payload as Record<string, unknown>).email_verification_code;
+  const codeSent = code !== undefined && code !== null && code !== '';
+  if (codeSent && (typeof code !== 'string' || !/^\d{6}$/.test(code.trim()))) {
+    return json(
+      { error: 'Enter the 6-digit code we emailed you.', field: 'email_verification_code' },
+      422
+    );
+  }
   const genderError = validateGender((payload as Record<string, unknown>).gender);
   if (genderError) return json({ error: genderError, field: 'gender' }, 422);
 
   const application = { ...(payload as Record<string, unknown>) };
   delete application[HONEYPOT_FIELD];
+  if (!codeSent) delete application.email_verification_code;
   // "Prefer not to say" is null to the API, never an empty string.
   if (application.gender === '' || application.gender === undefined) application.gender = null;
   // The badge is optional, and the API rejects the WHOLE application over one
@@ -320,6 +336,20 @@ export const POST: APIRoute = async (context) => {
     | null;
 
   if (!upstream.ok) {
+    // The API refused the email code: wrong, expired, or out of guesses. It
+    // created nothing, so the applicant fixes the code and submits again.
+    const details = body?.error?.details as { code?: unknown } | undefined;
+    if (upstream.status === 422 && details?.code === 'email_verification_failed') {
+      return json(
+        {
+          error:
+            'That email code is wrong or has expired. Check you typed the latest code we sent, or send a new one.',
+          field: 'email_verification_code',
+        },
+        422
+      );
+    }
+
     // The API's error envelope is { error: { code, message, details } }. Flatten
     // it to the { error: string } shape the rest of this site's forms use.
     const issue = upstream.status === 429 ? null : describeIssue(body?.error?.details);
