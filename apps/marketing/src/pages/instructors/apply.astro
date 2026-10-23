@@ -4,9 +4,11 @@
  *
  * Replaces the founder's local daemon as the way an instructor account comes
  * into existence. The applicant chooses their own password here and keeps it —
- * there is no temporary credential and nothing to redeem later. The account is
- * created immediately but cannot be signed into until a founder approves it
- * in /ops.
+ * there is no temporary credential and nothing to redeem later. Continue on
+ * the sign-in step emails a six-digit code to the address, and the application
+ * must carry it: the API creates nothing for an address its owner has not
+ * proven (Newdryve API ADR-056). The account is created on submit but cannot
+ * be signed into until a founder approves it in /ops.
  *
  * JavaScript is required to submit. The application is sent as JSON built by
  * the script (availability rows, picked languages and test-centre slugs have
@@ -85,7 +87,7 @@ const lessonTypes = [
 const testCentreCities = Object.keys(testCentresByCity).sort((a, b) => a.localeCompare(b, 'en-GB'));
 
 const howItWorks = [
-  { badge: 'bg-racing-green', text: 'You apply here and choose the password you&rsquo;ll sign in with.' },
+  { badge: 'bg-racing-green', text: 'You apply here, confirm your email with a code we send you, and choose the password you&rsquo;ll sign in with.' },
   { badge: 'bg-deep-rose', text: 'With your permission, we confirm your current ADI registration through GOV.UK or directly with DVSA.' },
   { badge: 'bg-ink', text: 'If approved, we email your agreed membership terms and, where required, a secure Stripe setup link.' },
   { badge: 'bg-racing-green', text: 'After membership or free-trial setup is confirmed, we email your private Newdryve setup page. Connect payouts there, set your service area, and review your listing before it goes live.' },
@@ -424,7 +426,8 @@ const acceptTypes =
             <legend class={legendClass} tabindex="-1" data-step-heading>Your sign-in details</legend>
             <p class="-mt-2 text-sm text-ink-secondary">
               This is the password you&rsquo;ll use in the app. It won&rsquo;t work until
-              we&rsquo;ve approved you.
+              we&rsquo;ve approved you. When you continue, we&rsquo;ll email you a code to
+              confirm the address is yours.
             </p>
 
             <div class="flex flex-col gap-1.5">
@@ -480,6 +483,34 @@ const acceptTypes =
                   class={inputClass}
                 />
               </div>
+            </div>
+
+            {/* Revealed by the script once a code has been emailed. Disabled
+                until then, so the step's checks skip it. */}
+            <div data-email-code hidden class="flex flex-col gap-2 rounded-xl bg-blush-surface p-4">
+              <label class={labelClass} for="apply-email-code">
+                Email code <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+              </label>
+              <p id="apply-email-code-help" data-email-code-sent class="text-sm text-ink-secondary"></p>
+              <input
+                id="apply-email-code"
+                name="email_verification_code"
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                pattern="[0-9]{6}"
+                disabled
+                aria-describedby="apply-email-code-help"
+                placeholder="6-digit code"
+                class={inputClass}
+              />
+              <button
+                type="button"
+                data-email-code-resend
+                class="focus-ring self-start text-sm font-semibold text-ink underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Send a new code
+              </button>
             </div>
           </fieldset>
 
@@ -952,6 +983,7 @@ const acceptTypes =
       languages: '#apply-languages',
       test_centre_slugs: '#apply-service-city',
       email: '#apply-email',
+      email_verification_code: '#apply-email-code',
       password: '#apply-password',
       adi_number: '#apply-adi-number',
       adi_badge_expires_on: '#apply-adi-expiry',
@@ -1384,6 +1416,9 @@ const acceptTypes =
         if (field.id === 'apply-adi-number' && field.value.trim() && field.value.trim().length < 3) {
           field.setCustomValidity('Enter your full ADI badge number.');
         }
+        if (field.id === 'apply-email-code' && !/^\d{6}$/.test(field.value.trim())) {
+          field.setCustomValidity('Enter the 6-digit code we emailed you.');
+        }
         if (field.id === 'apply-password' && field.value && !isStrongPassword(field.value)) {
           field.setCustomValidity(
             'Use 8 or more characters with uppercase, lowercase, a number and a symbol.'
@@ -1528,22 +1563,133 @@ const acceptTypes =
       }
     };
 
+    /**
+     * Proving the email address (Newdryve API ADR-056). The first Continue on
+     * the sign-in step emails a six-digit code and reveals the box for it; the
+     * applicant moves on once they have typed six digits. The API checks the
+     * code itself on submit, so a wrong or expired one brings them back here.
+     */
+    const emailInput = form.querySelector<HTMLInputElement>('#apply-email');
+    const codeBlock = root.querySelector<HTMLElement>('[data-email-code]');
+    const codeInput = form.querySelector<HTMLInputElement>('#apply-email-code');
+    const codeSent = root.querySelector<HTMLElement>('[data-email-code-sent]');
+    const codeResend = root.querySelector<HTMLButtonElement>('[data-email-code-resend]');
+    const accountExists =
+      'An account with this email address already exists. If it’s yours, sign in to the Newdryve app, or use a different email to apply.';
+    /** The address the visible code box belongs to; empty while it is hidden. */
+    let codeEmail = '';
+
+    const currentEmail = () => (emailInput?.value || '').trim().toLowerCase();
+
+    const showCodeBox = (email: string, note: string) => {
+      codeEmail = email;
+      if (!codeBlock || !codeInput || !codeSent) return;
+      codeSent.textContent = note;
+      codeBlock.hidden = false;
+      codeInput.disabled = false;
+      codeInput.required = true;
+    };
+
+    const hideCodeBox = () => {
+      codeEmail = '';
+      if (!codeBlock || !codeInput) return;
+      codeBlock.hidden = true;
+      codeInput.value = '';
+      codeInput.disabled = true;
+      codeInput.required = false;
+    };
+
+    // A code belongs to one address: changing the email needs a new one.
+    emailInput?.addEventListener('input', () => {
+      if (codeEmail && currentEmail() !== codeEmail) hideCodeBox();
+    });
+
+    // Digits only, so a pasted "123 456" still fits.
+    codeInput?.addEventListener('input', () => {
+      const digits = codeInput.value.replace(/\D/g, '').slice(0, 6);
+      if (digits !== codeInput.value) codeInput.value = digits;
+    });
+
+    /**
+     * Asks the API to email a code. 'shown' when the code box is up, 'skipped'
+     * when the API predates the code and needs none, 'failed' otherwise.
+     */
+    const sendCode = async (email: string): Promise<'shown' | 'skipped' | 'failed'> => {
+      let res: Response;
+      let body: { error?: string; field?: string; code?: string; status?: string };
+      try {
+        res = await fetch('/api/instructor-email-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        body = (await res.json().catch(() => ({}))) as typeof body;
+      } catch {
+        fail('We couldn’t email you a code. Check your connection and try again.', emailInput);
+        return 'failed';
+      }
+
+      if (res.ok && body.status === 'not_required') {
+        hideCodeBox();
+        codeEmail = email;
+        return 'skipped';
+      }
+      if (res.ok) {
+        clearError();
+        if (codeInput) codeInput.value = '';
+        showCodeBox(
+          email,
+          `We’ve emailed a 6-digit code to ${email}. Enter it here to continue. It works for 30 minutes.`
+        );
+        codeInput?.focus();
+        return 'shown';
+      }
+      if (body.code === 'cooldown') {
+        // One went out under a minute ago, so there is a code to type.
+        showCodeBox(email, body.error || `We emailed a code to ${email} less than a minute ago.`);
+        clearError();
+        codeInput?.focus();
+        return 'shown';
+      }
+      if (body.field === 'email') {
+        if (res.status === 409) emailChecks.set(email, true);
+        fail(body.error || accountExists, emailInput);
+        return 'failed';
+      }
+      fail(body.error || 'We couldn’t email you a code. Please try again.', codeEmail ? codeResend : emailInput);
+      return 'failed';
+    };
+
+    codeResend?.addEventListener('click', async () => {
+      const email = currentEmail();
+      if (!email || !emailInput?.checkValidity()) {
+        emailInput?.reportValidity();
+        return;
+      }
+      codeResend.disabled = true;
+      try {
+        await sendCode(email);
+      } finally {
+        codeResend.disabled = false;
+      }
+    });
+
     let advancing = false;
     const advance = async () => {
       if (advancing || !validateStep(current)) return;
       if (current === 2) {
-        const emailInput = form.querySelector<HTMLInputElement>('#apply-email');
-        const email = (emailInput?.value || '').trim().toLowerCase();
+        const email = currentEmail();
         advancing = true;
         nextButton.disabled = true;
         try {
           if (email && (await emailTaken(email)) === true) {
-            fail(
-              'An account with this email address already exists. If it’s yours, sign in to the Newdryve app, or use a different email to apply.',
-              emailInput
-            );
+            fail(accountExists, emailInput);
             return;
           }
+          // The first Continue for this address emails the code and stays
+          // here for it; the next one, with the code typed, moves on. An API
+          // that needs no code yet lets it move on at once.
+          if (codeEmail !== email && (await sendCode(email)) !== 'skipped') return;
         } finally {
           advancing = false;
           nextButton.disabled = false;
@@ -1653,6 +1799,14 @@ const acceptTypes =
       const data = new FormData(form);
       const email = String(data.get('email') || '').trim().toLowerCase();
 
+      // Reaching here without a code for this address means the email was
+      // changed after the code went out; the API would refuse it anyway.
+      if (!codeEmail || codeEmail !== email) {
+        show(2);
+        fail('Confirm your email address first: press Continue and we’ll email you a code.', emailInput);
+        return;
+      }
+
       const badge = checkBadge();
       // Only a badge that can actually be stored is declared to the API.
       const adiDocument = badge && 'type' in badge ? badge : null;
@@ -1662,6 +1816,8 @@ const acceptTypes =
       const payload = {
         full_name: String(data.get('full_name') || '').trim(),
         email,
+        // Left out (undefined) while the API needs no code.
+        email_verification_code: codeInput?.disabled ? undefined : (codeInput?.value || '').trim(),
         password: String(data.get('password') || ''),
         phone_e164: toE164(String(data.get('phone') || '')),
         driving_school_name: String(data.get('driving_school_name') || '').trim() || null,
@@ -1723,6 +1879,12 @@ const acceptTypes =
           if (target && step && step !== current) show(step, { focus: false });
           fail(body.error || 'Something went wrong. Please try again.', target);
           submitLabel.textContent = 'Submit application';
+          // The API started asking for a code while this page was open: send
+          // one now, which brings up the box with its own instructions.
+          if (body.field === 'email_verification_code' && codeBlock?.hidden) {
+            codeEmail = '';
+            await sendCode(email);
+          }
           return;
         }
 
