@@ -4,7 +4,7 @@
  * Kept client-safe: no server imports, so components can use them.
  */
 
-import type { FeeMode } from "@/lib/organisations/fees";
+import type { FeeMode, RateCard } from "@/lib/organisations/fees";
 
 export interface OrgRef {
   id: string;
@@ -135,6 +135,8 @@ export interface BillingSettings {
   fee_mode: FeeMode;
   amount_pence: number | null;
   percent_bps: number | null;
+  /** The levy rules for fee_mode "rate_card"; null otherwise. */
+  rate_card?: RateCard | null;
   payment_terms_days: number;
   bank_account_name: string | null;
   bank_sort_code: string | null;
@@ -158,7 +160,7 @@ export interface BillingResponse {
   }>;
 }
 
-/** One billed lesson on a lead-fee invoice. */
+/** One billed lesson on a lead-fee or rate-card invoice. */
 export interface InvoiceLineItem {
   booking_id: string;
   starts_at: string;
@@ -166,6 +168,10 @@ export interface InvoiceLineItem {
   /** What the lesson collected, net of refunds. The fee for lead_percent; for reference on lead_fixed. */
   basis_pence: number;
   fee_pence: number;
+  /** rate_card: minutes of the learner's lessons before this one. */
+  learner_minutes_before?: number;
+  /** rate_card: how the fee was made up, e.g. "1h at £5.04/hour + 1h at £6.18/hour". */
+  note?: string;
 }
 
 /** GET /v1/organisations/me/notifications. */
@@ -201,6 +207,8 @@ export interface Invoice {
     fee_mode: FeeMode;
     amount_pence: number | null;
     percent_bps: number | null;
+    /** The card the invoice was worked out under (rate_card only). */
+    rate_card?: RateCard | null;
     description: string;
     payment_terms_days: number;
     from_name: string;
@@ -210,7 +218,7 @@ export interface Invoice {
     organisation_name: string;
     instructor_name: string;
   };
-  /** One line per billed lesson for the lead modes; empty (or absent on older rows) otherwise. */
+  /** One line per billed lesson for the lead modes and rate_card; empty (or absent on older rows) otherwise. */
   line_items?: InvoiceLineItem[];
   status: "issued" | "paid" | "void";
   issued_at: string;

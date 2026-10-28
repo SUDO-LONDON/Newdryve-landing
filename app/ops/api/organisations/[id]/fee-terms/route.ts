@@ -14,7 +14,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /**
  * Set what an organisation charges its instructors. Only Newdryve does this;
  * the school portal shows the terms read-only. The API is the validator (one
- * of four modes, exactly the field it needs); its 422 details, including
+ * of the current modes, exactly the field it needs); its 422 details, including
  * `allowed_modes`, are passed back to the form.
  */
 export async function PUT(request: Request, context: Params) {
@@ -38,7 +38,7 @@ export async function PUT(request: Request, context: Params) {
       action: "organisation_fee_terms_set",
       target_type: "organisation",
       target_id: id,
-      detail: { fee_mode: feeTerms.fee_mode, amount_pence: feeTerms.amount_pence, percent_bps: feeTerms.percent_bps },
+      detail: { fee_mode: feeTerms.fee_mode, amount_pence: feeTerms.amount_pence, percent_bps: feeTerms.percent_bps, rate_card: feeTerms.rate_card ?? null },
     }).catch(() => {});
     return NextResponse.json({ fee_terms: feeTerms });
   } catch (err) {
