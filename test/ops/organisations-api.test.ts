@@ -97,3 +97,43 @@ describe("createOrganisationAdmin", () => {
     expect(failure).toMatchObject({ status: 409, code: "email_in_use" });
   });
 });
+
+describe("school admin logins (Newdryve ADR-060)", () => {
+  it("lists them, revoked ones marked as revoked", async () => {
+    const { listOrganisationAdmins } = await load();
+    respondWith(200, {
+      admins: [
+        { id: "a2", organisation_id: "o1", profile_id: "p2", email: "office@acme.test", display_name: null, status: "active", created_at: "2026-10-01T00:00:00Z", revoked_at: null },
+        { id: "a1", organisation_id: "o1", profile_id: "p1", email: "old@acme.test", display_name: "Old", status: "revoked", created_at: "2026-09-01T00:00:00Z", revoked_at: "2026-10-20T09:00:00Z" },
+      ],
+    });
+    expect(await listOrganisationAdmins("o1", "founder@newdryve.com")).toEqual([
+      { id: "a2", email: "office@acme.test", display_name: null, status: "active", created_at: "2026-10-01T00:00:00Z", revoked_at: null },
+      { id: "a1", email: "old@acme.test", display_name: "Old", status: "revoked", created_at: "2026-09-01T00:00:00Z", revoked_at: "2026-10-20T09:00:00Z" },
+    ]);
+    expect(requests[0]!.url).toBe("https://api.test/v1/ops/organisations/o1/admins");
+    expect((requests[0]!.init.headers as Record<string, string>)["x-ops-founder-email"]).toBe("founder@newdryve.com");
+  });
+
+  it("answers null while the API has no list route", async () => {
+    const { listOrganisationAdmins } = await load();
+    respondWith(404, { error: { code: "not_found", message: "Route GET:/v1/ops/organisations/o1/admins not found" } });
+    expect(await listOrganisationAdmins("o1", "f")).toBeNull();
+  });
+
+  it("revokes with a bodyless DELETE and reports a repeat", async () => {
+    const { revokeOrganisationAdmin } = await load();
+    respondWith(200, { revoked: true, already_revoked: true, admin: { id: "a1", status: "revoked", revoked_at: "2026-10-20T09:00:00Z" } });
+    expect(await revokeOrganisationAdmin("o1", "a1", "f")).toEqual({ already_revoked: true, revoked_at: "2026-10-20T09:00:00Z" });
+    expect(requests[0]!.url).toBe("https://api.test/v1/ops/organisations/o1/admins/a1");
+    expect(requests[0]!.init.method).toBe("DELETE");
+    expect(requests[0]!.init.body).toBeUndefined();
+    expect((requests[0]!.init.headers as Record<string, string>)["Content-Type"]).toBeUndefined();
+  });
+
+  it("carries the API's admin_not_found for another school's admin", async () => {
+    const { revokeOrganisationAdmin } = await load();
+    respondWith(404, { error: { code: "not_found", message: "That admin login is not linked to this organisation", details: { code: "admin_not_found" } } });
+    await expect(revokeOrganisationAdmin("o1", "a9", "f")).rejects.toMatchObject({ status: 404, code: "admin_not_found" });
+  });
+});

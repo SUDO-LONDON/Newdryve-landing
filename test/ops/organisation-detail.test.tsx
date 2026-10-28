@@ -161,3 +161,53 @@ describe("ops organisation copy and member counts", () => {
     expect(document.body.textContent).toContain("appear on it as cards a learner can pick");
   });
 });
+
+describe("ops revokes a school admin login", () => {
+  const ORG_ID = "11111111-2222-4333-8444-555555555555";
+  const admins = [
+    { id: "aaaaaaaa-0000-4000-8000-000000000001", email: "owner@acme.test", display_name: "Owner", status: "active" as const, created_at: "2026-09-01T10:00:00Z", revoked_at: null },
+    { id: "aaaaaaaa-0000-4000-8000-000000000002", email: "gone@acme.test", display_name: null, status: "revoked" as const, created_at: "2026-08-01T10:00:00Z", revoked_at: "2026-10-20T10:00:00Z" },
+  ];
+
+  it("shows each login, a revoked one as revoked with no button", () => {
+    render(<OrganisationDetailClient organisation={opsOrganisation()} admins={admins} />);
+    const list = screen.getByRole("list", { name: "Admin logins" });
+    expect(list.textContent).toContain("owner@acme.test");
+    expect(list.textContent).toContain("Revoked 20 October 2026");
+    expect(screen.getByRole("button", { name: "Revoke access for owner@acme.test" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Revoke access for gone@acme.test" })).toBeNull();
+  });
+
+  it("revokes after confirming, then re-reads the page", async () => {
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    const calls = stubFetch(() => ({ status: 200, body: { revoked: true, already_revoked: false } }));
+    render(<OrganisationDetailClient organisation={opsOrganisation()} admins={admins} />);
+    fireEvent.click(screen.getByRole("button", { name: "Revoke access for owner@acme.test" }));
+    await waitFor(() => expect(screen.getByText("owner@acme.test can no longer sign in to Acme Driving.")).toBeTruthy());
+    expect(confirm.mock.calls[0]![0]).toContain("Revoke owner@acme.test's access to Acme Driving?");
+    expect(calls).toEqual([{ url: `/ops/api/organisations/${ORG_ID}/admins/${admins[0]!.id}`, method: "DELETE", body: null }]);
+    expect(refresh).toHaveBeenCalled();
+  });
+
+  it("does nothing when not confirmed", () => {
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+    const calls = stubFetch(() => ({ status: 200, body: {} }));
+    render(<OrganisationDetailClient organisation={opsOrganisation()} admins={admins} />);
+    fireEvent.click(screen.getByRole("button", { name: "Revoke access for owner@acme.test" }));
+    expect(calls).toHaveLength(0);
+  });
+
+  it("shows the API's refusal and leaves the page as it was", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    stubFetch(() => ({ status: 404, body: { error: "That admin login is not linked to this organisation", code: "admin_not_found" } }));
+    render(<OrganisationDetailClient organisation={opsOrganisation()} admins={admins} />);
+    fireEvent.click(screen.getByRole("button", { name: "Revoke access for owner@acme.test" }));
+    await waitFor(() => expect(screen.getByText("That admin login is not linked to this organisation")).toBeTruthy());
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it("says when the list could not be loaded", () => {
+    render(<OrganisationDetailClient organisation={opsOrganisation()} admins={null} />);
+    expect(screen.getByText(/list of admin logins couldn.t be loaded/)).toBeTruthy();
+  });
+});
