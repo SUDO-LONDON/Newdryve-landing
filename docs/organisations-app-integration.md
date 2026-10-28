@@ -48,3 +48,17 @@ Required deployment environment:
   polled every 60 seconds while the tab is visible.
 - **Listing** fields (bio, https logo URL, `#RRGGBB` brand colour) are edited
   in ops; learners see each organisation as one listing.
+
+## School sick days (requires the API from Newdryve#574, ADR-058)
+
+- **Sick days** on each member row of the portal overview opens a dialog. The
+  school gives a sick day for any London day from today, with no upper bound:
+  pick a date, see what it would cancel (`GET …/sick-days/preview`), confirm.
+  The day closes to bookings, its lessons are cancelled free, each learner is
+  told and so is the instructor. The list shows the member's days from today
+  with who gave each; the school removes only days it gave (409
+  `not_given_by_school` otherwise). Instructors call in sick themselves in the
+  app for today and the next 2 days only.
+- Proxied through `/organisations/api/members/:instructorId/sick-days`
+  (`GET`, `POST`), `…/sick-days/preview?date=` and `…/sick-days/:date`
+  (`DELETE`) to `/v1/organisations/instructors/:id/sick-days…`.
