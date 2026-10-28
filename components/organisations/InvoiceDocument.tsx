@@ -7,7 +7,7 @@
 
 import type { Invoice } from "@/lib/organisations/types";
 import { day, gbp, hours, londonDateOf, longDate, sortCode, time } from "@/lib/organisations/format";
-import { percentLabel } from "@/lib/organisations/fees";
+import { describeRateCard, percentLabel } from "@/lib/organisations/fees";
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
@@ -21,6 +21,8 @@ function quantity(invoice: Invoice): { qty: string; rate: string } {
       return { qty: plural(invoice.lessons, "lesson"), rate: `${gbp(t.amount_pence ?? 0)} / lesson` };
     case "flat_weekly":
       return { qty: "1 week", rate: `${gbp(t.amount_pence ?? invoice.amount_pence)} / week` };
+    case "rate_card":
+      return { qty: hours(invoice.lesson_minutes), rate: "Rate card" };
     case "per_hour":
       return { qty: hours(invoice.lesson_minutes), rate: `${gbp(t.amount_pence ?? 0)} / hour` };
     case "per_lesson":
@@ -36,6 +38,7 @@ export default function InvoiceDocument({ invoice }: { invoice: Invoice }) {
   const t = invoice.terms;
   const { qty, rate } = quantity(invoice);
   const lead = t.fee_mode === "lead_percent" || t.fee_mode === "lead_fixed";
+  const perLesson = lead || t.fee_mode === "rate_card";
   const lines = invoice.line_items ?? [];
 
   return (
@@ -118,7 +121,7 @@ export default function InvoiceDocument({ invoice }: { invoice: Invoice }) {
         </tfoot>
       </table>
 
-      {lead && lines.length ? <LineItems invoice={invoice} /> : null}
+      {perLesson && lines.length ? <LineItems invoice={invoice} /> : null}
 
       <section className="mt-8 rounded-xl bg-canvas p-5 text-sm print:border print:border-border print:bg-white">
         <h2 className="font-bold">Pay by bank transfer</h2>
@@ -164,6 +167,7 @@ export default function InvoiceDocument({ invoice }: { invoice: Invoice }) {
 function LineItems({ invoice }: { invoice: Invoice }) {
   const lines = invoice.line_items ?? [];
   const percent = invoice.terms.fee_mode === "lead_percent";
+  const card = invoice.terms.fee_mode === "rate_card" ? invoice.terms.rate_card ?? null : null;
   const totalFee = lines.reduce((n, l) => n + l.fee_pence, 0);
   return (
     <section className="mt-8" aria-labelledby={`lines-${invoice.id}`}>
@@ -171,7 +175,9 @@ function LineItems({ invoice }: { invoice: Invoice }) {
         Lessons billed
       </h2>
       <p className="mt-1 text-xs text-ink-secondary">
-        {percent
+        {card
+          ? describeRateCard(card)
+          : percent
           ? `${percentLabel(invoice.terms.percent_bps)} of what each lesson collected, after any refund.`
           : `${gbp(invoice.terms.amount_pence ?? 0)} for each completed lesson. What the lesson collected is shown for reference.`}
       </p>
@@ -180,6 +186,7 @@ function LineItems({ invoice }: { invoice: Invoice }) {
           <tr>
             <th scope="col" className="py-2 pr-3">Date</th>
             <th scope="col" className="py-2 pr-3 text-right">Minutes</th>
+            {card ? <th scope="col" className="py-2 pr-3">How</th> : null}
             <th scope="col" className="py-2 pr-3 text-right">{percent ? "Basis" : "Collected"}</th>
             <th scope="col" className="py-2 text-right">Fee</th>
           </tr>
@@ -192,6 +199,7 @@ function LineItems({ invoice }: { invoice: Invoice }) {
                 <span className="text-ink-secondary"> · {time(line.starts_at)}</span>
               </td>
               <td className="py-2 pr-3 text-right tabular-nums">{line.minutes}</td>
+              {card ? <td className="py-2 pr-3 text-xs text-ink-secondary">{line.note ?? ""}</td> : null}
               <td className="py-2 pr-3 text-right tabular-nums">{gbp(line.basis_pence)}</td>
               <td className="py-2 text-right font-semibold tabular-nums">{gbp(line.fee_pence)}</td>
             </tr>
@@ -199,7 +207,7 @@ function LineItems({ invoice }: { invoice: Invoice }) {
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan={3} className="pt-2 pr-3 text-right text-xs font-bold text-ink-secondary">
+            <td colSpan={card ? 4 : 3} className="pt-2 pr-3 text-right text-xs font-bold text-ink-secondary">
               {plural(lines.length, "lesson")}
             </td>
             <td className="pt-2 text-right font-bold tabular-nums">{gbp(totalFee)}</td>
