@@ -1,4 +1,5 @@
 import Link from "next/link";
+import MemberSickDays from "@/components/organisations/MemberSickDays";
 import RemoveMemberButton from "@/components/organisations/RemoveMemberButton";
 import { formatPence, memberRecord90d, organisationTotals, type OpsOrganisationWithMembers } from "@/lib/ops/types";
 import { shortDate, time } from "@/lib/organisations/format";
@@ -307,6 +308,11 @@ export default function OrganisationPortalClient({
                         </td>
                         <td className="px-3 py-3 text-ink-secondary">{memberRecord90d(member)}</td>
                         <td className="px-3 py-3 text-right">
+                          <MemberSickDays
+                            instructorId={member.instructor_id}
+                            instructorName={member.display_name}
+                            organisationId={organisation.id}
+                          />
                           <RemoveMemberButton
                             endpoint={`/organisations/api/members/${encodeURIComponent(member.instructor_id)}?organisation_id=${encodeURIComponent(organisation.id)}`}
                             instructorName={member.display_name}
