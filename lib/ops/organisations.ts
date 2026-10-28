@@ -236,6 +236,61 @@ export async function createOrganisationAdmin(
   return { existing_login: data?.existing_login === true };
 }
 
+/** One school admin login, as GET /v1/ops/organisations/:id/admins lists it. */
+export type OrganisationAdmin = {
+  id: string;
+  email: string;
+  display_name: string | null;
+  status: "active" | "revoked";
+  created_at: string;
+  revoked_at: string | null;
+};
+
+/**
+ * The school's admin logins, revoked ones included, newest first. Null while
+ * the API predates the route (404 for a school that exists), so the page can
+ * still render and say the list is unavailable.
+ */
+export async function listOrganisationAdmins(
+  id: string,
+  actor: string
+): Promise<OrganisationAdmin[] | null> {
+  try {
+    const data = await call<{ admins?: Array<Partial<OrganisationAdmin> & { id: string; email: string }> }>(
+      `/v1/ops/organisations/${id}/admins`,
+      actor
+    );
+    return (data?.admins ?? []).map((admin) => ({
+      id: admin.id,
+      email: admin.email,
+      display_name: admin.display_name ?? null,
+      status: admin.status === "revoked" || admin.revoked_at ? "revoked" : "active",
+      created_at: admin.created_at ?? "",
+      revoked_at: admin.revoked_at ?? null,
+    }));
+  } catch (err) {
+    if (err instanceof OrganisationApiError && err.status === 404) return null;
+    throw err;
+  }
+}
+
+/**
+ * Revoke one admin login's access to this school (Newdryve ADR-060). The API
+ * is idempotent and answers 404 `admin_not_found` for another school's admin.
+ */
+export async function revokeOrganisationAdmin(
+  id: string,
+  adminId: string,
+  actor: string
+): Promise<{ already_revoked: boolean; revoked_at: string | null }> {
+  const data = await call<{ already_revoked?: boolean; admin?: { revoked_at?: string | null } }>(
+    `/v1/ops/organisations/${id}/admins/${adminId}`,
+    actor,
+    { method: "DELETE" }
+  );
+  return { already_revoked: data?.already_revoked === true, revoked_at: data?.admin?.revoked_at ?? null };
+}
+
 export function adminRequestBody(input: Partial<OrganisationAdminCreateInput> | null | undefined): OrganisationAdminCreateInput {
   const email = typeof input?.email === "string" ? input.email.trim() : "";
   const password = typeof input?.password === "string" ? input.password : "";

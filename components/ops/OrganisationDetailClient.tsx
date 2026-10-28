@@ -24,6 +24,7 @@ import {
   type OrganisationStatus,
 } from "@/lib/ops/types";
 import { apiError } from "@/lib/organisations/http";
+import type { OrganisationAdmin } from "@/lib/ops/organisations";
 
 const STATUS_COPY: Record<OrganisationStatus, { label: string; tone: string }> = {
   active: { label: "Active", tone: "bg-racing-green/10 text-racing-green" },
@@ -53,8 +54,11 @@ function adminErrorMessage(code: string | null, message: string): string {
 
 export default function OrganisationDetailClient({
   organisation,
+  admins = null,
 }: {
   organisation: OpsOrganisationWithMembers;
+  /** Null when the API could not list them (an older API, or a failed read). */
+  admins?: OrganisationAdmin[] | null;
 }) {
   const router = useRouter();
   const totals = organisationTotals(organisation.members);
@@ -265,6 +269,33 @@ export default function OrganisationDetailClient({
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create admin login.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function revokeAdmin(admin: OrganisationAdmin) {
+    if (
+      !window.confirm(
+        `Revoke ${admin.email}'s access to ${organisation.name}? They lose the portal on their next page load. Any other school they run keeps its access. To undo, add the same email again.`
+      )
+    ) {
+      return;
+    }
+    setBusy(`revoke-${admin.id}`);
+    setError(null);
+    setSuccess(null);
+    try {
+      const response = await fetch(`/ops/api/organisations/${organisation.id}/admins/${admin.id}`, {
+        method: "DELETE",
+      });
+      const body = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(apiError(body, response.status, "Could not revoke that admin login.").message);
+      setSuccess(`${admin.email} can no longer sign in to ${organisation.name}.`);
+      // Re-read the list and the admin count.
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not revoke that admin login.");
     } finally {
       setBusy(null);
     }
@@ -767,6 +798,42 @@ export default function OrganisationDetailClient({
               : `${organisation.admin_count} admins can sign in.`}
           </p>
         )}
+        {admins === null ? (
+          <p className="mt-2 text-xs text-ink-muted">The list of admin logins couldn&apos;t be loaded.</p>
+        ) : admins.length > 0 ? (
+          <ul aria-label="Admin logins" className="mt-3 divide-y divide-border rounded-xl border border-border">
+            {admins.map((admin) => (
+              <li key={admin.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                <div className="min-w-0">
+                  <p className={`truncate text-sm font-medium ${admin.status === "revoked" ? "text-ink-muted line-through" : "text-ink"}`}>
+                    {admin.email}
+                  </p>
+                  <p className="text-xs text-ink-muted">
+                    {admin.display_name ? `${admin.display_name} · ` : ""}
+                    {admin.status === "revoked"
+                      ? `Revoked${admin.revoked_at ? ` ${longDate(admin.revoked_at)}` : ""}`
+                      : admin.created_at
+                        ? `Added ${longDate(admin.created_at)}`
+                        : "Active"}
+                  </p>
+                </div>
+                {admin.status === "revoked" ? (
+                  <span className="rounded-full bg-canvas px-2.5 py-1 text-xs font-semibold text-ink-secondary">Revoked</span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => void revokeAdmin(admin)}
+                    disabled={busy === `revoke-${admin.id}`}
+                    aria-label={`Revoke access for ${admin.email}`}
+                    className="focus-ring inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-rose-800 hover:bg-rose-50 disabled:opacity-60"
+                  >
+                    {busy === `revoke-${admin.id}` ? "Revoking…" : "Revoke access"}
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : null}
         <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
           Create an email/password login for this organisation. They will sign in at
           newdryve.com/organisations and only see their own linked instructors. For someone who
