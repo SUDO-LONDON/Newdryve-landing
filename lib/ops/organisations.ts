@@ -13,6 +13,7 @@ import type {
   OrganisationLearnerProgress,
   OrganisationPayout,
   OrganisationStatus,
+  MemberSeat,
   OrganisationUpcomingLesson,
 } from "@/lib/ops/types";
 
@@ -87,6 +88,7 @@ type BackendOrganisationMember = {
   revenue_pence: number;
   late_instructor_cancellations_90d?: number | null;
   sick_days_90d?: number | null;
+  seat?: { status?: string | null; paused_until?: string | null; paused_by?: string | null } | null;
 };
 
 type OrganisationResponse = {
@@ -382,6 +384,16 @@ function mapMember(
     deleted_at: null,
     late_instructor_cancellations_90d: countOrNull(member.late_instructor_cancellations_90d),
     sick_days_90d: countOrNull(member.sick_days_90d),
+    seat: mapSeat(member.seat),
+  };
+}
+
+function mapSeat(seat: BackendOrganisationMember["seat"]): MemberSeat | null {
+  if (!seat || (seat.status !== "active" && seat.status !== "paused")) return null;
+  return {
+    status: seat.status,
+    paused_until: seat.status === "paused" ? seat.paused_until ?? null : null,
+    paused_by: seat.paused_by === "organisation_admin" || seat.paused_by === "instructor" ? seat.paused_by : null,
   };
 }
 

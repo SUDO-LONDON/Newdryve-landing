@@ -69,6 +69,7 @@ export function opsOrganisation(overrides: Partial<OpsOrganisationWithMembers> =
         deleted_at: null,
         late_instructor_cancellations_90d: 2,
         sick_days_90d: 1,
+        seat: { status: "active", paused_until: null, paused_by: null },
       },
     ],
     admin_count: 0,

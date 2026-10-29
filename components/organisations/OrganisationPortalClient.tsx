@@ -1,6 +1,7 @@
 import Link from "next/link";
 import RemoveMemberButton from "@/components/organisations/RemoveMemberButton";
-import { formatPence, memberRecord90d, organisationTotals, type OpsOrganisationWithMembers } from "@/lib/ops/types";
+import SeatPauseButton from "@/components/organisations/SeatPauseButton";
+import { formatPence, memberRecord90d, organisationTotals, seatLabel, type OpsOrganisationWithMembers } from "@/lib/ops/types";
 import { shortDate, time } from "@/lib/organisations/format";
 import { unavailableNotice, type UnavailableOrganisation } from "@/lib/organisations/unavailable";
 
@@ -9,11 +10,11 @@ export default function OrganisationPortalClient({
   unavailable = [],
 }: {
   organisations: OpsOrganisationWithMembers[];
-  /** Schools of this admin that Newdryve paused or closed (#499). */
+  /** Schools of this admin that have been cancelled (#499). */
   unavailable?: UnavailableOrganisation[];
 }) {
   const notice = unavailableNotice(unavailable);
-  // Every school this login has is paused or closed: say that, not a portal
+  // Every school this login has is cancelled: say that, not a portal
   // of zeroes and "not linked to an organisation".
   if (!organisations.length && notice) {
     return (
@@ -280,6 +281,7 @@ export default function OrganisationPortalClient({
                     <tr>
                       <th className="px-3 py-3">Instructor</th>
                       <th className="px-3 py-3">Status</th>
+                      <th className="px-3 py-3">Seat</th>
                       <th className="px-3 py-3">Current lesson</th>
                       <th className="px-3 py-3 text-right">Lessons</th>
                       <th className="px-3 py-3 text-right">Revenue</th>
@@ -298,6 +300,14 @@ export default function OrganisationPortalClient({
                         </td>
                         <td className="px-3 py-3 text-ink-secondary">{member.status}</td>
                         <td className="px-3 py-3 text-ink-secondary">
+                          {seatLabel(member.seat)}
+                          {member.seat?.status === "paused" && member.seat.paused_by ? (
+                            <span className="block text-xs text-ink-muted">
+                              {member.seat.paused_by === "instructor" ? "Paused by the instructor" : "Paused by your school"}
+                            </span>
+                          ) : null}
+                        </td>
+                        <td className="px-3 py-3 text-ink-secondary">
                           {presenceLabel(member.lesson_presence)}
                           {member.active_lesson_label ? ` · ${member.active_lesson_label}` : ""}
                         </td>
@@ -307,11 +317,20 @@ export default function OrganisationPortalClient({
                         </td>
                         <td className="px-3 py-3 text-ink-secondary">{memberRecord90d(member)}</td>
                         <td className="px-3 py-3 text-right">
-                          <RemoveMemberButton
-                            endpoint={`/organisations/api/members/${encodeURIComponent(member.instructor_id)}?organisation_id=${encodeURIComponent(organisation.id)}`}
-                            instructorName={member.display_name}
-                            organisationName={organisation.name}
-                          />
+                          <div className="flex items-start justify-end gap-2">
+                            {member.seat ? (
+                              <SeatPauseButton
+                                endpoint={`/organisations/api/members/${encodeURIComponent(member.instructor_id)}/seat?organisation_id=${encodeURIComponent(organisation.id)}`}
+                                seat={member.seat}
+                                instructorName={member.display_name}
+                              />
+                            ) : null}
+                            <RemoveMemberButton
+                              endpoint={`/organisations/api/members/${encodeURIComponent(member.instructor_id)}?organisation_id=${encodeURIComponent(organisation.id)}`}
+                              instructorName={member.display_name}
+                              organisationName={organisation.name}
+                            />
+                          </div>
                         </td>
                       </tr>
                     ))}

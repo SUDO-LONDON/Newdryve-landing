@@ -71,7 +71,7 @@ describe("portalReadOutcome", () => {
     expect(portalReadOutcome(422, err("organisation_required"), null)).toEqual({ kind: "choose", reason: "required" });
   });
 
-  it("says a paused school is unavailable rather than denying access", () => {
+  it("says a cancelled school is unavailable rather than denying access", () => {
     expect(portalReadOutcome(403, err("organisation_unavailable"), null)).toEqual({ kind: "denied", reason: "unavailable" });
     expect(portalReadOutcome(403, err("organisation_unavailable"), SCHOOL)).toEqual({ kind: "denied", reason: "unavailable" });
   });

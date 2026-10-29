@@ -24,7 +24,7 @@ export default async function SettingsPage() {
         return { id: org.id, name: org.name, policy };
       } catch (error) {
         // Only an API failure is shown in the form; a redirect (signed out,
-        // school paused) must still happen.
+        // school cancelled) must still happen.
         if (!(error instanceof OrganisationPortalApiError)) throw error;
         return { id: org.id, name: org.name, policy: null, error: error.message };
       }

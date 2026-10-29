@@ -72,6 +72,19 @@ describe("member 90-day counts", () => {
   });
 });
 
+describe("member seat (Newdryve ADR-060)", () => {
+  it("keeps a paused seat's end date and who paused it, and an older API's missing seat as null", async () => {
+    const { mapOrganisationResponse } = await load();
+    const paused = mapOrganisationResponse(
+      backendOrg([backendMember({ seat: { status: "paused", paused_from: "2026-10-20T09:00:00.000Z", paused_until: "2026-11-20T09:00:00.000Z", paused_by: "organisation_admin", paid_by: "organisation" } })]) as never
+    );
+    expect(paused.members[0]!.seat).toEqual({ status: "paused", paused_until: "2026-11-20T09:00:00.000Z", paused_by: "organisation_admin" });
+    const active = mapOrganisationResponse(backendOrg([backendMember({ seat: { status: "active", paused_until: null, paused_by: null } })]) as never);
+    expect(active.members[0]!.seat).toEqual({ status: "active", paused_until: null, paused_by: null });
+    expect(mapOrganisationResponse(backendOrg([backendMember()]) as never).members[0]!.seat).toBeNull();
+  });
+});
+
 describe("createOrganisationAdmin", () => {
   it("leaves a blank password out and reports an existing login", async () => {
     const { createOrganisationAdmin } = await load();

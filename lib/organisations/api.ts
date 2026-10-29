@@ -16,7 +16,7 @@ export class OrganisationPortalApiError extends Error {
 
 export interface OrganisationPortalData {
   organisations: OpsOrganisationWithMembers[];
-  /** This admin's schools that Newdryve paused or closed (#499); empty from an older API. */
+  /** This admin's cancelled schools (#499); empty from an older API. */
   unavailable: UnavailableOrganisation[];
 }
 

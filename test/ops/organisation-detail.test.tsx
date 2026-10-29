@@ -84,15 +84,17 @@ describe("ops organisation admin login", () => {
 });
 
 describe("ops organisation status and details", () => {
-  it("pauses the school after confirming", async () => {
+  it("cannot pause a school, and cancels it after confirming that every seat ends", async () => {
     const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
-    const calls = stubFetch(() => ({ status: 200, body: { organisation: { status: "paused" } } }));
+    const calls = stubFetch(() => ({ status: 200, body: { organisation: { status: "closed" } } }));
     render(<OrganisationDetailClient organisation={opsOrganisation()} />);
     expect(screen.queryByRole("button", { name: "Reactivate" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Pause" }));
-    await waitFor(() => expect(screen.getByText("Acme Driving is paused.")).toBeTruthy());
-    expect(confirm.mock.calls[0]![0]).toContain("paused by Newdryve");
-    expect(calls[0]).toMatchObject({ method: "PATCH", url: "/ops/api/organisations/11111111-2222-4333-8444-555555555555", body: { status: "paused" } });
+    expect(screen.queryByRole("button", { name: /Pause/ })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Cancel school" }));
+    await waitFor(() => expect(screen.getByText("Acme Driving is cancelled. Its seats have ended.")).toBeTruthy());
+    expect(confirm.mock.calls[0]![0]).toContain("Every instructor's seat ends now");
+    expect(confirm.mock.calls[0]![0]).not.toMatch(/paused/i);
+    expect(calls[0]).toMatchObject({ method: "PATCH", url: "/ops/api/organisations/11111111-2222-4333-8444-555555555555", body: { status: "closed" } });
     expect(refresh).toHaveBeenCalled();
   });
 
@@ -100,15 +102,16 @@ describe("ops organisation status and details", () => {
     vi.spyOn(window, "confirm").mockReturnValue(false);
     const calls = stubFetch(() => ({ status: 200, body: {} }));
     render(<OrganisationDetailClient organisation={opsOrganisation()} />);
-    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel school" }));
     expect(calls).toHaveLength(0);
   });
 
-  it("offers reactivation for a paused school", async () => {
+  it("offers reactivation for a cancelled school", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     const calls = stubFetch(() => ({ status: 200, body: {} }));
-    render(<OrganisationDetailClient organisation={opsOrganisation({ status: "paused" })} />);
-    expect(screen.queryByRole("button", { name: "Pause" })).toBeNull();
+    render(<OrganisationDetailClient organisation={opsOrganisation({ status: "closed" })} />);
+    expect(screen.getByText("Cancelled")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Cancel school" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Reactivate" }));
     await waitFor(() => expect(calls[0]?.body).toEqual({ status: "active" }));
   });

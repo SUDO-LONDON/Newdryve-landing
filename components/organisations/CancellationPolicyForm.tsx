@@ -102,7 +102,7 @@ function SchoolPolicyForm({ school, showName }: { school: SchoolPolicy; showName
       {showName ? <h3 className="mb-4 font-display text-xl text-ink">{school.name}</h3> : null}
       {saved && !saved.applied ? (
         <p className="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-          Your school is paused, so each instructor&rsquo;s own policy applies for now. This one comes back when Newdryve
+          Your school has been cancelled, so each instructor&rsquo;s own policy applies. This one comes back if Newdryve
           reactivates the school.
         </p>
       ) : null}

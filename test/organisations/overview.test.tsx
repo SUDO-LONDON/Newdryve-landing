@@ -6,19 +6,19 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn(), push: 
 const { default: OrganisationPortalClient } = await import("@/components/organisations/OrganisationPortalClient");
 
 describe("portal overview", () => {
-  it("says the school is paused by Newdryve instead of 'not linked'", () => {
-    render(<OrganisationPortalClient organisations={[]} unavailable={[{ id: "o1", name: "Acme", status: "paused" }]} />);
-    expect(screen.getByRole("heading", { name: "This school is paused by Newdryve" })).toBeTruthy();
+  it("says the school has been cancelled instead of 'not linked'", () => {
+    render(<OrganisationPortalClient organisations={[]} unavailable={[{ id: "o1", name: "Acme", status: "closed" }]} />);
+    expect(screen.getByRole("heading", { name: "This school has been cancelled" })).toBeTruthy();
     expect(document.body.textContent).not.toContain("not linked");
     expect(document.body.textContent).not.toContain("No organisation access");
   });
 
-  it("keeps the plain 'not linked' copy when nothing is paused", () => {
+  it("keeps the plain 'not linked' copy when no school is cancelled", () => {
     render(<OrganisationPortalClient organisations={[]} />);
     expect(screen.getByText("No organisation access yet")).toBeTruthy();
   });
 
-  it("shows each member's 90-day record, today's lessons as 'Rest of today', and a paused second school", () => {
+  it("shows each member's 90-day record, today's lessons as 'Rest of today', and a cancelled second school", () => {
     render(
       <OrganisationPortalClient
         organisations={[
@@ -32,6 +32,6 @@ describe("portal overview", () => {
     expect(screen.getByText("2 late cancellations · 1 sick day")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Rest of today" })).toBeTruthy();
     expect(screen.queryByText("Next 24 hours")).toBeNull();
-    expect(screen.getByRole("status").textContent).toContain("Beta School has been closed");
+    expect(screen.getByRole("status").textContent).toContain("Beta School has been cancelled");
   });
 });

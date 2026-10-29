@@ -25,21 +25,24 @@ import {
 } from "@/lib/ops/types";
 import { apiError } from "@/lib/organisations/http";
 
+// A school has no membership and cannot be paused (Newdryve ADR-060): it is
+// active or cancelled, stored as `closed`. Its instructors' seats are paused
+// one at a time, from the school portal or the app.
 const STATUS_COPY: Record<OrganisationStatus, { label: string; tone: string }> = {
   active: { label: "Active", tone: "bg-racing-green/10 text-racing-green" },
-  paused: { label: "Paused", tone: "bg-amber-100 text-amber-900" },
-  closed: { label: "Closed", tone: "bg-canvas text-ink-secondary" },
+  closed: { label: "Cancelled", tone: "bg-canvas text-ink-secondary" },
 };
 
 /** What a status change does, asked before it is made. */
 function statusChangeConfirm(name: string, next: OrganisationStatus): string {
-  if (next === "paused") {
-    return `Pause ${name}? Its admins are told the school is paused by Newdryve and can't open the portal until you reactivate it.`;
-  }
   if (next === "closed") {
-    return `Close ${name}? Its admins are told the school is closed and lose the portal. You can reactivate it later.`;
+    return (
+      `Cancel ${name}? Every instructor's seat ends now, as if they had left: the school is told, their invite links stop ` +
+      "working and they pay for their own membership again. No fees are raised for any later week. Its admins keep their " +
+      "login to read past invoices only. Do this only when the school has asked."
+    );
   }
-  return `Reactivate ${name}? Its admins get the portal back.`;
+  return `Reactivate ${name}? Its admins get the portal back. Its instructors rejoin with the join code.`;
 }
 
 /** The admin form's error, worded from the API's code. */
@@ -330,7 +333,7 @@ export default function OrganisationDetailClient({
     const ok = await patchOrganisation({ status: next }, `status-${next}`, "Could not change the status.");
     if (ok) {
       setSuccess(
-        next === "active" ? `${organisation.name} is active again.` : next === "paused" ? `${organisation.name} is paused.` : `${organisation.name} is closed.`
+        next === "active" ? `${organisation.name} is active again.` : `${organisation.name} is cancelled. Its seats have ended.`
       );
     }
   }
@@ -400,9 +403,7 @@ export default function OrganisationDetailClient({
         <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
           {organisation.status === "active"
             ? "Active: its admins use the portal and its members are listed through it."
-            : organisation.status === "paused"
-              ? "Paused: its admins are told the school is paused by Newdryve and can't open the portal."
-              : "Closed: its admins are told the school is closed and can't open the portal."}
+            : "Cancelled: its seats have ended, and its admins can only read its past invoices."}
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {organisation.status !== "active" ? (
@@ -415,16 +416,6 @@ export default function OrganisationDetailClient({
               {busy === "status-active" ? "Reactivating…" : "Reactivate"}
             </button>
           ) : null}
-          {organisation.status !== "paused" ? (
-            <button
-              type="button"
-              onClick={() => void changeStatus("paused")}
-              disabled={busy !== null}
-              className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink disabled:opacity-60"
-            >
-              {busy === "status-paused" ? "Pausing…" : "Pause"}
-            </button>
-          ) : null}
           {organisation.status !== "closed" ? (
             <button
               type="button"
@@ -432,7 +423,7 @@ export default function OrganisationDetailClient({
               disabled={busy !== null}
               className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-deep-rose disabled:opacity-60"
             >
-              {busy === "status-closed" ? "Closing…" : "Close"}
+              {busy === "status-closed" ? "Cancelling…" : "Cancel school"}
             </button>
           ) : null}
         </div>
