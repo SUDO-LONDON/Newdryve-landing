@@ -103,12 +103,15 @@ export default function NavShell({
       {/* Mobile top bar */}
       <div className="md:hidden flex items-center justify-between border-b border-border bg-white/70 px-4 py-3">
         <p className="font-display text-ink">Ops Portal</p>
+        {/* At phone and half-window widths the sidebar folds away; the button
+            has to read as the way to every section (QA 29 Oct #40). */}
         <button
           onClick={() => setOpen((v) => !v)}
-          className="rounded-lg border border-border px-3 py-1.5 text-sm"
+          className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-ink bg-ink px-4 py-2 text-sm font-semibold text-white"
           aria-expanded={open}
         >
-          Menu
+          <span aria-hidden>{open ? "✕" : "☰"}</span>
+          {open ? "Close menu" : "All sections"}
         </button>
       </div>
       {open && (

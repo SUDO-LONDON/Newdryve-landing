@@ -110,7 +110,9 @@ export default function OrganisationPortalClient({
           <StatTile
             label={`Lesson revenue · ${window}d`}
             value={formatPence(rollup.revenue_pence)}
-            sub={rollup.payouts_total_pence ? `${formatPence(rollup.payouts_total_pence)} paid out` : undefined}
+            // Completed lessons only, so it differs from an instructor's own
+            // takings, which add no-show and late-cancellation fees (QA #43).
+            sub={rollup.payouts_total_pence ? `Completed lessons · ${formatPence(rollup.payouts_total_pence)} paid out` : "Completed lessons only"}
           />
         </section>
 
@@ -231,7 +233,7 @@ export default function OrganisationPortalClient({
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="text-sm text-ink">{learner.name}</p>
                     <p className="text-xs text-ink-muted">
-                      {learner.skills_competent}/{learner.skills_total} skills
+                      {learner.skills_competent}/{learner.skills_total} skills competent
                       <span aria-hidden> · </span>
                       {learner.lessons_completed} lesson{learner.lessons_completed === 1 ? "" : "s"}
                       {learner.last_lesson_at ? ` · last ${dateOnly(learner.last_lesson_at)}` : ""}
