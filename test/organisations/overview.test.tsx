@@ -34,4 +34,9 @@ describe("portal overview", () => {
     expect(screen.queryByText("Next 24 hours")).toBeNull();
     expect(screen.getByRole("status").textContent).toContain("Beta School has been closed");
   });
+
+  it("says the revenue figure counts completed lessons only (QA #43)", () => {
+    render(<OrganisationPortalClient organisations={[opsOrganisation()]} />);
+    expect(document.body.textContent).toMatch(/Completed lessons/);
+  });
 });
