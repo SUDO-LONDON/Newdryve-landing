@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import type { TimesheetInstructor, TimesheetResponse } from "@/lib/organisations/types";
-import { addDays, day, gbp, hours, mondayOf, londonToday, time } from "@/lib/organisations/format";
+import { addDays, day, gbp, hours, mondayOf, londonToday } from "@/lib/organisations/format";
 
 /**
  * Hours per instructor per day for one week. "Taught" is completed lessons at
- * their booked length; "clocked" is clock-in to clock-out from the app.
+ * their booked length.
  */
 export default function TimesheetView({ data }: { data: TimesheetResponse }) {
   const week = data.week_start;
@@ -15,13 +15,12 @@ export default function TimesheetView({ data }: { data: TimesheetResponse }) {
   const sum = (key: keyof TimesheetInstructor["totals"]) => data.instructors.reduce((n, i) => n + i.totals[key], 0);
 
   function downloadCsv() {
-    const header = ["Instructor", ...days.map((d) => `${day(d)} taught (h)`), "Taught (h)", "Lessons", "Clocked (h)", "No-shows", "Cancelled by instructor", "Cancelled by learner", "Takings (£)"];
+    const header = ["Instructor", ...days.map((d) => `${day(d)} taught (h)`), "Taught (h)", "Lessons", "No-shows", "Cancelled by instructor", "Cancelled by learner", "Takings (£)"];
     const rows = data.instructors.map((i) => [
       i.name,
       ...i.days.map((d) => (d.lesson_minutes / 60).toFixed(2)),
       (i.totals.lesson_minutes / 60).toFixed(2),
       String(i.totals.lessons),
-      (i.totals.clocked_minutes / 60).toFixed(2),
       String(i.totals.no_shows),
       String(i.totals.cancelled_by_instructor),
       String(i.totals.cancelled_by_learner),
@@ -67,10 +66,9 @@ export default function TimesheetView({ data }: { data: TimesheetResponse }) {
         </button>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="mt-4 grid grid-cols-3 gap-2">
         <Stat label="Taught" value={hours(sum("lesson_minutes"))} />
         <Stat label="Lessons" value={String(sum("lessons"))} />
-        <Stat label="Clocked" value={hours(sum("clocked_minutes"))} />
         <Stat label="Takings" value={gbp(sum("revenue_pence"))} />
       </div>
 
@@ -87,7 +85,7 @@ export default function TimesheetView({ data }: { data: TimesheetResponse }) {
                   <p className="text-sm font-bold text-ink">{hours(i.totals.lesson_minutes)}</p>
                 </div>
                 <p className="mt-0.5 text-xs text-ink-secondary">
-                  {i.totals.lessons} lessons · {hours(i.totals.clocked_minutes)} clocked · {gbp(i.totals.revenue_pence)}
+                  {i.totals.lessons} lessons · {gbp(i.totals.revenue_pence)}
                   {i.totals.no_shows ? ` · ${i.totals.no_shows} no-show` : ""}
                   {i.totals.cancelled_by_instructor ? ` · ${i.totals.cancelled_by_instructor} cancelled by them` : ""}
                 </p>
@@ -113,7 +111,6 @@ export default function TimesheetView({ data }: { data: TimesheetResponse }) {
                     <th key={d} scope="col" className="px-2 py-3 text-right">{day(d)}</th>
                   ))}
                   <th scope="col" className="px-3 py-3 text-right">Taught</th>
-                  <th scope="col" className="px-3 py-3 text-right">Clocked</th>
                   <th scope="col" className="px-3 py-3 text-right">Takings</th>
                 </tr>
               </thead>
@@ -131,15 +128,9 @@ export default function TimesheetView({ data }: { data: TimesheetResponse }) {
                     {i.days.map((d) => (
                       <td key={d.date} className="px-2 py-3 text-right align-top">
                         <span className={d.lesson_minutes ? "font-semibold text-ink" : "text-ink-secondary"}>{d.lesson_minutes ? hours(d.lesson_minutes) : "–"}</span>
-                        {d.clocked_minutes ? (
-                          <span className="block text-[11px] text-ink-secondary" title={`${time(d.first_in_at)}–${time(d.last_out_at)}`}>
-                            {hours(d.clocked_minutes)} clocked
-                          </span>
-                        ) : null}
                       </td>
                     ))}
                     <td className="px-3 py-3 text-right font-bold text-ink">{hours(i.totals.lesson_minutes)}</td>
-                    <td className="px-3 py-3 text-right text-ink">{hours(i.totals.clocked_minutes)}</td>
                     <td className="px-3 py-3 text-right text-ink">{gbp(i.totals.revenue_pence)}</td>
                   </tr>
                 ))}
@@ -153,7 +144,6 @@ export default function TimesheetView({ data }: { data: TimesheetResponse }) {
                     </td>
                   ))}
                   <td className="px-3 py-3 text-right">{hours(sum("lesson_minutes"))}</td>
-                  <td className="px-3 py-3 text-right">{hours(sum("clocked_minutes"))}</td>
                   <td className="px-3 py-3 text-right">{gbp(sum("revenue_pence"))}</td>
                 </tr>
               </tfoot>
@@ -162,7 +152,7 @@ export default function TimesheetView({ data }: { data: TimesheetResponse }) {
         </>
       )}
       <p className="mt-3 text-xs text-ink-secondary">
-        Taught counts completed lessons at their booked length. Clocked is from the instructor clocking in and out in the app.
+        Taught counts completed lessons at their booked length.
       </p>
     </div>
   );

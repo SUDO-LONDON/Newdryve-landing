@@ -16,7 +16,7 @@ export default async function TimesheetsPage({ searchParams }: { searchParams: P
   return (
     <>
       <PageHeading eyebrow="Hours" title="Timesheets">
-        Hours each instructor taught, day by day, with their clocked time and takings.
+        Hours each instructor taught, day by day, with their takings.
       </PageHeading>
       <TimesheetView data={data} />
     </>

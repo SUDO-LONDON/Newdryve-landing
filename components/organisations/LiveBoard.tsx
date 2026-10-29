@@ -11,7 +11,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { LiveInstructor, LiveResponse, LiveStatusCode } from "@/lib/organisations/types";
-import { hours, time } from "@/lib/organisations/format";
+import { time } from "@/lib/organisations/format";
 import { readableLive } from "@/lib/organisations/live";
 
 const POLL_MS = 30_000;
@@ -34,7 +34,6 @@ const GROUPS: Array<{ label: string; codes: LiveStatusCode[] }> = [
   { label: "With a learner", codes: ["in_lesson", "wrapping_up", "taking_payment", "checking_in"] },
   { label: "Free now", codes: ["free"] },
   { label: "Need a look", codes: ["running_late", "lesson_due", "payment_issue"] },
-  { label: "Clocked out", codes: ["clocked_out"] },
 ];
 
 export default function LiveBoard({ initial, organisationId }: { initial: LiveResponse; organisationId?: string }) {
@@ -78,7 +77,7 @@ export default function LiveBoard({ initial, organisationId }: { initial: LiveRe
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="grid grid-cols-3 gap-2">
         {counts.map((g) => (
           <div key={g.label} className="rounded-xl border border-border bg-white p-3">
             <p className="text-xs font-semibold text-ink-secondary">{g.label}</p>
@@ -111,7 +110,6 @@ export default function LiveBoard({ initial, organisationId }: { initial: LiveRe
 function InstructorCard({ instructor, now }: { instructor: LiveInstructor; now: number }) {
   const { status } = instructor;
   const tone = TONE[status.code];
-  const clock = status.clock;
   const freeText = status.free_until
     ? `Free until ${time(status.free_until)}`
     : status.free_from
@@ -125,14 +123,6 @@ function InstructorCard({ instructor, now }: { instructor: LiveInstructor; now: 
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-base font-bold text-ink">{instructor.name}</p>
-          <p className="mt-0.5 text-xs text-ink-secondary">
-            {clock.state === "in" && clock.first_in_at
-              ? `Clocked in ${time(clock.first_in_at)}`
-              : clock.state === "out" && clock.last_out_at
-                ? `Clocked out ${time(clock.last_out_at)}`
-                : "Not clocked in today"}
-            {clock.clocked_minutes ? ` · ${hours(clock.clocked_minutes)} on the clock` : ""}
-          </p>
         </div>
         <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${tone.pill}`}>
           <span aria-hidden className={`size-1.5 rounded-full ${tone.dot}`} />
@@ -171,7 +161,7 @@ function InstructorCard({ instructor, now }: { instructor: LiveInstructor; now: 
                 <span className="text-ink">
                   {time(lesson.starts_at)}–{time(lesson.ends_at)} · {lesson.learner_name}
                 </span>
-                <span className="text-xs text-ink-secondary">{LESSON_STATUS[lesson.status] ?? lesson.status}</span>
+                <span className="text-xs text-ink-secondary">{lessonStatus(lesson, now)}</span>
               </li>
             ))}
           </ul>
@@ -188,6 +178,12 @@ const LESSON_STATUS: Record<string, string> = {
   completed: "Done",
   no_show: "No-show",
 };
+
+/** A booked lesson whose end has passed without a start was never taught. */
+function lessonStatus(lesson: { status: string; ends_at: string }, now: number): string {
+  if (lesson.status === "confirmed" && Date.parse(lesson.ends_at) <= now) return "Not started";
+  return LESSON_STATUS[lesson.status] ?? lesson.status;
+}
 
 /**
  * The working day as a bar: working hours in white, lessons in green, blocked
@@ -235,13 +231,6 @@ function DayTimeline({ instructor, now }: { instructor: LiveInstructor; now: num
             style={{ left: pos(Date.parse(b.starts_at)), width: width(Date.parse(b.starts_at), Date.parse(b.ends_at)) }}
           />
         ))}
-        {status.clock.state === "out" && status.clock.last_out_at ? (
-          <span
-            title={`Clocked out ${time(status.clock.last_out_at)}`}
-            className="absolute inset-y-0 bg-ink/10"
-            style={{ left: pos(Date.parse(status.clock.last_out_at)), right: 0 }}
-          />
-        ) : null}
         {instructor.lessons_today.map((l) => (
           <span
             key={l.id}
