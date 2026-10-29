@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import type { NotificationsResponse, OrganisationNotification } from "@/lib/organisations/types";
+import { notificationKindLabel, type NotificationsResponse, type OrganisationNotification } from "@/lib/organisations/types";
 import { shortDate, time } from "@/lib/organisations/format";
 import { apiError, readJson } from "@/lib/organisations/http";
 
@@ -9,13 +9,22 @@ const PAGE_SIZE = 20;
 const POLL_MS = 60_000;
 
 /**
- * The header bell: instructors joining and leaving the school.
+ * The header bell: instructors joining and leaving the school, and its
+ * instructors calling in sick, cancelling a lesson or recording a no-show.
+ * Each shows a short tag for its kind, then the API's title and body.
  *
  * Polls once a minute, and only while the tab is visible — a portal left open
  * in a background tab all day should not keep asking. Coming back to the tab
  * refreshes straight away. Read state is per admin login, so marking one read
  * here does not clear it for a colleague.
  */
+/** Amber for absences and cancellations, rose for a no-show, muted for membership changes. */
+function kindTone(kind: OrganisationNotification["kind"]): string {
+  if (kind === "lesson_no_show") return "text-deep-rose";
+  if (kind === "instructor_sick_day" || kind === "lesson_cancelled_by_instructor") return "text-amber-700";
+  return "text-ink-muted";
+}
+
 export default function NotificationBell() {
   const [items, setItems] = useState<OrganisationNotification[]>([]);
   const [unread, setUnread] = useState(0);
@@ -237,13 +246,14 @@ export default function NotificationBell() {
               <div className="px-4 py-8 text-center">
                 <p className="text-sm font-semibold text-ink">No notifications yet</p>
                 <p className="mt-1 text-sm text-ink-secondary">
-                  You&rsquo;ll see instructors joining and leaving your organisation here.
+                  You&rsquo;ll see instructors joining or leaving, sick days, lesson cancellations and no-shows here.
                 </p>
               </div>
             ) : (
               <ul className="divide-y divide-border">
                 {items.map((notification) => {
                   const isUnread = !notification.read_at;
+                  const kindLabel = notificationKindLabel(notification.kind);
                   return (
                     <li key={notification.id}>
                       <button
@@ -257,6 +267,11 @@ export default function NotificationBell() {
                         />
                         <span className="min-w-0">
                           {isUnread ? <span className="sr-only">Unread: </span> : null}
+                          {kindLabel ? (
+                            <span className={`mb-0.5 block text-[11px] font-semibold uppercase tracking-wide ${kindTone(notification.kind)}`}>
+                              {kindLabel}
+                            </span>
+                          ) : null}
                           <span className={`block text-sm text-ink ${isUnread ? "font-bold" : "font-medium"}`}>{notification.title}</span>
                           <span className="mt-0.5 block text-xs text-ink-secondary">{notification.body}</span>
                           <span className="mt-1 block text-[11px] text-ink-muted">

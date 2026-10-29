@@ -179,11 +179,43 @@ export interface InvoiceLineItem {
   note?: string;
 }
 
+/**
+ * What a notification is about. Joins and leaves come from the membership
+ * trigger; sick days, instructor cancellations and no-shows from the API after
+ * the instructor's action (QA L16). Open text: an unknown kind still shows its
+ * title and body.
+ */
+export type OrganisationNotificationKind =
+  | "instructor_joined"
+  | "instructor_left"
+  | "instructor_sick_day"
+  | "lesson_cancelled_by_instructor"
+  | "lesson_no_show"
+  | (string & {});
+
+/** The short tag the bell shows above a notification, or null for a kind it does not know. */
+export function notificationKindLabel(kind: OrganisationNotificationKind): string | null {
+  switch (kind) {
+    case "instructor_joined":
+      return "Joined";
+    case "instructor_left":
+      return "Left";
+    case "instructor_sick_day":
+      return "Off sick";
+    case "lesson_cancelled_by_instructor":
+      return "Lesson cancelled";
+    case "lesson_no_show":
+      return "No-show";
+    default:
+      return null;
+  }
+}
+
 /** GET /v1/organisations/me/notifications. */
 export interface OrganisationNotification {
   id: string;
   organisation_id: string;
-  kind: "instructor_joined" | "instructor_left" | (string & {});
+  kind: OrganisationNotificationKind;
   instructor_id: string | null;
   title: string;
   body: string;
