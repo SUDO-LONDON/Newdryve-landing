@@ -4,7 +4,7 @@
  * Kept client-safe: no server imports, so components can use them.
  */
 
-import type { FeeMode, RateCard } from "@/lib/organisations/fees";
+import type { FeeMode, InvoiceHoldReason, RateCard } from "@/lib/organisations/fees";
 
 export interface OrgRef {
   id: string;
@@ -128,7 +128,7 @@ export interface LearnersResponse {
   learners: LearnerRow[];
 }
 
-export type { FeeMode } from "@/lib/organisations/fees";
+export type { FeeMode, InvoiceHoldReason } from "@/lib/organisations/fees";
 
 export interface BillingSettings {
   organisation_id: string;
@@ -157,6 +157,11 @@ export interface BillingResponse {
     billing: BillingSettings;
     /** Always false: Newdryve sets the fee terms. */
     fee_terms_editable?: boolean;
+    /**
+     * Why the school's invoices are held, or null (ADR-060): with no bank
+     * details nothing is raised or emailed. Missing from an older API.
+     */
+    invoices_held?: InvoiceHoldReason | null;
   }>;
 }
 
