@@ -40,8 +40,29 @@ function invoice(overrides: Partial<Invoice> = {}): Invoice {
 }
 
 const billing = {
-  organisations: [{ id: ORG, name: "Acme", legal_name: null, billing: { organisation_id: ORG, fee_mode: "flat_weekly" } }],
+  organisations: [
+    {
+      id: ORG,
+      name: "Acme",
+      legal_name: null,
+      billing: { organisation_id: ORG, fee_mode: "flat_weekly", bank_account_name: "Acme Ltd", bank_sort_code: "123456", bank_account_number: "12345678" },
+      invoices_held: null,
+    },
+  ],
 } as unknown as BillingResponse;
+
+function heldBilling(invoicesHeld: "bank_details_missing" | undefined = "bank_details_missing"): BillingResponse {
+  const org = billing.organisations[0]!;
+  return {
+    organisations: [
+      {
+        ...org,
+        billing: { ...org.billing, bank_account_name: null, bank_sort_code: null, bank_account_number: null },
+        ...(invoicesHeld ? { invoices_held: invoicesHeld } : { invoices_held: undefined }),
+      },
+    ],
+  };
+}
 
 describe("InvoicesView", () => {
   it("restores a void invoice through the status route", async () => {
@@ -79,6 +100,41 @@ describe("InvoicesView", () => {
     fireEvent.click(screen.getByRole("button", { name: "Restore" }));
     await waitFor(() => expect(screen.getByRole("alert").textContent).toBe("Invoice not found"));
     expect(screen.getByRole("button", { name: "Restore" })).toBeTruthy();
+    vi.unstubAllGlobals();
+  });
+
+  it("says invoices are on hold without bank details, links to the form, and explains the disabled Raise button", () => {
+    vi.stubGlobal("fetch", vi.fn());
+    render(<InvoicesView initial={[]} billing={heldBilling()} />);
+    expect(screen.getByText("Invoices are on hold until you add your bank details")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Add your bank details" }).getAttribute("href")).toBe(`/organisations/settings#bank-${ORG}`);
+    const raise = screen.getByRole("button", { name: "Raise invoices" }) as HTMLButtonElement;
+    expect(raise.disabled).toBe(true);
+    expect(document.getElementById(raise.getAttribute("aria-describedby")!)?.textContent).toContain("add your bank details in Settings before raising invoices");
+    fireEvent.click(raise);
+    expect(fetch).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it("works the hold out from the billing row when the API does not say", () => {
+    render(<InvoicesView initial={[]} billing={heldBilling(undefined)} />);
+    expect(screen.getByText("Invoices are on hold until you add your bank details")).toBeTruthy();
+  });
+
+  it("shows no hold with bank details, and explains a 409 bank_details_missing instead of failing silently", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({ error: { code: "conflict", message: "Invoices are on hold", details: { code: "bank_details_missing", held: true, reason: "bank_details_missing" } } }),
+          { status: 409 }
+        )
+      )
+    );
+    render(<InvoicesView initial={[]} billing={billing} />);
+    expect(screen.queryByText(/on hold until you add your bank details$/)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Raise invoices" }));
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toContain("Invoices are on hold until you add your bank details in Settings"));
     vi.unstubAllGlobals();
   });
 });

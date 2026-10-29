@@ -70,6 +70,23 @@ export const FEE_MODE_OPTIONS: Array<{ value: CurrentFeeMode; label: string; hin
   },
 ];
 
+export type InvoiceHoldReason = "bank_details_missing";
+
+/**
+ * Why a school's invoices are on hold, or null (ADR-060). The API says so on
+ * each school (`invoices_held`); an older API that does not is read from the
+ * billing row the same way: invoices on, and any bank detail missing.
+ */
+export function invoiceHoldReason(org: {
+  invoices_held?: InvoiceHoldReason | null;
+  billing: { fee_mode: string; bank_account_name: string | null; bank_sort_code: string | null; bank_account_number: string | null };
+}): InvoiceHoldReason | null {
+  if (org.invoices_held !== undefined) return org.invoices_held;
+  const b = org.billing;
+  if (b.fee_mode === "off") return null;
+  return [b.bank_account_name, b.bank_sort_code, b.bank_account_number].every((v) => !!v?.trim()) ? null : "bank_details_missing";
+}
+
 export function isLegacyFeeMode(mode: string): mode is LegacyFeeMode {
   return (LEGACY_FEE_MODES as readonly string[]).includes(mode);
 }

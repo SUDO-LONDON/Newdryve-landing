@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import InvoicesHeldNotice from "@/components/organisations/InvoicesHeldNotice";
+import { invoiceHoldReason } from "@/lib/organisations/fees";
 import type { BillingResponse, Invoice } from "@/lib/organisations/types";
 import { addDays, day, gbp, londonToday, mondayOf, shortDate } from "@/lib/organisations/format";
 import { apiError, readJson } from "@/lib/organisations/http";
@@ -12,6 +14,8 @@ import { apiError, readJson } from "@/lib/organisations/http";
  * that has not been raised yet. Paid is marked by hand when the bank transfer
  * arrives — Newdryve never sees the money.
  */
+const HELD_MESSAGE = "Invoices are on hold until you add your bank details in Settings. Add them, then raise this week again.";
+
 export default function InvoicesView({ initial, billing }: { initial: Invoice[]; billing: BillingResponse }) {
   const [invoices, setInvoices] = useState(initial);
   const [busy, setBusy] = useState<string | null>(null);
@@ -23,6 +27,9 @@ export default function InvoicesView({ initial, billing }: { initial: Invoice[];
   const orgs = billing.organisations;
   const [orgId, setOrgId] = useState(orgs[0]?.id ?? "");
   const billingOn = orgs.filter((o) => o.billing.fee_mode !== "off");
+  // Schools whose invoices are held for want of bank details (ADR-060).
+  const held = new Set(orgs.filter((o) => invoiceHoldReason(o)).map((o) => o.id));
+  const selectedHeld = held.has(orgId);
   const today = londonToday();
 
   const weeks = useMemo(() => {
@@ -42,7 +49,10 @@ export default function InvoicesView({ initial, billing }: { initial: Invoice[];
     try {
       const res = await fetch(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       const json = (await readJson(res)) as Record<string, unknown> | null;
-      if (!res.ok) throw new Error(apiError(json, res.status, "Something went wrong.").message);
+      if (!res.ok) {
+        const info = apiError(json, res.status, "Something went wrong.");
+        throw new Error(info.code === "bank_details_missing" ? HELD_MESSAGE : info.message);
+      }
       return json ?? {};
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Something went wrong.");
@@ -86,6 +96,15 @@ export default function InvoicesView({ initial, billing }: { initial: Invoice[];
 
   return (
     <div>
+      {held.size ? (
+        <div className="mb-4 space-y-3">
+          {orgs
+            .filter((o) => held.has(o.id))
+            .map((o) => (
+              <InvoicesHeldNotice key={o.id} organisationId={o.id} schoolName={orgs.length > 1 ? o.name : undefined} />
+            ))}
+        </div>
+      ) : null}
       {billingOn.length === 0 ? (
         <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
           <p className="font-bold">Invoices are off.</p>
@@ -136,12 +155,22 @@ export default function InvoicesView({ initial, billing }: { initial: Invoice[];
             <button
               type="button"
               onClick={() => void generate()}
-              disabled={busy === "generate"}
+              disabled={busy === "generate" || selectedHeld}
+              aria-describedby={selectedHeld ? "raise-held" : undefined}
               className="focus-ring inline-flex min-h-11 items-center rounded-full bg-racing-green px-5 text-sm font-bold text-white disabled:opacity-60"
             >
               {busy === "generate" ? "Raising…" : "Raise invoices"}
             </button>
           </div>
+          {selectedHeld ? (
+            <p id="raise-held" className="mt-3 text-sm font-semibold text-amber-900">
+              On hold: add your bank details in{" "}
+              <Link href={`/organisations/settings#bank-${orgId}`} className="underline">
+                Settings
+              </Link>{" "}
+              before raising invoices. Weeks missed while on hold can be raised here afterwards.
+            </p>
+          ) : null}
         </section>
       )}
 

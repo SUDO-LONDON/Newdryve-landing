@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import type { BillingResponse } from "@/lib/organisations/types";
-import { describeFeeTerms, feeModeLabel, isLegacyFeeMode } from "@/lib/organisations/fees";
+import InvoicesHeldNotice from "@/components/organisations/InvoicesHeldNotice";
+import { describeFeeTerms, feeModeLabel, invoiceHoldReason, isLegacyFeeMode } from "@/lib/organisations/fees";
 import { longDate, sortCode as formatSortCode } from "@/lib/organisations/format";
 import { apiError, readJson } from "@/lib/organisations/http";
 
@@ -40,6 +41,14 @@ function OrganisationBilling({ org, showName }: { org: BillingResponse["organisa
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const invoicesOff = b.fee_mode === "off";
+  // The bank details as last saved: the hold lifts only once they are stored.
+  const [savedBank, setSavedBank] = useState({
+    bank_account_name: b.bank_account_name,
+    bank_sort_code: b.bank_sort_code,
+    bank_account_number: b.bank_account_number,
+  });
+  const [heldByApi, setHeldByApi] = useState(org.invoices_held);
+  const held = invoiceHoldReason({ invoices_held: heldByApi, billing: { ...b, ...savedBank } }) !== null;
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -71,11 +80,20 @@ function OrganisationBilling({ org, showName }: { org: BillingResponse["organisa
             : error.message
         );
       }
+      setSavedBank({
+        bank_account_name: body.bank_account_name,
+        bank_sort_code: body.bank_sort_code,
+        bank_account_number: body.bank_account_number,
+      });
+      // Worked out from what was saved from here on.
+      setHeldByApi(undefined);
       setMessage({
         ok: true,
         text: invoicesOff
           ? "Saved. Invoices start once Newdryve sets your fee terms."
-          : "Saved. Invoices will use these details from next Monday.",
+          : invoiceHoldReason({ billing: { ...b, ...body } })
+            ? "Saved. Invoices stay on hold until you add your bank details."
+            : "Saved. Invoices will use these details from next Monday.",
       });
     } catch (cause) {
       setMessage({ ok: false, text: cause instanceof Error ? cause.message : "Could not save." });
@@ -87,6 +105,11 @@ function OrganisationBilling({ org, showName }: { org: BillingResponse["organisa
   return (
     <form onSubmit={save} className="rounded-2xl border border-border bg-white p-4 sm:p-6">
       {showName ? <h2 className="mb-4 font-display text-2xl text-ink">{org.name}</h2> : null}
+      {held ? (
+        <div className="mb-5">
+          <InvoicesHeldNotice organisationId={org.id} onSettingsPage />
+        </div>
+      ) : null}
 
       <section aria-labelledby={`fees-${org.id}`}>
         <div className="flex flex-wrap items-center gap-2">
@@ -124,9 +147,12 @@ function OrganisationBilling({ org, showName }: { org: BillingResponse["organisa
       </section>
 
       <div className="mt-6 border-t border-border pt-5">
-      <fieldset>
+      <fieldset id={`bank-${org.id}`} className="scroll-mt-24">
         <legend className="text-base font-bold text-ink">Your bank details</legend>
-        <p className="mt-1 text-sm text-ink-secondary">Printed on every invoice so instructors can pay you by bank transfer.</p>
+        <p className="mt-1 text-sm text-ink-secondary">
+          Printed on every invoice so instructors can pay you by bank transfer.
+          {invoicesOff ? null : " Invoices are held until all three are filled in."}
+        </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-3">
           <label className="flex flex-col gap-1.5">
             <span className={label}>Account name</span>
