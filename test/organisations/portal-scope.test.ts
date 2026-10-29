@@ -56,13 +56,13 @@ describe("orgRead", () => {
     expect(requests[0]!.url).toBe(`https://api.test/v1/organisations/me/timesheet?week=2026-10-12&organisation_id=${SCHOOL}`);
   });
 
-  it("takes a paused school to the page that says so", async () => {
+  it("takes a cancelled school to the page that says so", async () => {
     const { orgRead } = await load();
     respondWith(403, {
       error: {
         code: "forbidden",
-        message: "Your organisation has been paused by Newdryve.",
-        details: { code: "organisation_unavailable", organisations: [{ id: "o1", name: "Acme", status: "paused" }] },
+        message: "Your school has been cancelled on Newdryve.",
+        details: { code: "organisation_unavailable", organisations: [{ id: "o1", name: "Acme", status: "closed" }] },
       },
     });
     await expect(orgRead("/v1/organisations/me/live")).rejects.toThrow("REDIRECT /organisations/denied?reason=unavailable");

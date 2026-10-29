@@ -18,7 +18,7 @@ export interface CancellationPolicy {
 
 export interface CancellationPolicyResponse {
   cancellation_policy: CancellationPolicy;
-  /** False while the school is paused or closed: members' own policies apply then. */
+  /** False once the school is cancelled: members' own policies apply then. */
   applied: boolean;
 }
 

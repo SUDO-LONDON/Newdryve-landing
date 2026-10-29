@@ -43,13 +43,13 @@ describe("CancellationPolicyForm", () => {
     vi.unstubAllGlobals();
   });
 
-  it("says when a paused school's policy is not applied", () => {
+  it("says when a cancelled school's policy is not applied", () => {
     render(
       <CancellationPolicyForm
         schools={[{ id: ORG, name: "Acme", policy: { cancellation_policy: { notice_hours: 24, late_fee_bps: 5000 }, applied: false } }]}
       />
     );
-    expect(screen.getByText(/each instructor.s own policy applies for now/)).toBeTruthy();
+    expect(screen.getByText(/Your school has been cancelled, so each instructor.s own policy applies/)).toBeTruthy();
   });
 
   it("will not save over a policy it could not read", () => {

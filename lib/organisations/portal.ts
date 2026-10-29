@@ -12,8 +12,8 @@ import { portalReadOutcome, safePortalNext, withSchool, withSchoolBody } from "@
  * Read a school-portal endpoint for a server-rendered page, as the signed-in
  * admin. A missing or expired session goes to the login page, and a login
  * that is not a school admin goes to the denied page, rather than rendering a
- * portal full of zeroes that looks like a quiet week. A school Newdryve paused
- * or closed goes to the denied page too, which says so (#499). When the API
+ * portal full of zeroes that looks like a quiet week. A cancelled school
+ * goes to the denied page too, which says so (#499). When the API
  * needs a school named (a super admin, 422 `organisation_required`) or the
  * chosen one is no longer this admin's, the school picker opens and returns
  * to `returnTo` afterwards.

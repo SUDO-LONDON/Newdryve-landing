@@ -70,7 +70,7 @@ export function safePortalNext(next: string | null | undefined): string {
 export type PortalReadOutcome =
   | { kind: "ok" }
   | { kind: "login" }
-  /** Not a school admin at all, or every school they had is paused or closed. */
+  /** Not a school admin at all, or every school they had has been cancelled. */
   | { kind: "denied"; reason: "unavailable" | null }
   /** The API needs a school named, or the one chosen is no longer theirs. */
   | { kind: "choose"; reason: "required" | "stale" }
@@ -79,7 +79,7 @@ export type PortalReadOutcome =
 /**
  * Where a server-rendered portal read goes from the API's answer. A 403 that
  * is not "school unavailable" while a school is chosen means that choice went
- * stale (removed as admin, school paused), so the admin chooses again rather
+ * stale (removed as admin, school cancelled), so the admin chooses again rather
  * than being told they have no access at all.
  */
 export function portalReadOutcome(

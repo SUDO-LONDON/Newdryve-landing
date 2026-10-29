@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * Signed in, but no school to show. Either the login is not a school admin, or
- * every school it has is paused or closed by Newdryve (#499), which the API
+ * every school it has has been cancelled (#499), which the API
  * names in `GET /v1/organisations/me` and this page says in words.
  */
 export default async function OrganisationsDeniedPage() {

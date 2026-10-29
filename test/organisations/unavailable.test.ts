@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { readUnavailable, unavailableNotice } from "@/lib/organisations/unavailable";
 
+// A school is active or cancelled (`closed`); it is never paused (Newdryve ADR-060).
 describe("readUnavailable", () => {
-  it("keeps well-formed paused and closed schools only", () => {
+  it("keeps well-formed cancelled schools only", () => {
     expect(
       readUnavailable([
         { id: "a", name: "Acme", status: "paused" },
@@ -11,33 +12,27 @@ describe("readUnavailable", () => {
         null,
         "x",
       ])
-    ).toEqual([
-      { id: "a", name: "Acme", status: "paused" },
-      { id: "b", name: "Your school", status: "closed" },
-    ]);
+    ).toEqual([{ id: "b", name: "Your school", status: "closed" }]);
     expect(readUnavailable(undefined)).toEqual([]);
   });
 });
 
 describe("unavailableNotice", () => {
-  it("says a single school is paused by Newdryve", () => {
-    const notice = unavailableNotice([{ id: "a", name: "Acme Driving", status: "paused" }]);
-    expect(notice?.title).toBe("This school is paused by Newdryve");
-    expect(notice?.body).toContain("Acme Driving is paused");
-  });
-
-  it("says a single school is closed", () => {
-    expect(unavailableNotice([{ id: "a", name: "Acme", status: "closed" }])?.title).toBe("This school is closed");
+  it("says a single school has been cancelled and its seats ended", () => {
+    const notice = unavailableNotice([{ id: "a", name: "Acme Driving", status: "closed" }]);
+    expect(notice?.title).toBe("This school has been cancelled");
+    expect(notice?.body).toContain("Acme Driving has been cancelled on Newdryve");
+    expect(notice?.body).toContain("seats have ended");
+    expect(notice?.body).not.toMatch(/paused/i);
   });
 
   it("names each school when there are several", () => {
     const notice = unavailableNotice([
-      { id: "a", name: "Acme", status: "paused" },
+      { id: "a", name: "Acme", status: "closed" },
       { id: "b", name: "Beta", status: "closed" },
     ]);
-    expect(notice?.title).toBe("These schools are paused or closed");
-    expect(notice?.body).toContain("Paused by Newdryve: Acme.");
-    expect(notice?.body).toContain("Closed: Beta.");
+    expect(notice?.title).toBe("These schools have been cancelled");
+    expect(notice?.body).toContain("Cancelled on Newdryve: Acme, Beta.");
   });
 
   it("is nothing when every school is available", () => {

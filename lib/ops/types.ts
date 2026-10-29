@@ -78,7 +78,31 @@ export interface Founder {
   role: string | null;
 }
 
-export type OrganisationStatus = "active" | "paused" | "closed";
+/**
+ * A school is active or cancelled (stored `closed`). It has no membership of
+ * its own and cannot be paused; its instructors' seats can (Newdryve ADR-060).
+ */
+export type OrganisationStatus = "active" | "closed";
+
+/**
+ * One instructor's seat: active, or paused for one month (by the school or by
+ * the instructor) until `paused_until`. Null from an API without seats.
+ */
+export interface MemberSeat {
+  status: "active" | "paused";
+  paused_until: string | null;
+  paused_by: "organisation_admin" | "instructor" | null;
+}
+
+/** "Active", "Paused until 20 Nov 2026", or "Not available" from an older API. */
+export function seatLabel(seat: MemberSeat | null | undefined): string {
+  if (!seat) return "Not available";
+  if (seat.status !== "paused") return "Active";
+  if (!seat.paused_until) return "Paused";
+  const until = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/London" })
+    .format(new Date(seat.paused_until));
+  return `Paused until ${until}`;
+}
 
 /** The seat subscription states ops may record (PATCH subscription_status, Newdryve PR #511). */
 export const SEAT_SUBSCRIPTION_STATUSES = ["trialing", "active", "past_due", "canceled", "incomplete", "unpaid", "paused"] as const;
@@ -146,6 +170,8 @@ export interface OpsOrganisationMember {
    */
   late_instructor_cancellations_90d: number | null;
   sick_days_90d: number | null;
+  /** This instructor's seat (ADR-060). Null from an older API. */
+  seat: MemberSeat | null;
 }
 
 /** "2 late cancellations · 1 sick day", "None", or "Not available" from an older API. */
