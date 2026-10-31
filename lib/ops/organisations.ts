@@ -2,6 +2,7 @@ import "server-only";
 
 import { NextResponse } from "next/server";
 import type { FeeTerms, FeeTermsInput } from "@/lib/organisations/fees";
+import type { Promotion, PromotionInput } from "@/lib/organisations/promotions";
 import type {
   LessonPresence,
   OpsOrganisation,
@@ -194,6 +195,39 @@ export async function setOrganisationFeeTerms(
     body: JSON.stringify(input),
   });
   return data.fee_terms;
+}
+
+/** GET /v1/ops/organisations/:id/promotions: every offer the school has had, newest first. */
+export async function listOrganisationPromotions(id: string, actor: string): Promise<Promotion[]> {
+  const data = await call<{ promotions?: Promotion[] }>(`/v1/ops/organisations/${id}/promotions`, actor);
+  return data.promotions ?? [];
+}
+
+/**
+ * POST /v1/ops/organisations/:id/promotions. The API is the validator (a
+ * strict body: title, hours, price, window); its 422 message and 409
+ * `promotion_already_active` are passed back to the form.
+ */
+export async function createOrganisationPromotion(id: string, input: PromotionInput, actor: string): Promise<Promotion> {
+  const data = await call<{ promotion: Promotion }>(`/v1/ops/organisations/${id}/promotions`, actor, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return data.promotion;
+}
+
+/** PATCH /v1/ops/organisations/:id/promotions/:promotionId: change an offer, or end it with `active: false`. */
+export async function updateOrganisationPromotion(
+  id: string,
+  promotionId: string,
+  input: Partial<PromotionInput>,
+  actor: string
+): Promise<Promotion> {
+  const data = await call<{ promotion: Promotion }>(`/v1/ops/organisations/${id}/promotions/${promotionId}`, actor, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+  return data.promotion;
 }
 
 /**

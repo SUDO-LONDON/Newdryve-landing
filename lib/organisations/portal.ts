@@ -62,7 +62,7 @@ export async function orgRead<T>(path: string, { returnTo = "/organisations" }: 
 export async function orgProxy(
   request: Request,
   path: string,
-  method: "GET" | "POST" | "PUT" | "DELETE"
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 ): Promise<Response> {
   const json = (body: unknown, status: number) =>
     new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
