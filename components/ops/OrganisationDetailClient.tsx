@@ -12,9 +12,11 @@ import FeeTermsFields, {
   type FeeTermsDraft,
 } from "@/components/ops/FeeTermsFields";
 import ListingFields from "@/components/ops/ListingFields";
+import PromotionsPanel from "@/components/organisations/PromotionsPanel";
 import RemoveMemberButton from "@/components/organisations/RemoveMemberButton";
 import { longDate } from "@/lib/organisations/format";
 import { listingInputFromDraft, type ListingDraft } from "@/lib/organisations/listing";
+import type { Promotion } from "@/lib/organisations/promotions";
 import {
   formatPence,
   memberRecord90d,
@@ -53,8 +55,13 @@ function adminErrorMessage(code: string | null, message: string): string {
 
 export default function OrganisationDetailClient({
   organisation,
+  promotions,
+  promotionsError = null,
 }: {
   organisation: OpsOrganisationWithMembers;
+  /** The school's intro offers; null when they could not be read, undefined when the page did not ask. */
+  promotions?: Promotion[] | null;
+  promotionsError?: string | null;
 }) {
   const router = useRouter();
   const totals = organisationTotals(organisation.members);
@@ -599,6 +606,30 @@ export default function OrganisationDetailClient({
           </p>
         </form>
       </section>
+
+      {promotions !== undefined ? (
+        <section className="rounded-2xl border border-border bg-white p-5" aria-labelledby="promotions-title">
+          <h2 id="promotions-title" className="font-display text-lg text-ink">Intro offer</h2>
+          <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
+            A cheaper hourly rate for a learner&rsquo;s first lessons booked through this school. The difference
+            comes off the instructor&rsquo;s price for those hours and a percentage fee follows the lower price;
+            Newdryve never funds it. The school&rsquo;s admins can set this on their portal too.
+          </p>
+          <div className="mt-4">
+            <PromotionsPanel
+              audience="ops"
+              framed={false}
+              name={organisation.name}
+              promotions={promotions}
+              error={promotionsError}
+              endpoints={{
+                create: `/ops/api/organisations/${organisation.id}/promotions`,
+                update: (promotionId) => `/ops/api/organisations/${organisation.id}/promotions/${promotionId}`,
+              }}
+            />
+          </div>
+        </section>
+      ) : null}
 
       <section className="rounded-2xl border border-border bg-white p-5">
         <h2 className="font-display text-lg text-ink">Listing</h2>
