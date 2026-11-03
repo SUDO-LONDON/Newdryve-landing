@@ -97,3 +97,17 @@ describe("createOrganisationAdmin", () => {
     expect(failure).toMatchObject({ status: 409, code: "email_in_use" });
   });
 });
+
+describe("member diary signals (ADR-071)", () => {
+  it("keeps assistant_linked and last_diary_activity_at, and maps missing or junk to null", async () => {
+    const { mapOrganisationResponse } = await load();
+    const withSignals = mapOrganisationResponse(
+      backendOrg([backendMember({ assistant_linked: true, last_diary_activity_at: "2026-10-20T07:05:00.000Z" })]) as never
+    );
+    expect(withSignals.members[0]).toMatchObject({ assistant_linked: true, last_diary_activity_at: "2026-10-20T07:05:00.000Z" });
+    const older = mapOrganisationResponse(backendOrg([backendMember()]) as never);
+    expect(older.members[0]).toMatchObject({ assistant_linked: null, last_diary_activity_at: null });
+    const junk = mapOrganisationResponse(backendOrg([backendMember({ assistant_linked: "yes", last_diary_activity_at: "soon" })]) as never);
+    expect(junk.members[0]).toMatchObject({ assistant_linked: null, last_diary_activity_at: null });
+  });
+});

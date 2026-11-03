@@ -161,3 +161,24 @@ describe("ops organisation copy and member counts", () => {
     expect(document.body.textContent).toContain("appear on it as cards a learner can pick");
   });
 });
+
+describe("ops Diary on WhatsApp switch (ADR-070)", () => {
+  it("turns it on with one PATCH and says so", async () => {
+    const calls = stubFetch(() => ({ status: 200, body: { organisation: { assistant_enabled: true } } }));
+    render(<OrganisationDetailClient organisation={opsOrganisation({ assistant_enabled: false })} />);
+    const section = screen.getByRole("region", { name: "Diary on WhatsApp" });
+    expect(section.textContent).toMatch(/Off/);
+    fireEvent.click(screen.getByRole("button", { name: "Turn on" }));
+    await waitFor(() => expect(screen.getByText(/Diary on WhatsApp is on for/)).toBeTruthy());
+    expect(calls).toEqual([
+      { url: "/ops/api/organisations/11111111-2222-4333-8444-555555555555", method: "PATCH", body: { assistant_enabled: true } },
+    ]);
+    expect(refresh).toHaveBeenCalled();
+  });
+
+  it("shows no switch when the API predates it", () => {
+    render(<OrganisationDetailClient organisation={opsOrganisation({ assistant_enabled: null })} />);
+    expect(screen.getByText("Not available from this API yet.")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Turn on" })).toBeNull();
+  });
+});

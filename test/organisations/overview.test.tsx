@@ -35,6 +35,12 @@ describe("portal overview", () => {
     expect(screen.getByRole("status").textContent).toContain("Beta School has been closed");
   });
 
+  it("shows a Diary updated column and a WhatsApp pill for a linked member (ADR-071)", () => {
+    render(<OrganisationPortalClient organisations={[opsOrganisation()]} />);
+    expect(screen.getByRole("columnheader", { name: "Diary updated" })).toBeTruthy();
+    expect(screen.getByTitle("Keeps their Newdryve diary from WhatsApp").textContent).toBe("WhatsApp");
+  });
+
   it("says the revenue figure counts completed lessons only (QA #43)", () => {
     render(<OrganisationPortalClient organisations={[opsOrganisation()]} />);
     expect(document.body.textContent).toMatch(/Completed lessons/);

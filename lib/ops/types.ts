@@ -116,6 +116,12 @@ export interface OpsOrganisation {
   /** #RRGGBB. */
   primary_color: string | null;
   /**
+   * Diary on WhatsApp (ADR-070): the school's instructors may link WhatsApp
+   * to Newdryve's diary assistant. The rollout switch, set by a founder.
+   * Null when the API predates it.
+   */
+  assistant_enabled: boolean | null;
+  /**
    * What the school charges its instructors, set by Newdryve only. Null when
    * the API predates fee terms on the listing.
    */
@@ -146,6 +152,31 @@ export interface OpsOrganisationMember {
    */
   late_instructor_cancellations_90d: number | null;
   sick_days_90d: number | null;
+  /**
+   * Diary on WhatsApp (ADR-070/071): whether the instructor has WhatsApp
+   * linked to Newdryve's diary assistant, and when they last changed their
+   * diary from anywhere (app, WhatsApp, a lesson decision). Null when the API
+   * did not send them. The school never sees the WhatsApp conversation.
+   */
+  assistant_linked: boolean | null;
+  last_diary_activity_at: string | null;
+}
+
+/** "Today", "Yesterday", "4 days ago", "Over 2 weeks ago", "No changes yet" or "Not available". */
+export function diaryUpdatedLabel(
+  member: Pick<OpsOrganisationMember, "last_diary_activity_at" | "assistant_linked">,
+  now: Date = new Date()
+): string {
+  if (member.assistant_linked == null && member.last_diary_activity_at == null) return "Not available";
+  const at = member.last_diary_activity_at ? Date.parse(member.last_diary_activity_at) : NaN;
+  if (!Number.isFinite(at)) return "No changes yet";
+  const londonDay = (ms: number) =>
+    new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(ms));
+  const days = Math.round((Date.parse(londonDay(now.getTime())) - Date.parse(londonDay(at))) / 86_400_000);
+  if (days <= 0) return "Today";
+  if (days === 1) return "Yesterday";
+  if (days <= 14) return `${days} days ago`;
+  return "Over 2 weeks ago";
 }
 
 /** "2 late cancellations · 1 sick day", "None", or "Not available" from an older API. */

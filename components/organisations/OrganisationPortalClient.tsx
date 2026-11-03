@@ -1,6 +1,6 @@
 import Link from "next/link";
 import RemoveMemberButton from "@/components/organisations/RemoveMemberButton";
-import { formatPence, memberRecord90d, organisationTotals, type OpsOrganisationWithMembers } from "@/lib/ops/types";
+import { diaryUpdatedLabel, formatPence, memberRecord90d, organisationTotals, type OpsOrganisationWithMembers } from "@/lib/ops/types";
 import { shortDate, time } from "@/lib/organisations/format";
 import { unavailableNotice, type UnavailableOrganisation } from "@/lib/organisations/unavailable";
 
@@ -277,7 +277,7 @@ export default function OrganisationPortalClient({
               </div>
 
               <div className="mt-5 overflow-x-auto">
-                <table className="w-full min-w-[1040px] text-left text-sm">
+                <table className="w-full min-w-[1180px] text-left text-sm">
                   <thead className="border-b border-border bg-blush-surface/60 text-[11px] uppercase tracking-wider text-ink-muted">
                     <tr>
                       <th className="px-3 py-3">Instructor</th>
@@ -286,6 +286,7 @@ export default function OrganisationPortalClient({
                       <th className="px-3 py-3 text-right">Lessons</th>
                       <th className="px-3 py-3 text-right">Revenue</th>
                       <th className="px-3 py-3">Last 90 days</th>
+                      <th className="px-3 py-3">Diary updated</th>
                       <th className="px-3 py-3">
                         <span className="sr-only">Actions</span>
                       </th>
@@ -308,6 +309,19 @@ export default function OrganisationPortalClient({
                           {formatPence(member.revenue_pence)}
                         </td>
                         <td className="px-3 py-3 text-ink-secondary">{memberRecord90d(member)}</td>
+                        <td className="px-3 py-3 text-ink-secondary">
+                          <span className="flex flex-wrap items-center gap-2">
+                            {diaryUpdatedLabel(member)}
+                            {member.assistant_linked ? (
+                              <span
+                                className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800"
+                                title="Keeps their Newdryve diary from WhatsApp"
+                              >
+                                WhatsApp
+                              </span>
+                            ) : null}
+                          </span>
+                        </td>
                         <td className="px-3 py-3 text-right">
                           <RemoveMemberButton
                             endpoint={`/organisations/api/members/${encodeURIComponent(member.instructor_id)}?organisation_id=${encodeURIComponent(organisation.id)}`}
