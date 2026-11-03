@@ -56,6 +56,13 @@ export interface LiveInstructor {
   lessons_today: Array<{ id: string; starts_at: string; ends_at: string; status: string; learner_name: string }>;
   blocks_today: Array<{ starts_at: string; ends_at: string; label: string }>;
   next_lesson: { id: string; starts_at: string; learner_name: string } | null;
+  /** Lesson requests the instructor has not answered yet (ADR-071). Absent from an older API. */
+  pending_requests?: { count: number; oldest_at: string | null };
+  /**
+   * Diary on WhatsApp (ADR-070/071): linked, and when they answered "All good"
+   * to this morning's diary check (null if not today). Never the conversation.
+   */
+  assistant?: { linked: boolean; diary_confirmed_at: string | null };
 }
 
 export interface LiveResponse {

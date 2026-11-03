@@ -60,6 +60,7 @@ type BackendOrganisation = {
   bio?: string | null;
   logo_url?: string | null;
   primary_color?: string | null;
+  assistant_enabled?: boolean | null;
   fee_terms?: FeeTerms | null;
   admin_count?: number;
   live_lessons?: OrganisationLiveLesson[];
@@ -88,6 +89,8 @@ type BackendOrganisationMember = {
   revenue_pence: number;
   late_instructor_cancellations_90d?: number | null;
   sick_days_90d?: number | null;
+  assistant_linked?: boolean | null;
+  last_diary_activity_at?: string | null;
 };
 
 type OrganisationResponse = {
@@ -174,6 +177,7 @@ export async function updateOrganisation(
     seat_price_pence?: number | null;
     billing_notes?: string | null;
     subscription_status?: string | null;
+    assistant_enabled?: boolean;
   },
   actor: string
 ): Promise<OpsOrganisation> {
@@ -374,6 +378,7 @@ function mapOrganisation(
     bio: organisation.bio ?? null,
     logo_url: organisation.logo_url ?? null,
     primary_color: organisation.primary_color ?? null,
+    assistant_enabled: typeof organisation.assistant_enabled === "boolean" ? organisation.assistant_enabled : null,
     fee_terms: organisation.fee_terms ?? null,
     updated_at: organisation.updated_at || organisation.created_at,
     deleted_at: null,
@@ -416,6 +421,11 @@ function mapMember(
     deleted_at: null,
     late_instructor_cancellations_90d: countOrNull(member.late_instructor_cancellations_90d),
     sick_days_90d: countOrNull(member.sick_days_90d),
+    assistant_linked: typeof member.assistant_linked === "boolean" ? member.assistant_linked : null,
+    last_diary_activity_at:
+      typeof member.last_diary_activity_at === "string" && Number.isFinite(Date.parse(member.last_diary_activity_at))
+        ? member.last_diary_activity_at
+        : null,
   };
 }
 

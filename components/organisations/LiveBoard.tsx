@@ -117,6 +117,7 @@ function InstructorCard({ instructor, now }: { instructor: LiveInstructor; now: 
       : status.free_windows.length === 0 && status.working_windows.length
         ? "No free time left today"
         : null;
+  const waiting = requestsWaiting(instructor.pending_requests, now);
 
   return (
     <li className="rounded-2xl border border-border bg-white p-4 sm:p-5">
@@ -149,6 +150,25 @@ function InstructorCard({ instructor, now }: { instructor: LiveInstructor; now: 
         ) : null}
       </div>
 
+      {waiting || instructor.assistant?.linked ? (
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+          {waiting ? <span className="font-semibold text-amber-800">{waiting}</span> : null}
+          {instructor.assistant?.linked ? (
+            <span className="inline-flex items-center gap-2 text-ink-secondary">
+              <span
+                className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800"
+                title="Keeps their Newdryve diary from WhatsApp"
+              >
+                WhatsApp
+              </span>
+              {instructor.assistant.diary_confirmed_at
+                ? `Diary checked ${time(instructor.assistant.diary_confirmed_at)}`
+                : "Diary not checked today"}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
       {instructor.lessons_today.length ? (
         <details className="group mt-1">
           <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center text-sm font-semibold text-ink [&::-webkit-details-marker]:hidden">
@@ -169,6 +189,18 @@ function InstructorCard({ instructor, now }: { instructor: LiveInstructor; now: 
       ) : null}
     </li>
   );
+}
+
+/** "1 request waiting · 3 h", or null when there are none. */
+export function requestsWaiting(pending: LiveInstructor["pending_requests"], now: number): string | null {
+  const count = Number(pending?.count ?? 0);
+  if (!Number.isFinite(count) || count <= 0) return null;
+  const label = `${count} request${count === 1 ? "" : "s"} waiting`;
+  const oldest = pending?.oldest_at ? Date.parse(pending.oldest_at) : NaN;
+  if (!Number.isFinite(oldest)) return label;
+  const minutes = Math.max(0, Math.floor((now - oldest) / 60_000));
+  const age = minutes < 60 ? `${minutes} min` : minutes < 48 * 60 ? `${Math.floor(minutes / 60)} h` : `${Math.floor(minutes / 1440)} days`;
+  return `${label} · ${count === 1 ? "" : "oldest "}${age}`;
 }
 
 const LESSON_STATUS: Record<string, string> = {

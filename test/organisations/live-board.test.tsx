@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import LiveBoard from "@/components/organisations/LiveBoard";
+import LiveBoard, { requestsWaiting } from "@/components/organisations/LiveBoard";
 import { liveInstructor } from "../fixtures";
 
 describe("LiveBoard", () => {
@@ -34,5 +34,37 @@ describe("LiveBoard", () => {
     render(<LiveBoard initial={{ generated_at: "2026-10-20T10:00:00.000Z", date: "2026-10-20", organisations: [], instructors: [instructor] }} />);
     expect(screen.getByText("Not started")).toBeTruthy();
     expect(screen.getByText("Booked")).toBeTruthy();
+  });
+});
+
+describe("LiveBoard requests and WhatsApp (ADR-071)", () => {
+  const board = (overrides: Parameters<typeof liveInstructor>[0]) =>
+    render(
+      <LiveBoard
+        initial={{ generated_at: "2026-10-20T10:00:00.000Z", date: "2026-10-20", organisations: [], instructors: [liveInstructor(overrides)] }}
+      />
+    );
+
+  it("says how many requests are waiting and for how long", () => {
+    expect(requestsWaiting({ count: 1, oldest_at: "2026-10-20T09:20:00.000Z" }, Date.parse("2026-10-20T10:00:00.000Z"))).toBe("1 request waiting · 40 min");
+    expect(requestsWaiting({ count: 3, oldest_at: "2026-10-20T06:30:00.000Z" }, Date.parse("2026-10-20T10:00:00.000Z"))).toBe("3 requests waiting · oldest 3 h");
+    expect(requestsWaiting({ count: 2, oldest_at: "2026-10-17T10:00:00.000Z" }, Date.parse("2026-10-20T10:00:00.000Z"))).toBe("2 requests waiting · oldest 3 days");
+    expect(requestsWaiting({ count: 0, oldest_at: null }, Date.now())).toBeNull();
+    expect(requestsWaiting(undefined, Date.now())).toBeNull();
+  });
+
+  it("shows the WhatsApp pill and this morning's diary check, never the conversation", () => {
+    const { container } = board({
+      pending_requests: { count: 2, oldest_at: "2026-10-20T07:00:00.000Z" },
+      assistant: { linked: true, diary_confirmed_at: "2026-10-20T06:04:00.000Z" },
+    });
+    expect(screen.getByText("WhatsApp")).toBeTruthy();
+    expect(screen.getByText(/Diary checked 07:04/)).toBeTruthy();
+    expect(container.textContent).toMatch(/2 requests waiting/);
+  });
+
+  it("an instructor without WhatsApp and nothing waiting shows neither", () => {
+    const { container } = board({ pending_requests: { count: 0, oldest_at: null }, assistant: { linked: false, diary_confirmed_at: null } });
+    expect(container.textContent).not.toMatch(/WhatsApp|waiting|Diary/);
   });
 });

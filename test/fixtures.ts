@@ -48,6 +48,7 @@ export function opsOrganisation(overrides: Partial<OpsOrganisationWithMembers> =
     bio: null,
     logo_url: null,
     primary_color: null,
+    assistant_enabled: false,
     fee_terms: null,
     members: [
       {
@@ -69,6 +70,8 @@ export function opsOrganisation(overrides: Partial<OpsOrganisationWithMembers> =
         deleted_at: null,
         late_instructor_cancellations_90d: 2,
         sick_days_90d: 1,
+        assistant_linked: true,
+        last_diary_activity_at: "2026-10-20T07:05:00.000Z",
       },
     ],
     admin_count: 0,

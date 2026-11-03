@@ -332,6 +332,11 @@ export default function OrganisationDetailClient({
     if (ok) setSuccess("Details saved.");
   }
 
+  async function toggleAssistant(next: boolean) {
+    const ok = await patchOrganisation({ assistant_enabled: next }, "assistant", "Could not change Diary on WhatsApp.");
+    if (ok) setSuccess(next ? `Diary on WhatsApp is on for ${organisation.name}.` : `Diary on WhatsApp is off for ${organisation.name}.`);
+  }
+
   async function changeStatus(next: OrganisationStatus) {
     if (!window.confirm(statusChangeConfirm(organisation.name, next))) return;
     const ok = await patchOrganisation({ status: next }, `status-${next}`, "Could not change the status.");
@@ -630,6 +635,30 @@ export default function OrganisationDetailClient({
           </div>
         </section>
       ) : null}
+
+      <section className="rounded-2xl border border-border bg-white p-5" aria-labelledby="assistant-title">
+        <h2 id="assistant-title" className="font-display text-lg text-ink">Diary on WhatsApp</h2>
+        <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
+          Lets this school&rsquo;s instructors link WhatsApp to Newdryve&rsquo;s diary assistant from the app&rsquo;s
+          Settings. Requests then reach them on WhatsApp with Accept and Decline buttons, and each morning they get
+          the day&rsquo;s lessons. Turning it off stops new links; instructors already linked keep it until they unlink.
+        </p>
+        {organisation.assistant_enabled == null ? (
+          <p className="mt-4 text-sm text-ink-muted">Not available from this API yet.</p>
+        ) : (
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <span className="text-sm font-semibold text-ink">{organisation.assistant_enabled ? "On" : "Off"}</span>
+            <button
+              type="button"
+              disabled={busy === "assistant"}
+              onClick={() => void toggleAssistant(!organisation.assistant_enabled)}
+              className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink disabled:opacity-60"
+            >
+              {busy === "assistant" ? "Saving…" : organisation.assistant_enabled ? "Turn off" : "Turn on"}
+            </button>
+          </div>
+        )}
+      </section>
 
       <section className="rounded-2xl border border-border bg-white p-5">
         <h2 className="font-display text-lg text-ink">Listing</h2>
