@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 const MODULE_BLURB: Record<string, string> = {
   customer_outreach: "Instructors and learners we want on Newdryve, and partners who can bring them.",
-  marketing_outreach: "Creators, press and campaigns that get the name out.",
+  marketing_outreach: "Video ideas as they come, press, and campaigns that get the name out.",
   investor_outreach: "Grants, investors and the obligations that come with their money.",
 };
 

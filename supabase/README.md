@@ -31,6 +31,8 @@ supabase db push            # applies everything in supabase/migrations/
 | `0014_ops_pipeline_fix_unlock_stamping.sql` | Fixes `unlocked_at` being stamped on blocked nodes (seeding inserts nodes before edges) |
 | `0015_ops_pipeline_harden_function_privileges.sql` | Fixed `search_path` + revokes `anon` EXECUTE on the pipeline SECURITY DEFINER helpers |
 | `0016_data_deletion_requests.sql` | Private audit trail for requests submitted at `/datadeletion` |
+| `0017_waitlist_signups.sql` | Waitlist sign-ups |
+| `0018_ops_video_ideas_board.sql` | The Video ideas board (quick-add kanban for video ideas) replaces the unused Creator & UGC board |
 
 ### Delivery pipeline (0012–0015)
 

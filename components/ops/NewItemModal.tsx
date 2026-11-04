@@ -19,7 +19,7 @@ export default function NewItemModal({
   founders: Founder[];
   onCancel: () => void;
   /** Resolves when the server has answered, whether or not it created the item. */
-  onCreate: (values: Record<string, unknown>) => Promise<void> | void;
+  onCreate: (values: Record<string, unknown>) => Promise<unknown> | void;
 }) {
   const [values, setValues] = useState<Record<string, unknown>>(() => {
     const init: Record<string, unknown> = {};

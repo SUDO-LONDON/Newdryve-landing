@@ -419,10 +419,10 @@ export const BOARD_NAV: NavModule[] = [
   },
   {
     module: "marketing_outreach",
-    moduleName: "Marketing & UGC",
+    moduleName: "Marketing",
     basePath: "/ops/marketing",
     boards: [
-      { id: "creators", name: "Creator & UGC" },
+      { id: "ideas", name: "Video ideas" },
       { id: "press", name: "Press & Media" },
       { id: "campaigns", name: "Campaigns" },
     ],

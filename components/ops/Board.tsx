@@ -50,8 +50,17 @@ export default function Board({
   const [drawerId, setDrawerId] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [quickText, setQuickText] = useState("");
+  const [quickBusy, setQuickBusy] = useState(false);
 
   const primaryKey = useMemo(() => primaryFieldKey(fields), [fields]);
+  // Quick add: one line, Enter, done. Offered when the only thing a new item
+  // needs is its name (and a stage, which takes the first one).
+  const quickAddField = useMemo(() => {
+    const primary = fields.find((f) => f.key === primaryKey);
+    const otherRequired = fields.some((f) => f.required && f.key !== primaryKey && f.type !== "stage");
+    return primary && primary.type === "text" && !otherRequired ? primary : null;
+  }, [fields, primaryKey]);
   // Columns shown in table / on cards: skip long text for compactness.
   const compactFields = useMemo(
     () => fields.filter((f) => f.type !== "longtext").slice(0, 7),
@@ -128,7 +137,7 @@ export default function Board({
     if (d.item) setItems((prev) => prev.map((i) => (i.id === id ? d.item : i)));
   }
 
-  async function createItem(values: Record<string, unknown>) {
+  async function createItem(values: Record<string, unknown>): Promise<boolean> {
     const res = await fetch("/ops/api/items", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -138,8 +147,22 @@ export default function Board({
     if (d.item) {
       setItems((prev) => [d.item, ...prev]);
       setShowNew(false);
-    } else {
-      alert(d.error ?? "Failed to create item");
+      return true;
+    }
+    alert(d.error ?? "Failed to create item");
+    return false;
+  }
+
+  async function quickAdd() {
+    const text = quickText.trim();
+    if (!text || !quickAddField || quickBusy) return;
+    setQuickBusy(true);
+    try {
+      const values: Record<string, unknown> = { [quickAddField.key]: text };
+      if (fields.some((f) => f.key === "stage")) values.stage = board.stages[0] ?? "";
+      if (await createItem(values)) setQuickText("");
+    } finally {
+      setQuickBusy(false);
     }
   }
 
@@ -214,6 +237,32 @@ export default function Board({
             </button>
           </div>
         </div>
+
+        {quickAddField && (
+          <form
+            className="mt-3 flex gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void quickAdd();
+            }}
+          >
+            <input
+              value={quickText}
+              onChange={(e) => setQuickText(e.target.value)}
+              disabled={quickBusy}
+              aria-label={`Quick add: ${quickAddField.label}`}
+              placeholder={board.id === "ideas" ? "Got an idea? Type it and press Enter" : `Quick add: type the ${quickAddField.label.toLowerCase()} and press Enter`}
+              className="min-w-0 flex-1 rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
+            />
+            <button
+              type="submit"
+              disabled={quickBusy || !quickText.trim()}
+              className="rounded-lg border border-border bg-white px-3 py-2 text-sm text-ink hover:bg-blush-surface disabled:opacity-60"
+            >
+              {quickBusy ? "Adding…" : "Add"}
+            </button>
+          </form>
+        )}
 
         {/* Controls */}
         <div className="mt-3 flex flex-wrap items-center gap-2">

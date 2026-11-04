@@ -38,7 +38,7 @@ export const RUN_SECTIONS: OpsSection[] = [
 export const OUTREACH: OpsSection = {
   href: "/ops/outreach",
   label: "Outreach",
-  blurb: "Boards for who we are chasing: instructors, learners, partners, creators, press and investors.",
+  blurb: "Boards for who we are chasing (instructors, learners, partners, press, investors) and the video ideas board.",
 };
 
 /** How the company itself is run. */
