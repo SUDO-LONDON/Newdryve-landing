@@ -93,11 +93,11 @@ export default function OrganisationsClient({
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-racing-green">
-            Supply
+            Run the business
           </p>
-          <h1 className="mt-1 font-display text-2xl text-ink">Organisations</h1>
+          <h1 className="mt-1 font-display text-2xl text-ink">Schools</h1>
           <p className="mt-1 max-w-2xl text-sm text-ink-secondary">
-            Create a company account, give them an eight digit join code, then track the
+            Driving schools on Newdryve. Create one, give it its eight-digit join code, then see the
             instructors who connect from the app.
           </p>
         </div>
@@ -106,16 +106,16 @@ export default function OrganisationsClient({
           onClick={() => setOpen((value) => !value)}
           className="rounded-lg bg-racing-green px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-racing-green-dark"
         >
-          {open ? "Close" : "Create organisation"}
+          {open ? "Close" : "Add a school"}
         </button>
       </header>
 
       {createdCode ? (
         <div className="rounded-xl border border-racing-green/20 bg-racing-green/10 p-4">
-          <p className="text-sm font-semibold text-racing-green">Organisation code created</p>
+          <p className="text-sm font-semibold text-racing-green">School created. Its join code:</p>
           <p className="mt-1 font-mono text-3xl tracking-[0.18em] text-ink">{createdCode}</p>
           <p className="mt-1 text-sm text-ink-secondary">
-            Give this code to the organisation. Instructors enter it from Settings in the app.
+            Give this code to the school. Its instructors enter it from Settings in the app.
           </p>
         </div>
       ) : null}
@@ -124,7 +124,7 @@ export default function OrganisationsClient({
         <form onSubmit={create} className="rounded-2xl border border-border bg-white p-5">
           <div className="grid gap-4 md:grid-cols-2">
             <label className="text-sm font-medium text-ink">
-              Organisation name
+              School name
               <input
                 required
                 value={form.name}
@@ -184,7 +184,7 @@ export default function OrganisationsClient({
           <fieldset className="mt-5 border-t border-border pt-4">
             <legend className="font-display text-lg text-ink">Listing</legend>
             <p className="mb-3 mt-1 max-w-2xl text-sm text-ink-secondary">
-              Learners find the organisation as one listing. All optional.
+              Learners find the school as one listing. All optional.
             </p>
             <ListingFields draft={listing} onChange={setListing} idPrefix="create" />
           </fieldset>
@@ -214,7 +214,7 @@ export default function OrganisationsClient({
       ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile label="Organisations" value={String(totals.organisations)} />
+        <StatTile label="Schools" value={String(totals.organisations)} />
         <StatTile label="Linked instructors" value={String(totals.instructors)} />
         <StatTile label="In a lesson" value={String(totals.inLesson)} />
         <StatTile label="Total revenue" value={formatPence(totals.revenuePence)} />
@@ -286,8 +286,8 @@ export default function OrganisationsClient({
                   </table>
                 ) : (
                   <p className="px-4 py-5 text-sm text-ink-secondary">
-                    No instructors linked yet. Give the code to the organisation and they will
-                    appear here after joining from the app.
+                    No instructors linked yet. Give the code to the school and they will appear
+                    here after joining from the app.
                   </p>
                 )}
               </div>
@@ -296,7 +296,7 @@ export default function OrganisationsClient({
                 href={`/ops/organisations/${organisation.id}`}
                 className="mt-4 inline-flex rounded-lg border border-border px-3 py-2 text-sm font-semibold text-ink hover:bg-blush-surface"
               >
-                View organisation
+                Open school
               </Link>
             </article>
           );
@@ -305,9 +305,9 @@ export default function OrganisationsClient({
 
       {organisations.length === 0 ? (
         <div className="rounded-2xl border border-border bg-white p-8 text-center">
-          <p className="font-display text-xl text-ink">No organisations yet</p>
+          <p className="font-display text-xl text-ink">No schools yet</p>
           <p className="mt-1 text-sm text-ink-secondary">
-            Create the first company account to generate its join code.
+            Add the first school to get its join code.
           </p>
         </div>
       ) : null}

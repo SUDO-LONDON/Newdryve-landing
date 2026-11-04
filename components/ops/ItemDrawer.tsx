@@ -30,6 +30,7 @@ export default function ItemDrawer({
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [noteText, setNoteText] = useState("");
+  const [addingNote, setAddingNote] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -61,6 +62,7 @@ export default function ItemDrawer({
   }
 
   async function save() {
+    if (saving) return;
     setSaving(true);
     const res = await fetch(`/ops/api/items/${itemId}`, {
       method: "PATCH",
@@ -82,16 +84,21 @@ export default function ItemDrawer({
 
   async function addNote() {
     const text = noteText.trim();
-    if (!text) return;
-    const res = await fetch(`/ops/api/notes`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ item_id: itemId, body: text }),
-    });
-    const d = await res.json();
-    if (d.note) {
-      setNotes((n) => [d.note, ...n]);
-      setNoteText("");
+    if (!text || addingNote) return;
+    setAddingNote(true);
+    try {
+      const res = await fetch(`/ops/api/notes`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ item_id: itemId, body: text }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (d.note) {
+        setNotes((n) => [d.note, ...n]);
+        setNoteText("");
+      }
+    } finally {
+      setAddingNote(false);
     }
   }
 
@@ -178,9 +185,10 @@ export default function ItemDrawer({
                 />
                 <button
                   onClick={addNote}
-                  className="self-start rounded-lg border border-border px-3 py-2 text-sm text-ink hover:bg-blush-surface"
+                  disabled={addingNote}
+                  className="self-start rounded-lg border border-border px-3 py-2 text-sm text-ink hover:bg-blush-surface disabled:opacity-60"
                 >
-                  Add
+                  {addingNote ? "Adding…" : "Add"}
                 </button>
               </div>
               <ul className="mt-3 space-y-2">

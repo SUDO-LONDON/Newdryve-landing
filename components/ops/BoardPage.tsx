@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Board from "@/components/ops/Board";
 import { getBoard, getFounders } from "@/lib/ops/config";
 import { createSupabaseServerClient, getSessionEmail } from "@/lib/supabase/server";
-import type { OpsItem } from "@/lib/ops/types";
+import { BOARD_NAV, type OpsItem } from "@/lib/ops/types";
 
 // Server component that loads a board's config, items, founders and the
 // caller's saved view, then renders the generic Board. Every module route page
@@ -46,6 +46,7 @@ export default async function BoardPage({
       founders={founders}
       initialItems={(items ?? []) as unknown as OpsItem[]}
       initialView={(prefs?.data?.view as Record<string, unknown> | undefined) ?? null}
+      moduleName={BOARD_NAV.find((m) => m.module === cfg.board.module)?.moduleName}
     />
   );
 }

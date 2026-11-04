@@ -20,6 +20,7 @@ export default function FinancePanel({
   const [editingFunding, setEditingFunding] = useState(false);
   const [fundingInput, setFundingInput] = useState(String(initialFundingPence / 100));
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [savingFunding, setSavingFunding] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const spentPence = useMemo(
@@ -29,23 +30,29 @@ export default function FinancePanel({
   const remainingPence = fundingPence - spentPence;
 
   async function saveFunding() {
+    if (savingFunding) return;
     const pounds = Number(fundingInput);
     if (!Number.isFinite(pounds) || pounds < 0) {
       setError("Enter a valid funding amount");
       return;
     }
     setError(null);
-    const res = await fetch("/ops/api/finance", {
-      method: "PATCH",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ fundingPounds: pounds }),
-    });
-    const d = await res.json();
-    if (typeof d.fundingPence === "number") {
-      setFundingPence(d.fundingPence);
-      setEditingFunding(false);
-    } else {
-      setError(d.error ?? "Failed to update funding");
+    setSavingFunding(true);
+    try {
+      const res = await fetch("/ops/api/finance", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ fundingPounds: pounds }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (typeof d.fundingPence === "number") {
+        setFundingPence(d.fundingPence);
+        setEditingFunding(false);
+      } else {
+        setError(d.error ?? "Failed to update funding");
+      }
+    } finally {
+      setSavingFunding(false);
     }
   }
 
@@ -75,7 +82,7 @@ export default function FinancePanel({
   return (
     <section id="finance" className="rounded-2xl border border-border bg-white p-5">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="font-display text-lg text-ink">Funding &amp; spend</h2>
+        <h2 className="font-display text-lg text-ink">Funding and spend</h2>
         <button
           onClick={() => setShowSpend(true)}
           className="rounded-lg gradient-bg px-3 py-1.5 text-sm text-white"
@@ -110,8 +117,12 @@ export default function FinancePanel({
                 onChange={(e) => setFundingInput(e.target.value)}
                 className="w-full rounded-lg border border-border bg-white px-2 py-1 text-sm"
               />
-              <button onClick={saveFunding} className="rounded-lg bg-racing-green px-2 py-1 text-xs text-white">
-                Save
+              <button
+                onClick={saveFunding}
+                disabled={savingFunding}
+                className="rounded-lg bg-racing-green px-2 py-1 text-xs text-white disabled:opacity-60"
+              >
+                {savingFunding ? "Saving…" : "Save"}
               </button>
               <button
                 onClick={() => setEditingFunding(false)}

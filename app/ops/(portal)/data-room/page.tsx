@@ -25,10 +25,10 @@ export default async function DataRoomPage() {
   return (
     <div>
       <header className="mb-6">
-        <h1 className="font-display text-2xl text-ink">Data Room</h1>
+        <h1 className="font-display text-2xl text-ink">Documents</h1>
         <p className="text-sm text-ink-secondary mt-0.5 max-w-2xl">
-          Secure, founder-only document storage. Files are private and served only via short-lived
-          signed links; every upload, download, rename, replace, delete and restore is audited.
+          The company&apos;s documents, founders only. Files are private and opened through short-lived
+          links; every upload, download, rename, replace, delete and restore is recorded.
         </p>
       </header>
 

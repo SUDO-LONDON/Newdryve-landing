@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import type { Founder, OpsBoard, OpsField, OpsItem } from "@/lib/ops/types";
 import { formatValue, itemMatchesQuery, itemValue, primaryFieldKey } from "@/components/ops/format";
 import StageBadge from "@/components/ops/StageBadge";
-import FieldInput from "@/components/ops/FieldInput";
 import ItemDrawer from "@/components/ops/ItemDrawer";
 import CsvImportDialog from "@/components/ops/CsvImportDialog";
+import NewItemModal from "@/components/ops/NewItemModal";
 
 type ViewMode = "kanban" | "table";
 interface ViewState {
@@ -33,12 +34,15 @@ export default function Board({
   founders,
   initialItems,
   initialView,
+  moduleName,
 }: {
   board: OpsBoard;
   fields: OpsField[];
   founders: Founder[];
   initialItems: OpsItem[];
   initialView: Partial<ViewState> | null;
+  /** The outreach group this board sits in, for the breadcrumb. */
+  moduleName?: string;
 }) {
   const [items, setItems] = useState<OpsItem[]>(initialItems);
   const [view, setView] = useState<ViewState>({ ...DEFAULT_VIEW, ...(initialView ?? {}) });
@@ -130,7 +134,7 @@ export default function Board({
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ board_id: board.id, values }),
     });
-    const d = await res.json();
+    const d = await res.json().catch(() => ({}));
     if (d.item) {
       setItems((prev) => [d.item, ...prev]);
       setShowNew(false);
@@ -176,6 +180,12 @@ export default function Board({
   return (
     <div>
       <header className="mb-4">
+        <p className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-ink-muted">
+          <Link href="/ops/outreach" className="hover:text-ink">
+            Outreach
+          </Link>
+          {moduleName ? ` › ${moduleName}` : ""}
+        </p>
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
             <h1 className="font-display text-2xl text-ink">{board.name}</h1>
@@ -562,80 +572,6 @@ function TableView({
           )}
         </tbody>
       </table>
-    </div>
-  );
-}
-
-// ---- New item modal -------------------------------------------------------
-function NewItemModal({
-  board,
-  fields,
-  founders,
-  onCancel,
-  onCreate,
-}: {
-  board: OpsBoard;
-  fields: OpsField[];
-  founders: Founder[];
-  onCancel: () => void;
-  onCreate: (values: Record<string, unknown>) => void;
-}) {
-  const [values, setValues] = useState<Record<string, unknown>>(() => {
-    const init: Record<string, unknown> = {};
-    for (const f of fields) {
-      if (f.key === "stage") init[f.key] = board.stages[0] ?? "";
-      else if (f.type === "boolean") init[f.key] = false;
-      else init[f.key] = "";
-    }
-    return init;
-  });
-  const [error, setError] = useState<string | null>(null);
-
-  function submit() {
-    for (const f of fields) {
-      if (f.required && !values[f.key]) {
-        setError(`${f.label} is required`);
-        return;
-      }
-    }
-    onCreate(values);
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-ink/30" onClick={onCancel} aria-hidden />
-      <div className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl bg-white border border-border p-5 shadow-xl">
-        <h2 className="font-display text-xl text-ink mb-4">New — {board.name}</h2>
-        <div className="space-y-3">
-          {fields.map((f) => (
-            <div key={f.key}>
-              <label className="block text-sm font-medium text-ink mb-1">
-                {f.label}
-                {f.required && <span className="text-deep-rose"> *</span>}
-              </label>
-              <FieldInput
-                field={f}
-                board={board}
-                founders={founders}
-                value={values[f.key]}
-                onChange={(v) => setValues((p) => ({ ...p, [f.key]: v }))}
-              />
-            </div>
-          ))}
-        </div>
-        {error && <p className="mt-3 text-sm text-deep-rose">{error}</p>}
-        <div className="mt-5 flex justify-end gap-2">
-          <button
-            onClick={onCancel}
-            className="rounded-lg border border-border px-4 py-2 text-sm text-ink hover:bg-blush-surface"
-          >
-            Cancel
-          </button>
-          <button onClick={submit} className="rounded-lg gradient-bg px-4 py-2 text-sm text-white">
-            Create
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

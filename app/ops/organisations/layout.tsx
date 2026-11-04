@@ -5,7 +5,7 @@ import { isFounderEmail } from "@/lib/ops/env";
 import { getSessionEmail } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Organisations",
+  title: "Schools",
   robots: {
     index: false,
     follow: false,

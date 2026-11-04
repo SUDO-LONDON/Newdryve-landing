@@ -29,10 +29,10 @@ export default async function PipelinePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-2xl text-ink">Delivery pipeline</h1>
+        <h1 className="font-display text-2xl text-ink">Delivery</h1>
         <p className="mt-1 text-sm text-ink-secondary">
-          Work as a dependency graph. A task can only be ticked once everything it
-          depends on is done, and completing one notifies whoever it unblocks.
+          The build plan as a dependency graph. A task can only be ticked once everything it
+          depends on is done, and completing one tells whoever it unblocks.
         </p>
       </div>
 

@@ -99,9 +99,9 @@ export default async function DuePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-2xl text-ink">Due &amp; Overdue</h1>
+        <h1 className="font-display text-2xl text-ink">Everything due</h1>
         <p className="mt-1 text-sm text-ink-secondary">
-          Every dated action and funding obligation across all boards, in one place.
+          Every dated action and funding obligation across all the outreach boards, in one place.
         </p>
       </div>
 

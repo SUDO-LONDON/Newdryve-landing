@@ -73,10 +73,10 @@ export default async function InstructorsPage({
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-racing-green">
-          Supply
+          Run the business
         </p>
         <h1 className="font-display text-2xl text-ink">
-          {status === "billing" ? "Instructor Billing" : "Instructor Applications"}
+          {status === "billing" ? "Instructor billing" : "Instructors"}
         </h1>
         <p className="max-w-2xl text-sm text-ink-secondary">
           {status === "billing"

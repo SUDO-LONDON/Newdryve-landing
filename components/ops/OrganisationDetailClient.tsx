@@ -353,12 +353,12 @@ export default function OrganisationDetailClient({
     <div className="space-y-6">
       <div>
         <Link href="/ops/organisations" className="text-sm text-racing-green hover:underline">
-          &lt;- Organisations
+          ← Schools
         </Link>
         <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-widest text-racing-green">
-              Organisation
+              School
             </p>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               <h1 className="font-display text-2xl text-ink">{organisation.name}</h1>
