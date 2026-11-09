@@ -1,17 +1,13 @@
 // Founder portal gate. RLS remains the database enforcement layer; this middleware
-// handles fast founder gating, inactivity timeout, and Supabase cookie refresh.
+// handles fast founder gating and Supabase cookie refresh. A founder stays
+// signed in until they sign out or Supabase's own session expires.
 import { NextResponse, type NextRequest } from "next/server";
 import {
   createSupabaseMiddlewareClient,
   FOUNDER_EMAIL_HEADER,
   passThroughWithoutForgedIdentity,
 } from "@/lib/supabase/middleware";
-import {
-  isFounderEmail,
-  OPS_SESSION_TIMEOUT_MINUTES,
-  SUPABASE_ANON_KEY,
-  SUPABASE_URL,
-} from "@/lib/ops/env";
+import { isFounderEmail, SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/ops/env";
 import {
   createVerifiedFounderCookie,
   FOUNDER_PROOF_HEADER,
@@ -21,7 +17,6 @@ import {
   VERIFIED_COOKIE,
 } from "@/lib/ops/session";
 
-const LAST_ACTIVE_COOKIE = "ops_last_active";
 const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://newdryve.com";
 
 export async function middleware(request: NextRequest) {
@@ -88,33 +83,13 @@ export async function middleware(request: NextRequest) {
 
   if (isAuthRoute) return response();
 
-  const now = Date.now();
-  const timeoutMs = OPS_SESSION_TIMEOUT_MINUTES * 60 * 1000;
-  const lastCookie = request.cookies.get(LAST_ACTIVE_COOKIE);
-  const last = Number(lastCookie?.value || "0");
-  const activityExpired =
-    !lastCookie || !Number.isFinite(last) || !last || now - last > timeoutMs;
-
-  if (activityExpired && !isLogin && !isDenied) {
-    await supabase.auth.signOut();
-    const url = request.nextUrl.clone();
-    url.pathname = "/ops/login";
-    url.searchParams.set("timeout", "1");
-    const timedOut = NextResponse.redirect(url);
-    timedOut.cookies.delete(LAST_ACTIVE_COOKIE);
-    timedOut.cookies.delete(VERIFIED_COOKIE);
-    return timedOut;
-  }
-
   // Fast path: a cookie signed within the last OPS_REVERIFY_MS vouches for
   // the founder without a Supabase round trip. It is deliberately not
   // re-issued here, so Supabase is asked again once it ages out. getSession()
   // reads the local session (refreshing it only when it has expired), so a
   // founder who signed out elsewhere, or whose token needs rotating, still
   // goes through Supabase rather than riding on the cookie.
-  const verifiedEmail = activityExpired
-    ? null
-    : await readVerifiedFounderCookie(request.cookies.get(VERIFIED_COOKIE)?.value);
+  const verifiedEmail = await readVerifiedFounderCookie(request.cookies.get(VERIFIED_COOKIE)?.value);
   if (verifiedEmail && isFounderEmail(verifiedEmail)) {
     const {
       data: { session },
@@ -131,9 +106,7 @@ export async function middleware(request: NextRequest) {
         return applyAuthCookies(NextResponse.redirect(url));
       }
 
-      const res = response();
-      setLastActiveCookie(res, now);
-      return res;
+      return response();
     }
   }
 
@@ -168,7 +141,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const res = response();
-  if (email) await setOpsSessionCookies(res, email, now);
+  if (email) await setOpsSessionCookies(res, email);
   return res;
 }
 
@@ -207,16 +180,8 @@ const cookieOptions = {
   path: "/",
 };
 
-function setLastActiveCookie(res: NextResponse, now: number) {
-  res.cookies.set(LAST_ACTIVE_COOKIE, String(now), {
-    ...cookieOptions,
-    maxAge: OPS_SESSION_TIMEOUT_MINUTES * 60,
-  });
-}
-
 /** Called only after Supabase itself has confirmed the founder's session. */
-async function setOpsSessionCookies(res: NextResponse, email: string, now: number) {
-  setLastActiveCookie(res, now);
+async function setOpsSessionCookies(res: NextResponse, email: string) {
   const verified = await createVerifiedFounderCookie(email);
   if (verified) {
     res.cookies.set(VERIFIED_COOKIE, verified, {

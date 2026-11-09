@@ -1,4 +1,6 @@
-// Sign the founder out and clear the inactivity cookie. Posted from the nav.
+// Sign the founder out. Posted from the nav. ops_last_active is the cookie of
+// the inactivity timeout that no longer exists; browsers that still hold one
+// have it cleared here.
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { VERIFIED_COOKIE } from "@/lib/ops/session";

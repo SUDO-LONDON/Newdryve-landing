@@ -21,7 +21,6 @@ function opsAuthCallbackOrigin(): string {
 function LoginInner() {
   const params = useSearchParams();
   const next = sanitizeNext(params.get("next"));
-  const timedOut = params.get("timeout") === "1";
   const linkError = params.get("error") === "1";
 
   const [email, setEmail] = useState("");
@@ -84,11 +83,6 @@ function LoginInner() {
           </p>
         </div>
 
-        {timedOut && (
-          <p className="mb-4 rounded-lg bg-blush-surface border border-blush-border px-3 py-2 text-sm text-ink-secondary">
-            You were signed out after a period of inactivity. Please sign in again.
-          </p>
-        )}
         {linkError && (
           <p className="mb-4 rounded-lg bg-blush-surface border border-blush-border px-3 py-2 text-sm text-deep-rose">
             That sign-in link was invalid or expired. Request a new one below.

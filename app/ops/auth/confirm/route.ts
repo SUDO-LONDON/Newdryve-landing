@@ -5,11 +5,10 @@
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { isFounderEmail, OPS_SESSION_TIMEOUT_MINUTES } from "@/lib/ops/env";
+import { isFounderEmail } from "@/lib/ops/env";
 import { createVerifiedFounderCookie, OPS_REVERIFY_MS, VERIFIED_COOKIE } from "@/lib/ops/session";
 
 const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://newdryve.com";
-const LAST_ACTIVE_COOKIE = "ops_last_active";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -52,18 +51,13 @@ export async function GET(request: NextRequest) {
   }
 
   const res = NextResponse.redirect(opsUrl(next));
-  const cookieOptions = {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: OPS_SESSION_TIMEOUT_MINUTES * 60,
-  } as const;
-  res.cookies.set(LAST_ACTIVE_COOKIE, String(Date.now()), cookieOptions);
   const verified = await createVerifiedFounderCookie(email);
   if (verified) {
     res.cookies.set(VERIFIED_COOKIE, verified, {
-      ...cookieOptions,
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
       maxAge: Math.floor(OPS_REVERIFY_MS / 1000),
     });
   }

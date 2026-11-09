@@ -28,11 +28,6 @@ export const FOUNDER_ALLOWLIST: string[] = (process.env.OPS_FOUNDER_ALLOWLIST ||
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
 
-/** Inactivity window (minutes) before a founder must re-authenticate. */
-export const OPS_SESSION_TIMEOUT_MINUTES = Number(
-  process.env.OPS_SESSION_TIMEOUT_MINUTES || "30"
-);
-
 /** Case-insensitive allowlist check used by middleware and server routes. */
 export function isFounderEmail(email: string | null | undefined): boolean {
   if (!email) return false;
