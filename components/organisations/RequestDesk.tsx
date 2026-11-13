@@ -132,7 +132,7 @@ export default function RequestDesk({ data }: { data: RequestDetailResponse }) {
           {unavailable.length ? (
             <div>
               <button type="button" onClick={() => setShowAll((v) => !v)} className="focus-ring min-h-11 rounded-lg text-sm font-semibold text-racing-green underline" aria-expanded={showAll}>
-                {showAll ? "Hide" : "Show"} {unavailable.length} who can&apos;t
+                {`${showAll ? "Hide" : "Show"} ${unavailable.length} who can't`}
               </button>
               {showAll ? (
                 <ul className="mt-2 space-y-1 text-sm text-ink-secondary">
