@@ -1,16 +1,21 @@
 import Link from "next/link";
+import BannedInstructors from "@/components/organisations/BannedInstructors";
 import RemoveMemberButton from "@/components/organisations/RemoveMemberButton";
 import { diaryUpdatedLabel, formatPence, memberRecord90d, organisationTotals, type OpsOrganisationWithMembers } from "@/lib/ops/types";
 import { shortDate, time } from "@/lib/organisations/format";
+import type { RemovedMember } from "@/lib/organisations/removed-members";
 import { unavailableNotice, type UnavailableOrganisation } from "@/lib/organisations/unavailable";
 
 export default function OrganisationPortalClient({
   organisations,
   unavailable = [],
+  removed = null,
 }: {
   organisations: OpsOrganisationWithMembers[];
   /** Schools of this admin that Newdryve paused or closed (#499). */
   unavailable?: UnavailableOrganisation[];
+  /** Instructors these schools removed (#644); null when they could not be read. */
+  removed?: RemovedMember[] | null;
 }) {
   const notice = unavailableNotice(unavailable);
   // Every school this login has is paused or closed: say that, not a portal
@@ -339,6 +344,13 @@ export default function OrganisationPortalClient({
                   </p>
                 ) : null}
               </div>
+              {removed ? (
+                <BannedInstructors
+                  organisationId={organisation.id}
+                  organisationName={organisation.name}
+                  members={removed.filter((member) => member.organisation_id === organisation.id)}
+                />
+              ) : null}
             </section>
           );
         })}
