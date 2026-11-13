@@ -7,7 +7,8 @@ import { apiError, readJson } from "@/lib/organisations/http";
 /**
  * "Remove from organisation" for one instructor, behind a confirm. Used by the
  * school portal and by ops, each with its own endpoint. The API ends the
- * membership (the API stops billing them; the week they leave is not invoiced)
+ * membership (the API stops billing them; the week they leave is not invoiced),
+ * bans them from rejoining with the code until the school unbans them (#644),
  * and notifies the school's admins; the page then re-reads the roster.
  */
 export default function RemoveMemberButton({
@@ -29,7 +30,7 @@ export default function RemoveMemberButton({
     const ok = window.confirm(
       `Remove ${instructorName} from ${organisationName}?\n\n` +
         "They leave the organisation and its listing, and the organisation stops charging them a fee. " +
-        "The organisation's admins are notified. They can rejoin later with the join code."
+        "The organisation's admins are notified. They cannot rejoin with the join code until the organisation unbans them."
     );
     if (!ok) return;
     setBusy(true);
