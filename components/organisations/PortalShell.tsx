@@ -7,6 +7,8 @@ import NotificationBell from "@/components/organisations/NotificationBell";
 const NAV = [
   { href: "/organisations", label: "Overview" },
   { href: "/organisations/live", label: "Live" },
+  { href: "/organisations/requests", label: "Requests" },
+  { href: "/organisations/diary", label: "Diary" },
   { href: "/organisations/timesheets", label: "Timesheets" },
   { href: "/organisations/learners", label: "Learners" },
   { href: "/organisations/invoices", label: "Invoices" },
