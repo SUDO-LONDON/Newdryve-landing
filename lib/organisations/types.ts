@@ -270,3 +270,39 @@ export interface Invoice {
   paid_at: string | null;
   emailed_at: string | null;
 }
+
+/** GET /v1/organisations/me/test-results (backend docs/contracts/test-results.md). */
+export interface TestResultSummary {
+  tests: number;
+  passes: number;
+  /** Whole percent; null with no tests. */
+  pass_rate: number | null;
+  average_minors: number | null;
+  average_majors: number | null;
+}
+
+export interface TestResult {
+  id: string;
+  organisation_id: string | null;
+  instructor_id: string;
+  instructor_name: string;
+  learner_name: string;
+  /** A learner on Newdryve, or the instructor's own private learner. */
+  learner_kind: "newdryve" | "private";
+  /** YYYY-MM-DD */
+  test_date: string;
+  majors: number;
+  minors: number;
+  passed: boolean;
+  examiner_name: string;
+  created_at: string;
+}
+
+export interface TestResultsResponse {
+  generated_at: string;
+  organisations: OrgRef[];
+  summary: TestResultSummary;
+  results: TestResult[];
+  /** More results exist than were sent (the newest 500 are). */
+  truncated: boolean;
+}
