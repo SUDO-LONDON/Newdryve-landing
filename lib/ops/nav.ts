@@ -12,7 +12,7 @@ export interface OpsSection {
 export const TODAY: OpsSection = {
   href: "/ops",
   label: "Today",
-  blurb: "What needs you now: overdue work, applications waiting, money left.",
+  blurb: "What needs you now: overdue work, applications waiting, schools.",
 };
 
 /** The live business. */
@@ -26,11 +26,6 @@ export const RUN_SECTIONS: OpsSection[] = [
     href: "/ops/organisations",
     label: "Schools",
     blurb: "Driving schools on Newdryve: join codes, their instructors, fees and admin logins.",
-  },
-  {
-    href: "/ops/money",
-    label: "Money",
-    blurb: "Funding received, what has been spent (with receipts), and what is owed back.",
   },
 ];
 

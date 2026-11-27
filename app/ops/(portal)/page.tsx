@@ -1,10 +1,10 @@
 // Today: the one page to open first. What needs you now (overdue work,
-// applications waiting, money left, schools), then what is coming up, then a
+// applications waiting, schools), then what is coming up, then a
 // map of where everything else lives. Nothing is edited here.
 import Link from "next/link";
 import { createSupabaseServerClient, getSessionEmail } from "@/lib/supabase/server";
 import { getBoards } from "@/lib/ops/config";
-import { boardBasePath, formatPence } from "@/lib/ops/types";
+import { boardBasePath } from "@/lib/ops/types";
 import type { OpsField, OpsItem } from "@/lib/ops/types";
 import { DUE, OUTREACH, RUN_SECTIONS, TEAM_SECTIONS, type OpsSection } from "@/lib/ops/nav";
 import { isInstructorApiConfigured, listInstructorApplications } from "@/lib/ops/instructors";
@@ -50,7 +50,7 @@ export default async function TodayPage() {
   const email = (await getSessionEmail()) || "";
   const today = todayISO();
 
-  const [boards, fieldsRes, overdueActionsRes, obligationsRes, pipelineRes, fundingRes, spendRes, live] = await Promise.all([
+  const [boards, fieldsRes, overdueActionsRes, obligationsRes, pipelineRes, live] = await Promise.all([
     getBoards(),
     supabase.from("ops_fields").select("board_id,key,type,required,position").order("position", { ascending: true }),
     supabase
@@ -62,8 +62,6 @@ export default async function TodayPage() {
       .order("next_action_date", { ascending: true }),
     supabase.from("ops_items").select("id,board_id,stage,data,updated_at").eq("board_id", "obligations").is("deleted_at", null),
     supabase.from("ops_items").select("id,board_id,stage,data,updated_at").eq("board_id", "pipeline").is("deleted_at", null),
-    supabase.from("ops_settings").select("value").eq("key", "funding_total_pence").maybeSingle(),
-    supabase.from("ops_expenses").select("amount_pence").is("deleted_at", null),
     liveCounts(email),
   ]);
 
@@ -108,10 +106,6 @@ export default async function TodayPage() {
     .sort((a, b) => a.date.localeCompare(b.date))
     .slice(0, 8);
 
-  const fundingPence = Number(fundingRes.data?.value ?? 0) || 0;
-  const spentPence = ((spendRes.data ?? []) as Array<{ amount_pence: number }>).reduce((sum, e) => sum + Number(e.amount_pence || 0), 0);
-  const leftPence = fundingPence - spentPence;
-
   return (
     <div className="space-y-8">
       <div>
@@ -125,7 +119,7 @@ export default async function TodayPage() {
         <h2 id="needs-you" className="sr-only">
           Needs you
         </h2>
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
           <Tile
             href={DUE.href}
             label="Overdue"
@@ -146,13 +140,6 @@ export default async function TodayPage() {
             value={live ? String(live.schools) : "–"}
             tone="plain"
             note={live ? "Active on Newdryve" : "Not connected to the API"}
-          />
-          <Tile
-            href="/ops/money"
-            label="Money left"
-            value={formatPence(leftPence)}
-            tone={leftPence < 0 ? "bad" : "good"}
-            note={`${formatPence(spentPence)} spent of ${formatPence(fundingPence)}`}
           />
         </div>
       </section>

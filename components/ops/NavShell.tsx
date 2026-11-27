@@ -6,7 +6,7 @@ import { useState } from "react";
 import { BOARD_NAV } from "@/lib/ops/types";
 import { OUTREACH, RUN_SECTIONS, TEAM_SECTIONS, TODAY, isOutreachPath, type OpsSection } from "@/lib/ops/nav";
 
-// The sidebar: seven places, in three groups, with plain names. The nine
+// The sidebar: six places, in three groups, with plain names. The nine
 // outreach boards only unfold while you are in Outreach, so the list at rest
 // fits on one screen and reads top to bottom as "what is where".
 export default function NavShell({

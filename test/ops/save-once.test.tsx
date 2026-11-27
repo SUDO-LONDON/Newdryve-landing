@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpsBoard, OpsField } from "@/lib/ops/types";
 
 const { default: NewItemModal } = await import("@/components/ops/NewItemModal");
-const { default: FinancePanel } = await import("@/components/ops/FinancePanel");
 const { default: ItemDrawer } = await import("@/components/ops/ItemDrawer");
 
 // A press that saves must save once, however many times it is pressed while
@@ -48,26 +47,6 @@ describe("saving once", () => {
     fireEvent.click(screen.getByRole("button", { name: "Create" }));
     expect(screen.getByRole("alert").textContent).toBe("Name is required");
     expect(onCreate).not.toHaveBeenCalled();
-  });
-
-  it("Money: pressing Save on the funding total twice sends one request", async () => {
-    const slow = pending();
-    const fetchMock = vi.fn(async () => {
-      await slow.promise;
-      return new Response(JSON.stringify({ fundingPence: 1_000_00 }), { status: 200 });
-    });
-    vi.stubGlobal("fetch", fetchMock);
-    render(<FinancePanel initialFundingPence={0} initialExpenses={[]} />);
-    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
-    fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "1000" } });
-    const save = screen.getByRole("button", { name: "Save" });
-    fireEvent.click(save);
-    fireEvent.click(save);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    await act(async () => slow.handle.resolve());
-    await waitFor(() => expect(screen.getByRole("button", { name: "Edit" })).toBeTruthy());
-    // Total funding and remaining both show the new figure.
-    expect(screen.getAllByText("£1,000.00")).toHaveLength(2);
   });
 
   it("Notes: pressing Add twice posts one note", async () => {

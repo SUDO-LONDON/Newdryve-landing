@@ -49,6 +49,14 @@ would close a dependency cycle.
 `ops_kpis` is deliberately left in place — the UI is gone but the historical rows
 remain readable. Drop it separately once exported.
 
+### Money (0008–0010)
+
+The Money section (funding total, spend with receipts, QR receipt capture) has
+been removed from the portal. `ops_settings`, `ops_expenses`,
+`ops_capture_sessions` and the private `receipts` bucket are deliberately left in
+place so the recorded spend and receipt files stay readable. Drop them
+separately once exported.
+
 Notifications need `OPS_DISCORD_WEBHOOK_URL` and `OPS_DISCORD_USER_IDS` (see
 `.env.example`). Unset simply disables pings; the pipeline still works and the UI
 says plainly that nobody was notified.

@@ -22,16 +22,6 @@ const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Public QR receipt-capture handoff. The mobile page and its API are reached
-  // by an unauthenticated phone, so they bypass the founder gate here; each of
-  // those routes enforces its own auth (token capability for the phone-facing
-  // upload/poll, requireFounder for session creation and consumption).
-  // requireFounder trusts the founder-email header, so even on this bypass an
-  // inbound copy of it must be stripped rather than passed through.
-  if (pathname.startsWith("/ops/capture") || pathname.startsWith("/ops/api/capture")) {
-    return passThroughWithoutForgedIdentity(request);
-  }
-
   if (pathname === "/") {
     const hasOtpParams =
       request.nextUrl.searchParams.has("code") ||

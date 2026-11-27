@@ -263,20 +263,6 @@ export function organisationTotals(members: OpsOrganisationMember[]) {
   };
 }
 
-// Finance — funding + spend. Amounts are integer pence.
-export interface OpsExpense {
-  id: string;
-  description: string;
-  category: string | null;
-  amount_pence: number;
-  spent_on: string; // YYYY-MM-DD
-  receipt_path: string;
-  receipt_mime: string | null;
-  created_by: string | null;
-  created_at: string;
-  deleted_at: string | null;
-}
-
 // Weekly KPI assigned to a founder. Created by the CEO; ticked by the assignee.
 export interface OpsKpi {
   id: string;
