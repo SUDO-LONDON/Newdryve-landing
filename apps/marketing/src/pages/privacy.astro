@@ -5,6 +5,7 @@
  * so the text must not be altered, summarised or replaced with placeholder copy.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
 import { organizationSchema, breadcrumbSchema } from '../lib/schema';
 
 const title = 'Newdryve Privacy Policy | Learner and Instructor Data';
@@ -22,17 +23,12 @@ const jsonLd = [
 const linkClass = 'font-semibold underline';
 ---
 
-<BaseLayout title={title} description={description} path="/privacy" jsonLd={jsonLd}>
+<BaseLayout title={title} description={description} path="/privacy" jsonLd={jsonLd} footerEdge="paper">
   <!-- Mint hero, carrying on from the header band. -->
-  <section class="bg-mint">
-    <div class="nd-container pt-10 pb-14 md:pt-16 md:pb-20">
-      <div class="max-w-[44em]">
-        <h1 class="nd-h1">
-          Privacy Policy
-        </h1>
+  <PageHero hand="the small print" title="Privacy Policy" car="long-hair">
         <p class="mt-4 text-base font-semibold">Last updated 22 October 2026</p>
 
-        <p class="nd-card mt-8 px-6 py-5 text-base leading-relaxed">
+        <p class="nd-card nd-shadow mt-8 max-w-[44em] px-6 py-5 text-base leading-relaxed">
           <strong>Data controller:</strong> NEWDRYVE LTD, trading as Newdryve, company
           number 17234490. Registered office: 10 Greylag Close, Norwich, NR7 8FQ, England. For privacy
           questions or requests, email <a href="mailto:support@newdryve.com" class={linkClass}
@@ -43,9 +39,7 @@ const linkClass = 'font-semibold underline';
             NEWDRYVE LTD.</span
           >
         </p>
-      </div>
-    </div>
-  </section>
+  </PageHero>
 
   <div class="nd-container nd-section">
     <div class="nd-prose [&_section>*+*]:mt-[1em] [&>section:first-child>h2]:mt-0">

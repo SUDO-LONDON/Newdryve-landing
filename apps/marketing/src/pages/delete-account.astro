@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
 import { organizationSchema, breadcrumbSchema } from '../lib/schema';
 
 const title = 'Delete Your Newdryve Account';
@@ -18,15 +19,13 @@ const linkClass = 'font-semibold text-forest underline underline-offset-2';
 const markerClass = 'nd-marker size-10 text-lg';
 ---
 
-<BaseLayout title={title} description={description} path="/delete-account" jsonLd={jsonLd}>
-  <section class="bg-mint pt-12 pb-14 md:pt-16 md:pb-20">
-    <div class="nd-container">
-      <h1 class="nd-h1 max-w-[14em]">delete your newdryve account</h1>
-      <p class="nd-lede mt-5 max-w-[34em]">
-        These instructions are for students and instructors using the Newdryve app.
-      </p>
-    </div>
-  </section>
+<BaseLayout title={title} description={description} path="/delete-account" jsonLd={jsonLd} footerEdge="paper">
+  <PageHero
+    hand="sorry to see you go"
+    title="delete your newdryve account"
+    lede="These instructions are for students and instructors using the Newdryve app."
+    carColor="#FFD96B"
+  />
 
   <div class="nd-container py-14 md:py-20">
     <div class="mx-auto flex max-w-3xl flex-col gap-6">

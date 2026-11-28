@@ -1,0 +1,15 @@
+---
+/**
+ * A scalloped edge: a row of half-circles in `color` hanging from the top of
+ * the band it sits in, so the band above appears to drip into this one. Put
+ * it first inside the lower band, and pass the colour of the band above.
+ */
+interface Props {
+  color: 'mint' | 'pink' | 'paper' | 'forest' | 'chip';
+  class?: string;
+}
+
+const { color, class: className = '' } = Astro.props;
+---
+
+<div aria-hidden="true" class={`nd-scallop ${className}`} style={`--scallop:var(--${color})`}></div>

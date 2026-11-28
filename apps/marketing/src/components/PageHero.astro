@@ -1,0 +1,34 @@
+---
+/**
+ * The mint hero for the smaller pages (legal, account and form pages): a
+ * hand-written aside, the title, an optional lede, and the car on wide
+ * screens. It ends in a scalloped edge into the paper below. Anything in the
+ * slot sits under the lede.
+ */
+import Car from './Car.astro';
+import Scallop from './Scallop.astro';
+
+interface Props {
+  title: string;
+  hand?: string;
+  lede?: string;
+  /** Which driver to show, or false for no car. */
+  car?: 'short-hair' | 'long-hair' | false;
+  carColor?: string;
+}
+
+const { title, hand, lede, car = 'short-hair', carColor = '#FF9CC4' } = Astro.props;
+---
+
+<section class="bg-mint">
+  <div class="nd-container flex items-end justify-between gap-x-12 pt-10 md:pt-16">
+    <div class="min-w-0 max-w-[46em] pb-12 md:pb-16">
+      {hand && <p class="nd-hand mb-2 ml-1 text-[28px]">{hand}</p>}
+      <h1 class="nd-h1 max-w-[14em]">{title}</h1>
+      {lede && <p class="nd-lede mt-5 max-w-[34em]">{lede}</p>}
+      <slot />
+    </div>
+    {car && <Car width={230} color={carColor} look={car} class="mb-4 hidden shrink-0 lg:block" />}
+  </div>
+</section>
+<Scallop color="mint" />

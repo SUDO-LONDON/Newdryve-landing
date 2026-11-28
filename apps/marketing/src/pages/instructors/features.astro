@@ -2,6 +2,9 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Faq from '../../components/Faq.astro';
 import StoreBadges from '../../components/StoreBadges.astro';
+import Phone from '../../components/Phone.astro';
+import Car from '../../components/Car.astro';
+import Scallop from '../../components/Scallop.astro';
 import { PRICING, BRAND } from '../../config/site';
 import { INSTRUCTOR_FEATURES, SCHOOL_FEATURES } from '../../content/instructor-features';
 import {
@@ -43,6 +46,48 @@ const FAQ_ITEMS: readonly FaqItem[] = [
   },
 ];
 
+/* The app screen shown beside each feature, and the colour of its tile. */
+const FEATURE_SCREENS: Record<string, { screen: string; alt: string }> = {
+  diary: {
+    screen: 'instructor-iCalendar',
+    alt: 'The newdryve instructor calendar for a Saturday, with lessons, a mock test, lunch and travel time to the next pick-up',
+  },
+  pupils: {
+    screen: 'instructor-students',
+    alt: 'The newdryve Students screen listing learners with their lesson counts and how test-ready each one is',
+  },
+  progress: {
+    screen: 'learner-progress',
+    alt: 'The newdryve progress screen: 12 of 27 skills signed off, with strengths and what to focus on next',
+  },
+  payments: {
+    screen: 'instructor-iLessonComplete',
+    alt: 'Completing a lesson in newdryve and choosing how it was paid: card, cash, bank transfer or no charge',
+  },
+  cancellations: {
+    screen: 'instructor-cancellations',
+    alt: 'The newdryve Cancellations screen listing late cancellations and the fee charged for each',
+  },
+  money: {
+    screen: 'instructor-iEarnings',
+    alt: 'The newdryve Earnings screen with the amount available to pay out, recorded income for the month and export options',
+  },
+  messages: {
+    screen: 'instructor-messages',
+    alt: 'The newdryve Messages screen with conversations from three learners',
+  },
+  'road-board': {
+    screen: 'instructor-roadBoard',
+    alt: 'Road Board in newdryve: a roundabout drawn on screen with three cars and an arrow showing who gives way',
+  },
+  'new-learners': {
+    screen: 'learner-discover',
+    alt: 'What learners see in newdryve: instructors and schools near them with ratings, prices and next free slots',
+  },
+};
+
+const TILE_TONES = ['bg-avatar-tile', 'bg-pink', 'bg-chip'];
+
 const jsonLd = [
   organizationSchema,
   instructorAppSchema,
@@ -61,11 +106,12 @@ const jsonLd = [
   path="/instructors/features"
   jsonLd={jsonLd}
   audience="instructor"
+  footerEdge="pink"
 >
   <!-- HERO: mint, continuing the header band -->
   <section class="bg-mint">
-    <div class="nd-container pt-12 pb-16 md:pt-[72px] md:pb-24">
-      <p class="nd-small-label">Newdryve for instructors</p>
+    <div class="nd-container pt-12 pb-14 md:pt-[72px] md:pb-20">
+      <p class="nd-hand ml-1.5">every feature, one app</p>
       <h1 class="nd-h1 mt-4 max-w-[17em]">
         driving instructor management software, with pupils who book you <span class="nd-highlight"
           >built in.</span
@@ -95,53 +141,69 @@ const jsonLd = [
     </div>
   </section>
 
-  <!-- FEATURES -->
-  <div class="nd-container pt-6 md:pt-10">
+  <!-- FEATURES: one row each, the app screen on a coloured tile beside it -->
+  <div class="nd-container py-10 md:py-16">
     {
-      INSTRUCTOR_FEATURES.map((feature, index) => (
-        <section
-          id={feature.id}
-          aria-labelledby={`${feature.id}-title`}
-          class={`grid gap-x-16 gap-y-6 py-12 md:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] ${
-            index > 0 ? 'border-t-2 border-forest' : ''
-          }`}
-        >
-          <h2 id={`${feature.id}-title`} class="nd-h3">
-            {feature.title}
-          </h2>
-          <div class="min-w-0">
-            <div class="flex max-w-[38em] flex-col gap-3 text-lg">
-              {feature.detail.map((paragraph) => <p>{paragraph}</p>)}
+      INSTRUCTOR_FEATURES.map((feature, index) => {
+        const shot = FEATURE_SCREENS[feature.id];
+        const flip = index % 2 === 1;
+        return (
+          <section
+            id={feature.id}
+            aria-labelledby={`${feature.id}-title`}
+            class="reveal grid items-center gap-x-16 gap-y-7 py-8 md:py-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
+          >
+            {shot && (
+              <div
+                class:list={[
+                  'flex justify-center overflow-hidden rounded-[32px] px-6 pt-9',
+                  TILE_TONES[index % TILE_TONES.length],
+                  flip && 'lg:order-2',
+                ]}
+              >
+                <Phone screen={shot.screen} alt={shot.alt} crop class="h-[300px] w-full max-w-[290px] md:h-[360px]" />
+              </div>
+            )}
+            <div class="min-w-0">
+              <p class="font-heading text-xl font-extrabold tracking-[-0.02em] text-forest-soft" aria-hidden="true">
+                {String(index + 1).padStart(2, '0')}
+              </p>
+              <h2 id={`${feature.id}-title`} class="nd-h3 mt-1.5">
+                {feature.title}
+              </h2>
+              <div class="mt-4 flex max-w-[36em] flex-col gap-3 text-lg">
+                {feature.detail.map((paragraph) => <p>{paragraph}</p>)}
+              </div>
+              <ul class="mt-5 flex max-w-[36em] flex-col">
+                {feature.points.map((point) => (
+                  <li class="flex items-start gap-3 border-t-2 border-dashed border-forest py-2.5 text-[17px]">
+                    <span
+                      class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-forest bg-mint"
+                      aria-hidden="true"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M5 12.5l4.5 4.5L19 7.5"
+                          stroke="currentColor"
+                          stroke-width="3.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </span>
+                    {point}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul class="mt-6 grid gap-x-8 sm:grid-cols-2">
-              {feature.points.map((point) => (
-                <li class="flex items-start gap-3 border-t-2 border-dashed border-forest py-3 text-[17px]">
-                  <span
-                    class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-forest bg-mint"
-                    aria-hidden="true"
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M5 12.5l4.5 4.5L19 7.5"
-                        stroke="currentColor"
-                        stroke-width="3.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </span>
-                  {point}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      ))
+          </section>
+        );
+      })
     }
 
-    <section id="schools" aria-labelledby="schools-title" class="pt-4 pb-16 md:pb-24">
+    <section id="schools" aria-labelledby="schools-title" class="pt-8">
       <div
-        class="flex flex-col gap-6 rounded-[32px] bg-pink p-6 sm:p-10 md:flex-row md:items-center md:justify-between"
+        class="on-forest flex flex-col gap-6 rounded-[32px] bg-forest p-6 text-paper sm:p-10 md:flex-row md:items-center md:justify-between"
       >
         <div>
           <h2 id="schools-title" class="nd-h3">{SCHOOL_FEATURES.title}</h2>
@@ -149,7 +211,7 @@ const jsonLd = [
         </div>
         <a
           href={`mailto:${BRAND.email}?subject=Newdryve%20for%20driving%20schools`}
-          class="nd-btn shrink-0"
+          class="nd-btn shrink-0 border-mint bg-mint text-forest"
         >
           Talk to us about your school
         </a>
@@ -158,41 +220,36 @@ const jsonLd = [
   </div>
 
   <!-- SWITCHING -->
-  <section class="pb-16 md:pb-24">
-    <div class="nd-container">
-      <div
-        class="on-forest grid gap-x-16 gap-y-6 rounded-[32px] bg-forest p-6 text-paper sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:p-14"
-      >
-        <h2 class="nd-h2">switching from another app</h2>
-        <div>
-          <div class="flex max-w-[38em] flex-col gap-3 text-lg">
-            <p>
-              We sit down with you, set up your profile and diary together, and show you round the
-              app. Then we help you bring your existing pupils across: send them your link and they
-              land on your profile to book.
-            </p>
-            <p>
-              If you are coming from TotalDrive, MyDriveTime or another diary app, everything you use
-              day to day is here. Notes and progress records kept in your old app do not transfer
-              automatically; from the moment a pupil joins Newdryve, everything is recorded against
-              them.
-            </p>
-          </div>
-          <a
-            href="/instructors#switching"
-            class="mt-6 inline-flex min-h-11 items-center font-semibold text-paper underline"
-          >
-            How switching works
-          </a>
+  <section class="bg-chip">
+    <Scallop color="paper" />
+    <div class="nd-container grid gap-x-16 gap-y-6 py-16 md:py-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+      <h2 class="nd-h2">switching from another app</h2>
+      <div>
+        <div class="flex max-w-[38em] flex-col gap-3 text-lg">
+          <p>
+            We sit down with you, set up your profile and diary together, and show you round the
+            app. Then we help you bring your existing pupils across: send them your link and they
+            land on your profile to book.
+          </p>
+          <p>
+            If you are coming from TotalDrive, MyDriveTime or another diary app, everything you use
+            day to day is here. Notes and progress records kept in your old app do not transfer
+            automatically; from the moment a pupil joins Newdryve, everything is recorded against
+            them.
+          </p>
         </div>
+        <a href="/instructors#switching" class="nd-btn-secondary mt-7">How switching works</a>
       </div>
     </div>
   </section>
 
   <!-- FAQ -->
-  <section id="faq" class="pb-16 md:pb-24">
+  <section id="faq" class="nd-section">
     <div class="nd-container grid items-start gap-x-16 gap-y-8 lg:grid-cols-[1fr_1.5fr]">
-      <h2 class="nd-h2">questions about features</h2>
+      <div class="flex flex-col items-start gap-8">
+        <h2 class="nd-h2">questions about features</h2>
+        <Car width={240} class="hidden lg:block" />
+      </div>
       <Faq items={FAQ_ITEMS} />
     </div>
   </section>

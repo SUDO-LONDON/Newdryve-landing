@@ -23,6 +23,7 @@
  * not the verification itself, and is deleted after review.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
 import { testCentresByCity, testCentreOptionsByCity } from '../../data/driving-test-centres';
 import { defaultInstructorLanguage, instructorLanguages } from '../../data/instructor-languages';
 import { organizationSchema, breadcrumbSchema } from '../../lib/schema';
@@ -112,17 +113,13 @@ const acceptTypes =
   path="/instructors/apply"
   jsonLd={jsonLd}
   audience="instructor"
+  footerEdge="paper"
 >
-  <section class="bg-mint pt-12 pb-14 md:pt-16 md:pb-20">
-    <div class="nd-container">
-      <p class="nd-small-label">Founding instructors</p>
-      <h1 class="nd-h1 mt-3 max-w-[14em]">apply to teach with newdryve</h1>
-      <p class="nd-lede mt-5 max-w-[34em]">
-        We&rsquo;re building a carefully selected founding group of ADI-qualified instructors across
-        Great Britain. Tell us about yourself and how you teach, and we&rsquo;ll review your application by hand.
-      </p>
-    </div>
-  </section>
+  <PageHero
+    hand="founding instructors"
+    title="apply to teach with newdryve"
+    lede="We’re building a carefully selected founding group of ADI-qualified instructors across Great Britain. Tell us about yourself and how you teach, and we’ll review your application by hand."
+  />
 
   <div class="nd-container py-14 md:py-20">
     <div class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:gap-14">

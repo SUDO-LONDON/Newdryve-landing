@@ -20,7 +20,11 @@
  * - The pink highlight block appears once per page, behind one word.
  * - Headings are lowercase in the copy itself (not text-transform, so proper
  *   nouns in content-driven headings survive). No all-caps labels.
- * - No gradients, no emoji, no arrow glyphs in button labels.
+ * - No gradients, no emoji, no arrow glyphs in button labels. The one
+ *   exception is the road, which runs from mint to pink.
+ * - Pages are built from full-width colour bands (mint, pink, forest, chip,
+ *   paper) joined by scalloped edges, not from stacks of paper sections.
+ *   Mint is for the hero; do not put two mint bands on one page.
  */
 
 @theme inline {
@@ -388,6 +392,54 @@
     font-family: var(--font-heading);
     font-weight: 800;
     font-size: 24px;
+  }
+
+  /* Scalloped band edge. See components/Scallop.astro. */
+  .nd-scallop {
+    height: 24px;
+    background: radial-gradient(circle at 24px 0, var(--scallop) 23.5px, transparent 24px) center top / 48px 24px
+      repeat-x;
+  }
+
+  @media (min-width: 768px) {
+    .nd-scallop {
+      height: 36px;
+      background: radial-gradient(circle at 36px 0, var(--scallop) 35.5px, transparent 36px) center top / 72px
+        36px repeat-x;
+    }
+  }
+
+  /* Mint and pink highlight blocks for the two words in "from green to pink". */
+  .nd-mark-mint,
+  .nd-mark-pink {
+    display: inline-block;
+    border-radius: 0.14em;
+    padding: 0 0.12em 0.05em;
+  }
+
+  .nd-mark-mint {
+    background: var(--mint);
+    transform: rotate(-2deg);
+  }
+
+  .nd-mark-pink {
+    background: var(--pink);
+    transform: rotate(2deg);
+  }
+
+  /* A straight stretch of road: mint to pink, dashed down the middle. */
+  .nd-roadline {
+    position: relative;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--mint) 20%, var(--pink) 80%);
+  }
+
+  .nd-roadline::after {
+    content: '';
+    position: absolute;
+    inset: 50% 14px auto;
+    border-top: 3px dashed var(--forest);
+    translate: 0 -50%;
   }
 
   /* Forms */

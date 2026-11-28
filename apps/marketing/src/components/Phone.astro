@@ -1,0 +1,40 @@
+---
+/**
+ * An app screen in a forest phone frame. The screens live in
+ * /public/product/app as 780 x 1688 WebP renders of the app's design, with
+ * sample data.
+ *
+ * `crop` shows only the top of the screen in a frame with no bottom edge,
+ * for phones that rise out of the bottom of a band.
+ */
+interface Props {
+  screen: string;
+  alt: string;
+  eager?: boolean;
+  crop?: boolean;
+  class?: string;
+}
+
+const { screen, alt, eager = false, crop = false, class: className = '' } = Astro.props;
+---
+
+<div
+  class:list={[
+    'nd-phone bg-forest',
+    crop ? 'rounded-t-[44px] px-2.5 pt-2.5' : 'rounded-[44px] p-2.5',
+    className,
+  ]}
+>
+  <div class:list={['overflow-hidden bg-paper', crop ? 'h-full rounded-t-[34px]' : 'rounded-[34px]']}>
+    <img
+      src={`/product/app/${screen}.webp`}
+      alt={alt}
+      width="780"
+      height="1688"
+      loading={eager ? 'eager' : 'lazy'}
+      fetchpriority={eager ? 'high' : undefined}
+      decoding="async"
+      class="block h-auto w-full select-none"
+    />
+  </div>
+</div>

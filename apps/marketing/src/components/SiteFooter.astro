@@ -7,13 +7,22 @@
  * wrapper, so it always fills the content width exactly instead of running
  * past it the way a vw size does.
  */
+import Scallop from './Scallop.astro';
 import { BRAND, FOOTER_COLUMNS } from '../config/site';
+
+interface Props {
+  /** Colour of the band above, drawn as a scalloped edge into the footer. */
+  edge?: 'mint' | 'pink' | 'paper' | 'chip';
+}
+
+const { edge } = Astro.props;
 
 const year = new Date().getFullYear();
 ---
 
-<footer class="on-forest bg-forest pt-20 pb-12 text-paper">
-  <div class="nd-container">
+<footer class="on-forest bg-forest pb-12 text-paper">
+  {edge && <Scallop color={edge} />}
+  <div class="nd-container pt-16 md:pt-20">
     <div class="grid grid-cols-1 gap-x-8 gap-y-10 text-base sm:grid-cols-2 lg:grid-cols-4">
       {
         FOOTER_COLUMNS.map((column) => (

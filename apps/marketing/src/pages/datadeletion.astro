@@ -4,6 +4,7 @@
  * with the same JSON contract as before: { firstName, lastName, email, phone }.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
 import { organizationSchema, breadcrumbSchema } from '../lib/schema';
 
 const title = 'Request data deletion | Newdryve';
@@ -28,17 +29,14 @@ const steps = [
 ];
 ---
 
-<BaseLayout title={title} description={description} path="/datadeletion" jsonLd={jsonLd} noindex>
-  <section class="bg-mint pt-12 pb-14 md:pt-16 md:pb-20">
-    <div class="nd-container">
-      <p class="nd-small-label">Your privacy</p>
-      <h1 class="nd-h1 mt-3 max-w-[14em]">request data deletion</h1>
-      <p class="nd-lede mt-5 max-w-[34em]">
-        Submit the details linked to your Newdryve account and our team will review your request.
-        We may need to verify your identity before taking action.
-      </p>
-    </div>
-  </section>
+<BaseLayout title={title} description={description} path="/datadeletion" jsonLd={jsonLd} noindex footerEdge="paper">
+  <PageHero
+    hand="your privacy"
+    title="request data deletion"
+    lede="Submit the details linked to your Newdryve account and our team will review your request. We may need to verify your identity before taking action."
+    carColor="#CDB9F7"
+    car="long-hair"
+  />
 
   <div class="nd-container py-14 md:py-20">
     <div class="grid gap-10 md:grid-cols-[0.8fr_1.2fr] md:items-start md:gap-14">
@@ -73,7 +71,7 @@ const steps = [
             method="post"
             novalidate
             data-deletion-form
-            class="nd-card-lg flex flex-col gap-5 p-6 sm:p-8"
+            class="nd-card-lg nd-shadow flex flex-col gap-5 p-6 sm:p-8"
           >
             <div class="grid gap-5 sm:grid-cols-2">
               <div class="flex flex-col gap-2">

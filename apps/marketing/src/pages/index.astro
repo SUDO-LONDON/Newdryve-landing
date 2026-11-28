@@ -1,11 +1,15 @@
 ---
 /**
- * Learner home. Built from docs/redesign/learner-home.reference.html (the
- * approved design); copy is taken from it verbatim.
+ * Learner home, second pass (November 2026): the steps are a road from the
+ * green provisional licence to the pink full one, with the car driving it as
+ * the page scrolls; £0 gets its own forest band; cancelling and paying moved
+ * into the FAQ.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CoverageCheck from '../components/CoverageCheck.astro';
-import AvatarPicker from '../components/AvatarPicker.astro';
+import Car from '../components/Car.astro';
+import Phone from '../components/Phone.astro';
+import Scallop from '../components/Scallop.astro';
 import AppBand from '../components/AppBand.astro';
 import { BACKERS } from '../config/site';
 import {
@@ -39,6 +43,10 @@ const CANCELLATION = [
 
 const FAQ = [
   {
+    q: 'How do I pay?',
+    a: 'At the end of each lesson, by cash, bank transfer or your saved card. Your instructor chooses. Nothing is charged when you book.',
+  },
+  {
     q: 'How do I book a lesson?',
     a: 'Open the app, browse instructors near you and pick a slot from their real availability. You need a valid card saved before you can book, but nothing is charged when you reserve a lesson.',
   },
@@ -54,8 +62,44 @@ const FAQ = [
 
 const check = `<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>`;
 
-const stepContent = 'grid min-w-0 flex-1 items-center gap-7 pb-16 md:pb-20 lg:grid-cols-2 lg:gap-x-16';
-const stepBody = 'mt-3.5 max-w-[27em]';
+const CAR_COLOURS = [
+  { name: 'Mint', value: '#A5F0BC' },
+  { name: 'Pink', value: '#FF9CC4' },
+  { name: 'Yellow', value: '#FFD96B' },
+  { name: 'Blue', value: '#9CCBFA' },
+  { name: 'Coral', value: '#FF9B85' },
+  { name: 'Lilac', value: '#CDB9F7' },
+];
+
+const SCREENS = [
+  {
+    screen: 'learner-discover',
+    title: 'Find',
+    body: 'Instructors and schools near you, each with their next free slot.',
+    alt: 'The newdryve Discover screen listing a driving school and an instructor near Norwich, with ratings, prices and next free slots',
+  },
+  {
+    screen: 'learner-bookDate',
+    title: 'Book',
+    body: 'Pick a day, then a time that is actually open.',
+    alt: 'The newdryve booking screen with a calendar for December and five open times on the chosen day',
+  },
+  {
+    screen: 'learner-progress',
+    title: 'Progress',
+    body: 'See which skills are signed off and what comes next.',
+    alt: 'The newdryve Progress screen showing 12 of 27 skills signed off and a summary of strengths and what to focus on next',
+  },
+];
+
+/* The wide road. A 1136 x 1120 serpentine: five runs 280px apart joined by
+   140px-radius U-turns. ROAD_LENGTH and the run boundaries are used by the
+   script that drives the car along it. */
+const ROAD_PATH =
+  'M120 0H996A140 140 0 0 1 996 280H140A140 140 0 0 0 140 560H996A140 140 0 0 1 996 840H140A140 140 0 0 0 140 1120H1016';
+
+const licence =
+  'flex h-20 w-[124px] flex-col justify-between rounded-xl border-2 border-forest px-3 py-2.5 shadow-[0_4px_0_var(--forest)]';
 ---
 
 <BaseLayout
@@ -65,6 +109,7 @@ const stepBody = 'mt-3.5 max-w-[27em]';
   jsonLd={jsonLd}
   audience="learner"
   appHref="#get-the-app"
+  footerEdge="pink"
 >
   <!-- HERO -->
   <section class="bg-mint" aria-labelledby="hero-title">
@@ -100,286 +145,303 @@ const stepBody = 'mt-3.5 max-w-[27em]';
       </div>
 
       <div class="flex min-w-0 flex-[1_1_300px] justify-center">
-        <figure class="relative w-full max-w-[320px]">
-          <div class="h-[440px] rounded-t-[48px] bg-forest px-3 pt-3 sm:h-[540px]">
-            <div class="h-full overflow-hidden rounded-t-[36px] bg-paper">
-              <img
-                src="/product/newdryve-learner-home.png"
-                alt="The newdryve app home screen, showing the next lesson, what to practise next, and shortcuts to book a lesson or find test centres"
-                width="900"
-                height="1948"
-                loading="eager"
-                fetchpriority="high"
-                decoding="async"
-                class="block h-auto w-full"
-              />
-            </div>
-          </div>
-        </figure>
+        <Phone
+          screen="learner-home"
+          alt="The newdryve app home screen: the next lesson with its pick-up point, skills signed off so far, and shortcuts to book a lesson or find an instructor"
+          eager
+          crop
+          class="h-[440px] w-full max-w-[330px] sm:h-[560px]"
+        />
       </div>
     </div>
   </section>
 
-  {
-    BACKERS.show && (
-      <section aria-label="Who is behind newdryve" class="border-b-2 border-forest">
-        <div class="nd-container flex flex-wrap gap-x-[72px] gap-y-5 py-9">
-          <div class="flex flex-wrap items-baseline gap-x-7 gap-y-1.5">
-            <span class="nd-small-label">Backed by</span>
-            {BACKERS.backedBy.map((name) => (
-              <span class="font-heading text-[21px] font-bold tracking-[-0.02em]">{name}</span>
-            ))}
+  <!-- WHO IS BEHIND IT -->
+  <section id="where-we-are" class="pt-12 md:pt-16" aria-labelledby="where-title">
+    <div class="nd-container grid items-center gap-x-16 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+      <div>
+        <h2 id="where-title" class="nd-h3">starting small, on purpose</h2>
+        <p class="mt-3 max-w-[30em] text-[17px]">
+          The app is live on the App Store and Google Play, and we&rsquo;re hand-picking founding
+          instructors in Norwich one at a time. No inflated numbers and no invented reviews.
+        </p>
+      </div>
+      {
+        BACKERS.show && (
+          <div class="flex flex-col gap-5">
+            <div>
+              <p class="nd-small-label mb-2">Backed by</p>
+              <ul class="grid gap-3 sm:grid-cols-3">
+                {BACKERS.backedBy.map((name) => (
+                  <li class="font-heading flex min-h-16 items-center justify-center rounded-2xl border-2 border-chip px-4 py-2 text-center text-lg leading-tight font-bold tracking-[-0.02em]">
+                    {name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p class="nd-small-label mb-2">Teaching on newdryve</p>
+              <ul class="grid gap-3 sm:grid-cols-3">
+                {BACKERS.teachingOnNewdryve.map((name, index) => (
+                  <li
+                    class:list={[
+                      'font-heading flex min-h-16 items-center justify-center rounded-2xl px-4 py-2 text-center text-lg leading-tight font-bold tracking-[-0.02em]',
+                      index % 2 === 0 ? 'bg-avatar-tile' : 'bg-pink',
+                    ]}
+                  >
+                    {name}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <div class="flex flex-wrap items-baseline gap-x-7 gap-y-1.5">
-            <span class="nd-small-label">Teaching on newdryve</span>
-            {BACKERS.teachingOnNewdryve.map((name) => (
-              <span class="font-heading text-[21px] font-bold tracking-[-0.02em]">{name}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-    )
-  }
+        )
+      }
+    </div>
+  </section>
 
   <!-- FROM GREEN TO PINK -->
-  <section id="route" class="pt-20 pb-6 md:pt-[104px]" aria-labelledby="route-title">
+  <section id="route" class="route pt-12 pb-20 md:pt-16 md:pb-28" aria-labelledby="route-title" data-route>
     <div class="nd-container">
-      <div class="mb-16 grid items-center gap-x-16 gap-y-9 md:grid-cols-2 md:mb-[72px]">
+      <div class="flex flex-wrap items-end justify-between gap-x-12 gap-y-8 border-t-2 border-forest pt-14 md:pt-[72px]">
         <div>
-          <h2 id="route-title" class="nd-h2">from green to pink</h2>
-          <p class="nd-lede mt-[18px] max-w-[30em]">
+          <h2 id="route-title" class="nd-display leading-[1.02]">
+            from <span class="nd-mark-mint">green</span><br />to <span class="nd-mark-pink">pink</span>
+          </h2>
+          <p class="nd-lede mt-5 max-w-[24em]">
             Your provisional licence is green. The full one is pink. Here&rsquo;s the bit in between.
           </p>
         </div>
-        <div class="flex justify-center md:justify-end">
-          <AvatarPicker />
+
+        <div class="flex flex-col items-start gap-3 min-[1200px]:items-end">
+          <Car width={150} class="route-car-still" label="The newdryve car and its driver" />
+          <p class="nd-hand text-[26px]">pick your car</p>
+          <div role="group" aria-label="Car colour" class="flex items-center gap-3 rounded-full bg-chip px-4 py-3">
+            {
+              CAR_COLOURS.map((colour, index) => (
+                <button
+                  type="button"
+                  class="size-9 rounded-full border-2 border-forest outline-offset-3 aria-pressed:outline-3 aria-pressed:outline-forest"
+                  style={`background:${colour.value}`}
+                  aria-label={`${colour.name} car`}
+                  aria-pressed={index === 0 ? 'true' : 'false'}
+                  data-car-colour={colour.value}
+                />
+              ))
+            }
+          </div>
         </div>
       </div>
 
-      <ol class="flex flex-col">
-        <!-- 1 -->
-        <li class="flex flex-col gap-4 md:flex-row md:gap-7">
-          <div aria-hidden="true" class="flex flex-[0_0_56px] flex-col items-start md:items-center">
-            <span class="nd-marker">1</span>
-            <span class="nd-rail my-2.5 hidden w-0 flex-1 border-l-4 border-dashed border-forest md:block"></span>
-          </div>
-          <div class={stepContent}>
-            <div>
+      <div class="road" data-road>
+        <svg class="road-line" width="1136" height="1120" viewBox="0 0 1136 1120" aria-hidden="true">
+          <defs>
+            <linearGradient id="road-fill" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1120">
+              <stop offset="0.27" stop-color="#A5F0BC"></stop>
+              <stop offset="0.48" stop-color="#FFC4DC"></stop>
+            </linearGradient>
+          </defs>
+          <path d={ROAD_PATH} fill="none" stroke="url(#road-fill)" stroke-width="52" stroke-linecap="round"></path>
+          <path d={ROAD_PATH} fill="none" stroke="#0A3B2C" stroke-width="3" stroke-linecap="round" stroke-dasharray="14 16"
+          ></path>
+        </svg>
+
+        <div aria-hidden="true" class={`road-end road-start -rotate-5 bg-mint ${licence}`}>
+          <span class="text-[13px] leading-none font-semibold">provisional</span>
+          <span class="flex items-end gap-2">
+            <span class="h-7 w-6 rounded border-2 border-forest bg-paper"></span>
+            <span class="flex flex-1 flex-col gap-1.5 pb-0.5">
+              <span class="h-1 rounded bg-forest"></span>
+              <span class="h-1 w-3/5 rounded bg-forest"></span>
+            </span>
+          </span>
+        </div>
+        <div aria-hidden="true" class={`road-end road-finish rotate-5 bg-pink ${licence}`}>
+          <span class="text-[13px] leading-none font-semibold">full</span>
+          <span class="flex items-end gap-2">
+            <span class="h-7 w-6 rounded border-2 border-forest bg-paper"></span>
+            <span class="flex flex-1 flex-col gap-1.5 pb-0.5">
+              <span class="h-1 rounded bg-forest"></span>
+              <span class="h-1 w-3/5 rounded bg-forest"></span>
+            </span>
+          </span>
+        </div>
+
+        <ol class="road-steps">
+          <!-- 1 -->
+          <li>
+            <span class="nd-marker road-marker" aria-hidden="true">1</span>
+            <div class="road-text">
               <h3 class="nd-h3">Find an instructor we&rsquo;ve checked</h3>
-              <p class={stepBody}>
-                We check every instructor&rsquo;s current DVSA registration before their profile goes
-                live. Filter by manual or automatic, and see their rate and the areas they cover.
+              <p class="mt-2.5 text-[17px]">
+                Every instructor&rsquo;s DVSA registration is checked before their profile goes live.
               </p>
             </div>
-            <div class="rounded-[32px] bg-mint p-4 sm:p-6">
-              <div class="flex flex-col gap-3.5 rounded-[20px] bg-paper p-5">
-                <div class="flex items-center justify-between gap-3">
-                  <div class="flex min-w-0 items-center gap-3">
-                    <span aria-hidden="true" class="size-12 shrink-0 rounded-full bg-forest"></span>
-                    <div class="min-w-0">
-                      <p class="text-lg leading-tight font-semibold">Sample instructor</p>
-                      <p class="text-[15px]">Manual, £38 an hour</p>
-                    </div>
+            <div class="road-card nd-card nd-shadow flex flex-col gap-3 px-5 py-4 text-left">
+              <div class="flex items-center justify-between gap-3">
+                <div class="flex min-w-0 items-center gap-3">
+                  <span aria-hidden="true" class="size-11 shrink-0 rounded-full bg-forest"></span>
+                  <div class="min-w-0">
+                    <p class="leading-tight font-semibold md:whitespace-nowrap">Sample instructor</p>
+                    <p class="text-sm md:whitespace-nowrap">Manual, £38 an hour</p>
                   </div>
-                  <span class="nd-chip">Example</span>
                 </div>
-                <div class="flex flex-wrap gap-2 text-sm font-semibold">
-                  <span class="inline-flex items-center gap-1.5 rounded-full bg-forest px-3 py-1.5 text-paper">
-                    <Fragment set:html={check.replace(/18/g, '14')} />
-                    DVSA registration checked
-                  </span>
-                  <span class="nd-tag">Covers NR2, NR4, NR7</span>
-                </div>
-                <p class="border-t-2 border-dashed border-forest pt-3 text-[15px]">
-                  Next free: <strong>Tue 4:00pm</strong>
-                </p>
+                <span class="nd-chip">Example</span>
               </div>
+              <div class="flex flex-wrap gap-2 text-[13px] font-semibold">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-forest px-2.5 py-1 whitespace-nowrap text-paper">
+                  <Fragment set:html={check.replace(/18/g, '14')} />
+                  DVSA registration checked
+                </span>
+                <span class="nd-tag py-0.5 text-[13px]">NR2, NR4</span>
+              </div>
+              <p class="border-t-2 border-dashed border-forest pt-3 text-[15px]">
+                Next free: <strong>Tue 4:00pm</strong>
+              </p>
             </div>
-          </div>
-        </li>
+          </li>
 
-        <!-- 2 -->
-        <li class="flex flex-col gap-4 md:flex-row md:gap-7">
-          <div aria-hidden="true" class="flex flex-[0_0_56px] flex-col items-start md:items-center">
-            <span class="nd-marker">2</span>
-            <span class="nd-rail my-2.5 hidden w-0 flex-1 border-l-4 border-dashed border-forest md:block"></span>
-          </div>
-          <div class={stepContent}>
-            <div>
+          <!-- 2 -->
+          <li>
+            <span class="nd-marker road-marker" aria-hidden="true">2</span>
+            <div class="road-text">
               <h3 class="nd-h3">Book a slot that&rsquo;s actually free</h3>
-              <p class={stepBody}>
-                You see real open slots, not a contact form. Pick one and confirm. No phone tag, no
-                waiting days for a reply.
-              </p>
+              <p class="mt-2.5 text-[17px]">Real open slots, not a contact form. Pick one and confirm.</p>
             </div>
-            <div class="rounded-[32px] bg-pink p-4 sm:p-6">
-              <div class="flex flex-col gap-3.5 rounded-[20px] bg-paper p-5" data-slot-picker>
-                <div class="flex items-center justify-between gap-3">
-                  <p class="text-[17px] font-semibold" id="slots-title">Free this week</p>
-                  <span class="nd-chip">Example</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2.5" role="group" aria-labelledby="slots-title">
-                  {
-                    SLOTS.map((slot) => (
-                      <button
-                        type="button"
-                        class="h-[52px] rounded-[14px] border-2 border-chip bg-chip text-base font-semibold aria-pressed:border-forest aria-pressed:bg-forest aria-pressed:text-paper"
-                        aria-pressed={slot === SELECTED_SLOT ? 'true' : 'false'}
-                        data-slot
-                      >
-                        {slot}
-                      </button>
-                    ))
-                  }
-                </div>
-                <p class="text-[15px]" aria-live="polite">
-                  Selected: <strong data-slot-label>{SELECTED_SLOT}</strong>
-                </p>
+            <div class="road-card nd-card nd-shadow flex flex-col gap-3 px-5 py-4 text-left" data-slot-picker>
+              <div class="flex items-center justify-between gap-3">
+                <p class="font-semibold" id="slots-title">Free this week</p>
+                <span class="nd-chip">Example</span>
               </div>
-            </div>
-          </div>
-        </li>
-
-        <!-- 3 -->
-        <li class="flex flex-col gap-4 md:flex-row md:gap-7">
-          <div aria-hidden="true" class="flex flex-[0_0_56px] flex-col items-start md:items-center">
-            <span class="nd-marker">3</span>
-            <span class="nd-rail my-2.5 hidden w-0 flex-1 border-l-4 border-dashed border-forest md:block"></span>
-          </div>
-          <div class={stepContent}>
-            <div>
-              <h3 class="nd-h3">Know what to practise next</h3>
-              <p class={stepBody}>
-                Every lesson, the skills your instructor has signed off, and how close you are to
-                test-ready, all in one place.
+              <div class="grid grid-cols-2 gap-2" role="group" aria-labelledby="slots-title">
+                {
+                  SLOTS.map((slot) => (
+                    <button
+                      type="button"
+                      class="h-11 rounded-xl border-2 border-chip bg-chip text-[15px] font-semibold aria-pressed:border-forest aria-pressed:bg-forest aria-pressed:text-paper"
+                      aria-pressed={slot === SELECTED_SLOT ? 'true' : 'false'}
+                      data-slot
+                    >
+                      {slot}
+                    </button>
+                  ))
+                }
+              </div>
+              <p class="sr-only" aria-live="polite">
+                Selected: <span data-slot-label>{SELECTED_SLOT}</span>
               </p>
             </div>
-            <ul class="flex flex-col gap-1.5 rounded-[32px] bg-forest p-6 text-paper sm:p-7">
-              <li class="flex items-center justify-between gap-3 py-2.5 text-[17px] font-semibold">
+          </li>
+
+          <!-- 3 -->
+          <li>
+            <span class="nd-marker road-marker" aria-hidden="true">3</span>
+            <div class="road-text">
+              <h3 class="nd-h3">Know what to practise next</h3>
+              <p class="mt-2.5 text-[17px]">
+                Every lesson and signed-off skill in one place, so you know how close you are.
+              </p>
+            </div>
+            <ul class="road-card flex flex-col rounded-3xl bg-forest px-5 py-2.5 text-left font-semibold text-paper">
+              <li class="flex min-h-12 items-center justify-between gap-3">
                 <span>Roundabouts</span>
-                <span class="rounded-full border-2 border-paper px-3.5 py-1 text-sm">Getting there</span>
+                <span class="rounded-full border-2 border-paper px-3 py-0.5 text-[13px] whitespace-nowrap">Getting there</span>
               </li>
-              <li class="flex items-center justify-between gap-3 py-2.5 text-[17px] font-semibold">
+              <li class="flex min-h-12 items-center justify-between gap-3">
                 <span>Parallel parking</span>
-                <span class="rounded-full border-2 border-mint bg-mint px-3.5 py-1 text-sm text-forest"
+                <span class="rounded-full border-2 border-mint bg-mint px-3 py-0.5 text-[13px] whitespace-nowrap text-forest"
                   >Practise next</span
                 >
               </li>
-              <li class="flex items-center justify-between gap-3 py-2.5 text-[17px] font-semibold">
+              <li class="flex min-h-12 items-center justify-between gap-3">
                 <span>Dual carriageways</span>
-                <span class="rounded-full border-2 border-dashed border-paper px-3.5 py-1 text-sm"
+                <span class="rounded-full border-2 border-dashed border-paper px-3 py-0.5 text-[13px] whitespace-nowrap"
                   >Coming up</span
                 >
               </li>
             </ul>
-          </div>
-        </li>
+          </li>
 
-        <!-- 4 -->
-        <li class="flex flex-col gap-4 md:flex-row md:gap-7">
-          <div aria-hidden="true" class="flex flex-[0_0_56px] flex-col items-start md:items-center">
-            <span class="nd-marker bg-pink">4</span>
-          </div>
-          <div class={stepContent}>
-            <div>
+          <!-- 4 -->
+          <li>
+            <span class="nd-marker road-marker bg-pink" aria-hidden="true">4</span>
+            <div class="road-text">
               <h3 class="nd-h3">Swap the green one for the pink one</h3>
-              <p class={stepBody}>
-                Your instructor tells you when you&rsquo;re test-ready. You book the test itself on
-                GOV.UK, and your lessons keep moving until the day.
+              <p class="mt-2.5 text-[17px]">
+                Your instructor tells you when you&rsquo;re test-ready. You book the test on GOV.UK.
               </p>
             </div>
-            <div aria-hidden="true" class="flex items-center justify-center py-5">
-              <div
-                class="flex h-[116px] w-[180px] nd-licence-a -rotate-8 flex-col justify-between rounded-2xl border-2 border-forest bg-mint p-4 sm:h-[140px] sm:w-[220px]"
-              >
-                <span class="font-heading text-xl font-extrabold tracking-[-0.02em]">provisional</span>
-                <span class="flex items-end gap-3">
-                  <span class="h-10 w-9 rounded-md border-2 border-forest bg-paper sm:h-[54px] sm:w-11"></span>
-                  <span class="flex flex-1 flex-col gap-2">
-                    <span class="h-2 rounded bg-forest"></span>
-                    <span class="h-2 w-3/5 rounded bg-forest"></span>
-                  </span>
-                </span>
+            <div class="road-card nd-card nd-shadow flex flex-col gap-3 p-5 text-left">
+              <div class="flex items-center justify-between gap-3">
+                <p class="font-semibold">Test readiness</p>
+                <span class="nd-chip">Example</span>
               </div>
-              <div
-                class="nd-shadow -ml-11 flex h-[116px] w-[180px] nd-licence-b rotate-7 flex-col justify-between rounded-2xl border-2 border-forest bg-pink p-4 sm:-ml-14 sm:h-[140px] sm:w-[220px]"
-              >
-                <span class="font-heading text-xl font-extrabold tracking-[-0.02em]">full</span>
-                <span class="flex items-end gap-3">
-                  <span class="h-10 w-9 rounded-md border-2 border-forest bg-paper sm:h-[54px] sm:w-11"></span>
-                  <span class="flex flex-1 flex-col gap-2">
-                    <span class="h-2 rounded bg-forest"></span>
-                    <span class="h-2 w-3/5 rounded bg-forest"></span>
-                  </span>
-                </span>
+              <div class="h-4 overflow-hidden rounded-full bg-chip" aria-hidden="true">
+                <div class="h-full w-[85%] rounded-full bg-hot-pink"></div>
               </div>
+              <p class="text-[15px]"><strong>23 of 27 skills</strong> signed off by your instructor</p>
             </div>
-          </div>
-        </li>
-      </ol>
-    </div>
-  </section>
+          </li>
+        </ol>
 
-  <!-- THE MONEY BIT -->
-  <section id="money" class="pt-6 pb-20 md:pb-[104px]" aria-labelledby="money-title">
-    <div class="nd-container">
-      <h2 id="money-title" class="nd-h2 mb-9">the money bit</h2>
-      <div
-        class="nd-card-lg grid items-center gap-x-[72px] gap-y-10 p-[clamp(24px,4vw,56px)] lg:grid-cols-2"
-      >
-        <div>
-          <p class="nd-number text-[clamp(110px,15vw,210px)] text-hot-pink">£0</p>
-          <p class="nd-lede mt-6 max-w-[22em]">
-            <strong>in booking fees.</strong> Each instructor sets their own rate and you see it before
-            you book. You pay your instructor for the lesson and nothing to us.
-          </p>
-        </div>
-        <div class="flex flex-col gap-7">
-          <div>
-            <h3 class="mb-2 text-xl font-semibold">If you need to cancel</h3>
-            <dl class="flex flex-col">
-              {
-                CANCELLATION.map((row) => (
-                  <div class="flex justify-between gap-6 border-b-2 border-dashed border-forest py-3.5">
-                    <dt>{row.when}</dt>
-                    <dd class="text-right font-semibold">{row.cost}</dd>
-                  </div>
-                ))
-              }
-            </dl>
-            <p class="mt-3 text-base">Cancellation fees go to your instructor. Newdryve takes none of it.</p>
-          </div>
-          <div>
-            <h3 class="mb-2 text-xl font-semibold">How you pay</h3>
-            <p class="text-[17px]">
-              At the end of each lesson, by cash, bank transfer or your saved card. Your instructor
-              chooses. Nothing is charged when you book.
-            </p>
-          </div>
+        <div class="road-car" aria-hidden="true" data-road-car>
+          <div class="road-car-in"><Car width={132} /></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- STARTING SMALL -->
-  <section id="where-we-are" class="pb-20 md:pb-[104px]" aria-labelledby="where-title">
-    <div class="nd-container grid items-start gap-x-[72px] gap-y-8 lg:grid-cols-2">
-      <h2 id="where-title" class="nd-h2">starting small, on purpose</h2>
-      <p class="nd-lede">
-        Newdryve is new. The app is live on the App Store and Google Play, and we&rsquo;re
-        hand-picking founding instructors in Norwich one at a time. No inflated numbers and no
-        invented reviews.
-      </p>
+  <!-- INSIDE THE APP -->
+  <section id="inside" class="bg-chip" aria-labelledby="inside-title">
+    <Scallop color="paper" />
+    <div class="nd-container pt-14 md:pt-20">
+      <div class="flex flex-wrap items-end justify-between gap-x-12 gap-y-3">
+        <h2 id="inside-title" class="nd-h2">inside the app</h2>
+        <p class="nd-hand text-[26px]">sample data, real screens</p>
+      </div>
+      <ul class="scrollbar-none -mx-5 mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 sm:mx-0 sm:px-0 md:grid md:grid-cols-3 md:gap-8 md:overflow-visible">
+        {
+          SCREENS.map((item) => (
+            <li class="flex w-[78%] max-w-[330px] shrink-0 snap-center flex-col md:w-auto md:max-w-none">
+              <p class="font-heading text-2xl font-extrabold tracking-[-0.02em]">{item.title}</p>
+              <p class="mt-1 mb-5 min-h-[3em] max-w-[22em] text-[17px]">{item.body}</p>
+              <Phone screen={item.screen} alt={item.alt} crop class="mt-auto h-[380px] w-full md:mx-auto md:h-[420px] md:max-w-[320px]" />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- THE MONEY BIT -->
+  <section id="money" class="on-forest bg-forest text-paper" aria-labelledby="money-title">
+    <div class="nd-container flex flex-wrap items-center gap-x-[72px] gap-y-8 py-16 md:py-24">
+      <p class="nd-number text-[clamp(150px,24vw,300px)] text-pink" aria-hidden="true">£0</p>
+      <div class="flex min-w-0 flex-[1_1_360px] flex-col items-start">
+        <p class="nd-hand text-[30px] text-mint">the money bit</p>
+        <h2 id="money-title" class="nd-h2 mt-3"><span class="sr-only">£0 </span>in booking fees</h2>
+        <p class="nd-lede mt-5 max-w-[26em]">
+          Each instructor sets their own rate and you see it before you book. You pay your instructor
+          for the lesson and nothing to us.
+        </p>
+        <a href="#faq-cancel" class="mt-5 inline-flex min-h-11 items-center font-semibold text-mint underline">
+          Cancelling and paying, answered below
+        </a>
+      </div>
     </div>
   </section>
 
   <!-- FAQ -->
-  <section id="faq" class="pb-24 md:pb-28" aria-labelledby="faq-title">
-    <div class="nd-container grid items-start gap-x-[72px] gap-y-8 lg:grid-cols-2">
-      <h2 id="faq-title" class="nd-h2">learner questions</h2>
+  <section id="faq" class="nd-section" aria-labelledby="faq-title">
+    <div class="nd-container grid items-start gap-x-[72px] gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+      <div class="flex flex-col items-start gap-8">
+        <h2 id="faq-title" class="nd-h2">learner questions</h2>
+        <Car width={260} color="#FF9CC4" look="long-hair" class="hidden lg:block" />
+      </div>
       <div class="flex flex-col border-t-2 border-forest">
-        <!-- The first answer links to the postcode check, so it is written out
-             here rather than going through the plain-text Faq component. -->
+        <!-- The first two answers carry a link and a table, so they are
+             written out here rather than going through the plain-text Faq
+             component. -->
         <details class="group border-b-2 border-forest" open>
           <summary class="flex min-h-11 items-center justify-between gap-4 py-5 text-xl font-semibold">
             Is Newdryve available in my area?
@@ -396,6 +458,35 @@ const stepBody = 'mt-3.5 max-w-[27em]';
               >Check your postcode</a
             > and, if we&rsquo;re not there yet, we&rsquo;ll add you to the waitlist.
           </p>
+        </details>
+        <details id="faq-cancel" class="group border-b-2 border-forest">
+          <summary class="flex min-h-11 items-center justify-between gap-4 py-5 text-xl font-semibold">
+            What if I need to cancel?
+            <span
+              class="inline-flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-forest transition-transform duration-200 group-open:rotate-45"
+              aria-hidden="true"
+            >
+              <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></path></svg>
+            </span>
+          </summary>
+          <div class="mb-6">
+            <dl class="flex flex-col rounded-2xl bg-chip px-5 text-[17px]">
+              {
+                CANCELLATION.map((row, index) => (
+                  <div
+                    class:list={[
+                      'flex justify-between gap-6 py-3',
+                      index > 0 && 'border-t-2 border-dashed border-forest',
+                    ]}
+                  >
+                    <dt>{row.when}</dt>
+                    <dd class="text-right font-semibold">{row.cost}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+            <p class="mt-3 text-base">Cancellation fees go to your instructor. Newdryve takes none of it.</p>
+          </div>
         </details>
         {
           FAQ.map((item) => (
@@ -422,8 +513,219 @@ const stepBody = 'mt-3.5 max-w-[27em]';
   <AppBand checkHref="#check" />
 </BaseLayout>
 
+<style>
+  /* The road. Below 1200px it is a straight strip down the left with the
+     steps stacked beside it; from 1200px it is the serpentine drawn by the
+     SVG, with the steps placed in its bends. */
+  .road {
+    position: relative;
+    margin-top: 48px;
+  }
+
+  .road-line,
+  .road-end,
+  .road-car {
+    display: none;
+  }
+
+  .road-steps {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  .road-steps::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 14px;
+    width: 28px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--mint) 25%, var(--pink) 60%);
+  }
+
+  .road-steps::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    left: 27px;
+    border-left: 3px dashed var(--forest);
+  }
+
+  .road-steps > li {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    column-gap: 16px;
+    row-gap: 16px;
+    align-items: start;
+  }
+
+  .road-marker {
+    grid-row: 1 / span 2;
+    background: var(--paper);
+  }
+
+  .road-text {
+    padding-top: 10px;
+  }
+
+  .road-text,
+  .road-card {
+    grid-column: 2;
+    max-width: 420px;
+  }
+
+  @media (min-width: 768px) {
+    .road-steps > li {
+      grid-template-columns: 56px minmax(0, 1fr) minmax(0, 340px);
+      column-gap: 28px;
+      align-items: center;
+    }
+
+    .road-marker {
+      grid-row: 1;
+    }
+
+    .road-text {
+      padding-top: 0;
+    }
+
+    .road-card {
+      grid-column: 3;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .road {
+      width: 1136px;
+      height: 1120px;
+      margin-top: 136px;
+    }
+
+    .road-line {
+      display: block;
+      position: absolute;
+      inset: 0;
+      overflow: visible;
+    }
+
+    .road-end {
+      display: flex;
+      position: absolute;
+    }
+
+    .road-start {
+      left: 0;
+      top: -40px;
+    }
+
+    .road-finish {
+      right: 0;
+      top: 1080px;
+    }
+
+    .road-steps {
+      position: static;
+      display: block;
+    }
+
+    .road-steps::before,
+    .road-steps::after {
+      display: none;
+    }
+
+    .road-steps > li {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      width: 692px;
+      height: 192px;
+    }
+
+    .road-steps > li:nth-child(odd) {
+      left: 258px;
+      text-align: right;
+    }
+
+    .road-steps > li:nth-child(even) {
+      left: 186px;
+      flex-direction: row-reverse;
+    }
+
+    .road-steps > li:nth-child(1) { top: 44px; }
+    .road-steps > li:nth-child(2) { top: 324px; }
+    .road-steps > li:nth-child(3) { top: 604px; }
+    .road-steps > li:nth-child(4) { top: 884px; }
+
+    .road-text {
+      flex: 1 1 0;
+      max-width: none;
+    }
+
+    .road-card {
+      flex: 0 0 352px;
+      max-width: none;
+    }
+
+    /* Markers sit on the apex of each U-turn. */
+    .road-marker {
+      position: absolute;
+      top: 64px;
+      width: 64px;
+      height: 64px;
+      font-size: 28px;
+    }
+
+    .road-steps > li:nth-child(odd) .road-marker { left: 846px; }
+    .road-steps > li:nth-child(even) .road-marker { left: -218px; }
+
+    :global(.route-car-still) {
+      display: none;
+    }
+
+    /* The car rides the same path as the SVG road. Its position along it
+       (offset-distance) is set by the script from the scroll position. */
+    .road-car {
+      display: block;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 0;
+      height: 0;
+      offset-path: path(
+        'M120 0H996A140 140 0 0 1 996 280H140A140 140 0 0 0 140 560H996A140 140 0 0 1 996 840H140A140 140 0 0 0 140 1120H1016'
+      );
+      offset-rotate: 0deg;
+      offset-distance: 9%;
+    }
+
+    .road-car-in {
+      position: absolute;
+      left: -66px;
+      top: -94px;
+      width: 132px;
+      transition: transform 250ms ease;
+    }
+
+    .road-car.is-left .road-car-in {
+      transform: scaleX(-1);
+    }
+
+    /* A mirrored L plate would read backwards, so it goes when the car turns. */
+    .road-car.is-left :global(.nd-car-plate) {
+      opacity: 0;
+    }
+  }
+</style>
+
 <script>
-  // Example slot picker: one slot pressed at a time, mirrored in "Selected".
+  // Example slot picker: one slot pressed at a time, mirrored for screen readers.
   document.querySelectorAll<HTMLElement>('[data-slot-picker]').forEach((picker) => {
     const slots = picker.querySelectorAll<HTMLButtonElement>('[data-slot]');
     const label = picker.querySelector<HTMLElement>('[data-slot-label]');
@@ -434,6 +736,61 @@ const stepBody = 'mt-3.5 max-w-[27em]';
       })
     );
   });
+
+  // Car colour: the swatches set --car on the section, which every car in it reads.
+  const route = document.querySelector<HTMLElement>('[data-route]');
+  const swatches = route ? Array.from(route.querySelectorAll<HTMLButtonElement>('[data-car-colour]')) : [];
+  swatches.forEach((swatch) =>
+    swatch.addEventListener('click', () => {
+      route?.style.setProperty('--car', swatch.dataset.carColour || '');
+      swatches.forEach((other) => other.setAttribute('aria-pressed', other === swatch ? 'true' : 'false'));
+    })
+  );
+
+  // The car drives the road as the page scrolls: its distance along the path
+  // follows how far the middle of the viewport is down the road. It faces left
+  // on the two right-to-left runs. Left parked for reduced motion.
+  const road = route?.querySelector<HTMLElement>('[data-road]');
+  const car = route?.querySelector<HTMLElement>('[data-road-car]');
+  const wide = window.matchMedia('(min-width: 1200px)');
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (road && car) {
+    const ARC = Math.PI * 140;
+    const RUNS = [876, 856, 856, 856, 876];
+    const LENGTH = RUNS.reduce((sum, run) => sum + run, 0) + ARC * 4;
+    // Distances at which the car starts and stops facing left: the middle of
+    // U-turns 1 and 2, then 3 and 4.
+    const turn = (index: number) =>
+      RUNS.slice(0, index).reduce((sum, run) => sum + run, 0) + ARC * (index - 1) + ARC / 2;
+    const LEFT_RANGES = [
+      [turn(1), turn(2)],
+      [turn(3), turn(4)],
+    ];
+    let queued = false;
+
+    const place = () => {
+      queued = false;
+      if (!wide.matches || still.matches) return;
+      const rect = road.getBoundingClientRect();
+      const progress = Math.min(1, Math.max(0, (window.innerHeight * 0.55 - rect.top) / rect.height));
+      const distance = (0.04 + progress * 0.92) * LENGTH;
+      car.style.offsetDistance = `${((distance / LENGTH) * 100).toFixed(2)}%`;
+      car.classList.toggle(
+        'is-left',
+        LEFT_RANGES.some(([from, to]) => distance >= from && distance < to)
+      );
+    };
+    const queue = () => {
+      if (queued) return;
+      queued = true;
+      window.requestAnimationFrame(place);
+    };
+
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', queue);
+    place();
+  }
 
   // Supabase password-recovery links land on "/" with the recovery session in
   // the URL fragment. Forward them to the reset form, fragment intact.

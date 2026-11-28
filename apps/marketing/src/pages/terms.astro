@@ -8,6 +8,7 @@
  * The previous page set robots index:false. That posture is preserved.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
 import { organizationSchema } from '../lib/schema';
 
 const title = 'Terms and Conditions | Newdryve';
@@ -308,16 +309,12 @@ const sections = [
   path="/terms"
   jsonLd={[organizationSchema]}
   noindex
+  footerEdge="paper"
 >
   <!-- Mint hero, carrying on from the header band. -->
-  <section class="bg-mint">
-    <div class="nd-container pt-10 pb-14 md:pt-16 md:pb-20">
-      <div class="max-w-[44em]">
-        <h1 class="nd-h1">
-          Terms and Conditions
-        </h1>
+  <PageHero hand="the small print" title="Terms and Conditions" carColor="#FFD96B">
         <p class="mt-4 text-base font-semibold">Version 2026-07-30. Last updated 30 July 2026.</p>
-        <p class="nd-card mt-8 px-6 py-5 text-base leading-relaxed">
+        <p class="nd-card nd-shadow mt-8 max-w-[44em] px-6 py-5 text-base leading-relaxed">
           <strong>Operator:</strong> NEWDRYVE LTD, trading as NewDryve. Company number
           17234490. Registered office: 10 Greylag Close, Norwich, NR7 8FQ, England. Contact <a
             href="mailto:support@newdryve.com"
@@ -325,9 +322,7 @@ const sections = [
             >support@newdryve.com</a
           >.
         </p>
-      </div>
-    </div>
-  </section>
+  </PageHero>
 
   <div class="nd-container nd-section">
     <div class="nd-prose [&>section:first-child>h2]:mt-0">

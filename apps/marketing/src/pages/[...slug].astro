@@ -18,6 +18,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import WaitlistForm from '../components/WaitlistForm.astro';
 import GetAppButton from '../components/GetAppButton.astro';
 import Faq from '../components/Faq.astro';
+import Car from '../components/Car.astro';
+import Scallop from '../components/Scallop.astro';
 import {
   conversionLabel,
   getRelatedPages,
@@ -133,12 +135,21 @@ const norwichCentres = [
   },
 ];
 
-// Panels behind each section's item list, for a bit of colour down the page.
-const panelClasses = ['bg-mint', 'bg-pink', 'bg-forest'];
-let panelIndex = 0;
-const sectionPanels = page.sections.map((section) =>
-  section.items ? panelClasses[panelIndex++ % panelClasses.length] : ''
+/* Second pass (November 2026): the body is a run of full-width bands, paper
+   then chip, in place of one paper column with a sticky sidebar. Each section
+   is a heading beside its text, with its items as a row of tiles underneath.
+   Tiles are tinted on paper bands and paper on chip bands. */
+const tileTones = ['bg-avatar-tile', 'bg-pink'];
+let toneIndex = 0;
+const sectionTiles = page.sections.map((section, index) =>
+  index % 2 === 1
+    ? 'border-2 border-forest bg-paper'
+    : section.items
+      ? tileTones[toneIndex++ % tileTones.length]
+      : ''
 );
+const tileColumns = (count: number) =>
+  count === 2 || count === 4 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3';
 
 const sectionHeading = 'nd-h3 text-[clamp(30px,3.4vw,44px)]';
 const checkIcon =
@@ -165,7 +176,7 @@ const jsonLd = [
 ];
 ---
 
-<BaseLayout title={page.title} description={page.description} path={path} jsonLd={jsonLd}>
+<BaseLayout title={page.title} description={page.description} path={path} jsonLd={jsonLd} footerEdge="pink">
   <article>
     <!-- Hero: mint, carrying straight on from the header band. -->
     <section class="bg-mint">
@@ -192,8 +203,8 @@ const jsonLd = [
             </ol>
           </nav>
 
-          <p class="nd-small-label mt-6">{page.kicker}</p>
-          <h1 class="nd-h1 mt-3">{page.h1}</h1>
+          <p class="nd-hand mt-5 text-[28px]">{page.kicker}</p>
+          <h1 class="nd-h1 mt-2">{page.h1}</h1>
           <p class="nd-lede mt-6 max-w-[34em]">{page.summary}</p>
 
           <div class="mt-9 flex flex-wrap gap-3">
@@ -393,111 +404,128 @@ const jsonLd = [
       </div>
     </section>
 
-    <!-- Body -->
-    <div class="nd-container nd-section grid gap-16 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-16">
-      <div class="flex min-w-0 flex-col gap-20">
-        {
-          page.sections.map((section, sectionIndex) => (
-            <section id={`section-${sectionIndex + 1}`}>
-              <h2 class={sectionHeading}>{section.heading}</h2>
+    <!-- On this page -->
+    <nav aria-label="On this page" class="border-b-2 border-forest">
+      <div class="nd-container flex flex-wrap items-center gap-x-5 gap-y-3 py-5">
+        <span class="nd-small-label">On this page</span>
+        <ul class="flex flex-wrap gap-2">
+          {
+            page.sections.map((section, sectionIndex) => (
+              <li>
+                <a
+                  href={`#section-${sectionIndex + 1}`}
+                  class="inline-flex min-h-11 items-center rounded-full bg-chip px-4 text-[15px] leading-tight font-semibold no-underline hover:bg-forest hover:text-mint"
+                >
+                  {section.heading}
+                </a>
+              </li>
+            ))
+          }
+          <li>
+            <a
+              href="#faq"
+              class="inline-flex min-h-11 items-center rounded-full bg-chip px-4 text-[15px] font-semibold no-underline hover:bg-forest hover:text-mint"
+            >
+              Questions
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
 
-              <div class="mt-5 max-w-[40em] space-y-4">
+    <!-- Body: one band per section, paper then chip. -->
+    {
+      page.sections.map((section, sectionIndex) => (
+        <section id={`section-${sectionIndex + 1}`} class={sectionIndex % 2 === 1 ? 'bg-chip' : ''}>
+          <div class="nd-container py-14 md:py-20">
+            <div class="grid gap-x-16 gap-y-5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+              <h2 class={sectionHeading}>{section.heading}</h2>
+              <div class="max-w-[40em] space-y-4 lg:pt-1.5">
                 {section.body.map((paragraph) => (
                   <p>{paragraph}</p>
                 ))}
               </div>
+            </div>
 
-              {section.items && (
-                <div class={`mt-9 rounded-[32px] p-3 sm:p-6 ${sectionPanels[sectionIndex]}`}>
-                  <ul class="nd-card px-6 sm:px-7">
-                    {section.items.map((item) => (
-                      <li class="border-t-2 border-dashed border-forest py-5 first:border-t-0">
-                        <h3 class="text-xl font-semibold leading-snug">{item.title}</h3>
-                        <p class="mt-1.5 max-w-[38em] text-[17px]">{item.body}</p>
-                        {item.href && (
-                          <a href={item.href} class="mt-1 inline-flex min-h-11 items-center font-semibold underline">
-                            Read more<span class="sr-only">: {item.title}</span>
-                          </a>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </section>
-          ))
-        }
-
-        {
-          decisionRule && (
-            <section class="on-forest rounded-[32px] bg-forest p-8 text-paper sm:p-10">
-              <p class="nd-small-label text-mint">Decision rule</p>
-              <h2 class="nd-h3 mt-3 max-w-[22ch]">{decisionRule.value}</h2>
-              <p class="mt-4 max-w-[40ch] text-[17px]">
-                A faster slot is not worth much if it lowers your chance of passing.
-              </p>
-            </section>
-          )
-        }
-
-        <section id="faq">
-          <h2 class={sectionHeading}>questions</h2>
-          <Faq items={page.faqs} class="mt-8" />
+            {section.items && (
+              <ul class={`mt-10 grid gap-5 ${tileColumns(section.items.length)}`}>
+                {section.items.map((item) => (
+                  <li class={`flex flex-col rounded-[28px] p-6 ${sectionTiles[sectionIndex]}`}>
+                    <h3 class="font-heading text-[22px] leading-[1.1] font-extrabold tracking-[-0.02em]">
+                      {item.title}
+                    </h3>
+                    <p class="mt-2.5 text-[17px] leading-snug">{item.body}</p>
+                    {item.href && (
+                      <a
+                        href={item.href}
+                        class="mt-auto inline-flex min-h-11 items-center pt-2 font-semibold underline"
+                      >
+                        Read more<span class="sr-only">: {item.title}</span>
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </section>
+      ))
+    }
+
+    {
+      decisionRule && (
+        <section class="on-forest bg-forest text-paper">
+          <Scallop color={page.sections.length % 2 === 0 ? 'chip' : 'paper'} />
+          <div class="nd-container py-14 md:py-20">
+            <p class="nd-hand text-[28px] text-mint">decision rule</p>
+            <h2 class="nd-h2 mt-3 max-w-[20ch]">{decisionRule.value}</h2>
+            <p class="nd-lede mt-5 max-w-[34ch]">
+              A faster slot is not worth much if it lowers your chance of passing.
+            </p>
+          </div>
+        </section>
+      )
+    }
+
+    <section id="faq" class="nd-section">
+      <div class="nd-container grid items-start gap-x-16 gap-y-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+        <div class="flex flex-col items-start gap-8">
+          <h2 class="nd-h2">questions</h2>
+          <Car width={220} class="hidden lg:block" />
+        </div>
+        <div>
+          <Faq items={page.faqs} />
+
+          <div class="mt-10 rounded-[28px] bg-chip p-6">
+            <h2 class="nd-h4">sources</h2>
+            <p class="nd-help mt-1">Checked {page.lastReviewed}</p>
+            <ul class="mt-2 flex flex-col">
+              {
+                page.sources.map((source) => (
+                  <li>
+                    <a
+                      href={source.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex min-h-11 items-center py-1.5 text-base leading-snug font-semibold underline"
+                    >
+                      {source.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </div>
       </div>
-
-      <aside class="flex flex-col gap-5 p-1 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-auto">
-        <nav class="nd-card p-5" aria-label="On this page">
-          <h2 class="nd-h4 text-xl">on this page</h2>
-          <ul class="mt-2 flex flex-col">
-            {
-              page.sections.map((section, sectionIndex) => (
-                <li>
-                  <a
-                    href={`#section-${sectionIndex + 1}`}
-                    class="flex min-h-11 items-center py-1.5 text-base font-semibold leading-snug no-underline hover:underline"
-                  >
-                    {section.heading}
-                  </a>
-                </li>
-              ))
-            }
-            <li>
-              <a href="#faq" class="flex min-h-11 items-center py-1.5 text-base font-semibold no-underline hover:underline">
-                Questions
-              </a>
-            </li>
-          </ul>
-        </nav>
-
-        <nav class="nd-card p-5" aria-label="Sources">
-          <h2 class="nd-h4 text-xl">sources</h2>
-          <p class="nd-help mt-1">Checked {page.lastReviewed}</p>
-          <ul class="mt-2 flex flex-col">
-            {
-              page.sources.map((source) => (
-                <li>
-                  <a
-                    href={source.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="flex min-h-11 items-center py-1.5 text-[15px] font-semibold leading-snug underline"
-                  >
-                    {source.label}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </nav>
-      </aside>
-    </div>
+    </section>
 
     <!-- The one related list. -->
     {
       relatedPages.length > 0 && (
-        <section aria-labelledby="related-heading" class="border-t-2 border-forest">
-          <div class="nd-container nd-section">
+        <section aria-labelledby="related-heading" class="bg-chip">
+          <Scallop color="paper" />
+          <div class="nd-container py-14 md:py-20">
             <h2 id="related-heading" class="nd-h2">
               related guides
             </h2>

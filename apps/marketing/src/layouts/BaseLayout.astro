@@ -17,6 +17,8 @@ interface Props {
   /** Point the nav's "Get the app" at an in-page anchor instead of the store hand-off. */
   appHref?: string;
   noindex?: boolean;
+  /** Colour of the band the footer follows, drawn as a scalloped edge into it. */
+  footerEdge?: 'mint' | 'pink' | 'paper' | 'chip';
 }
 
 const {
@@ -27,6 +29,7 @@ const {
   audience = 'learner',
   appHref,
   noindex = false,
+  footerEdge,
 } = Astro.props;
 
 const canonical = new URL(path, SITE_URL).href;
@@ -134,7 +137,7 @@ const ogImage = new URL('/og.png', SITE_URL).href;
       <slot />
     </main>
 
-    <SiteFooter />
+    <SiteFooter edge={footerEdge} />
     <AppHandoffModal />
 
     <script>
