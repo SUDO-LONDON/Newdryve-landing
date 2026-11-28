@@ -21,10 +21,10 @@ export default async function InstructorConnectPage({
   if (token) redirect(`/instructor/start?token=${encodeURIComponent(token)}`);
 
   return (
-    <Shell eyebrow="Instructor setup" title="Use your private setup link">
-      <p className="mt-4 leading-7 text-ink-secondary">
+    <Shell eyebrow="Instructor setup" title="use your private setup link">
+      <p className="nd-body mt-4">
         Open the link from your Newdryve email to connect payouts and finish your listing. If it
-        has expired, email <a className="font-semibold underline" href="mailto:support@newdryve.com">support@newdryve.com</a>.
+        has expired, email <a className="nd-link" href="mailto:support@newdryve.com">support@newdryve.com</a>.
       </p>
     </Shell>
   );

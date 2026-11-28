@@ -28,8 +28,8 @@ function list(items: string[]) {
 function Fact({ label, children, wide = false }: { label: string; children: React.ReactNode; wide?: boolean }) {
   return (
     <div className={wide ? "col-span-2" : undefined}>
-      <dt className="text-[11px] font-bold uppercase tracking-[0.5px] text-ink-secondary">{label}</dt>
-      <dd className="mt-0.5 text-[15px] leading-6 text-ink sm:text-sm">{children}</dd>
+      <dt className="nd-help font-semibold">{label}</dt>
+      <dd className="mt-0.5 text-[17px] leading-6">{children}</dd>
     </div>
   );
 }
@@ -49,16 +49,16 @@ export function ListingSummary({ review }: { review: ListingReview }) {
   );
 
   return (
-    <div className="rounded-xl border border-border p-4 sm:p-5">
+    <div className="nd-card p-4 sm:p-6">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-base font-bold text-ink">{review.display_name?.trim() || "Name not provided"}</p>
-        <p className="shrink-0 text-sm font-semibold text-ink">
+        <p className="nd-h4">{review.display_name?.trim() || "Name not provided"}</p>
+        <p className="nd-h4 shrink-0">
           {review.price_per_hour_pence == null ? "Price not set" : `${hourly(review.price_per_hour_pence)}/hr`}
         </p>
       </div>
-      <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">{review.bio?.trim() || "No bio provided."}</p>
+      <p className="nd-body mt-3">{review.bio?.trim() || "No bio provided."}</p>
 
-      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border pt-4">
+      <dl className="nd-divider mt-5 grid grid-cols-2 gap-x-4 gap-y-4 pt-5">
         <Fact label="Transmission">{list(review.transmissions.map((t) => TRANSMISSION_LABEL[t] ?? t))}</Fact>
         <Fact label="Languages">{list(review.languages)}</Fact>
         <Fact label="Car">{car || "Not provided"}</Fact>
@@ -85,10 +85,10 @@ export function ReviewStep({
   return (
     <div className="mt-5">
       <ListingSummary review={review} />
-      <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
+      <p className="nd-help mt-3">
         Something wrong? Email{" "}
         <a
-          className="font-semibold text-ink underline"
+          className="nd-link"
           href="mailto:support@newdryve.com?subject=Instructor%20listing%20correction"
         >
           support@newdryve.com
@@ -101,9 +101,9 @@ export function ReviewStep({
           at the end of a scroll. From `sm` up it sits inline after the
           details. The error travels with it so a failed tap is never
           reported somewhere off screen. */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-12px_30px_-20px_rgba(10,10,20,0.35)] sm:static sm:z-auto sm:mt-5 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t-2 bg-[var(--paper)] px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 sm:static sm:z-auto sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0">
         {error ? (
-          <p role="alert" className="mb-3 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-800">
+          <p role="alert" className="nd-alert mb-3">
             {error}
           </p>
         ) : null}
@@ -111,7 +111,7 @@ export function ReviewStep({
           type="button"
           onClick={onConfirm}
           disabled={busy}
-          className="focus-ring inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-[15px] font-bold text-white disabled:cursor-wait disabled:opacity-60 sm:w-auto sm:text-sm"
+          className="nd-btn nd-btn-lg w-full sm:w-auto"
         >
           {busy ? "Confirming…" : "Confirm and go live"}
         </button>

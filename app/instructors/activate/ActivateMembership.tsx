@@ -77,8 +77,8 @@ export default function ActivateMembership() {
   if (state === "success") {
     if (setupPage) {
       return (
-        <Shell eyebrow="Membership submitted" title="Back to your setup." align="left">
-          <p className="mt-4 leading-7 text-ink-secondary">
+        <Shell eyebrow="Membership submitted" title="back to your setup." align="left">
+          <p className="nd-body mt-4">
             Stripe is confirming your membership. Your setup page updates on its own once it
             does.
           </p>
@@ -87,20 +87,20 @@ export default function ActivateMembership() {
       );
     }
     return (
-      <Shell eyebrow="Step 1 of 4 done" title="Check your inbox for the next step." align="left">
-        <p className="mt-4 leading-7 text-ink-secondary">
+      <Shell eyebrow="Step 1 of 4 done" title="check your inbox for the next step." align="left">
+        <p className="nd-body mt-4">
           Stripe is confirming your membership. As soon as it does, we&rsquo;ll email you a link to your
           setup page to connect your bank account, set your service area and review your listing.
         </p>
-        <p className="mt-3 text-sm leading-6 text-ink-secondary">If it doesn&rsquo;t arrive, check spam or email <a href="mailto:support@newdryve.com" className="font-semibold text-ink underline">support@newdryve.com</a>.</p>
+        <p className="nd-help mt-3">If it doesn&rsquo;t arrive, check spam or email <a href="mailto:support@newdryve.com" className="nd-link">support@newdryve.com</a>.</p>
       </Shell>
     );
   }
 
   if (state === "cancelled") {
     return (
-      <Shell eyebrow="Setup not completed" eyebrowTone="rose" title="No payment was taken." align="left">
-        <p className="mt-4 leading-7 text-ink-secondary">
+      <Shell eyebrow="Setup not completed" eyebrowTone="rose" title="no payment was taken." align="left">
+        <p className="nd-body mt-4">
           You can try again now or reopen your approval email later.
         </p>
         {checkoutToken ? <PrimaryButton onClick={activate} disabled={busy}>{busy ? "Opening Stripe…" : "Try again"}</PrimaryButton> : null}
@@ -112,10 +112,10 @@ export default function ActivateMembership() {
 
   if (state === "invalid") {
     return (
-      <Shell title="This link is incomplete." align="left">
-        <p className="mt-4 leading-7 text-ink-secondary">
+      <Shell title="this link is incomplete." align="left">
+        <p className="nd-body mt-4">
           Please use the membership button in your approval email, or contact{" "}
-          <a className="font-semibold underline" href="mailto:support@newdryve.com">
+          <a className="nd-link" href="mailto:support@newdryve.com">
             support@newdryve.com
           </a>
           .
@@ -125,8 +125,8 @@ export default function ActivateMembership() {
   }
 
   return (
-    <Shell eyebrow="Application approved" title="Welcome to Newdryve." align="left">
-      <p className="mt-4 leading-7 text-ink-secondary">
+    <Shell eyebrow="Application approved" title="welcome to newdryve." align="left">
+      <p className="nd-body mt-4">
         Start by setting up your membership with Stripe. If you were given a free trial, you
         won&rsquo;t be charged until it ends.
       </p>
@@ -134,7 +134,7 @@ export default function ActivateMembership() {
         {busy ? "Opening Stripe…" : error ? "Try again" : "Continue to Stripe"}
       </PrimaryButton>
       <ErrorNote>{error}</ErrorNote>
-      <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
+      <p className="nd-help mt-3">
         Stripe shows the exact first charge before you confirm. Newdryve never sees your full card
         details.
       </p>
@@ -156,27 +156,25 @@ function NextSteps() {
     "Review your listing and go live",
   ];
   return (
-    <div className="mt-7 border-t border-border pt-5">
-      <p className="text-[11px] font-bold uppercase tracking-[1px] text-ink-secondary">Your setup</p>
-      <ol className="mt-3 space-y-2.5">
+    <div className="nd-divider mt-8 pt-6">
+      <p className="nd-small-label">Your setup</p>
+      <ol className="mt-4 flex flex-col gap-3">
         {steps.map((step, index) => (
-          <li key={step} className="flex items-center gap-3 text-sm">
+          <li key={step} className="flex items-center gap-3 text-[17px]">
             <span
               aria-hidden="true"
-              className={`flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
-                index === 0 ? "bg-deep-rose text-white" : "border border-border text-ink-secondary"
-              }`}
+              className={`nd-marker nd-marker-sm ${index === 0 ? "" : "nd-marker-quiet"}`}
             >
               {index + 1}
             </span>
-            <span className={index === 0 ? "font-semibold text-ink" : "text-ink-secondary"}>
+            <span className={index === 0 ? "font-semibold" : "text-[var(--forest-soft)]"}>
               {step}
               {index === 0 ? <span className="sr-only"> (now)</span> : null}
             </span>
           </li>
         ))}
       </ol>
-      <p className="mt-4 text-[13px] leading-5 text-ink-secondary">
+      <p className="nd-help mt-5">
         Once Stripe confirms your membership, we&rsquo;ll email you a link to finish steps 2 to 4.
       </p>
     </div>

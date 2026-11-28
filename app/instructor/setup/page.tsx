@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 /** Where someone lands with no token — the link itself is the credential. */
 export default function InstructorSetupPage() {
   return (
-    <Shell eyebrow="Instructor setup" title="Use your secure payout link">
+    <Shell eyebrow="Instructor setup" title="use your secure payout link">
       <Body>
         Stripe Connect setup happens online through your private Newdryve email link. That link
         opens a secure Stripe form for your bank details inside Newdryve.
@@ -20,7 +20,7 @@ export default function InstructorSetupPage() {
       </PrimaryLink>
       <Note>
         Need help? Email{" "}
-        <a className="font-semibold underline" href="mailto:support@newdryve.com">
+        <a className="nd-link" href="mailto:support@newdryve.com">
           support@newdryve.com
         </a>
         .

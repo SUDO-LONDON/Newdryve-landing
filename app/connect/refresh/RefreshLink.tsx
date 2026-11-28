@@ -14,7 +14,7 @@ export default function RefreshLink() {
   const token = useSearchParams().get("token") ?? "";
 
   return (
-    <Shell eyebrow="Link expired" eyebrowTone="rose" title="Let's create a fresh link">
+    <Shell eyebrow="Link expired" eyebrowTone="rose" title="let's create a fresh link">
       <Body>
         Stripe onboarding links are single-use. Continue here and we&rsquo;ll reopen the secure
         embedded setup form.

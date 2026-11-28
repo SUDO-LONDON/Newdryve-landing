@@ -23,7 +23,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { StripeConnectInstance } from "@stripe/connect-js/pure";
 import type { OnboardingState, OnboardingTask } from "@/lib/instructor/backend";
-import { Shell, Wordmark } from "@/components/instructor/Shell";
+import { OnboardingFrame, Shell } from "@/components/instructor/Shell";
 import { StepList, StepProgress } from "@/components/instructor/TaskList";
 import { CoverageStep } from "@/components/instructor/CoverageStep";
 import { ListingSummary, ReviewStep } from "@/components/instructor/ReviewStep";
@@ -336,16 +336,16 @@ export default function OnboardingHub({
   if (loadError && !state) {
     const linkUnusable = /invalid|expired/i.test(loadError);
     return (
-      <Shell title={linkUnusable ? "This setup link no longer works" : "We couldn't load your setup"} align="left">
-        <p className="mt-4 leading-7 text-ink-secondary">{loadError}</p>
+      <Shell title={linkUnusable ? "this setup link no longer works" : "we couldn't load your setup"} align="left">
+        <p className="nd-body mt-4">{loadError}</p>
         {linkUnusable ? (
           <>
-            <p className="mt-3 leading-7 text-ink-secondary">
+            <p className="nd-body mt-3">
               Email us and we&apos;ll send you a fresh setup link.
             </p>
             <a
               href="mailto:support@newdryve.com?subject=Instructor%20setup%20link"
-              className="focus-ring mt-6 inline-flex h-11 items-center justify-center rounded-full bg-racing-green px-5 text-sm font-bold text-white"
+              className="nd-btn nd-btn-lg mt-6 w-full sm:w-auto"
             >
               Request a fresh link
             </a>
@@ -354,7 +354,7 @@ export default function OnboardingHub({
           <button
             type="button"
             onClick={() => void load()}
-            className="focus-ring mt-6 inline-flex h-11 items-center justify-center rounded-full bg-racing-green px-5 text-sm font-bold text-white"
+            className="nd-btn nd-btn-lg mt-6 w-full sm:w-auto"
           >
             Try again
           </button>
@@ -365,8 +365,8 @@ export default function OnboardingHub({
 
   if (!state) {
     return (
-      <Shell title="Your Newdryve setup" align="left">
-        <p className="mt-4 text-sm leading-6 text-ink-secondary">Loading your steps…</p>
+      <Shell title="your newdryve setup" align="left">
+        <p className="nd-body mt-4">Loading your steps…</p>
       </Shell>
     );
   }
@@ -389,206 +389,217 @@ export default function OnboardingHub({
   const reviewing = !state.complete && current?.action === "review_listing";
 
   return (
-    <main className={`mx-auto w-full max-w-xl px-4 pt-4 sm:px-5 sm:pt-12 ${reviewing ? "pb-36 sm:pb-16" : "pb-16"}`}>
-      <div className="flex items-center justify-between">
-        <Wordmark />
-        <a
-          href="mailto:support@newdryve.com?subject=Instructor%20setup"
-          className="focus-ring -mr-3 inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-ink underline-offset-2 hover:underline"
-        >
+    <OnboardingFrame
+      headerAside={
+        <a href="mailto:support@newdryve.com?subject=Instructor%20setup" className="nd-nav-link -mr-1">
           Need help?
         </a>
-      </div>
-
-      <header className="mt-5 sm:mt-8">
-        <h1 className="font-display text-[30px] leading-tight text-ink sm:text-4xl">
-          {state.complete
-            ? firstName ? `You're live, ${firstName}.` : "You're live."
-            : firstName ? `Nearly there, ${firstName}.` : "Nearly there."}
-        </h1>
-        <StepProgress tasks={tasks} />
-      </header>
-
-      {loadError ? (
-        <p role="status" className="mt-4 rounded-xl bg-white px-4 py-3 text-sm text-ink-secondary">
-          {loadError} Showing the last version we loaded.
-        </p>
-      ) : null}
-      {!state.complete && current && blocked ? (
-        // A blocked step (e.g. an overdue membership payment) needs support,
-        // not a button, so it would otherwise only show in the list below
-        // while the card asks for something else.
-        <div role="status" className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-          <p className="font-semibold">{blocked.title}</p>
-          <p className="mt-1 leading-6">{blocked.detail}</p>
-        </div>
-      ) : null}
-      {notice ? (
-        <p role="status" className="mt-4 flex items-center gap-2 text-sm font-semibold text-racing-green">
-          <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path d="M2.5 6.2 5 8.5l4.5-5" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          {notice}
-        </p>
-      ) : null}
-
-      <section
-        ref={currentCard}
-        tabIndex={-1}
-        aria-labelledby="current-step-title"
-        className={`mt-5 scroll-mt-4 rounded-2xl border bg-white p-5 shadow-[0_20px_50px_-30px_rgba(10,10,20,0.22)] outline-none sm:p-7 ${
-          !state.complete && !current && blocked ? "border-rose-200" : "border-border"
-        }`}
-      >
-        {state.complete ? (
-          <LiveCard />
-        ) : current ? (
-          <>
-            <p className="text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-              Step {tasks.indexOf(current) + 1} of {tasks.length}
-            </p>
-            <h2 id="current-step-title" className="font-display mt-1.5 text-2xl text-ink">
-              {current.title}
-            </h2>
-            <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">
-              {current.action === "coverage"
-                ? "You won't appear in learners' searches until this is set."
-                : current.detail}
-            </p>
-
-            {current.action === "membership_checkout" ? (
-              <MembershipAction
-                membership={state.membership}
-                busy={busyTask === "membership"}
-                onStart={() => void startMembership()}
-              />
-            ) : null}
-
-            {current.id === "payouts" ? (
-              connectOpen ? (
-                <>
-                  <p className="mt-4 text-[13px] leading-5 text-ink-secondary">
-                    Secure form provided by Stripe. Newdryve never sees your full bank details.
-                  </p>
-                  {/* Bleeds to the card's edges on a phone: Stripe's form
-                      needs every pixel of width it can get at 320-390px. */}
-                  <div ref={connectContainer} className="-mx-5 mt-4 sm:mx-0" />
-                  <button
-                    type="button"
-                    onClick={closeConnect}
-                    className="focus-ring mt-4 min-h-11 text-sm font-semibold text-racing-green underline"
-                  >
-                    Close and check status
-                  </button>
-                </>
-              ) : current.action === "connect_onboarding" ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => void startPayouts()}
-                    disabled={busyTask === "payouts"}
-                    className="focus-ring mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60 sm:w-auto"
-                  >
-                    {busyTask === "payouts" ? "Opening Stripe…" : "Connect bank account"}
-                  </button>
-                  <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
-                    A secure Stripe form opens on this page. Newdryve never sees your full bank details.
-                  </p>
-                </>
-              ) : null
-            ) : null}
-
-            {current.action === "coverage" ? (
-              <CoverageStep
-                key={state.coverage.centres.map((centre) => centre.slug).join(",")}
-                coverage={state.coverage}
-                busy={busyTask === "coverage"}
-                onSave={saveCoverage}
-              />
-            ) : null}
-
-            {current.action === "review_listing" && state.review ? (
-              <ReviewStep
-                review={state.review}
-                busy={busyTask === "review"}
-                error={actionError}
-                onConfirm={() => void confirmListing()}
-              />
-            ) : null}
-          </>
-        ) : blocked ? (
-          <>
-            <p className="text-[11px] font-bold uppercase tracking-[1px] text-rose-800">Needs our help</p>
-            <h2 id="current-step-title" className="font-display mt-1.5 text-2xl text-ink">
-              {blocked.title}
-            </h2>
-            <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">{blocked.detail}</p>
-            <a
-              href="mailto:support@newdryve.com?subject=Instructor%20setup%20blocked"
-              className="focus-ring mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white sm:w-auto"
-            >
-              Email support
-            </a>
-          </>
-        ) : (
-          <>
-            <p className="text-[11px] font-bold uppercase tracking-[1px] text-racing-green">Nothing to do right now</p>
-            <h2 id="current-step-title" className="font-display mt-1.5 text-2xl text-ink">
-              We&rsquo;re on it.
-            </h2>
-            <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">
-              {waiting.length
-                ? "Nothing is needed from you while the checks marked \u201cWith us\u201d below finish. "
-                : ""}
-              This page updates by itself, so you can close it and come back.
-            </p>
-            <button
-              type="button"
-              onClick={() => void load()}
-              className="focus-ring mt-4 min-h-11 text-sm font-semibold text-racing-green underline"
-            >
-              Check now
-            </button>
-          </>
-        )}
-
-        {actionError && !reviewing ? (
-          <p role="alert" className="mt-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-800">
-            {actionError}
-          </p>
-        ) : null}
-      </section>
-
-      <section aria-labelledby="all-steps-title" className="mt-7">
-        <h2 id="all-steps-title" className="text-xs font-bold uppercase tracking-[1px] text-ink">
-          All steps
-        </h2>
-        <div className="mt-2">
-          <StepList tasks={tasks} focusedId={state.complete ? null : current?.id ?? null} onFocus={chooseStep} />
-        </div>
-      </section>
-
-      {showPreview ? (
-        <details className="group mt-6 rounded-2xl border border-border bg-white">
-          <summary className="focus-ring flex min-h-12 cursor-pointer list-none items-center justify-between rounded-2xl px-4 text-[15px] font-semibold sm:px-5 sm:text-sm text-ink [&::-webkit-details-marker]:hidden">
-            {state.listed ? "See your public listing" : "Preview what learners will see"}
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" className="transition-transform group-open:rotate-180">
-              <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </summary>
-          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
-            <ListingSummary review={state.review} />
-            <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
-              Need to correct anything? Email{" "}
-              <a className="font-semibold underline" href="mailto:support@newdryve.com?subject=Instructor%20listing%20correction">
-                support@newdryve.com
-              </a>
-              .
-            </p>
+      }
+    >
+      <main className={`flex flex-1 flex-col ${reviewing ? "pb-36 sm:pb-16" : "pb-16"}`}>
+        <header className="nd-band pt-10 pb-12 sm:pt-14 sm:pb-16">
+          <div className="nd-container-narrow">
+            <h1 className="nd-h1">
+              {state.complete
+                ? firstName ? `you're live, ${firstName}.` : "you're live."
+                : firstName ? `nearly there, ${firstName}.` : "nearly there."}
+            </h1>
+            <StepProgress tasks={tasks} />
           </div>
-        </details>
-      ) : null}
-    </main>
+        </header>
+
+        <div className="nd-container-narrow pt-8 sm:pt-12">
+          {loadError ? (
+            <p role="status" className="nd-note-box mb-5">
+              {loadError} Showing the last version we loaded.
+            </p>
+          ) : null}
+          {!state.complete && current && blocked ? (
+            // A blocked step (e.g. an overdue membership payment) needs support,
+            // not a button, so it would otherwise only show in the list below
+            // while the card asks for something else.
+            <div role="status" className="nd-info mb-5">
+              <p className="font-semibold text-[var(--pink-ink)]">{blocked.title}</p>
+              <p className="mt-1">{blocked.detail}</p>
+            </div>
+          ) : null}
+          {notice ? (
+            <p role="status" className="mb-5 flex items-center gap-2.5 text-[17px] font-semibold">
+              <span aria-hidden="true" className="nd-marker nd-marker-done size-7">
+                <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
+                  <path d="M2.5 6.2 5 8.5l4.5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              {notice}
+            </p>
+          ) : null}
+
+          <section
+            ref={currentCard}
+            tabIndex={-1}
+            aria-labelledby="current-step-title"
+            className={`nd-card-lg nd-shadow scroll-mt-4 p-5 outline-none sm:p-8 ${
+              !state.complete && !current && blocked ? "border-[var(--pink-ink)]" : ""
+            }`}
+          >
+            {state.complete ? (
+              <LiveCard />
+            ) : current ? (
+              <>
+                <p className="flex items-center gap-3">
+                  <span aria-hidden="true" className="nd-marker nd-marker-sm">
+                    {tasks.indexOf(current) + 1}
+                  </span>
+                  <span className="nd-small-label">
+                    Step {tasks.indexOf(current) + 1} of {tasks.length}
+                  </span>
+                </p>
+                <h2 id="current-step-title" className="nd-h3 mt-4">
+                  {current.title}
+                </h2>
+                <p className="nd-body mt-2">
+                  {current.action === "coverage"
+                    ? "You won't appear in learners' searches until this is set."
+                    : current.detail}
+                </p>
+
+                {current.action === "membership_checkout" ? (
+                  <MembershipAction
+                    membership={state.membership}
+                    busy={busyTask === "membership"}
+                    onStart={() => void startMembership()}
+                  />
+                ) : null}
+
+                {current.id === "payouts" ? (
+                  connectOpen ? (
+                    <>
+                      <p className="nd-help mt-4">
+                        Secure form provided by Stripe. Newdryve never sees your full bank details.
+                      </p>
+                      {/* Bleeds to the card's edges on a phone: Stripe's form
+                          needs every pixel of width it can get at 320-390px. */}
+                      <div ref={connectContainer} className="-mx-5 mt-4 sm:mx-0" />
+                      <button
+                        type="button"
+                        onClick={closeConnect}
+                        className="nd-text-btn mt-4"
+                      >
+                        Close and check status
+                      </button>
+                    </>
+                  ) : current.action === "connect_onboarding" ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => void startPayouts()}
+                        disabled={busyTask === "payouts"}
+                        className="nd-btn nd-btn-lg mt-6 w-full sm:w-auto"
+                      >
+                        {busyTask === "payouts" ? "Opening Stripe…" : "Connect bank account"}
+                      </button>
+                      <p className="nd-help mt-3">
+                        A secure Stripe form opens on this page. Newdryve never sees your full bank details.
+                      </p>
+                    </>
+                  ) : null
+                ) : null}
+
+                {current.action === "coverage" ? (
+                  <CoverageStep
+                    key={state.coverage.centres.map((centre) => centre.slug).join(",")}
+                    coverage={state.coverage}
+                    busy={busyTask === "coverage"}
+                    onSave={saveCoverage}
+                  />
+                ) : null}
+
+                {current.action === "review_listing" && state.review ? (
+                  <ReviewStep
+                    review={state.review}
+                    busy={busyTask === "review"}
+                    error={actionError}
+                    onConfirm={() => void confirmListing()}
+                  />
+                ) : null}
+              </>
+            ) : blocked ? (
+              <>
+                <p>
+                  <span className="nd-tag nd-tag-pink">Needs our help</span>
+                </p>
+                <h2 id="current-step-title" className="nd-h3 mt-4">
+                  {blocked.title}
+                </h2>
+                <p className="nd-body mt-2">{blocked.detail}</p>
+                <a
+                  href="mailto:support@newdryve.com?subject=Instructor%20setup%20blocked"
+                  className="nd-btn nd-btn-lg mt-6 w-full sm:w-auto"
+                >
+                  Email support
+                </a>
+              </>
+            ) : (
+              <>
+                <p className="nd-small-label">Nothing to do right now</p>
+                <h2 id="current-step-title" className="nd-h3 mt-2">
+                  we&rsquo;re on it.
+                </h2>
+                <p className="nd-body mt-2">
+                  {waiting.length
+                    ? "Nothing is needed from you while the checks marked “With us” below finish. "
+                    : ""}
+                  This page updates by itself, so you can close it and come back.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void load()}
+                  className="nd-text-btn mt-4"
+                >
+                  Check now
+                </button>
+              </>
+            )}
+
+            {actionError && !reviewing ? (
+              <p role="alert" className="nd-alert mt-5">
+                {actionError}
+              </p>
+            ) : null}
+          </section>
+
+          <section aria-labelledby="all-steps-title" className="mt-10">
+            <h2 id="all-steps-title" className="nd-h4">
+              all steps
+            </h2>
+            <div className="mt-4">
+              <StepList tasks={tasks} focusedId={state.complete ? null : current?.id ?? null} onFocus={chooseStep} />
+            </div>
+          </section>
+
+          {showPreview ? (
+            <details className="group nd-card mt-6">
+              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 rounded-[22px] px-4 text-[17px] font-semibold sm:px-5 [&::-webkit-details-marker]:hidden">
+                {state.listed ? "See your public listing" : "Preview what learners will see"}
+                <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true" className="shrink-0 transition-transform group-open:rotate-180">
+                  <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </summary>
+              <div className="px-4 pb-4 sm:px-5 sm:pb-5">
+                <ListingSummary review={state.review} />
+                <p className="nd-help mt-3">
+                  Need to correct anything? Email{" "}
+                  <a className="nd-link" href="mailto:support@newdryve.com?subject=Instructor%20listing%20correction">
+                    support@newdryve.com
+                  </a>
+                  .
+                </p>
+              </div>
+            </details>
+          ) : null}
+        </div>
+      </main>
+    </OnboardingFrame>
   );
 }
 
@@ -616,17 +627,17 @@ function MembershipAction({
   return (
     <>
       {terms ? (
-        <p className="mt-4 rounded-xl bg-canvas px-4 py-3 text-sm font-semibold text-ink">{terms}</p>
+        <p className="nd-info mt-5 font-semibold">{terms}</p>
       ) : null}
       <button
         type="button"
         onClick={onStart}
         disabled={busy}
-        className="focus-ring mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-racing-green px-6 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+        className="nd-btn nd-btn-lg mt-6 w-full sm:w-auto"
       >
         {busy ? "Opening Stripe…" : "Continue to Stripe"}
       </button>
-      <p className="mt-3 text-[13px] leading-5 text-ink-secondary">
+      <p className="nd-help mt-3">
         Stripe shows the exact first charge before you confirm, then sends you back to finish setup.
       </p>
     </>
@@ -636,21 +647,21 @@ function MembershipAction({
 function LiveCard() {
   return (
     <>
-      <p className="text-[11px] font-bold uppercase tracking-[1px] text-racing-green">Setup complete</p>
-      <h2 id="current-step-title" className="font-display mt-1.5 text-2xl text-ink">
-        Learners can now find and book you.
+      <p className="nd-small-label">Setup complete</p>
+      <h2 id="current-step-title" className="nd-h3 mt-2">
+        learners can now find and book you.
       </h2>
-      <p className="mt-2 text-[15px] leading-6 text-ink-secondary sm:text-sm">
+      <p className="nd-body mt-2">
         Sign in to the Newdryve app with the email and password you applied with to manage lessons,
         availability and payouts.
       </p>
-      <p className="mt-4 text-sm font-semibold text-racing-green">Newdryve is on the App Store and Google Play.</p>
+      <p className="mt-5 text-[17px] font-semibold">Newdryve is on the App Store and Google Play.</p>
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <a href={IOS_APP_URL} className="focus-ring inline-block rounded-lg">
+        <a href={IOS_APP_URL} className="inline-block rounded-lg">
           {/* eslint-disable-next-line @next/next/no-img-element -- static badge artwork */}
           <img src="/app-store-badge.svg" alt="Download on the App Store" width={150} height={50} className="h-[50px] w-auto" />
         </a>
-        <a href={ANDROID_APP_URL} className="focus-ring -mx-1.5 -my-2.5 inline-block rounded-lg">
+        <a href={ANDROID_APP_URL} className="-mx-1.5 -my-2.5 inline-block rounded-lg">
           {/* eslint-disable-next-line @next/next/no-img-element -- static badge artwork */}
           <img src="/google-play-badge.png" alt="Get it on Google Play" width={181} height={70} className="h-[70px] w-auto" />
         </a>

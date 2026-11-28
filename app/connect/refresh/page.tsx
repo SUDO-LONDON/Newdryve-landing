@@ -13,8 +13,8 @@ export default function ConnectRefreshPage() {
   return (
     <Suspense
       fallback={
-        <Shell eyebrow="Link expired" eyebrowTone="rose" title="Let's create a fresh link">
-          <p className="mt-4 text-sm leading-6 text-ink-secondary">Loading…</p>
+        <Shell eyebrow="Link expired" eyebrowTone="rose" title="let's create a fresh link">
+          <p className="nd-body mt-4">Loading…</p>
         </Shell>
       }
     >

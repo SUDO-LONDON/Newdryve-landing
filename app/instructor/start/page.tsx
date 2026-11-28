@@ -32,10 +32,10 @@ export default async function InstructorStartPage({
 
   if (!token) {
     return (
-      <Shell title="This link is incomplete." align="left">
-        <p className="mt-4 leading-7 text-ink-secondary">
+      <Shell title="this link is incomplete." align="left">
+        <p className="nd-body mt-4">
           Open the setup link from your Newdryve email, or contact{" "}
-          <a className="font-semibold underline" href="mailto:support@newdryve.com">
+          <a className="nd-link" href="mailto:support@newdryve.com">
             support@newdryve.com
           </a>{" "}
           and we will send you a fresh one.

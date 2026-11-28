@@ -13,8 +13,8 @@ export default function ActivatePage() {
   return (
     <Suspense
       fallback={
-        <Shell title="Activate your membership" align="left">
-          <p className="mt-4 text-sm leading-6 text-ink-secondary">Loading…</p>
+        <Shell title="activate your membership" align="left">
+          <p className="nd-body mt-4">Loading…</p>
         </Shell>
       }
     >

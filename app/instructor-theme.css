@@ -1,0 +1,616 @@
+/*
+ * The November 2026 redesign, for the instructor onboarding pages only.
+ *
+ * An instructor applies on the redesigned marketing site
+ * (apps/marketing/src/pages/instructors/apply.astro) and is then emailed into
+ * these pages, so they wear the same clothes: mint band, paper body, forest
+ * 2px borders, Bricolage Grotesque headings and Instrument Sans text. The
+ * tokens and nd-* classes mirror apps/marketing/src/styles/global.css.
+ *
+ * Scoping: app/globals.css is shared with the ops and organisations portals,
+ * so nothing here is global. Every selector starts at `.nd-theme`, the class
+ * OnboardingFrame (components/instructor/Shell.tsx) puts on its wrapper, and
+ * the one rule outside it (`body:has(.nd-theme)`) only matches while that
+ * wrapper is on the page. Pages that never render the wrapper are untouched
+ * even if this file is already loaded after a client-side navigation.
+ *
+ * Layers: the statement below repeats Tailwind's own order (its `properties`
+ * layer included), so whichever
+ * stylesheet loads first the layers stack the same way. Element-level rules
+ * sit in `base` and the nd-* classes in `components`, both under Tailwind's
+ * `utilities`, so a spacing utility on an element still wins.
+ *
+ * House rules (from the style sheet):
+ * - Forest is the text colour. Hot pink is display and graphics only, never
+ *   text. Errors use pink-ink.
+ * - No light text on mint.
+ * - Borders 2px solid forest; dividers 2px dashed forest.
+ * - Primary buttons: forest pill, mint text. Secondary: 2px forest outline.
+ * - No all-caps labels, no gradients.
+ */
+
+@layer properties, theme, base, components, utilities;
+
+@layer base {
+  .nd-theme {
+    --mint: #a5f0bc;
+    --pink: #ffc4dc;
+    /* Display and graphics only. 3.9:1 on paper, fails on mint and pink. */
+    --hot-pink: #e8327f;
+    --forest: #0a3b2c;
+    /* Secondary text. 7.5:1 on paper, 5.9:1 on mint, 5.3:1 on pink. */
+    --forest-soft: #2f5a4b;
+    --paper: #fbfaf6;
+    --chip: #eae7dd;
+    /* Error text. 7.1:1 on paper, 5.0:1 on pink. */
+    --pink-ink: #a3175a;
+
+    --nd-font-heading: var(--nd-font-bricolage), "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
+    --nd-font-body: var(--nd-font-instrument), "Instrument Sans", system-ui, sans-serif;
+    --nd-font-hand: var(--nd-font-caveat), "Caveat", "Segoe Script", cursive;
+
+    /* The portals' tokens (app/globals.css), re-pointed at the redesign
+       palette inside this wrapper only, as the marketing site does. Any
+       legacy utility left on these pages (text-ink, border-border and the
+       base `* { border-color }` rule) then lands on forest, not on the old
+       greys. */
+    --racing-green: var(--forest);
+    --racing-green-dark: var(--forest);
+    --deep-rose: var(--hot-pink);
+    --deep-rose-ink: var(--pink-ink);
+    --blush-surface: var(--pink);
+    --blush-border: var(--forest);
+    --canvas: var(--paper);
+    --ink: var(--forest);
+    --ink-secondary: var(--forest-soft);
+    --ink-muted: var(--forest-soft);
+    --border: var(--forest);
+    --ring: var(--forest);
+    --background: var(--paper);
+    --foreground: var(--forest);
+
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    min-height: 100dvh;
+    background-color: var(--paper);
+    color: var(--forest);
+    font-family: var(--nd-font-body);
+    font-size: 18px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Overscroll past the wrapper shows paper, not the portals' canvas grey. */
+  body:has(.nd-theme) {
+    background-color: #fbfaf6;
+  }
+
+  .nd-theme a {
+    text-underline-offset: 3px;
+  }
+
+  .nd-theme ::placeholder {
+    color: var(--forest-soft);
+    opacity: 1;
+  }
+
+  /* One focus treatment for every control on these pages. */
+  .nd-theme :focus-visible {
+    outline: 3px solid var(--forest);
+    outline-offset: 3px;
+    box-shadow: none;
+  }
+
+  .nd-theme summary {
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .nd-theme summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
+@layer components {
+  /* Layout */
+  .nd-theme .nd-container {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 20px;
+  }
+
+  .nd-theme .nd-container-narrow {
+    width: 100%;
+    max-width: 680px;
+    margin-inline: auto;
+    padding-inline: 16px;
+  }
+
+  @media (min-width: 640px) {
+    .nd-theme .nd-container {
+      padding-inline: 32px;
+    }
+
+    .nd-theme .nd-container-narrow {
+      padding-inline: 24px;
+    }
+  }
+
+  .nd-theme .nd-band {
+    background-color: var(--mint);
+    color: var(--forest);
+  }
+
+  /* Header: a paper pill on the mint band, as on the marketing site. */
+  .nd-theme .nd-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 60px;
+    border-radius: 36px;
+    background-color: var(--paper);
+    padding: 6px 8px 6px 20px;
+  }
+
+  @media (min-width: 640px) {
+    .nd-theme .nd-nav {
+      min-height: 68px;
+      padding: 10px 12px 10px 28px;
+    }
+  }
+
+  .nd-theme .nd-nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    border-radius: 999px;
+    padding-inline: 16px;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--forest);
+    text-decoration: none;
+  }
+
+  .nd-theme .nd-nav-link:hover {
+    text-decoration: underline;
+  }
+
+  /* The wordmark: newdr<y>ve, only the y in hot pink. */
+  .nd-theme .nd-wordmark {
+    font-family: var(--nd-font-heading);
+    font-weight: 800;
+    font-size: 26px;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+    color: var(--forest);
+  }
+
+  .nd-theme .nd-wordmark-y {
+    color: var(--hot-pink);
+  }
+
+  /* Headings */
+  .nd-theme .nd-h1 {
+    font-family: var(--nd-font-heading);
+    font-weight: 800;
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .nd-theme .nd-h2 {
+    font-family: var(--nd-font-heading);
+    font-weight: 800;
+    font-size: clamp(32px, 4.2vw, 48px);
+    line-height: 1;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .nd-theme .nd-h3 {
+    font-family: var(--nd-font-heading);
+    font-weight: 800;
+    font-size: clamp(26px, 2.6vw, 32px);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  .nd-theme .nd-h4 {
+    font-family: var(--nd-font-heading);
+    font-weight: 800;
+    font-size: 24px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .nd-theme .nd-lede {
+    font-size: 20px;
+    line-height: 1.45;
+    text-wrap: pretty;
+  }
+
+  .nd-theme .nd-body {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--forest-soft);
+    text-wrap: pretty;
+  }
+
+  /* Small labels: Instrument Sans SemiBold, sentence case. */
+  .nd-theme .nd-small-label {
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.3;
+  }
+
+  .nd-theme .nd-hand {
+    font-family: var(--nd-font-hand);
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 1;
+    display: inline-block;
+    transform: rotate(-3deg);
+  }
+
+  .nd-theme .nd-link {
+    font-weight: 600;
+    color: var(--forest);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Buttons. 48px tall, 56px with .nd-btn-lg. */
+  .nd-theme .nd-btn,
+  .nd-theme .nd-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 24px;
+    border-radius: 999px;
+    font-family: var(--nd-font-body);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      transform 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .nd-theme .nd-btn {
+    background-color: var(--forest);
+    color: var(--mint);
+    border: 2px solid var(--forest);
+  }
+
+  .nd-theme .nd-btn-secondary {
+    background-color: transparent;
+    color: var(--forest);
+    border: 2px solid var(--forest);
+  }
+
+  .nd-theme .nd-btn-secondary:hover {
+    background-color: var(--mint);
+  }
+
+  .nd-theme .nd-btn:hover,
+  .nd-theme .nd-btn-secondary:hover {
+    text-decoration: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .nd-theme .nd-btn:hover:not(:disabled),
+    .nd-theme .nd-btn-secondary:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+  }
+
+  .nd-theme .nd-btn:disabled,
+  .nd-theme .nd-btn-secondary:disabled,
+  .nd-theme .nd-btn[aria-disabled="true"],
+  .nd-theme .nd-btn-secondary[aria-disabled="true"] {
+    cursor: wait;
+    opacity: 0.6;
+    transform: none;
+  }
+
+  .nd-theme .nd-btn-lg {
+    min-height: 56px;
+    padding: 0 28px;
+    font-size: 17px;
+  }
+
+  /* A text-only action (Check now, Close and check status). */
+  .nd-theme .nd-text-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--forest);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  /* Cards */
+  .nd-theme .nd-card {
+    background-color: var(--paper);
+    border: 2px solid var(--forest);
+    border-radius: 24px;
+  }
+
+  .nd-theme .nd-card-lg {
+    background-color: var(--paper);
+    border: 2px solid var(--forest);
+    border-radius: 32px;
+  }
+
+  .nd-theme .nd-shadow {
+    box-shadow: 0 5px 0 var(--forest);
+  }
+
+  .nd-theme .nd-divider {
+    border: 0;
+    border-top: 2px dashed var(--forest);
+  }
+
+  /* Pink info box, as on the apply page. */
+  .nd-theme .nd-info {
+    border: 2px solid var(--forest);
+    border-radius: 24px;
+    background-color: var(--pink);
+    color: var(--forest);
+    padding: 16px 20px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* Plain paper note with a forest outline. */
+  .nd-theme .nd-note-box {
+    border: 2px solid var(--forest);
+    border-radius: 20px;
+    background-color: var(--paper);
+    color: var(--forest);
+    padding: 14px 18px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* Error box: announced with role="alert", pink-ink text on pink. */
+  .nd-theme .nd-alert {
+    border: 2px solid var(--pink-ink);
+    border-radius: 20px;
+    background-color: var(--pink);
+    color: var(--pink-ink);
+    padding: 14px 18px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .nd-theme .nd-chip {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    background-color: var(--chip);
+    color: var(--forest);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  .nd-theme .nd-chip-pink {
+    background-color: var(--pink);
+  }
+
+  .nd-theme .nd-chip-mint {
+    background-color: var(--mint);
+  }
+
+  .nd-theme .nd-chip-forest {
+    background-color: var(--forest);
+    color: var(--mint);
+  }
+
+  .nd-theme .nd-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 2px solid var(--forest);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.3;
+  }
+
+  .nd-theme .nd-tag-pink {
+    background-color: var(--pink);
+  }
+
+  /* Numbered step marker. */
+  .nd-theme .nd-marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    background-color: var(--mint);
+    border: 2px solid var(--forest);
+    color: var(--forest);
+    font-family: var(--nd-font-heading);
+    font-weight: 800;
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .nd-theme .nd-marker-sm {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .nd-theme .nd-marker-done {
+    background-color: var(--forest);
+    color: var(--mint);
+  }
+
+  .nd-theme .nd-marker-quiet {
+    background-color: var(--paper);
+    color: var(--forest-soft);
+  }
+
+  .nd-theme .nd-marker-blocked {
+    background-color: var(--pink);
+    border-color: var(--pink-ink);
+    color: var(--pink-ink);
+  }
+
+  /* Forms */
+  .nd-theme .nd-label {
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .nd-theme .nd-input {
+    width: 100%;
+    min-height: 52px;
+    border: 2px solid var(--forest);
+    border-radius: 16px;
+    background-color: #ffffff;
+    padding: 12px 16px;
+    font: inherit;
+    font-size: 17px;
+    color: var(--forest);
+  }
+
+  .nd-theme .nd-input[aria-invalid="true"] {
+    border-color: var(--pink-ink);
+  }
+
+  .nd-theme .nd-help {
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--forest-soft);
+  }
+
+  .nd-theme .nd-error {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--pink-ink);
+  }
+
+  /* Two-way switch (Distance / Drive time). */
+  .nd-theme .nd-segment {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    border: 2px solid var(--forest);
+    border-radius: 999px;
+    background-color: var(--paper);
+    padding: 4px;
+  }
+
+  @media (min-width: 640px) {
+    .nd-theme .nd-segment {
+      display: inline-grid;
+    }
+  }
+
+  .nd-theme .nd-segment-option {
+    min-height: 44px;
+    border-radius: 999px;
+    padding-inline: 20px;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--forest);
+    cursor: pointer;
+    transition: background-color 150ms ease;
+  }
+
+  .nd-theme .nd-segment-option:hover {
+    background-color: var(--mint);
+  }
+
+  .nd-theme .nd-segment-option[aria-checked="true"] {
+    background-color: var(--forest);
+    color: var(--mint);
+  }
+
+  /* Choice pill, as the apply page's toggles: paper with a forest outline,
+     forest with mint text once chosen. */
+  .nd-theme .nd-option {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 2px;
+    min-height: 48px;
+    border: 2px solid var(--forest);
+    border-radius: 16px;
+    background-color: var(--paper);
+    padding: 12px 4px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.2;
+    color: var(--forest);
+    cursor: pointer;
+    transition: background-color 150ms ease;
+  }
+
+  .nd-theme .nd-option:hover {
+    background-color: var(--mint);
+  }
+
+  .nd-theme .nd-option[aria-checked="true"] {
+    background-color: var(--forest);
+    color: var(--mint);
+  }
+
+  /* Progress rail: one segment per step, as on the apply form. */
+  .nd-theme .nd-rail-step {
+    height: 12px;
+    flex: 1 1 0;
+    border: 2px solid var(--forest);
+    border-radius: 999px;
+    background-color: var(--paper);
+    transition: background-color 500ms ease;
+  }
+
+  .nd-theme .nd-rail-step[data-state="done"] {
+    background-color: var(--forest);
+  }
+
+  .nd-theme .nd-rail-step[data-state="blocked"] {
+    background-color: var(--pink);
+  }
+
+  /* The checklist row being worked on. */
+  .nd-theme .nd-row-current {
+    background-color: var(--pink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nd-theme .nd-btn,
+    .nd-theme .nd-btn-secondary,
+    .nd-theme .nd-option,
+    .nd-theme .nd-segment-option,
+    .nd-theme .nd-rail-step {
+      transition: none;
+    }
+  }
+}

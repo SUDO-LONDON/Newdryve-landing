@@ -13,9 +13,9 @@ export const metadata: Metadata = {
  */
 export default function ConnectReturnPage() {
   return (
-    <Shell eyebrow="Secure payouts" title="Setup submitted">
+    <Shell eyebrow="Secure payouts" title="setup submitted">
       <Body>
-        Thanks — Stripe has received your payout setup details. We&rsquo;ll update your Newdryve
+        Thanks. Stripe has received your payout setup details. We&rsquo;ll update your Newdryve
         payout status after Stripe confirms your account.
       </Body>
       <PrimaryLink href="/">Back to Newdryve</PrimaryLink>

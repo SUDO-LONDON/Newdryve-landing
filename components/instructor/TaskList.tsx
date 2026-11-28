@@ -25,42 +25,42 @@ const STATE_LABEL: Record<OnboardingTask["state"], string> = {
 
 /** Colour is never the only signal: every icon has a matching word beside it. */
 function StateIcon({ state, number }: { state: OnboardingTask["state"]; number: number }) {
-  const base = "flex size-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold";
+  const base = "nd-marker nd-marker-sm";
   if (state === "done") {
     return (
-      <span aria-hidden="true" className={`${base} bg-racing-green text-white`}>
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M2.5 6.2 5 8.5l4.5-5" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+      <span aria-hidden="true" className={`${base} nd-marker-done`}>
+        <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+          <path d="M2.5 6.2 5 8.5l4.5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </span>
     );
   }
   if (state === "in_review") {
     return (
-      <span aria-hidden="true" className={`${base} border border-border bg-white text-ink-secondary`}>
-        <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-          <circle cx="7" cy="7" r="5.25" stroke="currentColor" strokeWidth="1.5" />
-          <path d="M7 4.2V7l1.9 1.3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <span aria-hidden="true" className={`${base} nd-marker-quiet`}>
+        <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="5.25" stroke="currentColor" strokeWidth="1.6" />
+          <path d="M7 4.2V7l1.9 1.3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
         </svg>
       </span>
     );
   }
   if (state === "blocked") {
     return (
-      <span aria-hidden="true" className={`${base} bg-rose-50 text-rose-700`}>
+      <span aria-hidden="true" className={`${base} nd-marker-blocked`}>
         !
       </span>
     );
   }
   if (state === "locked") {
     return (
-      <span aria-hidden="true" className={`${base} border border-border text-ink-secondary`}>
+      <span aria-hidden="true" className={`${base} nd-marker-quiet`}>
         {number}
       </span>
     );
   }
   return (
-    <span aria-hidden="true" className={`${base} bg-deep-rose text-white`}>
+    <span aria-hidden="true" className={base}>
       {number}
     </span>
   );
@@ -76,7 +76,7 @@ export function StepList({
   onFocus: (task: OnboardingTask) => void;
 }) {
   return (
-    <ol className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-white px-4">
+    <ol className="nd-card divide-y-2 divide-dashed overflow-hidden px-4 sm:px-5">
       {tasks.map((task, index) => {
         const focused = task.id === focusedId;
         // Finished steps and the one already open above need no explanation;
@@ -88,23 +88,23 @@ export function StepList({
           <li
             key={task.id}
             aria-current={focused ? "step" : undefined}
-            className={`flex items-start gap-3 py-3 ${focused ? "-mx-4 bg-blush-surface px-4" : ""} ${canOpen ? "items-center" : ""}`}
+            className={`flex items-start gap-3 py-3.5 ${focused ? "nd-row-current -mx-4 px-4 sm:-mx-5 sm:px-5" : ""} ${canOpen ? "items-center" : ""}`}
           >
             <StateIcon state={task.state} number={index + 1} />
             <div className="min-w-0 flex-1 pt-0.5">
               <p
-                className={`text-[15px] leading-6 ${
+                className={`text-[17px] leading-6 ${
                   task.state === "done"
-                    ? "text-ink-secondary"
+                    ? "text-[var(--forest-soft)]"
                     : task.state === "blocked"
-                      ? "font-semibold text-rose-800"
-                      : "font-semibold text-ink"
+                      ? "font-semibold text-[var(--pink-ink)]"
+                      : "font-semibold"
                 }`}
               >
                 {task.title}
               </p>
               {showDetail ? (
-                <p className={`mt-0.5 text-[13px] leading-5 ${task.state === "blocked" ? "text-rose-800" : "text-ink-secondary"}`}>
+                <p className={`nd-help mt-0.5 ${task.state === "blocked" ? "text-[var(--pink-ink)]" : ""}`}>
                   {task.detail}
                 </p>
               ) : null}
@@ -113,21 +113,21 @@ export function StepList({
               <button
                 type="button"
                 onClick={() => onFocus(task)}
-                className="focus-ring inline-flex min-h-11 shrink-0 items-center rounded-full border border-racing-green px-4 text-sm font-bold text-racing-green hover:bg-canvas"
+                className="nd-btn-secondary min-h-11 shrink-0 px-5"
               >
                 Start
                 <span className="sr-only">: {task.title}</span>
               </button>
             ) : (
               <span
-                className={`mt-1 shrink-0 text-[11px] font-bold uppercase tracking-[0.5px] ${
+                className={`nd-chip mt-1 ${
                   focused
-                    ? "text-deep-rose-ink"
+                    ? "nd-chip-forest"
                     : task.state === "done"
-                      ? "text-racing-green"
+                      ? "nd-chip-mint"
                       : task.state === "blocked"
-                        ? "text-rose-800"
-                        : "text-ink-secondary"
+                        ? "nd-chip-pink text-[var(--pink-ink)]"
+                        : ""
                 }`}
               >
                 {focused ? "Now" : STATE_LABEL[task.state]}
@@ -147,7 +147,7 @@ export function StepProgress({ tasks }: { tasks: OnboardingTask[] }) {
 
   return (
     <div className="mt-5">
-      <p className="text-sm font-semibold text-ink">
+      <p className="nd-small-label">
         {done} of {total} steps done
       </p>
       <div
@@ -156,14 +156,13 @@ export function StepProgress({ tasks }: { tasks: OnboardingTask[] }) {
         aria-valuemin={0}
         aria-valuemax={total}
         aria-label="Setup progress"
-        className="mt-2 flex gap-1"
+        className="mt-2.5 flex gap-2"
       >
         {tasks.map((task) => (
           <span
             key={task.id}
-            className={`h-1.5 flex-1 rounded-full transition-colors duration-500 ${
-              task.state === "done" ? "bg-racing-green" : task.state === "blocked" ? "bg-rose-400" : "bg-border"
-            }`}
+            data-state={task.state === "done" || task.state === "blocked" ? task.state : undefined}
+            className="nd-rail-step"
           />
         ))}
       </div>
