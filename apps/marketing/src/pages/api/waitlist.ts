@@ -7,6 +7,8 @@
  * the email send fails.
  *
  * Request:  POST { email, role: 'student'|'instructor', city, name?, notes? }
+ *       or POST { email, role: 'student', postcode }  (home page postcode check;
+ *          postcode is a UK outward code such as "CB1", stored in `city`)
  * Response: 200 { ok: true } | 400 { error } | 502 { error } | 503 { error }
  */
 import type { APIRoute } from 'astro';
@@ -28,6 +30,8 @@ type Payload = {
   email?: unknown;
   role?: unknown;
   city?: unknown;
+  /** UK outward code from the home page postcode check, sent instead of city. */
+  postcode?: unknown;
   name?: unknown;
   notes?: unknown;
 };
@@ -42,6 +46,8 @@ type Signup = {
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// UK outward code: area letters, district digit, optional digit or letter.
+const OUTWARD_RE = /^[A-Z]{1,2}\d[A-Z\d]?$/;
 
 function adminEmail(s: Signup) {
   const roleLabel = s.role === 'instructor' ? 'Instructor' : 'Learner';
@@ -51,7 +57,7 @@ function adminEmail(s: Signup) {
     ['Role', roleLabel],
     ['Email', s.email],
     s.name && ['Name', s.name],
-    s.city && ['City', s.city],
+    s.city && [OUTWARD_RE.test(s.city) ? 'Postcode area' : 'City', s.city],
     s.notes && [s.role === 'instructor' ? 'ADI / experience' : 'Notes', s.notes],
     ['Submitted', s.submittedAt],
   ].filter(Boolean) as [string, string][];
@@ -124,14 +130,32 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const email = typeof body.email === 'string' ? body.email.trim() : '';
-  const city = typeof body.city === 'string' ? body.city.trim() : '';
+  // The home page postcode check sends a UK outward code ("CB1") instead of
+  // a city. It is stored in the existing `city` column, so no migration is
+  // needed, and the notes record where the signup came from.
+  const postcode =
+    typeof body.postcode === 'string' ? body.postcode.toUpperCase().replace(/\s+/g, '') : '';
+  const fromPostcodeCheck = postcode.length > 0;
+  const city = fromPostcodeCheck
+    ? postcode
+    : typeof body.city === 'string'
+      ? body.city.trim()
+      : '';
   const name = typeof body.name === 'string' ? body.name.trim().slice(0, 80) : '';
-  const notes = typeof body.notes === 'string' ? body.notes.trim().slice(0, 500) : '';
+  const notes = fromPostcodeCheck
+    ? `Joined from the home page postcode check (${postcode}).`
+    : typeof body.notes === 'string'
+      ? body.notes.trim().slice(0, 500)
+      : '';
 
   if (!EMAIL_RE.test(email) || email.length > 254) {
     return json({ error: 'Please enter a valid email address.' }, 400);
   }
-  if (!VALID_CITIES.has(city)) {
+  if (fromPostcodeCheck) {
+    if (!OUTWARD_RE.test(postcode)) {
+      return json({ error: 'Please enter the first part of your postcode, like NR2.' }, 400);
+    }
+  } else if (!VALID_CITIES.has(city)) {
     return json({ error: 'Please choose a city.' }, 400);
   }
 

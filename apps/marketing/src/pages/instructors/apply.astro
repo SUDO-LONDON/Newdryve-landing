@@ -40,15 +40,19 @@ const jsonLd = [
   ]),
 ];
 
-const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-base text-ink placeholder:text-ink-muted sm:text-sm';
+const inputClass = 'nd-input';
 const fileClass =
-  'focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-sm text-ink-secondary file:mr-3 file:rounded-full file:border-0 file:bg-ink file:px-4 file:py-2 file:text-xs file:font-bold file:text-white';
-const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondary';
-const stepClass = 'flex flex-col gap-5';
-const legendClass = 'font-display text-xl font-semibold tracking-[-0.5px] text-ink';
+  'nd-input cursor-pointer text-base file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-forest file:px-4 file:py-2 file:text-sm file:font-semibold file:text-mint';
+const labelClass = 'nd-label';
+const hintClass = 'nd-help';
+const requiredClass = 'text-pink-ink';
+const stepClass = 'flex flex-col gap-6';
+const legendClass = 'nd-h4 mb-1';
+const introClass = '-mt-2 text-base text-forest-soft';
+/* Chip-style toggle: paper pill with a forest outline, filled forest with mint
+   text when checked. The input itself is visually hidden (peer sr-only). */
 const pillClass =
-  'inline-flex min-h-11 items-center rounded-full border border-border px-4 text-sm font-bold text-ink-secondary transition-colors peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-racing-green peer-focus-visible:ring-offset-2';
+  'inline-flex min-h-11 items-center rounded-full border-2 border-forest bg-paper px-4 text-[15px] font-semibold text-forest transition-colors hover:bg-mint peer-checked:bg-forest peer-checked:text-mint peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest';
 
 /** Drives both the progress rail and the script's step count. */
 const formSteps = [
@@ -87,10 +91,10 @@ const lessonTypes = [
 const testCentreCities = Object.keys(testCentresByCity).sort((a, b) => a.localeCompare(b, 'en-GB'));
 
 const howItWorks = [
-  { badge: 'bg-racing-green', text: 'You apply here, confirm your email with a code we send you, and choose the password you&rsquo;ll sign in with.' },
-  { badge: 'bg-deep-rose', text: 'With your permission, we confirm your current ADI registration through GOV.UK or directly with DVSA.' },
-  { badge: 'bg-ink', text: 'If approved, we email your agreed membership terms and, where required, a secure Stripe setup link.' },
-  { badge: 'bg-racing-green', text: 'After membership or free-trial setup is confirmed, we email your private Newdryve setup page. Connect payouts there, set your service area, and review your listing before it goes live.' },
+  'You apply here, confirm your email with a code we send you, and choose the password you&rsquo;ll sign in with.',
+  'With your permission, we confirm your current ADI registration through GOV.UK or directly with DVSA.',
+  'If approved, we email your agreed membership terms and, where required, a secure Stripe setup link.',
+  'After membership or free-trial setup is confirmed, we email your private Newdryve setup page. Connect payouts there, set your service area, and review your listing before it goes live.',
 ];
 
 // Extensions as well as MIME types: several browsers report no type at all for
@@ -109,55 +113,47 @@ const acceptTypes =
   jsonLd={jsonLd}
   audience="instructor"
 >
-  <div class="relative overflow-hidden">
-    <div class="dot-pattern pointer-events-none absolute inset-0 opacity-40" aria-hidden="true"></div>
+  <section class="bg-mint pt-12 pb-14 md:pt-16 md:pb-20">
+    <div class="nd-container">
+      <p class="nd-small-label">Founding instructors</p>
+      <h1 class="nd-h1 mt-3 max-w-[14em]">apply to teach with newdryve</h1>
+      <p class="nd-lede mt-5 max-w-[34em]">
+        We&rsquo;re building a carefully selected founding group of ADI-qualified instructors across
+        Great Britain. Tell us about yourself and how you teach, and we&rsquo;ll review your application by hand.
+      </p>
+    </div>
+  </section>
 
-    <div
-      class="relative mx-auto grid max-w-6xl gap-10 px-5 py-12 md:grid-cols-[0.85fr_1.15fr] md:items-start md:gap-16 md:py-20"
-    >
-      <div class="md:sticky md:top-24">
-        <p class="text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-          Founding instructors
-        </p>
-        <h1
-          class="font-display mt-3 text-[clamp(36px,6vw,56px)] font-semibold leading-[1.02] tracking-[-1.2px] text-balance"
-        >
-          Apply to teach with Newdryve.
-        </h1>
-        <p class="mt-5 max-w-xl text-base leading-relaxed text-ink-secondary md:text-lg">
-          We&rsquo;re building a carefully selected founding group of ADI-qualified instructors across
-          Great Britain. Tell us about yourself and how you teach, and we&rsquo;ll review your application by hand.
-        </p>
-
-        <div class="mt-8 rounded-2xl border border-blush-border bg-blush-surface p-5">
-          <h2 class="text-sm font-extrabold text-ink">How it works</h2>
-          <ol class="mt-4 space-y-4 text-sm leading-relaxed text-ink-secondary">
+  <div class="nd-container py-14 md:py-20">
+    <div class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:gap-14">
+      <div class="flex flex-col gap-6 lg:sticky lg:top-8">
+        <div class="rounded-[32px] border-2 border-forest bg-pink p-6 sm:p-8">
+          <h2 class="nd-h4">How it works</h2>
+          <ol class="mt-5 flex flex-col gap-4">
             {
-              howItWorks.map((step, index) => (
-                <li class="flex gap-3">
-                  <span
-                    class={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white ${step.badge}`}
-                  >
+              howItWorks.map((text, index) => (
+                <li class="flex items-start gap-4">
+                  <span class="nd-marker size-10 text-lg" aria-hidden="true">
                     {index + 1}
                   </span>
-                  <span set:html={step.text} />
+                  <span class="pt-1.5" set:html={text} />
                 </li>
               ))
             }
           </ol>
         </div>
 
-        <p class="mt-6 text-sm text-ink-secondary">
+        <p class="nd-help px-2">
           Already applied? You can&rsquo;t sign in until we&rsquo;ve approved you and any required membership
-          setup is complete &mdash; we&rsquo;ll email you the next step.
+          setup is complete. We&rsquo;ll email you the next step.
         </p>
       </div>
 
-      <div data-apply-root>
+      <div data-apply-root class="min-w-0">
         <noscript>
-          <p class="mb-4 rounded-2xl border border-blush-border bg-blush-surface p-5 text-sm leading-relaxed text-ink-secondary">
+          <p class="mb-5 rounded-[24px] border-2 border-forest bg-pink p-5">
             This application form needs JavaScript to submit. Please turn it on, or email
-            <a href="mailto:hello@newdryve.com" class="font-semibold text-ink underline underline-offset-2">hello@newdryve.com</a>
+            <a href="mailto:hello@newdryve.com" class="font-semibold text-forest underline underline-offset-2">hello@newdryve.com</a>
             and we&rsquo;ll help you apply.
           </p>
         </noscript>
@@ -166,24 +162,24 @@ const acceptTypes =
           method="post"
           novalidate
           data-apply-form
-          class="flex flex-col gap-6 rounded-2xl border border-border bg-white p-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.08)] sm:p-8"
+          class="nd-card-lg flex scroll-mt-6 flex-col gap-8 p-5 sm:p-8"
         >
           {/* Step chrome. Hidden until the script takes over, so a no-JS
               visitor sees a plain stacked form rather than dead controls. */}
           <div data-stepper-chrome hidden>
             <div class="flex items-baseline justify-between gap-3">
-              <p class="text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
+              <p class="nd-small-label">
                 Step <span data-step-current>1</span> of {formSteps.length}
               </p>
-              <p data-step-name class="text-sm font-semibold text-ink-secondary"></p>
+              <p data-step-name class="nd-help font-semibold"></p>
             </div>
 
-            <ol class="mt-3 flex gap-1.5" aria-hidden="true">
+            <ol class="mt-3 flex gap-2" aria-hidden="true">
               {
                 formSteps.map((step) => (
                   <li
                     data-step-tick={step.n}
-                    class="h-1.5 flex-1 rounded-full bg-border transition-colors"
+                    class="h-3 flex-1 rounded-full border-2 border-forest bg-border transition-colors"
                   />
                 ))
               }
@@ -197,10 +193,10 @@ const acceptTypes =
           <fieldset class={stepClass} data-step="1">
             <legend class={legendClass} tabindex="-1" data-step-heading>About you</legend>
 
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div class="flex flex-col gap-1.5">
+            <div class="grid gap-5 sm:grid-cols-2">
+              <div class="flex flex-col gap-2">
                 <label class={labelClass} for="apply-full-name">
-                  Full name <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                  Full name <span aria-hidden="true" class={requiredClass}>*</span>
                 </label>
                 <input
                   id="apply-full-name"
@@ -213,9 +209,9 @@ const acceptTypes =
                   class={inputClass}
                 />
               </div>
-              <div class="flex flex-col gap-1.5">
+              <div class="flex flex-col gap-2">
                 <label class={labelClass} for="apply-phone">
-                  Mobile number <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                  Mobile number <span aria-hidden="true" class={requiredClass}>*</span>
                 </label>
                 <input
                   id="apply-phone"
@@ -230,13 +226,13 @@ const acceptTypes =
                   placeholder="07700 900000"
                   class={inputClass}
                 />
-                <p id="apply-phone-hint" class="text-xs text-ink-muted">
+                <p id="apply-phone-hint" class={hintClass}>
                   UK mobile format, beginning 07 or +44 7.
                 </p>
               </div>
             </div>
 
-            <div class="flex flex-col gap-1.5 sm:max-w-[calc(50%-0.5rem)]">
+            <div class="flex flex-col gap-2 sm:max-w-[calc(50%-0.625rem)]">
               <label class={labelClass} for="apply-gender">Gender (optional)</label>
               <select
                 id="apply-gender"
@@ -248,15 +244,15 @@ const acceptTypes =
                   <option value={option.value} selected={option.value === ''}>{option.label}</option>
                 ))}
               </select>
-              <p id="apply-gender-hint" class="text-xs text-ink-muted">
+              <p id="apply-gender-hint" class={hintClass}>
                 Only used when a learner booking through a driving school asks for a female or male
                 instructor. Never shown on your profile.
               </p>
             </div>
 
-            <div class="flex flex-col gap-1.5" data-language-field>
+            <div class="flex flex-col gap-2" data-language-field>
               <label id="apply-languages-label" class={labelClass} for="apply-languages">
-                Languages you teach in <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                Languages you teach in <span aria-hidden="true" class={requiredClass}>*</span>
               </label>
 
               {/* Without JavaScript this checkbox group is the field, so only
@@ -309,10 +305,10 @@ const acceptTypes =
                     spellcheck="false"
                     enterkeyhint="done"
                     placeholder="Search languages"
-                    class={`${inputClass} pr-11 aria-[invalid=true]:border-deep-rose-ink`}
+                    class={`${inputClass} pr-11 aria-[invalid=true]:border-pink-ink`}
                   />
                   <svg
-                    class="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-ink-muted"
+                    class="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-forest"
                     width="14"
                     height="14"
                     viewBox="0 0 12 12"
@@ -335,14 +331,14 @@ const acceptTypes =
                   aria-labelledby="apply-languages-label"
                   data-language-listbox
                   hidden
-                  class="max-h-64 overflow-y-auto overscroll-contain rounded-xl border border-border bg-white p-1 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.12)]"
+                  class="max-h-64 overflow-y-auto overscroll-contain rounded-2xl border-2 border-forest bg-white p-1.5 shadow-[0_5px_0_var(--forest)]"
                 >
                 </ul>
 
                 <p
                   data-language-empty
                   hidden
-                  class="rounded-xl border border-dashed border-border px-4 py-3 text-sm text-ink-secondary"
+                  class="rounded-2xl border-2 border-dashed border-forest px-4 py-3 text-base text-forest-soft"
                 >
                 </p>
 
@@ -354,15 +350,15 @@ const acceptTypes =
                 <p data-language-status class="sr-only" role="status" aria-live="polite"></p>
               </div>
 
-              <p id="apply-languages-hint" class="text-xs text-ink-muted">
+              <p id="apply-languages-hint" class={hintClass}>
                 Choose every language you can teach in. Learners can match with any one of them. Not
                 listed? Tell us at the end of the form.
               </p>
             </div>
 
-            <div class="flex flex-col gap-1.5">
+            <div class="flex flex-col gap-2">
               <label class={labelClass} for="apply-service-city">
-                City <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                City <span aria-hidden="true" class={requiredClass}>*</span>
               </label>
               <select
                 id="apply-service-city"
@@ -374,21 +370,21 @@ const acceptTypes =
                 <option value="">Select a city</option>
                 {testCentreCities.map((city) => <option value={city}>{city}</option>)}
               </select>
-              <p id="apply-service-city-hint" class="text-xs text-ink-muted">
+              <p id="apply-service-city-hint" class={hintClass}>
                 We&rsquo;ll show every current practical test centre in your chosen city.
               </p>
             </div>
 
-            <div class="flex flex-col gap-1.5">
+            <div class="flex flex-col gap-2">
               <span id="apply-test-centres-label" class={labelClass}>
-                Primary test centres you cover <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                Primary test centres you cover <span aria-hidden="true" class={requiredClass}>*</span>
               </span>
               <div
                 class="pt-1"
                 aria-labelledby="apply-test-centres-label"
                 aria-describedby="apply-test-centres-hint"
               >
-                <p data-test-centres-empty class="text-sm text-ink-secondary">
+                <p data-test-centres-empty class={hintClass}>
                   Choose a city first.
                 </p>
                 {
@@ -416,7 +412,7 @@ const acceptTypes =
                   ))
                 }
               </div>
-              <p id="apply-test-centres-hint" class="text-xs text-ink-muted">
+              <p id="apply-test-centres-hint" class={hintClass}>
                 Choose at least one. You&rsquo;ll set your exact pickup-area radius on Newdryve after approval.
               </p>
             </div>
@@ -424,15 +420,15 @@ const acceptTypes =
 
           <fieldset class={stepClass} data-step="2">
             <legend class={legendClass} tabindex="-1" data-step-heading>Your sign-in details</legend>
-            <p class="-mt-2 text-sm text-ink-secondary">
+            <p class={introClass}>
               This is the password you&rsquo;ll use in the app. It won&rsquo;t work until
               we&rsquo;ve approved you. When you continue, we&rsquo;ll email you a code to
               confirm the address is yours.
             </p>
 
-            <div class="flex flex-col gap-1.5">
+            <div class="flex flex-col gap-2">
               <label class={labelClass} for="apply-email">
-                Email <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                Email <span aria-hidden="true" class={requiredClass}>*</span>
               </label>
               <input
                 id="apply-email"
@@ -447,10 +443,10 @@ const acceptTypes =
               />
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div class="flex flex-col gap-1.5">
+            <div class="grid gap-5 sm:grid-cols-2">
+              <div class="flex flex-col gap-2">
                 <label class={labelClass} for="apply-password">
-                  Password <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                  Password <span aria-hidden="true" class={requiredClass}>*</span>
                 </label>
                 <input
                   id="apply-password"
@@ -464,13 +460,13 @@ const acceptTypes =
                   placeholder="Create a strong password"
                   class={inputClass}
                 />
-                <p id="apply-password-requirements" class="text-xs text-ink-muted">
+                <p id="apply-password-requirements" class={hintClass}>
                   8+ characters with uppercase, lowercase, a number and a symbol.
                 </p>
               </div>
-              <div class="flex flex-col gap-1.5">
+              <div class="flex flex-col gap-2">
                 <label class={labelClass} for="apply-password-confirm">
-                  Confirm password <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                  Confirm password <span aria-hidden="true" class={requiredClass}>*</span>
                 </label>
                 <input
                   id="apply-password-confirm"
@@ -487,11 +483,11 @@ const acceptTypes =
 
             {/* Revealed by the script once a code has been emailed. Disabled
                 until then, so the step's checks skip it. */}
-            <div data-email-code hidden class="flex flex-col gap-2 rounded-xl bg-blush-surface p-4">
+            <div data-email-code hidden class="flex flex-col gap-2 rounded-[24px] border-2 border-forest bg-pink p-4 sm:p-5">
               <label class={labelClass} for="apply-email-code">
-                Email code <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                Email code <span aria-hidden="true" class={requiredClass}>*</span>
               </label>
-              <p id="apply-email-code-help" data-email-code-sent class="text-sm text-ink-secondary"></p>
+              <p id="apply-email-code-help" data-email-code-sent class="text-base text-forest-soft"></p>
               <input
                 id="apply-email-code"
                 name="email_verification_code"
@@ -507,7 +503,7 @@ const acceptTypes =
               <button
                 type="button"
                 data-email-code-resend
-                class="focus-ring self-start text-sm font-semibold text-ink underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                class="inline-flex min-h-11 items-center self-start font-semibold text-forest underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Send a new code
               </button>
@@ -516,16 +512,16 @@ const acceptTypes =
 
           <fieldset class={stepClass} data-step="3">
             <legend class={legendClass} tabindex="-1" data-step-heading>DVSA registration check</legend>
-            <p class="-mt-2 text-sm text-ink-secondary">
+            <p class={introClass}>
               DVSA already carries out the criminal-record suitability checks required for ADI
               registration. We only confirm that your registration is current; we do not need your
               DBS certificate.
             </p>
 
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div class="flex flex-col gap-1.5">
+            <div class="grid gap-5 sm:grid-cols-2">
+              <div class="flex flex-col gap-2">
                 <label class={labelClass} for="apply-adi-number">
-                  ADI badge number <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                  ADI badge number <span aria-hidden="true" class={requiredClass}>*</span>
                 </label>
                 <input
                   id="apply-adi-number"
@@ -538,9 +534,9 @@ const acceptTypes =
                   class={inputClass}
                 />
               </div>
-              <div class="flex flex-col gap-1.5">
+              <div class="flex flex-col gap-2">
                 <label class={labelClass} for="apply-adi-expiry">
-                  ADI badge expiry <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                  ADI badge expiry <span aria-hidden="true" class={requiredClass}>*</span>
                 </label>
                 <input
                   id="apply-adi-expiry"
@@ -552,9 +548,9 @@ const acceptTypes =
               </div>
             </div>
 
-            <div class="flex flex-col gap-1.5">
+            <div class="flex flex-col gap-2">
               <label class={labelClass} for="apply-adi-doc">
-                ADI badge image <span class="normal-case tracking-normal text-ink-muted">(optional)</span>
+                ADI badge image <span class="font-normal text-forest-soft">(optional)</span>
               </label>
               <input
                 id="apply-adi-doc"
@@ -564,21 +560,21 @@ const acceptTypes =
                 aria-describedby="apply-adi-doc-help"
                 class={fileClass}
               />
-              <p id="apply-adi-doc-help" class="text-xs leading-5 text-ink-muted">
+              <p id="apply-adi-doc-help" class={hintClass}>
                 Useful only if your details are difficult to match. JPG, PNG, HEIC, WebP or PDF, up
                 to 10&nbsp;MB. Stored privately and deleted after review. Your DVSA status is checked
                 separately.
               </p>
-              <p data-adi-doc-warning hidden role="status" class="text-xs font-semibold leading-5 text-deep-rose-ink"></p>
+              <p data-adi-doc-warning hidden role="status" class="nd-error"></p>
             </div>
 
-            <label class="flex items-start gap-3 rounded-xl border border-border bg-canvas p-4 text-sm leading-6 text-ink-secondary">
+            <label class="flex min-h-11 cursor-pointer items-start gap-3 rounded-[20px] border-2 border-forest bg-white p-4 text-base">
               <input
                 type="checkbox"
                 name="dvsa_verification_consent"
                 value="yes"
                 required
-                class="mt-1 size-4 shrink-0 accent-racing-green"
+                class="mt-0.5 size-5 shrink-0 cursor-pointer accent-forest"
               />
               <span>
                 I authorise Newdryve to use my name and ADI number to check that my registration is
@@ -586,10 +582,10 @@ const acceptTypes =
               </span>
             </label>
 
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div class="flex flex-col gap-1.5">
+            <div class="grid gap-5 sm:grid-cols-2">
+              <div class="flex flex-col gap-2">
                 <label class={labelClass} for="apply-school">
-                  Driving school name <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                  Driving school name <span aria-hidden="true" class={requiredClass}>*</span>
                 </label>
                 <input
                   id="apply-school"
@@ -606,10 +602,10 @@ const acceptTypes =
           <fieldset class={stepClass} data-step="4">
             <legend class={legendClass} tabindex="-1" data-step-heading>How you teach</legend>
 
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div class="flex flex-col gap-1.5">
+            <div class="grid gap-5 sm:grid-cols-2">
+              <div class="flex flex-col gap-2">
                 <label class={labelClass} for="apply-price">
-                  Price per hour (&pound;) <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                  Price per hour (&pound;) <span aria-hidden="true" class={requiredClass}>*</span>
                 </label>
                 <input
                   id="apply-price"
@@ -622,12 +618,12 @@ const acceptTypes =
                   placeholder="40"
                   class={inputClass}
                 />
-                <p class="text-xs text-ink-muted">Newdryve takes 0% commission from this. Change it any time.</p>
+                <p class={hintClass}>Newdryve takes 0% commission from this. Change it any time.</p>
               </div>
 
-              <div class="flex flex-col gap-1.5">
+              <div class="flex flex-col gap-2">
                 <span class={labelClass}>
-                  Transmission <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                  Transmission <span aria-hidden="true" class={requiredClass}>*</span>
                 </span>
                 <div class="flex flex-wrap gap-2 pt-1">
                   <label class="cursor-pointer">
@@ -642,9 +638,9 @@ const acceptTypes =
               </div>
             </div>
 
-            <div class="flex flex-col gap-1.5">
+            <div class="flex flex-col gap-2">
               <span class={labelClass}>
-                Lesson lengths you offer <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                Lesson lengths you offer <span aria-hidden="true" class={requiredClass}>*</span>
               </span>
               <div class="flex flex-wrap gap-2 pt-1">
                 {
@@ -664,9 +660,9 @@ const acceptTypes =
               </div>
             </div>
 
-            <div class="flex flex-col gap-1.5">
+            <div class="flex flex-col gap-2">
               <label class={labelClass} for="apply-specialisms">
-                Specialisms <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                Specialisms <span aria-hidden="true" class={requiredClass}>*</span>
               </label>
               <input
                 id="apply-specialisms"
@@ -677,14 +673,14 @@ const acceptTypes =
                 placeholder="Nervous learners, Pass Plus, refresher lessons"
                 class={inputClass}
               />
-              <p id="apply-specialisms-hint" class="text-xs text-ink-muted">
+              <p id="apply-specialisms-hint" class={hintClass}>
                 Separate each one with a comma. Up to 20, each 60 characters or fewer.
               </p>
             </div>
 
-            <div class="flex flex-col gap-1.5">
+            <div class="flex flex-col gap-2">
               <label class={labelClass} for="apply-bio">
-                Short bio <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                Short bio <span aria-hidden="true" class={requiredClass}>*</span>
               </label>
               <textarea
                 id="apply-bio"
@@ -695,22 +691,22 @@ const acceptTypes =
                 class={`${inputClass} resize-none`}></textarea>
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-3">
-              <div class="flex flex-col gap-1.5">
+            <div class="grid gap-5 sm:grid-cols-3">
+              <div class="flex flex-col gap-2">
                 <label class={labelClass} for="apply-car-make">
-                  Car make <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                  Car make <span aria-hidden="true" class={requiredClass}>*</span>
                 </label>
                 <input id="apply-car-make" name="car_make" type="text" required placeholder="Vauxhall" class={inputClass} />
               </div>
-              <div class="flex flex-col gap-1.5">
+              <div class="flex flex-col gap-2">
                 <label class={labelClass} for="apply-car-model">
-                  Model <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                  Model <span aria-hidden="true" class={requiredClass}>*</span>
                 </label>
                 <input id="apply-car-model" name="car_model" type="text" required placeholder="Corsa" class={inputClass} />
               </div>
-              <div class="flex flex-col gap-1.5">
+              <div class="flex flex-col gap-2">
                 <label class={labelClass} for="apply-car-color">
-                  Colour <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                  Colour <span aria-hidden="true" class={requiredClass}>*</span>
                 </label>
                 <input id="apply-car-color" name="car_color" type="text" required placeholder="Blue" class={inputClass} />
               </div>
@@ -721,26 +717,26 @@ const acceptTypes =
             <legend class={legendClass} tabindex="-1" data-step-heading>
               When you&rsquo;re available
             </legend>
-            <p class="-mt-2 text-sm text-ink-secondary">
+            <p class={introClass}>
               Choose at least one day and valid start/end times. You can change all of this in the
-              app once you&rsquo;re approved. <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+              app once you&rsquo;re approved. <span aria-hidden="true" class={requiredClass}>*</span>
             </p>
 
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-3">
               {
                 weekdays.map((day) => (
                   <div
-                    class="grid grid-cols-[1fr] items-center gap-2 sm:grid-cols-[auto_1fr_auto_1fr]"
+                    class="grid grid-cols-2 items-center gap-x-3 gap-y-2 border-b-2 border-dashed border-forest/25 pb-3 last:border-b-0 last:pb-0 sm:grid-cols-[auto_1fr_auto_1fr] sm:border-b-0 sm:pb-0"
                     data-availability-row
                     data-weekday={day.value}
                   >
-                    <label class="flex min-h-11 cursor-pointer items-center gap-2.5">
+                    <label class="col-span-2 flex min-h-11 cursor-pointer items-center gap-3 sm:col-span-1">
                       <input
                         type="checkbox"
                         data-availability-toggle
-                        class="focus-ring size-4 rounded border-border accent-racing-green"
+                        class="size-5 cursor-pointer accent-forest"
                       />
-                      <span class="w-24 text-sm font-bold text-ink">{day.label}</span>
+                      <span class="w-28 font-semibold">{day.label}</span>
                     </label>
                     <input
                       type="time"
@@ -748,25 +744,25 @@ const acceptTypes =
                       disabled
                       data-availability-start
                       aria-label={`${day.label} start time`}
-                      class={`${inputClass} disabled:opacity-40`}
+                      class={`${inputClass} min-w-0 disabled:cursor-not-allowed disabled:bg-chip disabled:opacity-70`}
                     />
-                    <span class="hidden text-center text-sm text-ink-muted sm:block">to</span>
+                    <span class="hidden text-center text-forest-soft sm:block">to</span>
                     <input
                       type="time"
                       value="18:00"
                       disabled
                       data-availability-end
                       aria-label={`${day.label} end time`}
-                      class={`${inputClass} disabled:opacity-40`}
+                      class={`${inputClass} min-w-0 disabled:cursor-not-allowed disabled:bg-chip disabled:opacity-70`}
                     />
                   </div>
                 ))
               }
             </div>
 
-            <div class="flex flex-col gap-1.5">
+            <div class="flex flex-col gap-2">
               <label class={labelClass} for="apply-notes">
-                Anything else we should know <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+                Anything else we should know <span aria-hidden="true" class={requiredClass}>*</span>
               </label>
               <textarea
                 id="apply-notes"
@@ -786,8 +782,8 @@ const acceptTypes =
             <input id="apply-reference" name="apply_reference" type="text" tabindex="-1" autocomplete="off" />
           </div>
 
-          <div class="flex flex-col gap-4 border-t border-border pt-6">
-            <p data-apply-error role="alert" class="hidden text-sm font-semibold text-deep-rose-ink">
+          <div class="flex flex-col gap-4 border-t-2 border-dashed border-forest pt-6">
+            <p data-apply-error role="alert" class="nd-error hidden">
             </p>
 
             <div class="flex flex-wrap items-center gap-3">
@@ -795,7 +791,7 @@ const acceptTypes =
                 type="button"
                 data-step-back
                 hidden
-                class="focus-ring inline-flex min-h-11 items-center justify-center rounded-full border border-border px-5 py-3.5 text-sm font-bold text-ink transition-colors hover:bg-blush-surface disabled:cursor-not-allowed disabled:opacity-60"
+                class="nd-btn-secondary nd-btn-lg hover:bg-mint"
               >
                 Back
               </button>
@@ -804,33 +800,25 @@ const acceptTypes =
                 type="button"
                 data-step-next
                 hidden
-                class="focus-ring inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-white transition-transform hover:bg-[#1a1a2c] motion-safe:hover:-translate-y-0.5 sm:flex-none"
+                class="nd-btn nd-btn-lg flex-1 sm:flex-none"
               >
                 Continue
-                <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                  <path
-                    d="M2.5 6h7M6 2.5 9.5 6 6 9.5"
-                    stroke="currentColor"
-                    stroke-width="1.75"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"></path>
-                </svg>
               </button>
 
               <button
                 type="submit"
                 data-apply-submit
                 disabled
-                class="focus-ring inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] disabled:cursor-not-allowed disabled:opacity-60 motion-safe:hover:-translate-y-0.5 sm:flex-none"
+                class="nd-btn nd-btn-lg flex-1 sm:flex-none"
               >
                 <span data-apply-submit-label>Submit application</span>
               </button>
             </div>
 
-            <p class="text-xs text-ink-muted">
+            <p class={hintClass}>
               By applying you agree to our
-              <a href="/terms" class="font-semibold text-ink underline underline-offset-2">terms</a>
-              and <a href="/privacy" class="font-semibold text-ink underline underline-offset-2">privacy policy</a>.
+              <a href="/terms" class="font-semibold text-forest underline underline-offset-2">terms</a>
+              and <a href="/privacy" class="font-semibold text-forest underline underline-offset-2">privacy policy</a>.
             </p>
           </div>
         </form>
@@ -840,10 +828,10 @@ const acceptTypes =
           hidden
           role="status"
           tabindex="-1"
-          class="rounded-2xl border border-border bg-white p-8 text-center"
+          class="nd-card-lg p-6 text-center sm:p-10"
         >
           <div
-            class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-racing-green/10 text-racing-green"
+            class="mx-auto mb-5 flex size-14 items-center justify-center rounded-full border-2 border-forest bg-mint text-forest"
           >
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
               <path
@@ -854,14 +842,14 @@ const acceptTypes =
                 stroke-linejoin="round"></path>
             </svg>
           </div>
-          <h3 class="text-xl font-extrabold tracking-tight">Application received.</h3>
-          <p class="mt-2 text-sm text-ink-secondary">
+          <h3 class="nd-h3">Application received.</h3>
+          <p class="mx-auto mt-3 max-w-[32em]">
             We&rsquo;re working on getting you approved and we&rsquo;ll email
-            <span data-apply-success-email class="font-semibold text-ink"></span> as soon as
+            <span data-apply-success-email class="font-semibold"></span> as soon as
             you&rsquo;re approved. That email will contain your membership terms and, where required, the final Stripe setup step;
             you&rsquo;ll sign in with the password you just chose once it is complete.
           </p>
-          <p data-apply-upload-warning hidden class="mt-4 rounded-xl bg-blush-surface p-4 text-sm text-ink-secondary">
+          <p data-apply-upload-warning hidden class="mx-auto mt-5 max-w-[32em] rounded-[20px] border-2 border-forest bg-pink p-4 text-left">
             We couldn&rsquo;t upload the optional badge image. Your application is safe and we can still
             verify your registration directly with DVSA.
           </p>
@@ -877,6 +865,29 @@ const acceptTypes =
      once. */
   [hidden] {
     display: none !important;
+  }
+
+  /* The script marks upcoming steps with the legacy `bg-border` class, which
+     now resolves to forest like the done steps. Upcoming ticks render as empty
+     paper outlines instead. */
+  [data-step-tick].bg-border {
+    background-color: var(--paper);
+  }
+
+  /* Chosen-language chips and listbox options are built by the script, so they
+     are reached with :global(). Chips match the checked pills (forest, mint
+     text); the highlighted option gets a mint fill. */
+  [data-language-chips] :global(button) {
+    border-width: 2px;
+    border-color: var(--forest);
+    background-color: var(--forest);
+    color: var(--mint);
+    font-weight: 600;
+  }
+
+  [data-language-listbox] :global([role='option']:hover),
+  [data-language-listbox] :global([role='option'][data-active]) {
+    background-color: var(--mint);
   }
 </style>
 

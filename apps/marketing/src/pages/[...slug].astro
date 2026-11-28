@@ -1,15 +1,32 @@
 ---
+/**
+ * Shared template for the content pages: town hubs (/driving-lessons/*), test
+ * centres (/test-centres and /test-centres/*) and guides (/guides/*). Content
+ * comes from src/content/seo-pages.ts.
+ *
+ * Redesign (November 2026), following docs/redesign/HANDOFF.md "Not designed
+ * yet > Content pages":
+ * - Mint hero continuing the header band, with a fact card that leads with
+ *   the answer (coverage status on town pages, the car-test answer on test
+ *   centre pages, big figures with their source on guides).
+ * - No numbered section labels.
+ * - One call to action (the pink band, or the town waitlist form on towns
+ *   without coverage) and one related list per page.
+ * Nothing here adds facts: every figure and source shown comes from the data.
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import WaitlistForm from '../components/WaitlistForm.astro';
+import GetAppButton from '../components/GetAppButton.astro';
+import Faq from '../components/Faq.astro';
 import {
-  conversionHref,
   conversionLabel,
   getRelatedPages,
   pagePath,
   seoPages,
+  waitlistLabel,
   type SeoPage,
 } from '../content/seo-pages';
-import { SITE_URL, BRAND } from '../config/site';
+import { SITE_URL } from '../config/site';
 import { breadcrumbSchema, organizationSchema, websiteSchema } from '../lib/schema';
 
 export function getStaticPaths() {
@@ -22,6 +39,8 @@ export function getStaticPaths() {
 interface Props {
   page: SeoPage;
 }
+
+type Fact = SeoPage['quickFacts'][number];
 
 const { page } = Astro.props;
 const path = pagePath(page);
@@ -39,8 +58,67 @@ const breadcrumbTrail = [
 ];
 const decisionRule = page.quickFacts.find((fact) => fact.label === 'Decision rule');
 
-const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-racing-green focus-visible:ring-offset-2 focus-visible:ring-offset-canvas';
+const kind: 'town' | 'test-centre' | 'guide' = page.slug.startsWith('guides/')
+  ? 'guide'
+  : page.slug.startsWith('test-centres')
+    ? 'test-centre'
+    : 'town';
+
+const factByLabel = (label: string) => page.quickFacts.find((fact) => fact.label === label);
+
+/*
+ * The fact the card opens with. Test centres answer "can I take my car test
+ * here?" first (Jupiter Road's data says car tests are generally directed to
+ * Peachman Way); towns open with their honest coverage status.
+ */
+const leadFact: Fact | undefined =
+  kind === 'test-centre'
+    ? (factByLabel('Car tests') ?? factByLabel('Use case') ?? factByLabel('Norwich car-test centre'))
+    : kind === 'town'
+      ? factByLabel('Coverage status')
+      : undefined;
+
+/*
+ * Guides lead with their numbers. A figure is pulled out of the fact's own
+ * value (never typed in here), and shown with the source the page already
+ * cites for it plus the date the page was last checked.
+ */
+const figurePattern = /£\d+(?:\s+to\s+£\d+)?|\d+\s+hours/;
+const figureSourceLabels: Record<string, string> = {
+  'Common hourly range': 'RAC: Cost of learning to drive',
+  'Official practical test fee': 'GOV.UK: Driving test costs',
+  'Theory test fee': 'GOV.UK: Driving test costs',
+  'Car practical fee': 'GOV.UK: Driving test costs',
+  'Common benchmark': 'Ready to Pass: How long it takes to learn',
+};
+
+function figureFor(fact: Fact) {
+  if (kind !== 'guide') return null;
+  const match = fact.value.match(figurePattern);
+  return match ? match[0] : null;
+}
+
+function sourceFor(fact: Fact): { label: string; href?: string } | null {
+  const wanted = figureSourceLabels[fact.label];
+  const cited = wanted ? page.sources.find((source) => source.label === wanted) : undefined;
+  if (cited) return cited;
+  // Newdryve's own fee: the source is Newdryve itself.
+  if (fact.label.startsWith('Newdryve')) return { label: 'Newdryve' };
+  return null;
+}
+
+const areaLabels = ['Nearby areas', 'Nearby places', 'Norfolk areas'];
+function areasFor(fact: Fact) {
+  if (!areaLabels.includes(fact.label)) return null;
+  return fact.value.split(/,\s*|\s+and\s+/).filter(Boolean);
+}
+
+const otherFacts = page.quickFacts.filter((fact) => fact !== leadFact);
+// Answer first: on guides, facts with a figure go to the top.
+const cardFacts =
+  kind === 'guide'
+    ? [...otherFacts.filter((fact) => figureFor(fact)), ...otherFacts.filter((fact) => !figureFor(fact))]
+    : otherFacts;
 
 const norwichCentres = [
   {
@@ -55,9 +133,16 @@ const norwichCentres = [
   },
 ];
 
-function overviewNumber(index: number) {
-  return `${String(index + 1).padStart(2, '0')}`;
-}
+// Panels behind each section's item list, for a bit of colour down the page.
+const panelClasses = ['bg-mint', 'bg-pink', 'bg-forest'];
+let panelIndex = 0;
+const sectionPanels = page.sections.map((section) =>
+  section.items ? panelClasses[panelIndex++ % panelClasses.length] : ''
+);
+
+const sectionHeading = 'nd-h3 text-[clamp(30px,3.4vw,44px)]';
+const checkIcon =
+  '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -82,21 +167,22 @@ const jsonLd = [
 
 <BaseLayout title={page.title} description={page.description} path={path} jsonLd={jsonLd}>
   <article>
-    <!-- ─────────────── HERO ─────────────── -->
-    <section class="hero-bg relative overflow-hidden">
-      <div class="dot-pattern pointer-events-none absolute inset-0 opacity-50" aria-hidden="true"></div>
-      <div class="relative mx-auto grid max-w-6xl items-start gap-12 px-5 pb-20 pt-14 md:pb-24 md:pt-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+    <!-- Hero: mint, carrying straight on from the header band. -->
+    <section class="bg-mint">
+      <div
+        class="nd-container grid items-start gap-12 pt-10 pb-16 md:pt-16 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16"
+      >
         <div class="min-w-0">
-          <nav aria-label="Breadcrumb" class="mb-5 text-sm font-semibold text-ink-muted">
-            <ol class="flex flex-wrap items-center gap-2">
+          <nav aria-label="Breadcrumb" class="text-[15px] font-semibold">
+            <ol class="flex flex-wrap items-center gap-x-2">
               {
                 breadcrumbTrail.map((crumb, index) => (
                   <li class="flex items-center gap-2">
-                    {index > 0 && <span aria-hidden="true" class="text-ink-muted/60">/</span>}
+                    {index > 0 && <span aria-hidden="true">/</span>}
                     {index === breadcrumbTrail.length - 1 ? (
                       <span aria-current="page">{crumb.name}</span>
                     ) : (
-                      <a href={crumb.path} class="focus-ring mt-1 inline-flex min-h-11 items-center text-racing-green hover:underline">
+                      <a href={crumb.path} class="inline-flex min-h-11 items-center underline">
                         {crumb.name}
                       </a>
                     )}
@@ -106,306 +192,288 @@ const jsonLd = [
             </ol>
           </nav>
 
-          <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-deep-rose-ink">
-            {page.kicker}
-          </p>
-          <h1 class="font-display mt-4 text-[clamp(40px,7.2vw,64px)] font-semibold leading-[1.02] tracking-[-1.5px] text-balance">
-            {page.h1}
-          </h1>
-          <p class="mt-6 max-w-[56ch] text-lg leading-relaxed text-ink-secondary text-pretty">
-            {page.summary}
-          </p>
+          <p class="nd-small-label mt-6">{page.kicker}</p>
+          <h1 class="nd-h1 mt-3">{page.h1}</h1>
+          <p class="nd-lede mt-6 max-w-[34em]">{page.summary}</p>
 
-          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <a
-              href={conversionHref()}
-              class={`focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] motion-safe:hover:-translate-y-0.5`}
-            >
-              {conversionLabel()}
-              <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-            </a>
-            <a
-              href="/#join"
-              class={`focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-[#E8E8F2] bg-white px-6 py-3.5 text-sm font-bold text-ink transition-transform hover:border-ink motion-safe:hover:-translate-y-0.5`}
-            >
-              Join the waitlist
-            </a>
+          <div class="mt-9 flex flex-wrap gap-3">
+            <GetAppButton class="nd-btn nd-btn-lg">{conversionLabel()}</GetAppButton>
+            <a href="/#join" class="nd-btn-secondary nd-btn-lg">Join the waitlist</a>
           </div>
 
-          <p class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-1 text-[13.5px] font-semibold text-ink-secondary">
-            <span class="inline-flex items-center gap-1.5 text-racing-green">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"></circle>
-                <path d="M4 7l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-              Free for learners
-            </span>
-            <span class="inline-flex items-center gap-1.5 text-racing-green">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"></circle>
-                <path d="M4 7l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-              Reviewed {page.lastReviewed}
-            </span>
-          </p>
+          <ul class="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-base font-semibold">
+            <li class="inline-flex items-center gap-2"><Fragment set:html={checkIcon} />Free for learners</li>
+            <li class="inline-flex items-center gap-2">
+              <Fragment set:html={checkIcon} />Reviewed {page.lastReviewed}
+            </li>
+          </ul>
         </div>
 
-        <!-- At-a-glance card -->
-        <aside class="reveal min-w-0 self-stretch lg:self-start" data-reveal-delay="120" aria-label="Page quick facts">
-          <div class="overflow-hidden rounded-3xl border border-[#E8E8F2] bg-white shadow-[0_2px_4px_rgba(10,10,20,0.04),0_24px_48px_-20px_rgba(10,10,20,0.22)]">
-            <div class="flex items-center justify-between border-b border-[#E8E8F2] px-5 py-4">
-              <h2 class="text-[13px] font-extrabold uppercase tracking-[0.09em]">At a glance</h2>
-              <span class="flex items-center gap-2 text-[11.5px] font-bold text-ink-muted">
-                <span class="size-1.5 rounded-full bg-racing-green" aria-hidden="true"></span>
-                {isHub ? 'Illustrative map' : 'Local info'}
-              </span>
+        <!-- Fact card: leads with the answer. -->
+        <aside class="min-w-0" aria-label="Page quick facts">
+          <div class="nd-card-lg nd-shadow overflow-hidden">
+            <div class="flex items-center justify-between gap-3 px-6 pt-6 pb-4 sm:px-7">
+              <h2 class="nd-h4">at a glance</h2>
+              <span class="nd-chip">{isHub ? 'Illustrative map' : 'Local info'}</span>
             </div>
 
             {
+              leadFact && (
+                <div class="border-t-2 border-dashed border-forest px-6 py-5 sm:px-7">
+                  <p class="nd-small-label">{leadFact.label}</p>
+                  <p class="nd-h3 mt-2">{leadFact.value}</p>
+                </div>
+              )
+            }
+
+            {
               isHub && (
-                <div class="bg-[#F6F4F6] p-4">
-                  <svg viewBox="0 0 320 190" fill="none" role="img" aria-label="Illustrative map of Norwich showing Peachman Way as the car test centre and Jupiter Road for lorry and bus tests">
-                    <rect width="320" height="190" rx="16" fill="#F6F4F6"></rect>
-                    <path d="M40 150 C90 120 120 170 170 130 S260 90 300 110" stroke="#E6E1E6" stroke-width="14" stroke-linecap="round"></path>
-                    <path d="M30 60 C90 70 130 40 190 55 S270 45 300 30" stroke="#E6E1E6" stroke-width="10" stroke-linecap="round"></path>
-                    <circle cx="163" cy="148" r="26" fill="#2D6A4F" opacity="0.08"></circle>
-                    <circle cx="163" cy="148" r="4" fill="#2D6A4F"></circle>
-                    <text x="163" y="134" text-anchor="middle" font-family="DM Sans" font-size="9.5" font-weight="800" fill="#2D6A4F" transform="translate(0,-14)">Peachman Way</text>
-                    <text x="163" y="122" text-anchor="middle" font-family="DM Sans" font-size="8" fill="#5C5C73" transform="translate(0,-14)">car tests</text>
-                    <rect x="86" y="26" width="6" height="6" rx="2" fill="#C13B60"></rect>
-                    <text x="99" y="33" font-family="DM Sans" font-size="9.5" font-weight="800" fill="#C13B60">Jupiter Road</text>
-                    <text x="99" y="46" font-family="DM Sans" font-size="8" fill="#78788F">lorries & buses</text>
-                    <path d="M150 42 q-12 10 -4 18" stroke="#C13B60" stroke-width="1.5" stroke-dasharray="2 2" fill="none"></path>
-                    <text x="300" y="176" text-anchor="end" font-family="DM Sans" font-size="8.5" fill="#78788F" opacity="0.85">Not to scale</text>
+                <div class="border-t-2 border-dashed border-forest bg-avatar-tile p-4">
+                  <svg
+                    viewBox="0 0 320 190"
+                    fill="none"
+                    role="img"
+                    aria-label="Illustrative map of Norwich showing Peachman Way as the car test centre and Jupiter Road for lorry and bus tests"
+                    class="block h-auto w-full"
+                  >
+                    <rect width="320" height="190" rx="16" class="fill-paper" />
+                    <path
+                      d="M40 150 C90 120 120 170 170 130 S260 90 300 110"
+                      class="stroke-chip"
+                      stroke-width="14"
+                      stroke-linecap="round"
+                    />
+                    <path
+                      d="M30 60 C90 70 130 40 190 55 S270 45 300 30"
+                      class="stroke-chip"
+                      stroke-width="10"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="163" cy="148" r="22" class="fill-mint" />
+                    <circle cx="163" cy="148" r="5" class="fill-forest" />
+                    <text
+                      x="163"
+                      y="120"
+                      text-anchor="middle"
+                      font-family="Instrument Sans, system-ui, sans-serif"
+                      font-size="10"
+                      font-weight="700"
+                      class="fill-forest"
+                    >
+                      Peachman Way
+                    </text>
+                    <text
+                      x="163"
+                      y="108"
+                      text-anchor="middle"
+                      font-family="Instrument Sans, system-ui, sans-serif"
+                      font-size="8.5"
+                      class="fill-forest-soft"
+                    >
+                      car tests
+                    </text>
+                    <rect x="86" y="26" width="7" height="7" rx="2" class="fill-pink-ink" />
+                    <text
+                      x="99"
+                      y="33"
+                      font-family="Instrument Sans, system-ui, sans-serif"
+                      font-size="10"
+                      font-weight="700"
+                      class="fill-pink-ink"
+                    >
+                      Jupiter Road
+                    </text>
+                    <text
+                      x="99"
+                      y="46"
+                      font-family="Instrument Sans, system-ui, sans-serif"
+                      font-size="8.5"
+                      class="fill-forest-soft"
+                    >
+                      lorries & buses
+                    </text>
+                    <path
+                      d="M150 42 q-12 10 -4 18"
+                      class="stroke-pink-ink"
+                      stroke-width="1.5"
+                      stroke-dasharray="2 2"
+                      fill="none"
+                    />
+                    <text
+                      x="300"
+                      y="176"
+                      text-anchor="end"
+                      font-family="Instrument Sans, system-ui, sans-serif"
+                      font-size="8.5"
+                      class="fill-forest-soft"
+                    >
+                      Not to scale
+                    </text>
                   </svg>
-                  <div class="flex flex-col">
-                    {
-                      norwichCentres.map((centre) => (
-                        <a href={centre.href} class={`focus-ring flex min-h-16 items-center gap-3.5 rounded-xl px-2 py-2 transition-colors hover:bg-white`}>
-                          <span class="grid size-10 flex-shrink-0 place-items-center rounded-xl bg-racing-green/10 text-racing-green">
+                  <ul class="mt-3 flex flex-col gap-1">
+                    {norwichCentres.map((centre) => (
+                      <li>
+                        <a
+                          href={centre.href}
+                          class="flex min-h-16 items-center gap-3.5 rounded-2xl px-2 py-2 no-underline hover:bg-paper"
+                        >
+                          <span class="grid size-10 shrink-0 place-items-center rounded-full border-2 border-forest bg-mint">
                             <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                              <path d="M9 1.5a5.5 5.5 0 0 0-5.5 5.5c0 4.1 5.5 9.5 5.5 9.5s5.5-5.4 5.5-9.5A5.5 5.5 0 0 0 9 1.5z" stroke="currentColor" stroke-width="1.6"></path>
-                              <circle cx="9" cy="7" r="2" stroke="currentColor" stroke-width="1.6"></circle>
+                              <path
+                                d="M9 1.5a5.5 5.5 0 0 0-5.5 5.5c0 4.1 5.5 9.5 5.5 9.5s5.5-5.4 5.5-9.5A5.5 5.5 0 0 0 9 1.5z"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                              />
+                              <circle cx="9" cy="7" r="2" stroke="currentColor" stroke-width="1.8" />
                             </svg>
                           </span>
                           <span class="min-w-0">
-                            <span class="block text-[14.5px] font-bold leading-tight">{centre.name}</span>
-                            <span class="block truncate text-[12.5px] text-ink-muted">{centre.sub}</span>
+                            <span class="block text-[17px] font-semibold leading-tight underline">{centre.name}</span>
+                            <span class="block text-[15px] text-forest-soft">{centre.sub}</span>
                           </span>
-                          <svg class="ml-auto flex-shrink-0 text-racing-green" width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                            <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
-                          </svg>
                         </a>
-                      ))
-                    }
-                  </div>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )
             }
 
             <dl class="flex flex-col">
               {
-                page.quickFacts.map((fact, index) => (
-                  <div class={`px-5 py-4 ${index > 0 ? 'border-t border-[#E8E8F2]' : ''}`}>
-                    <dt class="text-[11px] font-bold uppercase tracking-[0.08em] text-ink-muted">{fact.label}</dt>
-                    <dd class="mt-1 text-sm leading-relaxed text-ink">{fact.value}</dd>
-                  </div>
-                ))
+                cardFacts.map((fact) => {
+                  const figure = figureFor(fact);
+                  const source = figure ? sourceFor(fact) : null;
+                  const areas = areasFor(fact);
+                  return (
+                    <div class="border-t-2 border-dashed border-forest px-6 py-4 sm:px-7">
+                      <dt class="nd-small-label text-forest-soft">{fact.label}</dt>
+                      <dd class="mt-1.5">
+                        {figure && (
+                          <span
+                            class={`nd-number mb-2 block text-[clamp(44px,5vw,64px)] break-words ${
+                              figure === '£0' ? 'text-hot-pink' : ''
+                            }`}
+                          >
+                            {figure}
+                          </span>
+                        )}
+                        {areas ? (
+                          <ul class="flex flex-wrap gap-2 pt-1">
+                            {areas.map((area) => (
+                              <li class="nd-tag">{area}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span class="block text-[17px] leading-snug">{fact.value}</span>
+                        )}
+                        {source && (
+                          <span class="mt-2 block text-[15px] text-forest-soft">
+                            Source:{' '}
+                            {source.href ? (
+                              <a href={source.href} target="_blank" rel="noopener noreferrer" class="font-semibold underline">{source.label}</a>
+                            ) : (
+                              <span class="font-semibold">{source.label}</span>
+                            )}, checked {page.lastReviewed}
+                          </span>
+                        )}
+                      </dd>
+                    </div>
+                  );
+                })
               }
             </dl>
 
-            <div class="border-t border-[#E8E8F2] bg-canvas/60 px-5 py-3">
-              <p class="text-xs leading-relaxed text-ink-muted">Last reviewed: {page.lastReviewed}</p>
-              {page.updatedNote && <p class="mt-1 text-xs leading-relaxed text-ink-muted">{page.updatedNote}</p>}
+            <div class="border-t-2 border-forest bg-chip px-6 py-4 text-[15px] sm:px-7">
+              <p>Last reviewed: {page.lastReviewed}</p>
+              {page.updatedNote && <p class="mt-1">{page.updatedNote}</p>}
             </div>
           </div>
         </aside>
       </div>
     </section>
 
-    <!-- ─────────────── META STRIP ─────────────── -->
-    <div class="border-y border-[#E8E8F2] bg-white">
-      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 py-4">
-        <span class="inline-flex items-center gap-2 text-[13px] font-semibold text-ink-secondary">
-          <span class="size-2 rounded-full bg-racing-green" aria-hidden="true"></span>
-          Last reviewed {page.lastReviewed}
-        </span>
-        {page.updatedNote && (
-          <span class="inline-flex items-center gap-2 text-[13px] font-semibold text-ink-secondary">
-            {page.updatedNote}
-          </span>
-        )}
-      </div>
-    </div>
-
-    <!-- ─────────────── EDITORIAL ─────────────── -->
-    <div class="mx-auto grid max-w-6xl gap-14 px-5 py-16 md:py-20 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-16">
-      <div class="flex min-w-0 flex-col gap-16">
+    <!-- Body -->
+    <div class="nd-container nd-section grid gap-16 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-16">
+      <div class="flex min-w-0 flex-col gap-20">
         {
           page.sections.map((section, sectionIndex) => (
-            <section id={`section-${sectionIndex + 1}`} class="scroll-mt-24">
-              <header class="reveal">
-                <p class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-deep-rose-ink">
-                  <span class="h-0.5 w-4 rounded-full bg-gradient-to-r from-racing-green to-deep-rose" aria-hidden="true"></span>
-                  {overviewNumber(sectionIndex)}
-                </p>
-                <h2 class="font-display mt-3 text-[clamp(26px,4vw,38px)] font-semibold leading-[1.08] tracking-[-0.5px] text-balance">
-                  {section.heading}
-                </h2>
-              </header>
+            <section id={`section-${sectionIndex + 1}`}>
+              <h2 class={sectionHeading}>{section.heading}</h2>
 
-              <div class="reveal mt-6 max-w-[64ch] space-y-4 text-base leading-relaxed text-ink-secondary">
-                {section.body.map((paragraph) => <p>{paragraph}</p>)}
+              <div class="mt-5 max-w-[40em] space-y-4">
+                {section.body.map((paragraph) => (
+                  <p>{paragraph}</p>
+                ))}
               </div>
 
-              {
-                section.items && (
-                  <div class="mt-8 grid gap-4 md:grid-cols-3">
-                    {section.items.map((item, itemIndex) => (
-                      <div
-                        class="reveal rounded-2xl border border-[#E8E8F2] bg-white p-6"
-                        data-reveal-delay={itemIndex * 80}
-                      >
-                        <h3 class="text-base font-bold tracking-[-0.2px]">{item.title}</h3>
-                        <p class="mt-2 text-[13.5px] leading-relaxed text-ink-secondary">{item.body}</p>
+              {section.items && (
+                <div class={`mt-9 rounded-[32px] p-3 sm:p-6 ${sectionPanels[sectionIndex]}`}>
+                  <ul class="nd-card px-6 sm:px-7">
+                    {section.items.map((item) => (
+                      <li class="border-t-2 border-dashed border-forest py-5 first:border-t-0">
+                        <h3 class="text-xl font-semibold leading-snug">{item.title}</h3>
+                        <p class="mt-1.5 max-w-[38em] text-[17px]">{item.body}</p>
                         {item.href && (
-                          <a href={item.href} class={`focus-ring mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-bold text-racing-green`}>
-                            Read more
-                            <svg width="13" height="13" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                              <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
-                            </svg>
+                          <a href={item.href} class="mt-1 inline-flex min-h-11 items-center font-semibold underline">
+                            Read more<span class="sr-only">: {item.title}</span>
                           </a>
                         )}
-                      </div>
+                      </li>
                     ))}
-                  </div>
-                )
-              }
+                  </ul>
+                </div>
+              )}
             </section>
           ))
         }
 
         {
           decisionRule && (
-            <section class="reveal relative overflow-hidden rounded-3xl bg-racing-green p-8 text-white shadow-[0_24px_60px_-24px_rgba(45,106,79,0.6)]">
-              <div class="absolute -right-16 -top-16 size-56 rounded-full bg-deep-rose/25 blur-2xl" aria-hidden="true"></div>
-              <p class="relative flex items-center gap-2 text-[13px] font-extrabold uppercase tracking-[0.12em] text-white/70">
-                <span class="h-0.5 w-4 rounded-full bg-deep-rose" aria-hidden="true"></span>
-                Decision rule
-              </p>
-              <h3 class="font-display relative mt-4 max-w-[24ch] text-[clamp(22px,3vw,30px)] font-semibold leading-[1.12] tracking-[-0.5px] text-balance">
-                {decisionRule.value}
-              </h3>
-              <p class="relative mt-3 max-w-[46ch] text-sm leading-relaxed text-white/85">
+            <section class="on-forest rounded-[32px] bg-forest p-8 text-paper sm:p-10">
+              <p class="nd-small-label text-mint">Decision rule</p>
+              <h2 class="nd-h3 mt-3 max-w-[22ch]">{decisionRule.value}</h2>
+              <p class="mt-4 max-w-[40ch] text-[17px]">
                 A faster slot is not worth much if it lowers your chance of passing.
               </p>
             </section>
           )
         }
 
-        {
-          isTownWaitlistPage && (
-            <section id="join" class="reveal scroll-mt-24 overflow-hidden rounded-3xl border border-[#E8E8F2] bg-white p-6 md:p-8">
-              <div class="mb-6">
-                <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-deep-rose-ink">
-                  Demand registration
-                </p>
-                <h2 class="font-display mt-3 text-[clamp(24px,3.6vw,32px)] font-semibold leading-tight tracking-[-0.5px]">
-                  Join the {townName} learner waitlist
-                </h2>
-                <p class="mt-3 max-w-3xl text-sm leading-relaxed text-ink-secondary">
-                  Tell us your postcode, whether you prefer manual or automatic lessons, and when
-                  you are usually free. Use the notes field for daytime, evening or weekend
-                  preference, and whether you can meet in {townName} if home pickup is not
-                  available.
-                </p>
-              </div>
-              <WaitlistForm
-                id={`waitlist-${page.slug.replaceAll('/', '-')}`}
-                submitLabel={`Join the ${townName} learner waitlist`}
-              />
-            </section>
-          )
-        }
-
-        <!-- FAQ -->
-        <section id="faq" class="scroll-mt-24">
-          <header class="reveal">
-            <p class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-deep-rose-ink">
-              <span class="h-0.5 w-4 rounded-full bg-gradient-to-r from-racing-green to-deep-rose" aria-hidden="true"></span>
-              {String(page.sections.length + 1).padStart(2, '0')}
-            </p>
-            <h2 class="font-display mt-3 text-[clamp(26px,4vw,38px)] font-semibold leading-[1.08] tracking-[-0.5px] text-balance">
-              Frequently asked questions
-            </h2>
-          </header>
-
-          <div class="reveal mt-6 overflow-hidden rounded-2xl border border-[#E8E8F2] bg-white">
-            {
-              page.faqs.map((faq) => (
-                <details class="group border-t border-[#E8E8F2] first:border-t-0">
-                  <summary class={`focus-ring flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 px-6 text-left text-[15.5px] font-bold tracking-[-0.01em] [&::-webkit-details-marker]:hidden`}>
-                    <span class="text-pretty">{faq.q}</span>
-                    <span class="relative size-6 flex-shrink-0" aria-hidden="true">
-                      <span class="absolute left-1/2 top-1/2 h-[2px] w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink-muted transition-colors group-open:bg-deep-rose"></span>
-                      <span class="absolute left-1/2 top-1/2 h-3 w-[2px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink-muted transition-all group-open:rotate-90 group-open:bg-deep-rose"></span>
-                    </span>
-                  </summary>
-                  <p class="max-w-[62ch] px-6 pb-6 text-sm leading-relaxed text-ink-secondary">{faq.a}</p>
-                </details>
-              ))
-            }
-          </div>
+        <section id="faq">
+          <h2 class={sectionHeading}>questions</h2>
+          <Faq items={page.faqs} class="mt-8" />
         </section>
       </div>
 
-      <!-- ─────────────── ASIDE ─────────────── -->
-      <aside class="flex flex-col gap-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:self-start lg:overflow-auto">
-        <nav class="rounded-2xl border border-[#E8E8F2] bg-white p-5" aria-label="On this page">
-          <h2 class="text-[12px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">On this page</h2>
-          <ul class="mt-3 flex flex-col gap-0.5">
+      <aside class="flex flex-col gap-5 p-1 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-auto">
+        <nav class="nd-card p-5" aria-label="On this page">
+          <h2 class="nd-h4 text-xl">on this page</h2>
+          <ul class="mt-2 flex flex-col">
             {
               page.sections.map((section, sectionIndex) => (
                 <li>
-                  <a href={`#section-${sectionIndex + 1}`} class={`focus-ring flex items-baseline gap-2.5 rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-secondary transition-colors hover:bg-canvas hover:text-ink`}>
-                    <span class="font-display text-xs text-deep-rose-ink tabular-nums">{overviewNumber(sectionIndex)}</span>
+                  <a
+                    href={`#section-${sectionIndex + 1}`}
+                    class="flex min-h-11 items-center py-1.5 text-base font-semibold leading-snug no-underline hover:underline"
+                  >
                     {section.heading}
                   </a>
                 </li>
               ))
             }
             <li>
-              <a href="#faq" class={`focus-ring flex items-baseline gap-2.5 rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-secondary transition-colors hover:bg-canvas hover:text-ink`}>
-                <span class="font-display text-xs text-deep-rose-ink tabular-nums">{overviewNumber(page.sections.length)}</span>
-                FAQ
+              <a href="#faq" class="flex min-h-11 items-center py-1.5 text-base font-semibold no-underline hover:underline">
+                Questions
               </a>
             </li>
           </ul>
         </nav>
 
-        <nav class="rounded-2xl border border-[#E8E8F2] bg-white p-5" aria-label="Related pages">
-          <h2 class="text-[12px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">Related pages</h2>
-          <ul class="mt-3 flex flex-col gap-0.5">
-            {
-              relatedPages.map((related) => (
-                <li>
-                  <a href={pagePath(related)} class={`focus-ring flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-secondary transition-colors hover:bg-canvas hover:text-ink`}>
-                    <svg class="flex-shrink-0 text-racing-green" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                      <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
-                    {related.h1}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </nav>
-
-        <nav class="rounded-2xl border border-[#E8E8F2] bg-white p-5" aria-label="Sources">
-          <h2 class="text-[12px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">Sources</h2>
-          <ul class="mt-3 flex flex-col gap-2.5">
+        <nav class="nd-card p-5" aria-label="Sources">
+          <h2 class="nd-h4 text-xl">sources</h2>
+          <p class="nd-help mt-1">Checked {page.lastReviewed}</p>
+          <ul class="mt-2 flex flex-col">
             {
               page.sources.map((source) => (
                 <li>
@@ -413,7 +481,7 @@ const jsonLd = [
                     href={source.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    class={`focus-ring flex min-h-11 items-center text-[13px] font-semibold leading-snug text-racing-green underline underline-offset-2`}
+                    class="flex min-h-11 items-center py-1.5 text-[15px] font-semibold leading-snug underline"
                   >
                     {source.label}
                   </a>
@@ -422,89 +490,73 @@ const jsonLd = [
             }
           </ul>
         </nav>
-
-        <div class="rounded-2xl bg-racing-green p-5 text-white">
-          <h2 class="text-[12px] font-extrabold uppercase tracking-[0.1em] text-white/70">Learning in {BRAND.city}?</h2>
-          <p class="mt-2 text-[13.5px] leading-relaxed text-white/85">
-            Find verified instructors, compare real availability, and keep your lessons moving.
-          </p>
-          <a
-            href="/#join"
-            class={`focus-ring mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-bold text-racing-green`}
-          >
-            Join the waitlist
-          </a>
-        </div>
       </aside>
     </div>
 
-    <!-- ─────────────── CTA BAND ─────────────── -->
-    <section class="relative overflow-hidden bg-racing-green text-white">
-      <div class="pointer-events-none absolute inset-0" aria-hidden="true" style="background: radial-gradient(ellipse 60% 80% at 90% 10%, rgba(232,82,122,0.25), transparent 60%), radial-gradient(ellipse 50% 70% at 5% 90%, rgba(10,10,20,0.25), transparent 60%);"></div>
-      <div class="relative mx-auto max-w-3xl px-5 py-20 text-center md:py-24">
-        <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-white/75">Learners · {BRAND.city}</p>
-        <h2 class="font-display mt-4 text-[clamp(30px,4.6vw,46px)] font-semibold leading-[1.05] tracking-[-1px] text-balance">
-          Find an instructor who can prepare you properly.
-        </h2>
-        <p class="mx-auto mt-4 max-w-xl text-[15.5px] leading-relaxed text-white/80 text-pretty">
-          Newdryve shows verified instructors, real availability and the areas they cover — so you book with confidence instead of guesswork.
-        </p>
-        <div class="mt-8 flex flex-wrap justify-center gap-3">
-          <a
-            href="/#join"
-            class={`focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-racing-green transition-transform motion-safe:hover:-translate-y-0.5`}
-          >
-            Join the Norwich waitlist
-            <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
-            </svg>
-          </a>
-          <a
-            href="/instructors"
-            class={`focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-white/35 px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-white/10`}
-          >
-            I'm an instructor
-          </a>
-        </div>
-        <p class="mt-6 text-[12.5px] text-white/60">Free for learners · 0% commission — you pay your instructor for the lesson.</p>
-      </div>
-    </section>
-
-    <!-- ─────────────── RELATED STRIP ─────────────── -->
+    <!-- The one related list. -->
     {
       relatedPages.length > 0 && (
-        <section class="border-t border-[#E8E8F2] bg-[#F6F4F6]">
-          <div class="mx-auto max-w-6xl px-5 py-16 md:py-20">
-            <header class="reveal">
-              <p class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-deep-rose-ink">
-                <span class="h-0.5 w-4 rounded-full bg-gradient-to-r from-racing-green to-deep-rose" aria-hidden="true"></span>
-                Keep reading
-              </p>
-              <h2 class="font-display mt-3 text-[clamp(24px,3.4vw,32px)] font-semibold leading-tight tracking-[-0.5px]">
-                Related learner guides
-              </h2>
-            </header>
-
-            <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {
-                relatedPages.slice(0, 4).map((related, index) => (
+        <section aria-labelledby="related-heading" class="border-t-2 border-forest">
+          <div class="nd-container nd-section">
+            <h2 id="related-heading" class="nd-h2">
+              related guides
+            </h2>
+            <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {relatedPages.map((related) => (
+                <li>
                   <a
                     href={pagePath(related)}
-                    class={`reveal flex flex-col gap-2.5 rounded-2xl border border-[#E8E8F2] bg-white p-5 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_1px_2px_rgba(10,10,20,0.04),0_12px_32px_-16px_rgba(10,10,20,0.14)] ${focusRing}`}
-                    data-reveal-delay={index * 60}
+                    class="nd-card flex h-full flex-col gap-2 p-6 no-underline transition-transform hover:shadow-[0_5px_0_var(--forest)] motion-safe:hover:-translate-y-0.5"
                   >
-                    <span class="text-[10.5px] font-extrabold uppercase tracking-[0.09em] text-deep-rose-ink">{related.kicker}</span>
-                    <span class="text-[15px] font-bold leading-snug tracking-[-0.015em]">{related.h1}</span>
-                    <span class="mt-auto inline-flex items-center gap-1.5 text-[13.5px] font-bold text-racing-green">
-                      Read
-                      <svg width="13" height="13" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                        <path d="M2.5 6h7M6 2.5 9.5 6 6 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
-                      </svg>
-                    </span>
+                    <span class="nd-small-label text-forest-soft">{related.kicker}</span>
+                    <span class="nd-h4">{related.h1}</span>
                   </a>
-                ))
-              }
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- The one call to action: the town waitlist where there is no coverage yet, otherwise the pink band. -->
+    {
+      isTownWaitlistPage ? (
+        <section id="join" class="bg-pink">
+          <div class="nd-container nd-section grid items-start gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16">
+            <div>
+              <h2 class="nd-h2">join the {townName} learner waitlist</h2>
+              <p class="nd-lede mt-6 max-w-[30em]">
+                Tell us your postcode, whether you prefer manual or automatic lessons, and when you
+                are usually free. Use the notes field for daytime, evening or weekend preference, and
+                whether you can meet in {townName} if home pickup is not available.
+              </p>
             </div>
+            <WaitlistForm
+              id={`waitlist-${page.slug.replaceAll('/', '-')}`}
+              submitLabel={`Join the ${townName} learner waitlist`}
+            />
+          </div>
+        </section>
+      ) : (
+        <section aria-labelledby="cta-heading" class="bg-pink">
+          <div class="nd-container nd-section flex flex-col items-center gap-7 text-center">
+            <h2 id="cta-heading" class="nd-h2 max-w-[14em]">
+              find an instructor who can prepare you properly.
+            </h2>
+            <p class="nd-lede max-w-[30em]">
+              Newdryve shows verified instructors, real availability and the areas they cover, so you
+              book with confidence instead of guesswork.
+            </p>
+            <div class="flex flex-wrap justify-center gap-3">
+              <a href="/#join" class="nd-btn nd-btn-lg">
+                {waitlistLabel()}
+              </a>
+              <a href="/instructors" class="nd-btn-secondary nd-btn-lg">
+                I'm an instructor
+              </a>
+            </div>
+            <p class="text-[17px]">Free for learners and 0% commission. You pay your instructor for the lesson.</p>
           </div>
         </section>
       )

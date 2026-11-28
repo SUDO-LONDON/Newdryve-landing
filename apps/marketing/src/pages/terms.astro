@@ -309,32 +309,35 @@ const sections = [
   jsonLd={[organizationSchema]}
   noindex
 >
-  <div class="mx-auto max-w-3xl px-5 py-16 md:py-24">
-    <h1 class="font-display text-[clamp(32px,5vw,48px)] font-semibold leading-[1.05] tracking-[-1px]">
-      Terms and Conditions
-    </h1>
-    <p class="mt-4 text-sm text-ink-secondary">Version 2026-07-30. Last updated 30 July 2026.</p>
-    <p
-      class="mt-6 rounded-2xl border border-blush-border bg-blush-surface px-5 py-4 text-sm leading-relaxed text-ink-secondary"
-    >
-      <strong class="text-ink">Operator:</strong> NEWDRYVE LTD, trading as NewDryve. Company number
-      17234490. Registered office: 10 Greylag Close, Norwich, NR7 8FQ, England. Contact <a
-        href="mailto:support@newdryve.com"
-        class="focus-ring rounded font-semibold text-ink underline underline-offset-2"
-        >support@newdryve.com</a
-      >.
-    </p>
+  <!-- Mint hero, carrying on from the header band. -->
+  <section class="bg-mint">
+    <div class="nd-container pt-10 pb-14 md:pt-16 md:pb-20">
+      <div class="max-w-[44em]">
+        <h1 class="nd-h1">
+          Terms and Conditions
+        </h1>
+        <p class="mt-4 text-base font-semibold">Version 2026-07-30. Last updated 30 July 2026.</p>
+        <p class="nd-card mt-8 px-6 py-5 text-base leading-relaxed">
+          <strong>Operator:</strong> NEWDRYVE LTD, trading as NewDryve. Company number
+          17234490. Registered office: 10 Greylag Close, Norwich, NR7 8FQ, England. Contact <a
+            href="mailto:support@newdryve.com"
+            class="font-semibold underline"
+            >support@newdryve.com</a
+          >.
+        </p>
+      </div>
+    </div>
+  </section>
 
-    <div class="mt-10 space-y-8">
+  <div class="nd-container nd-section">
+    <div class="nd-prose [&>section:first-child>h2]:mt-0">
       {
         sections.map(({ title: sectionTitle, body }) => (
           <section>
-            <h2 class="font-display text-2xl font-semibold tracking-[-0.3px] text-ink">
-              {sectionTitle}
-            </h2>
-            <div class="mt-3 space-y-3">
+            <h2>{sectionTitle}</h2>
+            <div class="mt-[1em] space-y-[1em]">
               {body.map((paragraph) => (
-                <p class="text-base leading-relaxed text-ink-secondary">{paragraph}</p>
+                <p>{paragraph}</p>
               ))}
             </div>
           </section>

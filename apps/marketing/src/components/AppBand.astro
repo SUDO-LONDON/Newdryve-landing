@@ -1,0 +1,52 @@
+---
+/**
+ * Pink "get the app" band. On desktop the QR code sits inside the headline
+ * ("scan [QR] to get the app"). Below the md breakpoint the QR is pointless,
+ * so it is hidden, the headline drops to "get the app" and the store buttons
+ * lead.
+ */
+import StoreBadges from './StoreBadges.astro';
+
+interface Props {
+  id?: string;
+  /** Where "Check your postcode" points. Omit to drop that line. */
+  checkHref?: string;
+}
+
+const { id = 'get-the-app', checkHref } = Astro.props;
+---
+
+<section id={id} class="nd-section bg-pink" aria-labelledby={`${id}-title`}>
+  <div class="nd-container flex flex-col items-center gap-7 text-center">
+    <h2 id={`${id}-title`} class="nd-h2 text-[clamp(40px,5.6vw,80px)] leading-[1.1]">
+      <span class="hidden md:inline"
+        >scan <span
+          class="mx-[0.1em] inline-flex size-[1.5em] -rotate-4 items-center justify-center rounded-[0.16em] border-2 border-forest bg-paper p-[0.12em] align-middle"
+          ><img
+            src="/qr-app.svg"
+            alt="QR code for the newdryve app download page"
+            width="160"
+            height="160"
+            class="block size-full"
+          /></span
+        > to </span
+      >get the app
+    </h2>
+    <p class="nd-lede hidden max-w-[28em] md:block">
+      Point your phone camera at the code. Already on your phone? Use the buttons.
+    </p>
+    <p class="nd-lede max-w-[28em] md:hidden">Free on the App Store and Google Play.</p>
+    <StoreBadges class="justify-center" />
+    {
+      checkHref && (
+        <p class="text-[17px]">
+          Not in Norfolk?{' '}
+          <a href={checkHref} class="font-semibold underline">
+            Check your postcode
+          </a>{' '}
+          and we&rsquo;ll add you to the waitlist.
+        </p>
+      )
+    }
+  </div>
+</section>

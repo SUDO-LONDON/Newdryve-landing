@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>newdryve learner home (design reference)</title>
+<!-- Design reference for the learner home redesign. Static HTML with inline styles: read it for layout, copy, tokens and behaviour; do not ship it as-is. See HANDOFF.md. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&amp;family=Caveat:wght@700&amp;family=Instrument+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#0A3B2C}
+*{box-sizing:border-box}
+a{color:#0A3B2C;text-underline-offset:3px}a:hover{color:#0A3B2C;text-decoration:underline}
+:focus-visible{outline:3px solid #E8327F;outline-offset:3px}
+input::placeholder{color:#3D6658;opacity:1}
+summary{cursor:pointer;list-style:none}
+summary::-webkit-details-marker{display:none}
+.nd-avatars{scrollbar-width:none}
+.nd-avatars::-webkit-scrollbar{display:none}
+.nd-thumb[aria-pressed="true"]{box-shadow:0 0 0 3px #0A3B2C}
+.slot{height:52px;border:2px solid #EAE7DD;border-radius:14px;background:#EAE7DD;color:#0A3B2C;font:inherit;font-weight:600;font-size:16px;cursor:pointer}
+.slot[aria-pressed="true"]{border-color:#0A3B2C;background:#0A3B2C;color:#FBFAF6}
+[hidden]{display:none !important}
+</style>
+</head>
+<body>
+<div style="font-family: 'Instrument Sans', system-ui, sans-serif; color: #0A3B2C; background: #FBFAF6; font-size: 18px; line-height: 1.5">
+
+<header style="background: #A5F0BC; padding: 20px 0 0">
+<div style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 32px">
+
+<nav aria-label="Main" style="background: #FBFAF6; border-radius: 36px; padding: 10px 12px 10px 28px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px">
+<a href="#top" aria-label="newdryve home" style="font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -0.04em; text-decoration: none; line-height: 1">newdr<span style="color: #E8327F">y</span>ve</a>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 28px; font-weight: 600; font-size: 16px">
+<a href="https://newdryve.com/driving-lessons/norwich" style="text-decoration: none; padding: 12px 0">Lessons</a>
+<a href="https://newdryve.com/test-centres" style="text-decoration: none; padding: 12px 0">Test centres</a>
+<a href="https://newdryve.com/guides/driving-lesson-cost" style="text-decoration: none; padding: 12px 0">Costs</a>
+<a href="https://newdryve.com/instructors" style="text-decoration: none; padding: 12px 0">For instructors</a>
+</div>
+<a href="#get-the-app" style="background: #0A3B2C; color: #A5F0BC; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 999px; padding: 0 24px; height: 48px; display: inline-flex; align-items: center">Get the app</a>
+</nav>
+
+<div id="top" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 32px 48px; padding-top: 72px">
+
+<div style="flex: 1.4 1 520px; min-width: 0; padding-bottom: 88px; display: flex; flex-direction: column; align-items: flex-start">
+<div style="font-family: 'Caveat', 'Segoe Script', cursive; font-weight: 700; font-size: 32px; line-height: 1; transform: rotate(-3deg); margin: 0 0 12px 6px">hello, Norwich</div>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: clamp(46px, 6.1vw, 88px); line-height: 0.98; letter-spacing: -0.035em; text-wrap: balance">driving <span aria-hidden="true" style="display: inline-flex; align-items: center; justify-content: center; width: 1.18em; height: 1.18em; font-size: 0.74em; background: #FFFFFF; color: #E8327F; border-radius: 0.16em; box-shadow: 0 0.07em 0 #0A3B2C; transform: rotate(-6deg); vertical-align: 0.02em; letter-spacing: 0">L</span> lessons, minus the <span style="display: inline-block; background: #FFC4DC; border-radius: 0.14em; padding: 0 0.14em 0.04em; transform: rotate(-2deg)">faff.</span></h1>
+<p style="margin: 28px 0 0; font-size: 20px; line-height: 1.45; max-width: 34em">Find a driving instructor whose DVSA registration we’ve checked, see when they’re actually free, and book in the app. Free for learners.</p>
+
+<div id="check" style="margin-top: 36px; width: 100%; max-width: 540px; display: flex; flex-direction: column; gap: 10px">
+<label for="postcode" style="font-weight: 600; font-size: 16px; padding-left: 8px">Where are you learning?</label>
+<div style="display: flex; align-items: center; gap: 6px; background: #FBFAF6; border: 2px solid #0A3B2C; border-radius: 999px; padding: 6px; box-shadow: 0 5px 0 #0A3B2C">
+<input id="postcode" type="text" autocomplete="postal-code" placeholder="Postcode, e.g. NR2" style="flex: 1 1 0; min-width: 0; height: 52px; border: 0; background: transparent; padding: 0 0 0 20px; font: inherit; font-size: 18px; color: #0A3B2C; border-radius: 999px">
+<button type="button" id="check-btn" style="flex: 0 0 auto; height: 52px; padding: 0 26px; border: 0; border-radius: 999px; background: #0A3B2C; color: #A5F0BC; font: inherit; font-weight: 600; font-size: 16px; cursor: pointer">Check my area</button>
+</div>
+</div>
+
+<div id="result-covered" hidden>
+<div role="status" style="margin-top: 24px; width: 100%; max-width: 540px; background: #FBFAF6; border: 2px solid #0A3B2C; border-radius: 24px; padding: 22px 24px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="flex: 0 0 auto; width: 36px; height: 36px; border-radius: 999px; background: #A5F0BC; border: 2px solid #0A3B2C; display: inline-flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+<strong style="font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.02em; line-height: 1.1">We cover <span data-area></span>.</strong>
+</div>
+<p style="margin: 0; font-size: 17px">See who’s free near you this week in the app. What you see depends on which instructors have open slots.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<a href="https://apps.apple.com/gb/app/newdryve/id6795593802" style="height: 48px; padding: 0 22px; border-radius: 999px; background: #0A3B2C; color: #A5F0BC; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-flex; align-items: center">Get it on the App Store</a>
+<a href="https://play.google.com/store/apps/details?id=com.newdryve.app" style="height: 48px; padding: 0 22px; border-radius: 999px; border: 2px solid #0A3B2C; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-flex; align-items: center">Get it on Google Play</a>
+</div>
+</div>
+</div>
+
+<div id="result-waitlist" hidden>
+<div role="status" style="margin-top: 24px; width: 100%; max-width: 540px; background: #FBFAF6; border: 2px solid #0A3B2C; border-radius: 24px; padding: 22px 24px; display: flex; flex-direction: column; gap: 14px">
+<strong style="font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.02em; line-height: 1.1">Not in <span data-area></span> yet.</strong>
+<p style="margin: 0; font-size: 17px">We’re starting in Norwich and adding areas as instructors join. Leave your email and we’ll tell you when we reach you.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end">
+<div style="flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+<label for="waitlist-email" style="font-weight: 600; font-size: 15px">Email</label>
+<input id="waitlist-email" type="email" autocomplete="email" style="height: 48px; border: 2px solid #0A3B2C; border-radius: 999px; background: #FFFFFF; padding: 0 18px; font: inherit; font-size: 16px; color: #0A3B2C; width: 100%">
+</div>
+<button type="button" id="join-btn" style="height: 48px; padding: 0 22px; border: 0; border-radius: 999px; background: #0A3B2C; color: #A5F0BC; font: inherit; font-weight: 600; font-size: 16px; cursor: pointer">Join the waitlist</button>
+</div>
+</div>
+</div>
+
+<div id="result-joined" hidden>
+<div role="status" style="margin-top: 24px; width: 100%; max-width: 540px; background: #FBFAF6; border: 2px solid #0A3B2C; border-radius: 24px; padding: 22px 24px; display: flex; flex-direction: column; gap: 8px">
+<strong style="font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.02em; line-height: 1.1">You’re on the waitlist.</strong>
+<p style="margin: 0; font-size: 17px">We’ll email you when instructors open up near <span data-area></span>. No spam.</p>
+</div>
+</div>
+
+<ul style="list-style: none; margin: 28px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 22px; font-weight: 600; font-size: 16px">
+<li style="display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>DVSA registration checked</li>
+<li style="display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Real availability</li>
+<li style="display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>No booking fee</li>
+</ul>
+</div>
+
+<div style="flex: 1 1 300px; min-width: 0; display: flex; justify-content: center">
+<div style="width: 100%; max-width: 320px; height: 540px; background: #0A3B2C; border-radius: 48px 48px 0 0; padding: 12px 12px 0">
+<div style="width: 100%; height: 100%; background: #FBFAF6; border-radius: 36px 36px 0 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px; text-align: center">
+<div style="width: 100%; flex: 1; border: 2px dashed #0A3B2C; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 20px">
+<strong style="font-size: 17px">Product screenshot</strong>
+<span style="font-size: 15px">newdryve-discover.png, the instructor search screen from the live site</span>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</header>
+
+<main>
+
+<section aria-label="Who is behind newdryve" style="border-bottom: 2px solid #0A3B2C">
+<div style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 36px 32px; display: flex; flex-wrap: wrap; gap: 20px 72px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 28px">
+<span style="font-weight: 600; font-size: 15px">Backed by</span>
+<span style="font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 700; font-size: 21px; letter-spacing: -0.02em">Kickstart Global</span>
+<span style="font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 700; font-size: 21px; letter-spacing: -0.02em">Google for Startups</span>
+<span style="font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 700; font-size: 21px; letter-spacing: -0.02em">UEA Enterprise Fund</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 28px">
+<span style="font-weight: 600; font-size: 15px">Teaching on newdryve</span>
+<span style="font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 700; font-size: 21px; letter-spacing: -0.02em">Chilled Driving School</span>
+<span style="font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 700; font-size: 21px; letter-spacing: -0.02em">17+ Driving School</span>
+</div>
+</div>
+</section>
+
+<section id="route" style="padding: 104px 0 24px">
+<div style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 32px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 36px 64px; align-items: center; margin-bottom: 72px">
+<div>
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: clamp(38px, 4.6vw, 66px); line-height: 1; letter-spacing: -0.035em">from green to pink</h2>
+<p style="margin: 18px 0 0; font-size: 20px; max-width: 30em">Your provisional licence is green. The full one is pink. Here’s the bit in between.</p>
+</div>
+<div style="min-width: 0; width: 100%; max-width: 380px; justify-self: end; display: flex; flex-direction: column; gap: 14px">
+<div style="position: relative">
+<div class="nd-avatars" data-nd-avatars="true" role="region" aria-label="newdryve avatars" tabindex="0" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; background: #DEF5E5; border-radius: 24px">
+<div style="flex: 0 0 100%; scroll-snap-align: center; display: flex; justify-content: center; align-items: center"><img src="assets/avatar-mint.png" alt="newdryve avatar driving a mint car" style="display: block; width: 100%; max-width: 290px; height: auto"></div>
+<div style="flex: 0 0 100%; scroll-snap-align: center; display: flex; justify-content: center; align-items: center"><img src="assets/avatar-pink.png" alt="newdryve avatar driving a pink car with a heart on the door" style="display: block; width: 100%; max-width: 290px; height: auto"></div>
+<div style="flex: 0 0 100%; scroll-snap-align: center; display: flex; justify-content: center; align-items: center"><img src="assets/avatar-yellow.png" alt="newdryve avatar driving a yellow car with a star on the door" style="display: block; width: 100%; max-width: 290px; height: auto"></div>
+<div style="flex: 0 0 100%; scroll-snap-align: center; display: flex; justify-content: center; align-items: center"><img src="assets/avatar-blue.png" alt="newdryve avatar driving a blue car with racing stripes" style="display: block; width: 100%; max-width: 290px; height: auto"></div>
+<div style="flex: 0 0 100%; scroll-snap-align: center; display: flex; justify-content: center; align-items: center"><img src="assets/avatar-orange.png" alt="newdryve avatar driving an orange car" style="display: block; width: 100%; max-width: 290px; height: auto"></div>
+<div style="flex: 0 0 100%; scroll-snap-align: center; display: flex; justify-content: center; align-items: center"><img src="assets/avatar-white.png" alt="newdryve avatar driving a white car" style="display: block; width: 100%; max-width: 290px; height: auto"></div>
+</div>
+<div style="position: absolute; top: 16px; right: 16px; background: #0A3B2C; color: #FBFAF6; font-weight: 600; font-size: 14px; border-radius: 999px; padding: 5px 14px; pointer-events: none"><span id="avatar-count">1 of 6</span></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px">
+<button type="button" aria-label="Previous avatar" data-step="-1" style="flex: 0 0 auto; width: 44px; height: 44px; padding: 0; border: 2px solid #0A3B2C; border-radius: 999px; background: #FBFAF6; color: #0A3B2C; cursor: pointer; display: inline-flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 6px">
+<button type="button" class="nd-thumb" aria-pressed="true" aria-label="Show the mint car avatar" data-go="0" style="flex: 0 0 auto; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 10px; background: #DEF5E5; overflow: hidden; cursor: pointer"><img src="assets/avatar-mint.png" alt="" style="display: block; width: 100%; height: 100%; object-fit: cover"></button>
+<button type="button" class="nd-thumb" aria-pressed="false" aria-label="Show the pink car avatar" data-go="1" style="flex: 0 0 auto; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 10px; background: #DEF5E5; overflow: hidden; cursor: pointer"><img src="assets/avatar-pink.png" alt="" style="display: block; width: 100%; height: 100%; object-fit: cover"></button>
+<button type="button" class="nd-thumb" aria-pressed="false" aria-label="Show the yellow car avatar" data-go="2" style="flex: 0 0 auto; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 10px; background: #DEF5E5; overflow: hidden; cursor: pointer"><img src="assets/avatar-yellow.png" alt="" style="display: block; width: 100%; height: 100%; object-fit: cover"></button>
+<button type="button" class="nd-thumb" aria-pressed="false" aria-label="Show the blue car avatar" data-go="3" style="flex: 0 0 auto; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 10px; background: #DEF5E5; overflow: hidden; cursor: pointer"><img src="assets/avatar-blue.png" alt="" style="display: block; width: 100%; height: 100%; object-fit: cover"></button>
+<button type="button" class="nd-thumb" aria-pressed="false" aria-label="Show the orange car avatar" data-go="4" style="flex: 0 0 auto; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 10px; background: #DEF5E5; overflow: hidden; cursor: pointer"><img src="assets/avatar-orange.png" alt="" style="display: block; width: 100%; height: 100%; object-fit: cover"></button>
+<button type="button" class="nd-thumb" aria-pressed="false" aria-label="Show the white car avatar" data-go="5" style="flex: 0 0 auto; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 10px; background: #DEF5E5; overflow: hidden; cursor: pointer"><img src="assets/avatar-white.png" alt="" style="display: block; width: 100%; height: 100%; object-fit: cover"></button>
+</div>
+<button type="button" aria-label="Next avatar" data-step="1" style="flex: 0 0 auto; width: 44px; height: 44px; padding: 0; border: 2px solid #0A3B2C; border-radius: 999px; background: #FBFAF6; color: #0A3B2C; cursor: pointer; display: inline-flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></button>
+</div>
+<p style="margin: 0; text-align: center; font-weight: 600; font-size: 16px">Customise your character more in the app!</p>
+</div>
+</div>
+
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+
+<li style="display: flex; gap: 28px">
+<div aria-hidden="true" style="flex: 0 0 56px; display: flex; flex-direction: column; align-items: center">
+<div style="width: 56px; height: 56px; border-radius: 999px; background: #A5F0BC; border: 2px solid #0A3B2C; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 24px">1</div>
+<div style="flex: 1; width: 0; border-left: 4px dashed #0A3B2C; margin: 10px 0"></div>
+</div>
+<div style="flex: 1; min-width: 0; padding-bottom: 80px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 28px 64px; align-items: center">
+<div>
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 36px; line-height: 1.05; letter-spacing: -0.03em">Find an instructor we’ve checked</h3>
+<p style="margin: 14px 0 0; max-width: 27em">We check every instructor’s current DVSA registration before their profile goes live. Filter by manual or automatic, and see their rate and the areas they cover.</p>
+</div>
+<div style="background: #A5F0BC; border-radius: 32px; padding: 24px">
+<div style="background: #FBFAF6; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<div style="display: flex; align-items: center; gap: 12px; min-width: 0">
+<div aria-hidden="true" style="flex: 0 0 48px; height: 48px; border-radius: 999px; background: #0A3B2C"></div>
+<div style="min-width: 0">
+<div style="font-weight: 600; font-size: 18px; line-height: 1.2">[Instructor name]</div>
+<div style="font-size: 15px">Manual, £[RATE] an hour</div>
+</div>
+</div>
+<span style="flex: 0 0 auto; font-weight: 600; font-size: 13px; background: #EAE7DD; border-radius: 999px; padding: 4px 12px">Example</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; font-weight: 600; font-size: 14px">
+<span style="display: inline-flex; align-items: center; gap: 6px; background: #0A3B2C; color: #FBFAF6; border-radius: 999px; padding: 6px 12px"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>DVSA registration checked</span>
+<span style="border: 2px solid #0A3B2C; border-radius: 999px; padding: 4px 12px">Covers NR2, NR4, NR7</span>
+</div>
+<div style="border-top: 2px dashed #0A3B2C; padding-top: 12px; font-size: 15px">Next free: <strong>Tue 4:00pm</strong></div>
+</div>
+</div>
+</div>
+</li>
+
+<li style="display: flex; gap: 28px">
+<div aria-hidden="true" style="flex: 0 0 56px; display: flex; flex-direction: column; align-items: center">
+<div style="width: 56px; height: 56px; border-radius: 999px; background: #A5F0BC; border: 2px solid #0A3B2C; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 24px">2</div>
+<div style="flex: 1; width: 0; border-left: 4px dashed #0A3B2C; margin: 10px 0"></div>
+</div>
+<div style="flex: 1; min-width: 0; padding-bottom: 80px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 28px 64px; align-items: center">
+<div>
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 36px; line-height: 1.05; letter-spacing: -0.03em">Book a slot that’s actually free</h3>
+<p style="margin: 14px 0 0; max-width: 27em">You see real open slots, not a contact form. Pick one and confirm. No phone tag, no waiting days for a reply.</p>
+</div>
+<div style="background: #FFC4DC; border-radius: 32px; padding: 24px">
+<div style="background: #FBFAF6; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<strong style="font-size: 17px">Free this week</strong>
+<span style="font-weight: 600; font-size: 13px; background: #EAE7DD; border-radius: 999px; padding: 4px 12px">Example</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<button type="button" class="slot" data-slot="tue" aria-pressed="false">Tue 4:00pm</button>
+<button type="button" class="slot" data-slot="wed" aria-pressed="false">Wed 9:30am</button>
+<button type="button" class="slot" data-slot="fri" aria-pressed="false">Fri 1:00pm</button>
+<button type="button" class="slot" data-slot="sat" aria-pressed="true">Sat 10:00am</button>
+</div>
+<div style="font-size: 15px">Selected: <strong><span id="slot-label">Sat 10:00am</span></strong></div>
+</div>
+</div>
+</div>
+</li>
+
+<li style="display: flex; gap: 28px">
+<div aria-hidden="true" style="flex: 0 0 56px; display: flex; flex-direction: column; align-items: center">
+<div style="width: 56px; height: 56px; border-radius: 999px; background: #A5F0BC; border: 2px solid #0A3B2C; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 24px">3</div>
+<div style="flex: 1; width: 0; border-left: 4px dashed #0A3B2C; margin: 10px 0"></div>
+</div>
+<div style="flex: 1; min-width: 0; padding-bottom: 80px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 28px 64px; align-items: center">
+<div>
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 36px; line-height: 1.05; letter-spacing: -0.03em">Know what to practise next</h3>
+<p style="margin: 14px 0 0; max-width: 27em">Every lesson, the skills your instructor has signed off, and how close you are to test-ready, all in one place.</p>
+</div>
+<div style="background: #0A3B2C; color: #FBFAF6; border-radius: 32px; padding: 28px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; font-weight: 600; font-size: 17px">
+<span>Roundabouts</span>
+<span style="font-size: 14px; border: 2px solid #FBFAF6; border-radius: 999px; padding: 5px 14px">Getting there</span>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; font-weight: 600; font-size: 17px">
+<span>Parallel parking</span>
+<span style="font-size: 14px; background: #A5F0BC; color: #0A3B2C; border: 2px solid #A5F0BC; border-radius: 999px; padding: 5px 14px">Practise next</span>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; font-weight: 600; font-size: 17px">
+<span>Dual carriageways</span>
+<span style="font-size: 14px; border: 2px dashed #FBFAF6; border-radius: 999px; padding: 5px 14px">Coming up</span>
+</div>
+</div>
+</div>
+</li>
+
+<li style="display: flex; gap: 28px">
+<div aria-hidden="true" style="flex: 0 0 56px; display: flex; flex-direction: column; align-items: center">
+<div style="width: 56px; height: 56px; border-radius: 999px; background: #FFC4DC; border: 2px solid #0A3B2C; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 24px">4</div>
+</div>
+<div style="flex: 1; min-width: 0; padding-bottom: 80px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 28px 64px; align-items: center">
+<div>
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 36px; line-height: 1.05; letter-spacing: -0.03em">Swap the green one for the pink one</h3>
+<p style="margin: 14px 0 0; max-width: 27em">Your instructor tells you when you’re test-ready. You book the test itself on GOV.UK, and your lessons keep moving until the day.</p>
+</div>
+<div aria-hidden="true" style="display: flex; justify-content: center; align-items: center; padding: 20px 0">
+<div style="width: 220px; height: 140px; background: #A5F0BC; border: 2px solid #0A3B2C; border-radius: 16px; transform: rotate(-8deg); padding: 16px; display: flex; flex-direction: column; justify-content: space-between">
+<div style="font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.02em">provisional</div>
+<div style="display: flex; align-items: flex-end; gap: 12px">
+<div style="width: 44px; height: 54px; background: #FBFAF6; border: 2px solid #0A3B2C; border-radius: 6px"></div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 8px"><div style="height: 8px; background: #0A3B2C; border-radius: 4px"></div><div style="height: 8px; width: 60%; background: #0A3B2C; border-radius: 4px"></div></div>
+</div>
+</div>
+<div style="width: 220px; height: 140px; margin-left: -56px; background: #FFC4DC; border: 2px solid #0A3B2C; border-radius: 16px; transform: rotate(7deg); padding: 16px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 5px 0 #0A3B2C">
+<div style="font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.02em">full</div>
+<div style="display: flex; align-items: flex-end; gap: 12px">
+<div style="width: 44px; height: 54px; background: #FBFAF6; border: 2px solid #0A3B2C; border-radius: 6px"></div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 8px"><div style="height: 8px; background: #0A3B2C; border-radius: 4px"></div><div style="height: 8px; width: 60%; background: #0A3B2C; border-radius: 4px"></div></div>
+</div>
+</div>
+</div>
+</div>
+</li>
+
+</ol>
+</div>
+</section>
+
+<section id="money" style="padding: 24px 0 104px">
+<div style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 32px">
+<h2 style="margin: 0 0 36px; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: clamp(38px, 4.6vw, 66px); line-height: 1; letter-spacing: -0.035em">the money bit</h2>
+<div style="border: 2px solid #0A3B2C; border-radius: 32px; padding: clamp(24px, 4vw, 56px); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); gap: 40px 72px; align-items: center">
+<div>
+<div style="font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: clamp(110px, 15vw, 210px); line-height: 0.85; letter-spacing: -0.05em; color: #E8327F">£0</div>
+<p style="margin: 24px 0 0; font-size: 20px; max-width: 22em"><strong>in booking fees.</strong> Each instructor sets their own rate and you see it before you book. You pay your instructor for the lesson and nothing to us.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 28px">
+<div>
+<h3 style="margin: 0 0 8px; font-weight: 600; font-size: 20px">If you need to cancel</h3>
+<dl style="margin: 0; display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 24px; padding: 14px 0; border-bottom: 2px dashed #0A3B2C"><dt>More than 24 hours before</dt><dd style="margin: 0; font-weight: 600; text-align: right">Free</dd></div>
+<div style="display: flex; justify-content: space-between; gap: 24px; padding: 14px 0; border-bottom: 2px dashed #0A3B2C"><dt>Within 24 hours</dt><dd style="margin: 0; font-weight: 600; text-align: right">50% of the lesson</dd></div>
+<div style="display: flex; justify-content: space-between; gap: 24px; padding: 14px 0; border-bottom: 2px dashed #0A3B2C"><dt>Within 30 minutes of the start</dt><dd style="margin: 0; font-weight: 600; text-align: right">Full price</dd></div>
+</dl>
+<p style="margin: 12px 0 0; font-size: 16px">Cancellation fees go to your instructor. Newdryve takes none of it.</p>
+</div>
+<div>
+<h3 style="margin: 0 0 8px; font-weight: 600; font-size: 20px">How you pay</h3>
+<p style="margin: 0; font-size: 17px">At the end of each lesson, by cash, bank transfer or your saved card. Your instructor chooses. Nothing is charged when you book.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="where-we-are" style="padding: 0 0 104px">
+<div style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); gap: 32px 72px; align-items: start">
+<div>
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: clamp(38px, 4.6vw, 66px); line-height: 1; letter-spacing: -0.035em">starting small, on purpose</h2>
+</div>
+<div style="display: flex; flex-direction: column; gap: 24px">
+<p style="margin: 0; font-size: 20px">Newdryve is new. The app is live on the App Store and Google Play, and we’re hand-picking founding instructors in Norwich one at a time. No inflated numbers and no invented reviews.</p>
+</div>
+</div>
+</section>
+
+<section id="faq" style="padding: 0 0 112px">
+<div style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); gap: 32px 72px; align-items: start">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: clamp(38px, 4.6vw, 66px); line-height: 1; letter-spacing: -0.035em">learner questions</h2>
+<div style="display: flex; flex-direction: column; border-top: 2px solid #0A3B2C">
+<details open style="border-bottom: 2px solid #0A3B2C">
+<summary style="padding: 20px 0; font-weight: 600; font-size: 20px">Is Newdryve available in my area?</summary>
+<p style="margin: 0 0 22px; font-size: 17px; max-width: 34em">Newdryve is live in Norwich and the surrounding Norfolk area, including Thorpe St Andrew, Hellesdon, Sprowston, Costessey and Wymondham. <a href="#check">Check your postcode</a> and, if we’re not there yet, we’ll add you to the waitlist.</p>
+</details>
+<details style="border-bottom: 2px solid #0A3B2C">
+<summary style="padding: 20px 0; font-weight: 600; font-size: 20px">How do I book a lesson?</summary>
+<p style="margin: 0 0 22px; font-size: 17px; max-width: 34em">Open the app, browse instructors near you and pick a slot from their real availability. You need a valid card saved before you can book, but nothing is charged when you reserve a lesson.</p>
+</details>
+<details style="border-bottom: 2px solid #0A3B2C">
+<summary style="padding: 20px 0; font-weight: 600; font-size: 20px">Are the instructors qualified?</summary>
+<p style="margin: 0 0 22px; font-size: 17px; max-width: 34em">Every instructor’s current DVSA registration is checked before their profile goes live. You can also see their experience, specialisms and the areas they cover.</p>
+</details>
+<details style="border-bottom: 2px solid #0A3B2C">
+<summary style="padding: 20px 0; font-weight: 600; font-size: 20px">What happens if a card payment fails?</summary>
+<p style="margin: 0 0 22px; font-size: 17px; max-width: 34em">We try the card again automatically. If it still fails, you can pay in the app with Pay now. Until it’s paid, or your instructor settles it, you can’t book new lessons.</p>
+</details>
+</div>
+</div>
+</section>
+
+<section id="get-the-app" style="background: #FFC4DC; padding: 104px 0">
+<div style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 32px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 28px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: clamp(40px, 5.6vw, 80px); line-height: 1.1; letter-spacing: -0.035em; text-wrap: balance">scan <span role="img" aria-label="QR code for the newdryve app download page" style="display: inline-flex; align-items: center; justify-content: center; width: 1.5em; height: 1.5em; background: #FBFAF6; border: 2px dashed #0A3B2C; border-radius: 0.16em; vertical-align: middle; font-family: 'Instrument Sans', system-ui, sans-serif; font-weight: 600; font-size: 0.86em; letter-spacing: 0; transform: rotate(-4deg); margin: 0 0.1em"><span style="font-size: 15px; line-height: 1.2; padding: 6px">qr-app.svg goes here</span></span> to get the app</h2>
+<p style="margin: 0; font-size: 20px; max-width: 28em">Point your phone camera at the code. Already on your phone? Use the buttons.</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px">
+<a href="https://apps.apple.com/gb/app/newdryve/id6795593802" style="height: 56px; padding: 0 28px; border-radius: 999px; background: #0A3B2C; color: #FFC4DC; text-decoration: none; font-weight: 600; font-size: 17px; display: inline-flex; align-items: center">Get it on the App Store</a>
+<a href="https://play.google.com/store/apps/details?id=com.newdryve.app" style="height: 56px; padding: 0 28px; border-radius: 999px; border: 2px solid #0A3B2C; text-decoration: none; font-weight: 600; font-size: 17px; display: inline-flex; align-items: center">Get it on Google Play</a>
+</div>
+<p style="margin: 0; font-size: 17px">Not in Norfolk? <a href="#check" style="font-weight: 600">Check your postcode</a> and we’ll add you to the waitlist.</p>
+</div>
+</section>
+
+</main>
+
+<footer style="background: #0A3B2C; color: #FBFAF6; padding: 80px 0 48px">
+<div style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 32px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 40px 32px; font-size: 16px">
+<nav aria-label="Lessons by town" style="display: flex; flex-direction: column; gap: 4px">
+<h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 600; color: #A5F0BC">Lessons by town</h2>
+<a href="https://newdryve.com/driving-lessons/norwich" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Norwich</a>
+<a href="https://newdryve.com/driving-lessons/wymondham" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Wymondham</a>
+<a href="https://newdryve.com/driving-lessons/dereham" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Dereham</a>
+<a href="https://newdryve.com/driving-lessons/attleborough" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Attleborough</a>
+<a href="https://newdryve.com/driving-lessons/diss" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Diss</a>
+</nav>
+<nav aria-label="Test centres" style="display: flex; flex-direction: column; gap: 4px">
+<h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 600; color: #A5F0BC">Test centres</h2>
+<a href="https://newdryve.com/test-centres/norwich-peachman-way" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Peachman Way</a>
+<a href="https://newdryve.com/test-centres/norwich-jupiter-road" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Jupiter Road</a>
+<a href="https://newdryve.com/test-centres" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">All test centres near Norwich</a>
+</nav>
+<nav aria-label="Guides" style="display: flex; flex-direction: column; gap: 4px">
+<h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 600; color: #A5F0BC">Guides</h2>
+<a href="https://newdryve.com/guides/driving-lesson-cost" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">What lessons cost</a>
+<a href="https://newdryve.com/guides/how-to-find-a-driving-instructor" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Finding a good instructor</a>
+<a href="https://newdryve.com/guides/how-many-lessons-to-pass" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">How many lessons to pass</a>
+<a href="https://newdryve.com/guides/manual-vs-automatic" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Manual or automatic</a>
+<a href="https://newdryve.com/guides/how-to-book-driving-test" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Booking your test</a>
+</nav>
+<nav aria-label="newdryve" style="display: flex; flex-direction: column; gap: 4px">
+<h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 600; color: #A5F0BC">Newdryve</h2>
+<a href="https://newdryve.com/instructors" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">For instructors</a>
+<a href="https://instagram.com/newdryve" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Instagram</a>
+<a href="https://newdryve.com/privacy" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Privacy</a>
+<a href="https://newdryve.com/terms" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Terms</a>
+<a href="https://newdryve.com/datadeletion" style="color: #FBFAF6; text-decoration: none; padding: 6px 0">Delete account</a>
+</nav>
+</div>
+<div aria-hidden="true" style="margin-top: 72px; font-family: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif; font-weight: 800; font-size: clamp(72px, 19vw, 280px); line-height: 0.82; letter-spacing: -0.05em; color: #A5F0BC; white-space: nowrap">newdr<span style="color: #FFC4DC">y</span>ve</div>
+<p style="margin: 36px 0 0; font-size: 15px">© 2026 Newdryve. Built in Norwich.</p>
+</div>
+</footer>
+
+</div>
+<script>
+// Reference behaviour only. Rebuild these as components in the real codebase.
+(function () {
+  // 1. Coverage check. DEMO RULE: NR1 to NR18 counts as covered. Replace with real coverage data.
+  var input = document.getElementById('postcode');
+  var boxes = { covered: document.getElementById('result-covered'), waitlist: document.getElementById('result-waitlist'), joined: document.getElementById('result-joined') };
+  function show(which, area) {
+    Object.keys(boxes).forEach(function (k) { boxes[k].hidden = k !== which; });
+    document.querySelectorAll('[data-area]').forEach(function (el) { el.textContent = area || ''; });
+  }
+  function check() {
+    var raw = (input.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (!raw) { show(null); return; }
+    var outward = raw.length >= 5 ? raw.slice(0, -3) : raw;
+    var m = /^NR(\d{1,2})$/.exec(outward);
+    var n = m ? parseInt(m[1], 10) : 0;
+    show(n >= 1 && n <= 18 ? 'covered' : 'waitlist', outward);
+  }
+  document.getElementById('check-btn').addEventListener('click', check);
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') check(); });
+  document.getElementById('join-btn').addEventListener('click', function () {
+    var area = document.querySelector('[data-area]').textContent;
+    show('joined', area); // no request is sent in this reference
+  });
+
+  // 2. Example slot picker
+  var slots = document.querySelectorAll('.slot');
+  slots.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      slots.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      document.getElementById('slot-label').textContent = btn.textContent;
+    });
+  });
+
+  // 3. Avatar picker: scroll-snap strip, thumbnails and arrows (arrows wrap round)
+  var strip = document.querySelector('[data-nd-avatars]');
+  var thumbs = document.querySelectorAll('.nd-thumb');
+  var count = document.getElementById('avatar-count');
+  var current = 0, lock = null, timer = null;
+  function paint(i) {
+    current = i;
+    thumbs.forEach(function (t, k) { t.setAttribute('aria-pressed', k === i ? 'true' : 'false'); });
+    count.textContent = (i + 1) + ' of 6';
+  }
+  function go(i) {
+    var idx = ((i % 6) + 6) % 6;
+    lock = idx; clearTimeout(timer); timer = setTimeout(function () { lock = null; }, 900);
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    strip.scrollTo({ left: idx * strip.clientWidth, behavior: reduce ? 'auto' : 'smooth' });
+    paint(idx);
+  }
+  strip.addEventListener('scroll', function () {
+    var idx = Math.max(0, Math.min(5, Math.round(strip.scrollLeft / strip.clientWidth)));
+    if (lock !== null) { if (idx === lock) lock = null; return; }
+    if (idx !== current) paint(idx);
+  }, { passive: true });
+  thumbs.forEach(function (t) { t.addEventListener('click', function () { go(parseInt(t.getAttribute('data-go'), 10)); }); });
+  document.querySelectorAll('[data-step]').forEach(function (b) {
+    b.addEventListener('click', function () { go(current + parseInt(b.getAttribute('data-step'), 10)); });
+  });
+})();
+</script>
+</body>
+</html>

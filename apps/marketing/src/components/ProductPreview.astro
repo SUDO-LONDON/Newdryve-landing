@@ -1,12 +1,24 @@
 ---
+/**
+ * A product screenshot on a coloured tile. The PNGs in /public/product already
+ * carry an iPhone frame on a grey halo, so the figure only adds the redesign
+ * framing: a mint or pink tile, a 2px forest-bordered panel holding the image,
+ * a "Preview, sample data" chip and a caption in forest-soft.
+ *
+ * `float` marks the hero preview: it loads eagerly and defaults to a pink tile
+ * so it stands out on the mint hero. There is no float animation any more.
+ * `tone` overrides the tile colour.
+ */
 interface Props {
   variant: 'learner-search' | 'learner-progress' | 'instructor-profile';
   caption?: string;
   float?: boolean;
+  /** Tile colour. Defaults to pink for the hero (`float`), mint elsewhere. */
+  tone?: 'mint' | 'pink';
   class?: string;
 }
 
-const { variant, caption, float = false, class: className = '' } = Astro.props;
+const { variant, caption, float = false, tone, class: className = '' } = Astro.props;
 
 const variants = {
   'learner-search': {
@@ -24,30 +36,31 @@ const variants = {
 } as const;
 
 const data = variants[variant];
+const tileTone = tone ?? (float ? 'pink' : 'mint');
+const tileClass = tileTone === 'pink' ? 'bg-pink' : 'bg-mint';
 ---
 
-<figure class={`flex flex-col items-center ${className}`}>
-  <div class={`relative ${float ? 'motion-safe:float-slow' : ''}`}>
-    <img
-      src={data.src}
-      alt={data.alt}
-      width="740"
-      height="1488"
-      loading={float ? 'eager' : 'lazy'}
-      decoding="async"
-      class="h-auto w-[260px] select-none sm:w-[290px]"
-    />
-
-    <span
-      class="absolute -right-2 top-4 z-20 rounded-full border border-blush-border bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[1px] text-deep-rose-ink shadow-sm"
-    >
-      Preview
-    </span>
+<figure class={`flex w-full max-w-[332px] flex-col items-center ${className}`}>
+  <div class={`flex w-full flex-col gap-3 rounded-[32px] p-4 sm:p-5 ${tileClass}`}>
+    <div class="flex justify-end">
+      <span class="nd-chip">Preview, sample data</span>
+    </div>
+    <div class="overflow-hidden rounded-[24px] border-2 border-forest bg-paper">
+      <img
+        src={data.src}
+        alt={data.alt}
+        width="740"
+        height="1488"
+        loading={float ? 'eager' : 'lazy'}
+        decoding="async"
+        class="block h-auto w-full select-none"
+      />
+    </div>
   </div>
 
   {
     caption && (
-      <figcaption class="mt-4 max-w-[290px] text-center text-xs leading-relaxed text-ink-muted">
+      <figcaption class="mt-4 max-w-[290px] text-center text-[15px] leading-snug text-forest-soft">
         {caption}
       </figcaption>
     )
