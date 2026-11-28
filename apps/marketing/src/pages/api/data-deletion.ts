@@ -47,23 +47,23 @@ function renderAdminEmail(request: DeletionRequest) {
 
   const html = `<!doctype html>
 <html lang="en">
-<body style="margin:0;padding:24px;background:#F0EDF0;color:#0A0A14;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;">
-  <div style="max-width:560px;margin:0 auto;border:1px solid #E8E8F2;border-radius:16px;background:#FFFFFF;padding:28px;">
-    <p style="margin:0 0 6px;color:#E8527A;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Newdryve privacy request</p>
+<body style="margin:0;padding:24px;background:#FBFAF6;color:#0A3B2C;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;">
+  <div style="max-width:560px;margin:0 auto;border:2px solid #0A3B2C;border-radius:24px;background:#FFFFFF;padding:28px;">
+    <p style="margin:0 0 6px;color:#2F5A4B;font-size:14px;font-weight:600;">Newdryve privacy request</p>
     <h1 style="margin:0 0 8px;font-size:22px;letter-spacing:-0.5px;">New data deletion request</h1>
-    <p style="margin:0 0 20px;color:#6B6B84;font-size:14px;line-height:1.5;">${escapeHtml(fullName)} has asked for their Newdryve account and eligible personal data to be deleted.</p>
+    <p style="margin:0 0 20px;color:#2F5A4B;font-size:14px;line-height:1.5;">${escapeHtml(fullName)} has asked for their Newdryve account and eligible personal data to be deleted.</p>
     <table style="width:100%;border-collapse:collapse;font-size:14px;">
       ${rows
         .map(
           ([label, value]) => `
         <tr>
-          <td style="width:140px;padding:10px 0;border-bottom:1px solid #E8E8F2;color:#6B6B84;font-weight:600;vertical-align:top;">${escapeHtml(label)}</td>
-          <td style="padding:10px 0;border-bottom:1px solid #E8E8F2;color:#0A0A14;">${escapeHtml(value)}</td>
+          <td style="width:140px;padding:10px 0;border-bottom:1px solid #EAE7DD;color:#2F5A4B;font-weight:600;vertical-align:top;">${escapeHtml(label)}</td>
+          <td style="padding:10px 0;border-bottom:1px solid #EAE7DD;color:#0A3B2C;">${escapeHtml(value)}</td>
         </tr>`
         )
         .join('')}
     </table>
-    <p style="margin:20px 0 0;color:#6B6B84;font-size:12px;line-height:1.5;">Verify the requester&rsquo;s identity before deleting any data and record the outcome in accordance with the Newdryve privacy process.</p>
+    <p style="margin:20px 0 0;color:#2F5A4B;font-size:12px;line-height:1.5;">Verify the requester&rsquo;s identity before deleting any data and record the outcome in accordance with the Newdryve privacy process.</p>
   </div>
 </body>
 </html>`;

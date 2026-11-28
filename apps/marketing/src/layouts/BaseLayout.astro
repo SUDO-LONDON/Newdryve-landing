@@ -81,6 +81,27 @@ const ogImage = new URL('/og.png', SITE_URL).href;
     <meta name="geo.position" content="52.6309;1.2974" />
     <meta name="ICBM" content="52.6309, 1.2974" />
 
+    <!--
+      Turns the site's motion on (see the Motion block in global.css) before
+      first paint, so nothing flashes. Skipped for reduced motion and old
+      browsers. If the reveal script below hasn't started within 3 seconds
+      (blocked or failed JS), motion is switched off again so no content can
+      stay hidden.
+    -->
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        if (
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+          !('IntersectionObserver' in window)
+        ) return;
+        root.classList.add('motion');
+        setTimeout(function () {
+          if (!root.classList.contains('reveal-ready')) root.classList.remove('motion');
+        }, 3000);
+      })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -117,13 +138,39 @@ const ogImage = new URL('/og.png', SITE_URL).href;
     <AppHandoffModal />
 
     <script>
-      // Scroll reveal. Progressive enhancement only: elements are visible by
-      // default in CSS, this just adds the entrance animation. Skipped entirely
-      // for users who prefer reduced motion.
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const targets = document.querySelectorAll<HTMLElement>('.reveal');
+      // Scroll reveal. Runs only when the inline head script switched motion
+      // on. Every block below the hero (each child of a section's
+      // .nd-container, each item of a list that is such a child, and the
+      // footer's blocks) rises in as it scrolls into view, staggered within
+      // its row. Pages can also mark elements with .reveal themselves.
+      const root = document.documentElement;
 
-      if (!prefersReduced && 'IntersectionObserver' in window) {
+      if (root.classList.contains('motion')) {
+        const hero = document.querySelector('main section');
+        const tagged = new Set<HTMLElement>(document.querySelectorAll<HTMLElement>('.reveal'));
+
+        const tag = (el: HTMLElement, index: number) => {
+          if (tagged.has(el) || (hero && hero.contains(el))) return;
+          // Skip anything inside an element that is already revealed as a whole.
+          for (const other of tagged) if (other.contains(el)) return;
+          el.classList.add('reveal');
+          if (!el.dataset.revealDelay) el.dataset.revealDelay = String((index % 4) * 90);
+          tagged.add(el);
+        };
+
+        document
+          .querySelectorAll<HTMLElement>('main section .nd-container, footer .nd-container')
+          .forEach((container) => {
+            Array.from(container.children).forEach((child, index) => {
+              const el = child as HTMLElement;
+              if ((el.tagName === 'OL' || el.tagName === 'UL') && el.children.length > 1) {
+                Array.from(el.children).forEach((item, i) => tag(item as HTMLElement, i));
+              } else {
+                tag(el, index);
+              }
+            });
+          });
+
         const observer = new IntersectionObserver(
           (entries) => {
             for (const entry of entries) {
@@ -137,7 +184,17 @@ const ogImage = new URL('/og.png', SITE_URL).href;
           { rootMargin: '0px 0px -10% 0px', threshold: 0.05 }
         );
 
-        targets.forEach((el) => observer.observe(el));
+        tagged.forEach((el) => {
+          // Already on screen when the script runs: show it straight away
+          // (no fade, so nothing blinks) but let its inner moments play.
+          if (el.getBoundingClientRect().top < window.innerHeight * 0.9) {
+            el.classList.add('is-visible', 'reveal-instant');
+          } else {
+            observer.observe(el);
+          }
+        });
+
+        root.classList.add('reveal-ready');
       }
     </script>
   </body>

@@ -1,7 +1,7 @@
 ---
 /**
  * Desktop hand-off for "Get the app": Newdryve is a phone app, so on desktop we
- * show a QR code (to app.newdryve.com, the download page) and both store
+ * show a QR code (to newdryve.com/app, which opens the right store) and both store
  * buttons. Opened by GetAppButton. Rendered once per page.
  */
 import { APP } from '../config/site';
@@ -29,13 +29,13 @@ import StoreBadges from './StoreBadges.astro';
 
     <h2 id="app-handoff-title" class="nd-h4 text-[30px]">get newdryve on your phone</h2>
     <p class="mx-auto mt-3 max-w-[28ch] text-[17px]">
-      Point your phone camera at the code. It opens the download page for the App Store and Google
+      Point your phone camera at the code. It opens newdryve in the App Store or Google
       Play.
     </p>
 
     <img
       src="/qr-app.svg"
-      alt="QR code linking to the Newdryve download page"
+      alt="QR code that opens newdryve in your phone's app store"
       width="180"
       height="180"
       class="mx-auto mt-6 block size-[180px] -rotate-3 rounded-2xl border-2 border-forest bg-paper p-3"

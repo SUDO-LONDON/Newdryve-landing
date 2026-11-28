@@ -2,12 +2,13 @@
 /**
  * Hero postcode check. One field, "Check my area", Enter submits. Three
  * outcomes appear under the field, inside one polite live region:
- *   covered   -> "We cover NR2." with the store buttons
+ *   covered   -> "We cover your area." with a QR code (md and up) and the
+ *                store buttons
  *   uncovered -> "Not in CB1 yet." with an email field to join the waitlist
  *   joined    -> "You're on the waitlist."
  *
- * Coverage comes from COVERAGE.outwardCodes in config/site.ts, which is a
- * placeholder until there is a lookup against instructor data. Joining posts
+ * Coverage comes from COVERAGE.postcodeAreas in config/site.ts: any NR
+ * postcode counts as covered. Joining posts
  * { email, role: 'student', postcode } to the existing /api/waitlist handler.
  *
  * The wrapper carries id="join" so older links to /#join (town pages) land
@@ -20,7 +21,12 @@ const cardClass = 'nd-card mt-6 flex w-full max-w-[540px] flex-col gap-3.5 px-6 
 const cardTitle = 'font-heading text-[26px] leading-[1.1] font-extrabold tracking-[-0.02em]';
 ---
 
-<div id="join" class="w-full max-w-[540px]" data-coverage data-covered={JSON.stringify(COVERAGE.outwardCodes)}>
+<div
+  id="join"
+  class="w-full max-w-[540px]"
+  data-coverage
+  data-covered-areas={JSON.stringify(COVERAGE.postcodeAreas)}
+>
   <form id="check" class="flex w-full flex-col gap-2.5" novalidate data-coverage-form>
     <label for="postcode" class="pl-2 text-base font-semibold">Where are you learning?</label>
     <div
@@ -51,13 +57,29 @@ const cardTitle = 'font-heading text-[26px] leading-[1.1] font-extrabold trackin
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
         </span>
-        <strong class={cardTitle}>We cover <span data-area></span>.</strong>
+        <strong class={cardTitle}>We cover your area.</strong>
       </div>
       <p class="text-[17px]">
         See who&rsquo;s free near you this week in the app. What you see depends on which instructors
         have open slots.
       </p>
-      <StoreBadges />
+      <div class="flex items-center gap-5">
+        <!-- A QR is no use on the phone you'd scan it with, so it shows from md up. -->
+        <img
+          src="/qr-app.svg"
+          alt="QR code that opens newdryve in your phone's app store"
+          width="112"
+          height="112"
+          loading="lazy"
+          class="hidden size-28 shrink-0 -rotate-3 rounded-2xl border-2 border-forest bg-paper p-2 md:block"
+        />
+        <div class="flex flex-col gap-1">
+          <p class="hidden text-[15px] font-semibold md:block">
+            Scan with your phone camera to get the app.
+          </p>
+          <StoreBadges />
+        </div>
+      </div>
     </div>
 
     <div class={cardClass} data-result="waitlist" hidden>
@@ -99,7 +121,7 @@ const cardTitle = 'font-heading text-[26px] leading-[1.1] font-extrabold trackin
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   document.querySelectorAll<HTMLElement>('[data-coverage]').forEach((root) => {
-    const covered = new Set<string>(JSON.parse(root.dataset.covered || '[]'));
+    const coveredAreas = new Set<string>(JSON.parse(root.dataset.coveredAreas || '[]'));
     const form = root.querySelector<HTMLFormElement>('[data-coverage-form]')!;
     const input = form.querySelector<HTMLInputElement>('input[name="postcode"]')!;
     const error = root.querySelector<HTMLElement>('[data-coverage-error]')!;
@@ -145,7 +167,9 @@ const cardTitle = 'font-heading text-[26px] leading-[1.1] font-extrabold trackin
 
       setError(error, input, '');
       area = outward;
-      show(covered.has(outward) ? 'covered' : 'waitlist');
+      // The area is the outward code's leading letters: NR2 -> NR.
+      const postcodeArea = outward.replace(/\d.*$/, '');
+      show(coveredAreas.has(postcodeArea) ? 'covered' : 'waitlist');
     });
 
     let sending = false;

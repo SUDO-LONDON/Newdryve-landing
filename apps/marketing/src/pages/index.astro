@@ -74,7 +74,7 @@ const stepBody = 'mt-3.5 max-w-[27em]';
         <h1 id="hero-title" class="nd-display">
           driving <span
             aria-hidden="true"
-            class="inline-flex h-[1.18em] w-[1.18em] -rotate-6 items-center justify-center rounded-[0.16em] bg-white align-[0.02em] text-[0.74em] tracking-normal text-hot-pink shadow-[0_0.07em_0_var(--forest)]"
+            class="nd-swing inline-flex h-[1.18em] w-[1.18em] -rotate-6 items-center [--nd-rot:-6deg] justify-center rounded-[0.16em] bg-white align-[0.02em] text-[0.74em] tracking-normal text-hot-pink shadow-[0_0.07em_0_var(--forest)]"
             >L</span
           > lessons, minus the <span class="nd-highlight">faff.</span>
         </h1>
@@ -103,22 +103,18 @@ const stepBody = 'mt-3.5 max-w-[27em]';
         <figure class="relative w-full max-w-[320px]">
           <div class="h-[440px] rounded-t-[48px] bg-forest px-3 pt-3 sm:h-[540px]">
             <div class="h-full overflow-hidden rounded-t-[36px] bg-paper">
-              <!-- The PNG has its own phone frame on a grey halo; this crops to the screen. -->
               <img
-                src="/product/newdryve-discover.png"
-                alt="The newdryve app's instructor search screen, with filters for manual and automatic and a list of instructors to book"
-                width="740"
-                height="1488"
+                src="/product/newdryve-learner-home.png"
+                alt="The newdryve app home screen, showing the next lesson, what to practise next, and shortcuts to book a lesson or find test centres"
+                width="900"
+                height="1948"
                 loading="eager"
+                fetchpriority="high"
                 decoding="async"
-                class="block h-auto w-[127.6%] max-w-none"
-                style="margin-left:-13.8%;margin-top:-11.2%"
+                class="block h-auto w-full"
               />
             </div>
           </div>
-          <figcaption class="nd-chip absolute top-10 -right-2 border-2 border-forest sm:-right-4">
-            Preview, sample data
-          </figcaption>
         </figure>
       </div>
     </div>
@@ -165,7 +161,7 @@ const stepBody = 'mt-3.5 max-w-[27em]';
         <li class="flex flex-col gap-4 md:flex-row md:gap-7">
           <div aria-hidden="true" class="flex flex-[0_0_56px] flex-col items-start md:items-center">
             <span class="nd-marker">1</span>
-            <span class="my-2.5 hidden w-0 flex-1 border-l-4 border-dashed border-forest md:block"></span>
+            <span class="nd-rail my-2.5 hidden w-0 flex-1 border-l-4 border-dashed border-forest md:block"></span>
           </div>
           <div class={stepContent}>
             <div>
@@ -206,7 +202,7 @@ const stepBody = 'mt-3.5 max-w-[27em]';
         <li class="flex flex-col gap-4 md:flex-row md:gap-7">
           <div aria-hidden="true" class="flex flex-[0_0_56px] flex-col items-start md:items-center">
             <span class="nd-marker">2</span>
-            <span class="my-2.5 hidden w-0 flex-1 border-l-4 border-dashed border-forest md:block"></span>
+            <span class="nd-rail my-2.5 hidden w-0 flex-1 border-l-4 border-dashed border-forest md:block"></span>
           </div>
           <div class={stepContent}>
             <div>
@@ -248,7 +244,7 @@ const stepBody = 'mt-3.5 max-w-[27em]';
         <li class="flex flex-col gap-4 md:flex-row md:gap-7">
           <div aria-hidden="true" class="flex flex-[0_0_56px] flex-col items-start md:items-center">
             <span class="nd-marker">3</span>
-            <span class="my-2.5 hidden w-0 flex-1 border-l-4 border-dashed border-forest md:block"></span>
+            <span class="nd-rail my-2.5 hidden w-0 flex-1 border-l-4 border-dashed border-forest md:block"></span>
           </div>
           <div class={stepContent}>
             <div>
@@ -294,7 +290,7 @@ const stepBody = 'mt-3.5 max-w-[27em]';
             </div>
             <div aria-hidden="true" class="flex items-center justify-center py-5">
               <div
-                class="flex h-[116px] w-[180px] -rotate-8 flex-col justify-between rounded-2xl border-2 border-forest bg-mint p-4 sm:h-[140px] sm:w-[220px]"
+                class="flex h-[116px] w-[180px] nd-licence-a -rotate-8 flex-col justify-between rounded-2xl border-2 border-forest bg-mint p-4 sm:h-[140px] sm:w-[220px]"
               >
                 <span class="font-heading text-xl font-extrabold tracking-[-0.02em]">provisional</span>
                 <span class="flex items-end gap-3">
@@ -306,7 +302,7 @@ const stepBody = 'mt-3.5 max-w-[27em]';
                 </span>
               </div>
               <div
-                class="nd-shadow -ml-11 flex h-[116px] w-[180px] rotate-7 flex-col justify-between rounded-2xl border-2 border-forest bg-pink p-4 sm:-ml-14 sm:h-[140px] sm:w-[220px]"
+                class="nd-shadow -ml-11 flex h-[116px] w-[180px] nd-licence-b rotate-7 flex-col justify-between rounded-2xl border-2 border-forest bg-pink p-4 sm:-ml-14 sm:h-[140px] sm:w-[220px]"
               >
                 <span class="font-heading text-xl font-extrabold tracking-[-0.02em]">full</span>
                 <span class="flex items-end gap-3">

@@ -63,17 +63,17 @@ function adminEmail(s: Signup) {
   ].filter(Boolean) as [string, string][];
 
   const html = `
-<!doctype html><html><body style="font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#0A0A14;background:#F0EDF0;padding:24px;margin:0;">
-  <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #E8E8F2;border-radius:16px;padding:28px;">
-    <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#E8527A;">Newdryve waitlist</p>
+<!doctype html><html><body style="font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#0A3B2C;background:#FBFAF6;padding:24px;margin:0;">
+  <div style="max-width:560px;margin:0 auto;background:#fff;border:2px solid #0A3B2C;border-radius:24px;padding:28px;">
+    <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#2F5A4B;">Newdryve waitlist</p>
     <h1 style="margin:0 0 20px;font-size:22px;letter-spacing:-0.5px;">New ${roleLabel.toLowerCase()} signup</h1>
     <table style="width:100%;border-collapse:collapse;font-size:14px;">
       ${rows
         .map(
           ([k, v]) => `
         <tr>
-          <td style="padding:10px 0;border-bottom:1px solid #E8E8F2;color:#6B6B84;font-weight:600;width:140px;vertical-align:top;">${escapeHtml(k)}</td>
-          <td style="padding:10px 0;border-bottom:1px solid #E8E8F2;color:#0A0A14;white-space:pre-wrap;">${escapeHtml(v)}</td>
+          <td style="padding:10px 0;border-bottom:1px solid #EAE7DD;color:#2F5A4B;font-weight:600;width:140px;vertical-align:top;">${escapeHtml(k)}</td>
+          <td style="padding:10px 0;border-bottom:1px solid #EAE7DD;color:#0A3B2C;white-space:pre-wrap;">${escapeHtml(v)}</td>
         </tr>`
         )
         .join('')}
@@ -100,15 +100,15 @@ function applicantEmail(s: Signup) {
     : `Thanks for joining the Newdryve waitlist. We're building a faster way to book driving lessons in Norwich, and we'll be in touch as soon as we have an instructor lined up for you.\n\nIf you have any questions in the meantime, just reply to this email.`;
 
   const html = `
-<!doctype html><html><body style="font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#0A0A14;background:#F0EDF0;padding:24px;margin:0;">
-  <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #E8E8F2;border-radius:16px;padding:32px;">
-    <p style="margin:0 0 24px;font-size:22px;font-weight:800;letter-spacing:-0.5px;">
-      <span style="color:#2D6A4F;">newdr</span><span style="color:#E8527A;">y</span><span style="color:#2D6A4F;">ve</span>
+<!doctype html><html><body style="font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#0A3B2C;background:#FBFAF6;padding:24px;margin:0;">
+  <div style="max-width:560px;margin:0 auto;background:#fff;border:2px solid #0A3B2C;border-radius:24px;padding:32px;">
+    <p style="margin:0 0 24px;font-family:'Bricolage Grotesque','Arial Black',Arial,sans-serif;font-size:26px;font-weight:800;letter-spacing:-1px;">
+      <span style="color:#0A3B2C;">newdr</span><span style="color:#E8327F;">y</span><span style="color:#0A3B2C;">ve</span>
     </p>
     <h1 style="margin:0 0 14px;font-size:22px;letter-spacing:-0.5px;">${escapeHtml(subject)}</h1>
-    <p style="margin:0 0 14px;color:#0A0A14;font-size:15px;line-height:1.55;">${escapeHtml(greeting)}</p>
-    <p style="margin:0 0 14px;color:#0A0A14;font-size:15px;line-height:1.55;white-space:pre-wrap;">${escapeHtml(body)}</p>
-    <p style="margin:24px 0 0;color:#6B6B84;font-size:13px;">The Newdryve team</p>
+    <p style="margin:0 0 14px;color:#0A3B2C;font-size:15px;line-height:1.55;">${escapeHtml(greeting)}</p>
+    <p style="margin:0 0 14px;color:#0A3B2C;font-size:15px;line-height:1.55;white-space:pre-wrap;">${escapeHtml(body)}</p>
+    <p style="margin:24px 0 0;color:#2F5A4B;font-size:13px;">The Newdryve team</p>
   </div>
 </body></html>`.trim();
 

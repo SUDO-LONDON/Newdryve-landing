@@ -535,6 +535,175 @@
   }
 }
 
+/*
+ * Motion. Everything in this block only runs when <html> has the `motion`
+ * class, which an inline script in BaseLayout adds when JavaScript runs and
+ * the visitor hasn't asked for reduced motion. Without it, every element is
+ * simply visible and still.
+ *
+ * Individual `rotate` / `translate` / `scale` properties are animated rather
+ * than `transform`, because Tailwind's rotate-* utilities set `rotate` and the
+ * two would otherwise stack.
+ */
+@keyframes nd-rise {
+  from { opacity: 0; translate: 0 18px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+@keyframes nd-drop {
+  from { opacity: 0; translate: 0 -8px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+@keyframes nd-pop {
+  0% { opacity: 0; scale: 0.6; }
+  70% { opacity: 1; scale: 1.08; }
+  100% { opacity: 1; scale: 1; }
+}
+
+/* Swings an element in and settles on its resting tilt (--nd-rot). */
+@keyframes nd-swing {
+  0% { opacity: 0; rotate: -40deg; scale: 0.6; }
+  65% { opacity: 1; rotate: 8deg; scale: 1.06; }
+  100% { opacity: 1; rotate: var(--nd-rot, 0deg); scale: 1; }
+}
+
+/* The hand-written aside writes itself left to right. */
+@keyframes nd-write {
+  from { clip-path: inset(-20% 100% -20% -5%); }
+  to { clip-path: inset(-20% -5% -20% -5%); }
+}
+
+/* The pink highlight block slaps on behind its word. */
+@keyframes nd-slap {
+  0% { background-color: transparent; transform: rotate(3deg) scale(0.92); }
+  60% { background-color: var(--pink); transform: rotate(-4deg) scale(1.06); }
+  100% { background-color: var(--pink); transform: rotate(-2deg) scale(1); }
+}
+
+@keyframes nd-rail {
+  from { scale: 1 0; }
+  to { scale: 1 1; }
+}
+
+@keyframes nd-bob {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -5px; }
+}
+
+@keyframes nd-card-left {
+  from { opacity: 0; translate: -48px 12px; rotate: -22deg; }
+  to { opacity: 1; translate: 0 0; rotate: -8deg; }
+}
+
+@keyframes nd-card-right {
+  from { opacity: 0; translate: 64px -16px; rotate: 22deg; }
+  to { opacity: 1; translate: 0 0; rotate: 7deg; }
+}
+
+/* Hero: the top section's blocks rise in, one after another. */
+.motion main > section:first-child .nd-container > *,
+.motion main > article > section:first-child .nd-container > * {
+  animation: nd-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.motion main > section:first-child .nd-container > :nth-child(2),
+.motion main > article > section:first-child .nd-container > :nth-child(2) {
+  animation-delay: 140ms;
+}
+
+.motion main > section:first-child .nd-container > :nth-child(3),
+.motion main > article > section:first-child .nd-container > :nth-child(3) {
+  animation-delay: 280ms;
+}
+
+.motion .nd-hand {
+  animation: nd-write 900ms ease-out 250ms both;
+}
+
+.motion main > section:first-child .nd-highlight,
+.motion main > article > section:first-child .nd-highlight {
+  animation: nd-slap 650ms cubic-bezier(0.34, 1.56, 0.64, 1) 750ms both;
+}
+
+.motion .nd-swing {
+  animation: nd-swing 800ms cubic-bezier(0.34, 1.56, 0.64, 1) 450ms both;
+}
+
+/* Scroll reveals (elements tagged .reveal by BaseLayout's script). */
+.motion .reveal:not(.is-visible) {
+  opacity: 0;
+}
+
+.motion .reveal.is-visible {
+  animation: nd-rise 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Already on screen at load: no fade, but children still play their moments. */
+.motion .reveal.is-visible.reveal-instant {
+  animation: none;
+}
+
+.motion .reveal.is-visible .nd-marker {
+  animation: nd-pop 500ms cubic-bezier(0.34, 1.56, 0.64, 1) 150ms both;
+}
+
+.motion .nd-rail {
+  transform-origin: top;
+  scale: 1 0;
+}
+
+.motion .reveal.is-visible .nd-rail {
+  animation: nd-rail 900ms ease-out 350ms both;
+}
+
+.motion .reveal.is-visible .nd-number {
+  transform-origin: left bottom;
+  animation: nd-pop 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 200ms both;
+}
+
+.motion .reveal.is-visible .nd-licence-a {
+  animation: nd-card-left 750ms cubic-bezier(0.22, 1, 0.36, 1) 250ms both;
+}
+
+.motion .reveal.is-visible .nd-licence-b {
+  animation: nd-card-right 750ms cubic-bezier(0.22, 1, 0.36, 1) 500ms both;
+}
+
+.motion .reveal.is-visible .nd-swing-on-reveal {
+  animation: nd-swing 800ms cubic-bezier(0.34, 1.56, 0.64, 1) 250ms both;
+}
+
+/* Small moments */
+.motion [data-avatar-strip] img {
+  animation: nd-bob 2.6s ease-in-out infinite;
+}
+
+.motion [data-result]:not([hidden]) {
+  animation: nd-drop 350ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.motion details[open] > :not(summary) {
+  animation: nd-drop 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.motion [data-slot],
+.motion [data-avatar-go] {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    scale 150ms ease;
+}
+
+.motion [data-slot]:active,
+.motion [data-avatar-go]:active,
+.motion .nd-btn:active,
+.motion .nd-btn-secondary:active {
+  scale: 0.97;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal.is-visible {
     animation: none;

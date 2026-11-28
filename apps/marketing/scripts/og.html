@@ -1,0 +1,70 @@
+<!doctype html>
+<!--
+  Social share card (public/og.png, 1200 x 630) in the redesign style.
+
+  To regenerate: open this file in a browser with the viewport set to
+  1200 x 630, wait for the fonts to load, take a screenshot of the viewport
+  and save it over public/og.png. (A real browser is used rather than sharp
+  because sharp can't load the Google Fonts the brand uses.)
+-->
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <title>newdryve share card</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Caveat:wght@700&family=Instrument+Sans:wght@400..600&display=block"
+    />
+    <style>
+      * { box-sizing: border-box; margin: 0; }
+      html, body { width: 1200px; height: 630px; overflow: hidden; }
+      body {
+        background: #a5f0bc;
+        color: #0a3b2c;
+        font-family: 'Instrument Sans', system-ui, sans-serif;
+        position: relative;
+      }
+      .wordmark {
+        position: absolute; top: 56px; left: 72px;
+        background: #fbfaf6; border-radius: 36px; padding: 14px 28px;
+        font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800;
+        font-size: 40px; letter-spacing: -0.04em; line-height: 1;
+      }
+      .wordmark span, .l { color: #e8327f; }
+      .hand {
+        position: absolute; top: 172px; left: 78px;
+        font-family: 'Caveat', cursive; font-weight: 700; font-size: 40px;
+        transform: rotate(-3deg);
+      }
+      h1 {
+        position: absolute; top: 222px; left: 72px; width: 720px;
+        font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800;
+        font-size: 96px; line-height: 0.98; letter-spacing: -0.035em;
+      }
+      .l {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 1.18em; height: 1.18em; font-size: 0.74em; background: #fff;
+        border-radius: 0.16em; box-shadow: 0 0.07em 0 #0a3b2c;
+        transform: rotate(-6deg); vertical-align: 0.02em; letter-spacing: 0;
+      }
+      .hl {
+        display: inline-block; background: #ffc4dc; border-radius: 0.14em;
+        padding: 0 0.14em 0.04em; transform: rotate(-2deg);
+      }
+      p {
+        position: absolute; bottom: 56px; left: 72px;
+        font-size: 28px; font-weight: 600;
+      }
+      .car {
+        position: absolute; right: 24px; bottom: 24px; width: 470px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wordmark">newdr<span>y</span>ve</div>
+    <div class="hand">hello, Norwich</div>
+    <h1>driving <span class="l">L</span> lessons, minus the <span class="hl">faff.</span></h1>
+    <p>Checked instructors, real availability. Free for learners.</p>
+    <img class="car" src="../public/avatars/avatar-pink.png" alt="" />
+  </body>
+</html>

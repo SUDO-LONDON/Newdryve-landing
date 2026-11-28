@@ -57,7 +57,8 @@ export const PRICING = {
  *
  * web: app.newdryve.com is no longer the web app. It is a download page with
  * App Store and Google Play buttons. It stays the no-JavaScript fallback for
- * every "Get the app" button and the target of the desktop QR code.
+ * every "Get the app" button. The QR code points at newdryve.com/app (src/pages/app.ts),
+ * which sends each phone straight to its store.
  */
 export const APP = {
   web: {
@@ -120,16 +121,13 @@ export const INSTRUCTOR_NAV_LINKS = [
 /**
  * Postcode coverage for the home page check.
  *
- * PLACEHOLDER, NOT REAL COVERAGE DATA. Real coverage lives in the product
- * database (`instructors.service_postcodes`, plus each instructor's coverage
- * area), and there is no public endpoint that answers "does anyone cover NR2?"
- * yet. Until there is, this list mirrors only what the learner FAQ already
- * claims: Norwich and the named areas around it (Thorpe St Andrew and
- * Sprowston NR7, Hellesdon NR6, Costessey NR5 and NR8, Wymondham NR18).
- * Replace it with a lookup against instructor data before relying on it.
+ * Any postcode in a listed postcode area counts as covered. Jed's call
+ * (28 Nov 2026): every Norwich (NR) postcode gets "We cover your area".
+ * Matching is on the area letters of the outward code, so NR1, NR18 and NR35
+ * match and N1 or CB1 don't.
  */
 export const COVERAGE = {
-  outwardCodes: ['NR1', 'NR2', 'NR3', 'NR4', 'NR5', 'NR6', 'NR7', 'NR8', 'NR18'],
+  postcodeAreas: ['NR'],
 } as const;
 
 /**

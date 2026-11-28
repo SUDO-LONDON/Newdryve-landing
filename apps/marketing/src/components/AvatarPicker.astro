@@ -6,14 +6,15 @@
  * strip updates the counter and thumbnails. Smooth scrolling is skipped when
  * the user prefers reduced motion.
  *
- * The tiles are 400 x 372 PNGs with a baked-in #DEF5E5 background, cropped
- * from a JPEG, so the panel uses the same colour.
+ * The cars are rendered from the base car vector (newdryve-base-car.pdf) with
+ * only the body colour changed, as 580 x 551 transparent PNGs on the #DEF5E5
+ * panel. The app lets learners customise their character further.
  */
 const AVATARS = [
   { file: 'mint', name: 'mint car', alt: 'newdryve avatar driving a mint car' },
-  { file: 'pink', name: 'pink car', alt: 'newdryve avatar driving a pink car with a heart on the door' },
-  { file: 'yellow', name: 'yellow car', alt: 'newdryve avatar driving a yellow car with a star on the door' },
-  { file: 'blue', name: 'blue car', alt: 'newdryve avatar driving a blue car with racing stripes' },
+  { file: 'pink', name: 'pink car', alt: 'newdryve avatar driving a pink car' },
+  { file: 'yellow', name: 'yellow car', alt: 'newdryve avatar driving a yellow car' },
+  { file: 'blue', name: 'blue car', alt: 'newdryve avatar driving a blue car' },
   { file: 'orange', name: 'orange car', alt: 'newdryve avatar driving an orange car' },
   { file: 'white', name: 'white car', alt: 'newdryve avatar driving a white car' },
 ];
@@ -37,8 +38,8 @@ const arrowClass =
             <img
               src={`/avatars/avatar-${avatar.file}.png`}
               alt={avatar.alt}
-              width="400"
-              height="372"
+              width="580"
+              height="551"
               loading={index === 0 ? 'eager' : 'lazy'}
               decoding="async"
               class="block h-auto w-full max-w-[290px]"

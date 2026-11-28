@@ -21,10 +21,10 @@ const { id = 'get-the-app', checkHref } = Astro.props;
     <h2 id={`${id}-title`} class="nd-h2 text-[clamp(40px,5.6vw,80px)] leading-[1.1]">
       <span class="hidden md:inline"
         >scan <span
-          class="mx-[0.1em] inline-flex size-[1.5em] -rotate-4 items-center justify-center rounded-[0.16em] border-2 border-forest bg-paper p-[0.12em] align-middle"
+          class="nd-swing-on-reveal mx-[0.1em] inline-flex size-[1.5em] -rotate-4 [--nd-rot:-4deg] items-center justify-center rounded-[0.16em] border-2 border-forest bg-paper p-[0.12em] align-middle"
           ><img
             src="/qr-app.svg"
-            alt="QR code for the newdryve app download page"
+            alt="QR code that opens newdryve in your phone's app store"
             width="160"
             height="160"
             class="block size-full"

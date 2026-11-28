@@ -1,16 +1,17 @@
 ---
 /**
- * A product screenshot on a coloured tile. The PNGs in /public/product already
- * carry an iPhone frame on a grey halo, so the figure only adds the redesign
- * framing: a mint or pink tile, a 2px forest-bordered panel holding the image,
- * a "Preview, sample data" chip and a caption in forest-soft.
+ * A product screenshot on a coloured tile, inside a forest phone frame.
+ *
+ * `learner-home` is a real screenshot of the app (November 2026). The older
+ * PNGs (`learner-search`, `learner-progress`) carry an iPhone frame on a grey
+ * halo and show sample data, so they keep a "Preview, sample data" chip and
+ * are cropped to the screen.
  *
  * `float` marks the hero preview: it loads eagerly and defaults to a pink tile
- * so it stands out on the mint hero. There is no float animation any more.
- * `tone` overrides the tile colour.
+ * so it stands out on the mint hero. `tone` overrides the tile colour.
  */
 interface Props {
-  variant: 'learner-search' | 'learner-progress' | 'instructor-profile';
+  variant: 'learner-home' | 'learner-search' | 'learner-progress';
   caption?: string;
   float?: boolean;
   /** Tile colour. Defaults to pink for the hero (`float`), mint elsewhere. */
@@ -21,17 +22,26 @@ interface Props {
 const { variant, caption, float = false, tone, class: className = '' } = Astro.props;
 
 const variants = {
+  'learner-home': {
+    src: '/product/newdryve-learner-home.png',
+    alt: 'The newdryve app home screen, showing the next lesson, what to practise next, and shortcuts to book a lesson or find test centres',
+    width: 900,
+    height: 1948,
+    sample: false,
+  },
   'learner-search': {
     src: '/product/newdryve-discover.png',
-    alt: 'Newdryve instructor discovery screen with search, filters and verified instructor cards',
+    alt: 'Newdryve instructor discovery screen with search, filters and instructor cards',
+    width: 740,
+    height: 1488,
+    sample: true,
   },
   'learner-progress': {
     src: '/product/newdryve-lessons.png',
     alt: 'Newdryve lessons screen showing upcoming lessons, lesson tracking and rescheduling controls',
-  },
-  'instructor-profile': {
-    src: '/product/newdryve-discover.png',
-    alt: 'Newdryve instructor discovery screen showing how instructors appear to learners',
+    width: 740,
+    height: 1488,
+    sample: true,
   },
 } as const;
 
@@ -42,19 +52,29 @@ const tileClass = tileTone === 'pink' ? 'bg-pink' : 'bg-mint';
 
 <figure class={`flex w-full max-w-[332px] flex-col items-center ${className}`}>
   <div class={`flex w-full flex-col gap-3 rounded-[32px] p-4 sm:p-5 ${tileClass}`}>
-    <div class="flex justify-end">
-      <span class="nd-chip">Preview, sample data</span>
-    </div>
-    <div class="overflow-hidden rounded-[24px] border-2 border-forest bg-paper">
-      <img
-        src={data.src}
-        alt={data.alt}
-        width="740"
-        height="1488"
-        loading={float ? 'eager' : 'lazy'}
-        decoding="async"
-        class="block h-auto w-full select-none"
-      />
+    {
+      data.sample && (
+        <div class="flex justify-end">
+          <span class="nd-chip">Preview, sample data</span>
+        </div>
+      )
+    }
+    <div class="rounded-[36px] bg-forest p-2.5">
+      <div class="overflow-hidden rounded-[28px] bg-paper">
+        <img
+          src={data.src}
+          alt={data.alt}
+          width={data.width}
+          height={data.height}
+          loading={float ? 'eager' : 'lazy'}
+          decoding="async"
+          class:list={[
+            'block h-auto select-none',
+            data.sample ? 'w-[127.6%] max-w-none' : 'w-full',
+          ]}
+          style={data.sample ? 'margin-left:-13.8%;margin-top:-11.2%;margin-bottom:-12%' : undefined}
+        />
+      </div>
     </div>
   </div>
 
