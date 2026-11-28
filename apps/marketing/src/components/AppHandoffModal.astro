@@ -13,26 +13,24 @@ import StoreBadges from './StoreBadges.astro';
   data-android-url={APP.android.live ? APP.android.url : undefined}
   data-ios-url={APP.ios.live && APP.ios.url ? APP.ios.url : undefined}
   aria-labelledby="app-handoff-title"
-  class="m-auto w-[min(92vw,400px)] rounded-3xl border border-border bg-white p-0 text-ink shadow-[0_30px_80px_-30px_rgba(10,10,20,0.45)] backdrop:bg-ink/50 backdrop:backdrop-blur-sm"
+  class="nd-card-lg m-auto w-[min(92vw,420px)] bg-pink p-0 text-forest backdrop:bg-forest/60"
 >
-  <div class="relative px-7 pb-7 pt-8 text-center">
+  <div class="relative px-7 pt-9 pb-8 text-center">
     <button
       type="button"
       data-app-handoff-close
       aria-label="Close"
-      class="focus-ring absolute right-4 top-4 inline-flex size-10 items-center justify-center rounded-full text-ink-secondary transition-colors hover:bg-canvas hover:text-ink"
+      class="absolute top-4 right-4 inline-flex size-11 items-center justify-center rounded-full border-2 border-forest bg-paper"
     >
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <path d="M3.5 3.5l9 9m0-9l-9 9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"></path>
+        <path d="M3.5 3.5l9 9m0-9l-9 9" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"></path>
       </svg>
     </button>
 
-    <h2 id="app-handoff-title" class="font-display text-[26px] font-semibold leading-tight tracking-[-0.5px]">
-      Get Newdryve on your phone
-    </h2>
-    <p class="mx-auto mt-3 max-w-[30ch] text-sm leading-relaxed text-ink-secondary">
-      Newdryve is on the App Store and Google Play. Scan the code with your phone camera to
-      download it.
+    <h2 id="app-handoff-title" class="nd-h4 text-[30px]">get newdryve on your phone</h2>
+    <p class="mx-auto mt-3 max-w-[28ch] text-[17px]">
+      Point your phone camera at the code. It opens the download page for the App Store and Google
+      Play.
     </p>
 
     <img
@@ -40,10 +38,10 @@ import StoreBadges from './StoreBadges.astro';
       alt="QR code linking to the Newdryve download page"
       width="180"
       height="180"
-      class="mx-auto mt-5 block size-[180px]"
+      class="mx-auto mt-6 block size-[180px] -rotate-3 rounded-2xl border-2 border-forest bg-paper p-3"
     />
 
-    <StoreBadges class="mt-5 justify-center" />
+    <StoreBadges class="mt-6 justify-center" />
   </div>
 </dialog>
 

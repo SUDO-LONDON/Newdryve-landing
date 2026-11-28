@@ -1,0 +1,193 @@
+---
+/**
+ * Hero postcode check. One field, "Check my area", Enter submits. Three
+ * outcomes appear under the field, inside one polite live region:
+ *   covered   -> "We cover NR2." with the store buttons
+ *   uncovered -> "Not in CB1 yet." with an email field to join the waitlist
+ *   joined    -> "You're on the waitlist."
+ *
+ * Coverage comes from COVERAGE.outwardCodes in config/site.ts, which is a
+ * placeholder until there is a lookup against instructor data. Joining posts
+ * { email, role: 'student', postcode } to the existing /api/waitlist handler.
+ *
+ * The wrapper carries id="join" so older links to /#join (town pages) land
+ * here; the form itself is #check.
+ */
+import StoreBadges from './StoreBadges.astro';
+import { COVERAGE } from '../config/site';
+
+const cardClass = 'nd-card mt-6 flex w-full max-w-[540px] flex-col gap-3.5 px-6 py-5';
+const cardTitle = 'font-heading text-[26px] leading-[1.1] font-extrabold tracking-[-0.02em]';
+---
+
+<div id="join" class="w-full max-w-[540px]" data-coverage data-covered={JSON.stringify(COVERAGE.outwardCodes)}>
+  <form id="check" class="flex w-full flex-col gap-2.5" novalidate data-coverage-form>
+    <label for="postcode" class="pl-2 text-base font-semibold">Where are you learning?</label>
+    <div
+      class="nd-shadow flex items-center gap-1.5 rounded-full border-2 border-forest bg-paper p-1.5 has-[input:focus-visible]:outline-3 has-[input:focus-visible]:outline-offset-3 has-[input:focus-visible]:outline-forest"
+    >
+      <input
+        id="postcode"
+        name="postcode"
+        type="text"
+        autocomplete="postal-code"
+        autocapitalize="characters"
+        spellcheck="false"
+        placeholder="Postcode, e.g. NR2"
+        aria-describedby="postcode-error"
+        class="h-[52px] min-w-0 flex-1 rounded-full bg-transparent pl-4 text-lg focus:outline-none sm:pl-5"
+      />
+      <button type="submit" class="nd-btn h-[52px] shrink-0 px-5 sm:px-[26px]">Check my area</button>
+    </div>
+    <p id="postcode-error" class="nd-error pl-2" data-coverage-error hidden></p>
+  </form>
+
+  <div role="status" aria-live="polite" data-coverage-results>
+    <div class={cardClass} data-result="covered" hidden>
+      <div class="flex items-center gap-3">
+        <span
+          class="inline-flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-forest bg-mint"
+          aria-hidden="true"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+        </span>
+        <strong class={cardTitle}>We cover <span data-area></span>.</strong>
+      </div>
+      <p class="text-[17px]">
+        See who&rsquo;s free near you this week in the app. What you see depends on which instructors
+        have open slots.
+      </p>
+      <StoreBadges />
+    </div>
+
+    <div class={cardClass} data-result="waitlist" hidden>
+      <strong class={cardTitle}>Not in <span data-area></span> yet.</strong>
+      <p class="text-[17px]">
+        We&rsquo;re starting in Norwich and adding areas as instructors join. Leave your email and
+        we&rsquo;ll tell you when we reach you.
+      </p>
+      <form class="flex flex-wrap items-end gap-2.5" novalidate data-coverage-waitlist>
+        <div class="flex min-w-0 flex-[1_1_220px] flex-col gap-1.5">
+          <label for="waitlist-email" class="text-[15px] font-semibold">Email</label>
+          <input
+            id="waitlist-email"
+            name="email"
+            type="email"
+            required
+            autocomplete="email"
+            inputmode="email"
+            aria-describedby="waitlist-email-error"
+            class="nd-input h-12 min-h-12 rounded-full px-[18px] py-0 text-base"
+          />
+        </div>
+        <button type="submit" class="nd-btn" data-coverage-join>Join the waitlist</button>
+      </form>
+      <p id="waitlist-email-error" class="nd-error" data-coverage-join-error hidden></p>
+    </div>
+
+    <div class={cardClass} data-result="joined" tabindex="-1" hidden>
+      <strong class={cardTitle}>You&rsquo;re on the waitlist.</strong>
+      <p class="text-[17px]">
+        We&rsquo;ll email you when instructors open up near <span data-area></span>. No spam.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const OUTWARD_RE = /^[A-Z]{1,2}\d[A-Z\d]?$/;
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  document.querySelectorAll<HTMLElement>('[data-coverage]').forEach((root) => {
+    const covered = new Set<string>(JSON.parse(root.dataset.covered || '[]'));
+    const form = root.querySelector<HTMLFormElement>('[data-coverage-form]')!;
+    const input = form.querySelector<HTMLInputElement>('input[name="postcode"]')!;
+    const error = root.querySelector<HTMLElement>('[data-coverage-error]')!;
+    const results = root.querySelectorAll<HTMLElement>('[data-result]');
+    const joinForm = root.querySelector<HTMLFormElement>('[data-coverage-waitlist]')!;
+    const joinButton = root.querySelector<HTMLButtonElement>('[data-coverage-join]')!;
+    const joinError = root.querySelector<HTMLElement>('[data-coverage-join-error]')!;
+    const emailInput = joinForm.querySelector<HTMLInputElement>('input[name="email"]')!;
+    let area = '';
+
+    const show = (which: string | null) => {
+      results.forEach((el) => {
+        el.hidden = el.dataset.result !== which;
+      });
+      root.querySelectorAll('[data-area]').forEach((el) => {
+        el.textContent = area;
+      });
+    };
+
+    const setError = (el: HTMLElement, field: HTMLInputElement, message: string) => {
+      el.textContent = message;
+      el.hidden = !message;
+      if (message) field.setAttribute('aria-invalid', 'true');
+      else field.removeAttribute('aria-invalid');
+    };
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const raw = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      // A full postcode always ends in a three-character inward code.
+      const outward = raw.length >= 5 ? raw.slice(0, -3) : raw;
+
+      if (!raw) {
+        show(null);
+        setError(error, input, 'Enter your postcode, or just the first part, like NR2.');
+        return;
+      }
+      if (!OUTWARD_RE.test(outward)) {
+        show(null);
+        setError(error, input, 'That doesn’t look like a UK postcode. Try the first part, like NR2.');
+        return;
+      }
+
+      setError(error, input, '');
+      area = outward;
+      show(covered.has(outward) ? 'covered' : 'waitlist');
+    });
+
+    let sending = false;
+    joinForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (sending) return;
+
+      const email = emailInput.value.trim();
+      if (!EMAIL_RE.test(email)) {
+        setError(joinError, emailInput, 'Please enter a valid email address.');
+        emailInput.focus();
+        return;
+      }
+      setError(joinError, emailInput, '');
+
+      sending = true;
+      joinButton.disabled = true;
+      joinButton.textContent = 'Joining...';
+
+      try {
+        const res = await fetch('/api/waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, role: 'student', postcode: area }),
+        });
+        if (!res.ok) {
+          const body = (await res.json().catch(() => ({}))) as { error?: string };
+          throw new Error(body.error || 'Something went wrong. Please try again.');
+        }
+        show('joined');
+        root.querySelector<HTMLElement>('[data-result="joined"]')?.focus();
+      } catch (err) {
+        setError(
+          joinError,
+          emailInput,
+          err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+        );
+      } finally {
+        sending = false;
+        joinButton.disabled = false;
+        joinButton.textContent = 'Join the waitlist';
+      }
+    });
+  });
+</script>

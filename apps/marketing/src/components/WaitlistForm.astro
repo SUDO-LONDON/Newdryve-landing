@@ -13,6 +13,10 @@
  *
  * No framework runtime: one small inline script handles submit, and the form
  * carries a real `action`/`method` so it degrades to a normal POST if JS fails.
+ *
+ * Redesign (November 2026): paper card with a 2px forest border, .nd-input
+ * fields, sentence-case .nd-label labels, a plain .nd-btn submit and errors in
+ * .nd-error. The script below is unchanged.
  */
 import { testCentresByCity } from '../data/driving-test-centres';
 
@@ -24,9 +28,6 @@ interface Props {
 const { id, submitLabel } = Astro.props;
 
 const label = submitLabel || 'Join the Norwich waitlist';
-const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-canvas px-4 py-3 text-base text-ink placeholder:text-ink-muted sm:text-sm';
-const labelClass = 'text-xs font-bold uppercase tracking-wider text-ink-secondary';
 const cities = ['Norwich', 'London'].filter((city) => city in testCentresByCity);
 ---
 
@@ -37,14 +38,14 @@ const cities = ['Norwich', 'London'].filter((city) => city in testCentresByCity)
     method="post"
     novalidate
     data-waitlist-form
-    class="flex flex-col gap-5 rounded-2xl border border-border bg-white p-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.08)] sm:p-8"
+    class="nd-card-lg nd-shadow flex flex-col gap-5 p-6 sm:p-8"
   >
     <input type="hidden" name="role" value="student" />
 
-    <div class="grid gap-4 sm:grid-cols-2">
-      <div class="flex flex-col gap-1.5">
-        <label class={labelClass} for={`${id}-email`}>
-          Email <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+    <div class="grid gap-5 sm:grid-cols-2 sm:gap-4">
+      <div class="flex flex-col gap-2">
+        <label class="nd-label" for={`${id}-email`}>
+          Email <span aria-hidden="true" class="text-pink-ink">*</span>
         </label>
         <input
           id={`${id}-email`}
@@ -54,12 +55,12 @@ const cities = ['Norwich', 'London'].filter((city) => city in testCentresByCity)
           autocomplete="email"
           inputmode="email"
           placeholder="you@example.com"
-          class={inputClass}
+          class="nd-input"
         />
       </div>
-      <div class="flex flex-col gap-1.5">
-        <label class={labelClass} for={`${id}-name`}>
-          Name <span class="font-medium normal-case tracking-normal text-ink-muted">(optional)</span>
+      <div class="flex flex-col gap-2">
+        <label class="nd-label" for={`${id}-name`}>
+          Name <span class="font-normal text-forest-soft">(optional)</span>
         </label>
         <input
           id={`${id}-name`}
@@ -67,53 +68,41 @@ const cities = ['Norwich', 'London'].filter((city) => city in testCentresByCity)
           type="text"
           autocomplete="name"
           placeholder="First name"
-          class={inputClass}
+          class="nd-input"
         />
       </div>
     </div>
 
-    <div class="flex flex-col gap-1.5">
-      <label class={labelClass} for={`${id}-city`}>
-        City <span aria-hidden="true" class="text-deep-rose-ink">*</span>
+    <div class="flex flex-col gap-2">
+      <label class="nd-label" for={`${id}-city`}>
+        City <span aria-hidden="true" class="text-pink-ink">*</span>
       </label>
-      <select id={`${id}-city`} name="city" required class={inputClass}>
+      <select id={`${id}-city`} name="city" required class="nd-input">
         <option value="">Select a city</option>
         {cities.map((city) => <option value={city}>{city}</option>)}
       </select>
     </div>
 
-    <div class="flex flex-col gap-1.5">
-      <label class={labelClass} for={`${id}-notes`}>
+    <div class="flex flex-col gap-2">
+      <label class="nd-label" for={`${id}-notes`}>
         Anything we should know
-        <span class="font-medium normal-case tracking-normal text-ink-muted">(optional)</span>
+        <span class="font-normal text-forest-soft">(optional)</span>
       </label>
       <textarea
         id={`${id}-notes`}
         name="notes"
         rows="3"
         placeholder="Beginner, automatic only, test booked for July"
-        class={`${inputClass} resize-none`}></textarea>
+        class="nd-input"></textarea>
     </div>
 
-    <p data-waitlist-error role="alert" class="hidden text-sm font-semibold text-deep-rose-ink"></p>
+    <p data-waitlist-error role="alert" class="nd-error hidden"></p>
 
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-      <button
-        type="submit"
-        data-waitlist-submit
-        class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-white transition-transform hover:bg-[#1a1a2c] disabled:cursor-not-allowed disabled:opacity-60 motion-safe:hover:-translate-y-0.5"
-      >
+    <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-5">
+      <button type="submit" data-waitlist-submit class="nd-btn nd-btn-lg">
         <span data-waitlist-submit-label>{label}</span>
-        <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-          <path
-            d="M3 9L9 3M9 3H4.5M9 3V7.5"
-            stroke="currentColor"
-            stroke-width="1.75"
-            stroke-linecap="round"
-            stroke-linejoin="round"></path>
-        </svg>
       </button>
-      <p class="text-xs text-ink-muted">No spam. We only email you about Newdryve.</p>
+      <p class="nd-help">No spam. We only email you about Newdryve.</p>
     </div>
   </form>
 
@@ -121,23 +110,25 @@ const cities = ['Norwich', 'London'].filter((city) => city in testCentresByCity)
     data-waitlist-success
     hidden
     role="status"
-    class="rounded-2xl border border-border bg-white p-8 text-center"
+    tabindex="-1"
+    class="nd-card-lg nd-shadow flex flex-col items-center gap-3 p-8 text-center"
   >
-    <div
-      class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-racing-green/10 text-racing-green"
+    <span
+      class="inline-flex size-12 items-center justify-center rounded-full border-2 border-forest bg-mint"
+      aria-hidden="true"
     >
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
         <path
-          d="M5 11l4 4 8-9"
+          d="M5 12.5l4.5 4.5L19 7.5"
           stroke="currentColor"
-          stroke-width="2.5"
+          stroke-width="3"
           stroke-linecap="round"
           stroke-linejoin="round"></path>
       </svg>
-    </div>
-    <h3 class="text-xl font-extrabold tracking-tight">You&rsquo;re on the list.</h3>
-    <p class="mt-2 text-sm text-ink-secondary">
-      We&rsquo;ll be in touch from <span class="font-semibold text-ink">hello@newdryve.com</span> as the
+    </span>
+    <h3 class="nd-h4">You&rsquo;re on the list.</h3>
+    <p class="max-w-[28em] text-[17px]">
+      We&rsquo;ll be in touch from <span class="font-semibold">hello@newdryve.com</span> as the
       early-access cohort opens up.
     </p>
   </div>

@@ -83,9 +83,13 @@ export const APP = {
  * his site. Nothing about him is invented.
  *
  * Set `show: false` to remove the section entirely.
+ *
+ * Redesign (November 2026): Jed asked for no named founding instructor on the
+ * site, so this is off and nothing renders it. Do not reintroduce a name or
+ * the instructor's website without his say-so.
  */
 export const FOUNDING_INSTRUCTORS = {
-  show: true,
+  show: false,
   people: [
     {
       name: 'Gokhan Guckiran',
@@ -103,7 +107,6 @@ export const NAV_LINKS = [
   { href: '/test-centres', label: 'Test centres' },
   { href: '/guides/driving-lesson-cost', label: 'Costs' },
   { href: '/instructors', label: 'For instructors' },
-  { href: '/#faq', label: 'FAQ' },
 ] as const;
 
 export const INSTRUCTOR_NAV_LINKS = [
@@ -112,4 +115,74 @@ export const INSTRUCTOR_NAV_LINKS = [
   { href: '/instructors#pricing', label: 'Pricing' },
   { href: '/instructors#faq', label: 'FAQ' },
   { href: '/', label: 'For learners' },
+] as const;
+
+/**
+ * Postcode coverage for the home page check.
+ *
+ * PLACEHOLDER, NOT REAL COVERAGE DATA. Real coverage lives in the product
+ * database (`instructors.service_postcodes`, plus each instructor's coverage
+ * area), and there is no public endpoint that answers "does anyone cover NR2?"
+ * yet. Until there is, this list mirrors only what the learner FAQ already
+ * claims: Norwich and the named areas around it (Thorpe St Andrew and
+ * Sprowston NR7, Hellesdon NR6, Costessey NR5 and NR8, Wymondham NR18).
+ * Replace it with a lookup against instructor data before relying on it.
+ */
+export const COVERAGE = {
+  outwardCodes: ['NR1', 'NR2', 'NR3', 'NR4', 'NR5', 'NR6', 'NR7', 'NR8', 'NR18'],
+} as const;
+
+/**
+ * Backers strip on the home page. Text only, no logos.
+ *
+ * UNVERIFIED: these names came from an earlier mockup. Confirm every one is
+ * accurate and cleared for public use before this ships, or set `show: false`.
+ */
+export const BACKERS = {
+  show: true,
+  backedBy: ['Kickstart Global', 'Google for Startups', 'UEA Enterprise Fund'],
+  teachingOnNewdryve: ['Chilled Driving School', '17+ Driving School'],
+} as const;
+
+/** Footer link columns. Town, test-centre and guide links are kept for SEO. */
+export const FOOTER_COLUMNS = [
+  {
+    title: 'Lessons by town',
+    links: [
+      { href: '/driving-lessons/norwich', label: 'Norwich' },
+      { href: '/driving-lessons/wymondham', label: 'Wymondham' },
+      { href: '/driving-lessons/dereham', label: 'Dereham' },
+      { href: '/driving-lessons/attleborough', label: 'Attleborough' },
+      { href: '/driving-lessons/diss', label: 'Diss' },
+    ],
+  },
+  {
+    title: 'Test centres',
+    links: [
+      { href: '/test-centres/norwich-peachman-way', label: 'Peachman Way' },
+      { href: '/test-centres/norwich-jupiter-road', label: 'Jupiter Road' },
+      { href: '/test-centres', label: 'All test centres near Norwich' },
+    ],
+  },
+  {
+    title: 'Guides',
+    links: [
+      { href: '/guides/driving-lesson-cost', label: 'What lessons cost' },
+      { href: '/guides/how-to-find-a-driving-instructor', label: 'Finding a good instructor' },
+      { href: '/guides/how-many-lessons-to-pass', label: 'How many lessons to pass' },
+      { href: '/guides/manual-vs-automatic', label: 'Manual or automatic' },
+      { href: '/guides/how-to-book-driving-test', label: 'Booking your test' },
+      { href: '/guides/driving-test-waiting-times', label: 'Test waiting times' },
+    ],
+  },
+  {
+    title: 'Newdryve',
+    links: [
+      { href: '/instructors', label: 'For instructors' },
+      { href: 'https://instagram.com/newdryve', label: 'Instagram', external: true },
+      { href: '/privacy', label: 'Privacy' },
+      { href: '/terms', label: 'Terms' },
+      { href: '/datadeletion', label: 'Delete account' },
+    ],
+  },
 ] as const;

@@ -100,6 +100,41 @@ const SWITCH_STEPS = [
   },
 ];
 
+const PRICING_POINTS = [
+  `${PRICING.commission} Newdryve commission on lesson payments`,
+  'Diary, pupils and progress mapped to the DVSA test',
+  'Card, cash or bank transfer; Stripe fees only on card',
+  'Earnings, receipt scanning, PDF and CSV exports',
+  'New learners from the Newdryve marketplace',
+  `${PRICING.lateCancellationShare} fee within ${PRICING.lateCancellationWindow}, full price within ${PRICING.finalCancellationWindow}`,
+  'Help moving your existing pupils across',
+  PRICING.cancelAnytime,
+];
+
+const APPLY_NEEDS = [
+  'Your ADI number and badge expiry date.',
+  'Permission for Newdryve to confirm your current registration with DVSA.',
+  'Your hourly rate, the areas you cover and roughly when you teach.',
+  'About five minutes.',
+];
+
+/* The worked cancellation example. Defaults match the original copy: one
+   2-hour lesson a week at £38/hr over a 48-week teaching year. The script at
+   the bottom of the page recalculates these when the instructor changes the
+   rate or the number of cancellations. */
+const CALC = {
+  rate: 38,
+  hours: 2,
+  perWeek: 1,
+  weeks: 48,
+  share: Number.parseInt(PRICING.lateCancellationShare, 10),
+};
+const gbp = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
+const calcLesson = CALC.rate * CALC.hours;
+const calcWeek = calcLesson * CALC.perWeek;
+const calcYear = calcWeek * CALC.weeks;
+const calcBack = (calcYear * CALC.share) / 100;
+
 const jsonLd = [
   organizationSchema,
   instructorAppSchema,
@@ -118,63 +153,41 @@ const jsonLd = [
   jsonLd={jsonLd}
   audience="instructor"
 >
-  <!-- HERO -->
-  <section class="hero-bg relative overflow-hidden">
-    <div class="dot-pattern pointer-events-none absolute inset-0 opacity-50" aria-hidden="true"></div>
+  <!-- HERO: mint, continuing the header band -->
+  <section class="bg-mint">
     <div
-      class="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-5 pb-16 pt-10 md:grid-cols-[1.05fr_1fr] md:pb-24 md:pt-20 lg:gap-16"
+      class="nd-container grid grid-cols-1 items-center gap-12 pt-12 pb-16 md:grid-cols-[1.15fr_1fr] md:pt-[72px] md:pb-24 lg:gap-16"
     >
-      <div class="min-w-0">
-        <span
-          class="inline-flex items-center gap-2 rounded-full border border-blush-border bg-blush-surface px-3 py-1.5 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink"
-        >
-          <span class="size-1.5 rounded-full bg-deep-rose" aria-hidden="true"></span>
-          For driving instructors
-        </span>
+      <div class="flex min-w-0 flex-col items-start">
+        <p class="nd-hand mb-3 ml-1.5">For driving instructors</p>
 
-        <h1
-          class="font-display mt-5 text-[clamp(36px,6.5vw,60px)] font-semibold leading-[1.03] tracking-[-1.5px] text-balance"
-        >
-          Run your business. Fill your diary. <span class="gradient-text">Protect your income.</span>
+        <h1 class="nd-h1">
+          run your business. fill your diary. protect your <span class="nd-highlight">income.</span>
         </h1>
 
-        <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-secondary text-pretty">
+        <p class="nd-lede mt-7 max-w-[34em]">
           Everything you use an instructor app for, in one place: your diary, your pupils, progress
           mapped to the DVSA test, payments and expenses. Plus a marketplace that brings new learners
           to you, and late cancellations charged automatically.
         </p>
 
-        <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          <a
-            href="/instructors/apply"
-            class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] motion-safe:hover:-translate-y-0.5"
-          >
-            Apply as a founding instructor
-            <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path
-                d="M2.5 6h7M6 2.5 9.5 6 6 9.5"
-                stroke="currentColor"
-                stroke-width="1.75"
-                stroke-linecap="round"
-                stroke-linejoin="round"></path>
-            </svg>
-          </a>
-          <a
-            href="/instructors/features"
-            class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-border bg-white px-6 py-3.5 text-sm font-bold text-ink transition-transform hover:border-ink motion-safe:hover:-translate-y-0.5"
-          >
-            See every feature
-          </a>
+        <div class="mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+          <a href="/instructors/apply" class="nd-btn nd-btn-lg">Apply as a founding instructor</a>
+          <a href="/instructors/features" class="nd-btn-secondary nd-btn-lg">See every feature</a>
         </div>
 
-        <ul class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-semibold">
+        <ul class="mt-7 flex flex-wrap gap-x-6 gap-y-2.5 text-base font-semibold">
           {
             [PRICING.commission + ' Newdryve commission', PRICING.monthlyWithPeriod, 'On iPhone and Android'].map(
               (item) => (
-                <li class="inline-flex items-center gap-1.5 text-racing-green">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                    <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5" />
-                    <path d="M4 7l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                <li class="inline-flex items-center gap-2">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M5 12.5l4.5 4.5L19 7.5"
+                      stroke="currentColor"
+                      stroke-width="3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"></path>
                   </svg>
                   {item}
                 </li>
@@ -194,106 +207,97 @@ const jsonLd = [
     </div>
   </section>
 
-  <!-- EVERYTHING YOUR BUSINESS NEEDS -->
-  <section id="features" class="scroll-mt-20 bg-canvas">
-    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
-      <div class="reveal max-w-2xl">
-        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-          One app for the whole job
-        </p>
-        <h2
-          class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
-        >
-          Everything your business needs. Nothing extra to juggle.
-        </h2>
-        <p class="mt-5 text-base leading-relaxed text-ink-secondary text-pretty">
-          Newdryve is your instructor management app and your source of new pupils in one. No separate
-          diary app, no spreadsheet of who owes what, no chasing cancellations.
-        </p>
-      </div>
-
-      <ul class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {
-          INSTRUCTOR_FEATURES.map((feature, index) => (
-            <li class="reveal rounded-2xl border border-border bg-white p-6" data-reveal-delay={(index % 3) * 100}>
-              <h3 class="text-lg font-bold tracking-[-0.3px]">{feature.title}</h3>
-              <p class="mt-2 text-sm leading-relaxed text-ink-secondary">{feature.summary}</p>
-            </li>
-          ))
-        }
-      </ul>
-
-      <div class="reveal mt-5 flex flex-col gap-4 rounded-2xl border border-blush-border bg-blush-surface p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h3 class="text-lg font-bold tracking-[-0.3px]">{SCHOOL_FEATURES.title}</h3>
-          <p class="mt-1 max-w-2xl text-sm leading-relaxed text-ink-secondary">{SCHOOL_FEATURES.body}</p>
+  <!-- THE PROBLEM: the cancellation sum -->
+  <section class="nd-section">
+    <div class="nd-container">
+      <div class="grid gap-x-16 gap-y-6 lg:grid-cols-2 lg:items-start">
+        <h2 class="nd-h2 reveal">a cancelled lesson is a hole in your week you cannot fill</h2>
+        <div class="reveal flex flex-col gap-4 text-lg lg:pt-2" data-reveal-delay="100">
+          <p>
+            Someone cancels the night before. That two-hour slot is gone. You cannot fill it at short
+            notice, you are already in the car park, and the lesson you planned your day around pays
+            nothing.
+          </p>
+          <p>
+            Then there is the rest of it: gaps in the diary you fill by posting in local Facebook
+            groups, learners who go quiet for three weeks, and payments you have to ask for twice.
+          </p>
         </div>
-        <a
-          href={`mailto:${BRAND.email}?subject=Newdryve%20for%20driving%20schools`}
-          class="focus-ring inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-ink/15 bg-white px-5 py-3 text-sm font-bold text-ink"
-        >
-          Talk to us
-        </a>
       </div>
 
-      <a
-        href="/instructors/features"
-        class="focus-ring mt-8 inline-flex min-h-11 items-center gap-1.5 rounded text-sm font-bold text-racing-green underline underline-offset-4"
+      <div
+        class="nd-card-lg reveal mt-12 grid items-center gap-x-16 gap-y-10 p-6 sm:p-10 md:mt-16 lg:grid-cols-[1fr_1.1fr] lg:p-14"
+        data-cancel-calc
+        data-hours={CALC.hours}
+        data-weeks={CALC.weeks}
+        data-share={CALC.share}
       >
-        See every feature in detail
-      </a>
-    </div>
-  </section>
-
-  <!-- THE PROBLEM -->
-  <section class="border-y border-border bg-white">
-    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
-      <div class="grid items-center gap-12 md:grid-cols-2 lg:gap-20">
-        <div class="reveal">
-          <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-            The problem
+        <div class="min-w-0">
+          <p class="nd-small-label">Do the arithmetic yourself</p>
+          <p class="nd-number mt-5 text-[clamp(60px,11vw,156px)] text-hot-pink tabular-nums">
+            £<span data-calc="year">{gbp.format(calcYear)}</span>
           </p>
-          <h2
-            class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
-          >
-            A cancelled lesson is a hole in your week you cannot fill.
-          </h2>
-          <div class="mt-6 space-y-4 text-base leading-relaxed text-ink-secondary text-pretty">
-            <p>
-              Someone cancels the night before. That two-hour slot is gone. You cannot fill it at
-              short notice, you are already in the car park, and the lesson you planned your day
-              around pays nothing.
-            </p>
-            <p>
-              Then there is the rest of it: gaps in the diary you fill by posting in local Facebook
-              groups, learners who go quiet for three weeks, and payments you have to ask for twice.
-            </p>
-          </div>
+          <p class="nd-lede mt-6 max-w-[22em]">
+            <strong>lost across a 48-week teaching year.</strong> Newdryve&rsquo;s
+            {PRICING.lateCancellationShare} late cancellation fee brings £<span data-calc="back"
+              >{gbp.format(calcBack)}</span
+            > of it back to you.
+          </p>
         </div>
 
-        <div class="reveal rounded-2xl border border-border bg-canvas p-7" data-reveal-delay="100">
-          <p class="text-[11px] font-bold uppercase tracking-[1px] text-ink-muted">
-            Do the arithmetic yourself
-          </p>
-          <dl class="mt-5 space-y-4 text-sm">
-            <div class="flex items-baseline justify-between gap-4 border-b border-border pb-4">
-              <dt class="text-ink-secondary">One 2-hour lesson at £38/hr</dt>
-              <dd class="font-bold tabular-nums">£76</dd>
+        <div class="flex min-w-0 flex-col gap-6">
+          <div class="grid gap-4 sm:grid-cols-2" data-calc-controls hidden>
+            <div class="flex flex-col gap-2">
+              <label for="calc-rate" class="nd-label">Your hourly rate (£)</label>
+              <input
+                id="calc-rate"
+                class="nd-input"
+                type="number"
+                inputmode="decimal"
+                min="1"
+                max="200"
+                step="0.5"
+                value={CALC.rate}
+              />
             </div>
-            <div class="flex items-baseline justify-between gap-4 border-b border-border pb-4">
-              <dt class="text-ink-secondary">Cancelled once a week</dt>
-              <dd class="font-bold tabular-nums">£76 / week</dd>
+            <div class="flex flex-col gap-2">
+              <label for="calc-freq" class="nd-label">Cancelled 2-hour lessons a week</label>
+              <select id="calc-freq" class="nd-input">
+                {[1, 2, 3, 4, 5].map((n) => <option value={n} selected={n === CALC.perWeek}>{n}</option>)}
+              </select>
             </div>
-            <div class="flex items-baseline justify-between gap-4 border-b border-border pb-4">
-              <dt class="text-ink-secondary">Across a 48-week teaching year</dt>
-              <dd class="text-deep-rose-ink font-bold tabular-nums">&minus; £3,648</dd>
+          </div>
+
+          <dl class="flex flex-col text-[17px]">
+            <div class="flex items-baseline justify-between gap-6 border-b-2 border-dashed border-forest py-3.5">
+              <dt>One 2-hour lesson at £<span data-calc="rate">{CALC.rate}</span>/hr</dt>
+              <dd class="text-right font-semibold whitespace-nowrap tabular-nums">
+                £<span data-calc="lesson">{gbp.format(calcLesson)}</span>
+              </dd>
             </div>
-            <div class="flex items-baseline justify-between gap-4">
-              <dt class="text-ink-secondary">Recovered by Newdryve at 50%</dt>
-              <dd class="font-bold tabular-nums text-racing-green">+ £1,824</dd>
+            <div class="flex items-baseline justify-between gap-6 border-b-2 border-dashed border-forest py-3.5">
+              <dt>Cancelled <span data-calc="freq">once</span> a week</dt>
+              <dd class="text-right font-semibold whitespace-nowrap tabular-nums">
+                £<span data-calc="week">{gbp.format(calcWeek)}</span> / week
+              </dd>
+            </div>
+            <div class="flex items-baseline justify-between gap-6 border-b-2 border-dashed border-forest py-3.5">
+              <dt>Across a 48-week teaching year</dt>
+              <dd class="text-right font-semibold whitespace-nowrap tabular-nums">
+                &minus; £<span data-calc="year">{gbp.format(calcYear)}</span>
+              </dd>
+            </div>
+            <div class="flex items-baseline justify-between gap-6 py-3.5">
+              <dt>Recovered by Newdryve at {PRICING.lateCancellationShare}</dt>
+              <dd class="text-right font-semibold whitespace-nowrap tabular-nums">
+                + £<span data-calc="back">{gbp.format(calcBack)}</span>
+              </dd>
             </div>
           </dl>
-          <p class="mt-5 text-xs leading-relaxed text-ink-muted">
+
+          <p class="sr-only" role="status" data-calc-status></p>
+
+          <p class="text-[15px] text-forest-soft">
             A worked example using a £38 hourly rate, not a survey figure. Swap in your own rate and
             cancellation rate to see where you land.
           </p>
@@ -302,223 +306,250 @@ const jsonLd = [
     </div>
   </section>
 
-  <!-- THE SOLUTION -->
-  <section id="how-it-works" class="bg-canvas">
-    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
-      <div class="reveal max-w-2xl">
-        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-          How Newdryve works for you
+  <!-- EVERYTHING YOUR BUSINESS NEEDS -->
+  <section id="features" class="nd-section pt-0 md:pt-0">
+    <div class="nd-container">
+      <div class="reveal grid gap-x-16 gap-y-5 lg:grid-cols-2 lg:items-end">
+        <h2 class="nd-h2">everything your business needs, nothing extra to juggle</h2>
+        <p class="text-lg lg:pb-1">
+          Newdryve is your instructor management app and your source of new pupils in one. No separate
+          diary app, no spreadsheet of who owes what, no chasing cancellations.
         </p>
-        <h2
-          class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
-        >
-          Your diary, your pupils, your income protected.
-        </h2>
       </div>
 
-      <ol class="mt-12 grid gap-6 md:grid-cols-3">
+      <ul class="nd-card-lg mt-12 overflow-hidden px-6 sm:px-10">
+        {
+          INSTRUCTOR_FEATURES.map((feature, index) => (
+            <li
+              class={`grid gap-x-10 gap-y-1.5 py-5 sm:py-6 md:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] md:items-baseline ${
+                index > 0 ? 'border-t-2 border-dashed border-forest' : ''
+              }`}
+            >
+              <h3 class="text-xl font-semibold">
+                <a href={`/instructors/features#${feature.id}`} class="no-underline hover:underline">
+                  {feature.title}
+                </a>
+              </h3>
+              <p class="text-[17px]">{feature.summary}</p>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div
+        class="reveal mt-6 flex flex-col gap-5 rounded-[32px] bg-pink p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8"
+      >
+        <div>
+          <h3 class="nd-h4">{SCHOOL_FEATURES.title}</h3>
+          <p class="mt-2 max-w-[40em] text-[17px]">{SCHOOL_FEATURES.body}</p>
+        </div>
+        <a
+          href={`mailto:${BRAND.email}?subject=Newdryve%20for%20driving%20schools`}
+          class="nd-btn shrink-0"
+        >
+          Talk to us
+        </a>
+      </div>
+
+      <a
+        href="/instructors/features"
+        class="mt-8 inline-flex min-h-11 items-center font-semibold underline"
+      >
+        See every feature in detail
+      </a>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works" class="nd-section pt-0 md:pt-0">
+    <div class="nd-container">
+      <h2 class="nd-h2 reveal max-w-[16em]">your diary, your pupils, your income protected</h2>
+
+      <div class="relative mt-12 md:mt-16">
+      <div
+        class="absolute top-[26px] left-7 right-[calc((100%_-_80px)/3_-_28px)] hidden border-t-4 border-dashed border-forest md:block"
+        aria-hidden="true"
+      >
+      </div>
+      <ol class="grid gap-x-10 gap-y-10 md:grid-cols-3">
         {
           SOLUTION.map((item, index) => (
-            <li
-              class={`reveal rounded-2xl border p-7 ${
-                item.accent === 'pink'
-                  ? 'border-blush-border bg-blush-surface'
-                  : 'border-border bg-white'
-              }`}
-              data-reveal-delay={index * 100}
-            >
+            <li class="reveal relative flex flex-col items-start" data-reveal-delay={index * 100}>
               <span
-                class={`font-display text-3xl font-semibold tabular-nums ${
-                  item.accent === 'pink' ? 'text-deep-rose' : 'text-ink-muted'
-                }`}
+                class={`nd-marker relative z-10 ${item.accent === 'pink' ? 'bg-pink' : ''}`}
+                aria-hidden="true"
               >
-                {item.step}
+                {index + 1}
               </span>
-              <h3 class="mt-4 text-xl font-bold tracking-[-0.3px]">{item.title}</h3>
-              <p class="mt-2.5 text-sm leading-relaxed text-ink-secondary">{item.body}</p>
+              <h3 class="nd-h3 mt-6">{item.title}</h3>
+              <p class="mt-3 max-w-[27em]">{item.body}</p>
             </li>
           ))
         }
       </ol>
+      </div>
     </div>
   </section>
 
   <!-- SWITCHING FROM ANOTHER APP -->
-  <section id="switching" class="scroll-mt-20 border-y border-border bg-ink text-white">
-    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
-      <div class="reveal max-w-2xl">
-        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose">
-          Switching from another app
-        </p>
-        <h2
-          class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
-        >
-          Moving over is easier than you think. We do it with you.
-        </h2>
-        <p class="mt-5 text-base leading-relaxed text-white/70 text-pretty">
-          You should not have to rebuild your business to change app. We sit down with you, teach
-          you Newdryve and help bring your existing pupils across.
-        </p>
-      </div>
-
-      <ol class="mt-12 grid gap-5 md:grid-cols-3">
-        {
-          SWITCH_STEPS.map((item, index) => (
-            <li class="reveal rounded-2xl border border-white/15 bg-white/5 p-7" data-reveal-delay={index * 100}>
-              <span class="font-display text-3xl font-semibold tabular-nums text-deep-rose">0{index + 1}</span>
-              <h3 class="mt-4 text-lg font-bold tracking-[-0.3px]">{item.title}</h3>
-              <p class="mt-2.5 text-sm leading-relaxed text-white/70">{item.body}</p>
-            </li>
-          ))
-        }
-      </ol>
-
-      <div class="reveal mt-12 grid gap-8 border-t border-white/15 pt-10 md:grid-cols-2">
-        <div>
-          <h3 class="text-lg font-bold tracking-[-0.3px]">Coming from TotalDrive, MyDriveTime or another diary app?</h3>
-          <p class="mt-3 text-sm leading-relaxed text-white/70 text-pretty">
-            Your diary, pupils, progress tracking, payments, earnings, receipts and accountant
-            exports are all in Newdryve. Diary apps are built to organise the pupils you already
-            have; Newdryve also brings you new learners and charges late cancellations
-            automatically, for {PRICING.monthlyWithPeriod} with {PRICING.commission} commission.
+  <section id="switching" class="nd-section pt-0 md:pt-0">
+    <div class="nd-container">
+      <div class="on-forest rounded-[32px] bg-forest p-6 text-paper sm:p-10 lg:p-14">
+        <div class="reveal max-w-[40em]">
+          <p class="nd-small-label text-mint">Switching from another app</p>
+          <h2 class="nd-h2 mt-3">moving over is easier than you think. we do it with you</h2>
+          <p class="nd-lede mt-6">
+            You should not have to rebuild your business to change app. We sit down with you, teach
+            you Newdryve and help bring your existing pupils across.
           </p>
         </div>
-        <div>
-          <h3 class="text-lg font-bold tracking-[-0.3px]">What does not come with you</h3>
-          <p class="mt-3 text-sm leading-relaxed text-white/70 text-pretty">
-            Notes and progress records kept in your old app are tied to that app and do not transfer
-            automatically. Once a pupil is on Newdryve, everything from then on is recorded against
-            them, and it belongs to them.
-          </p>
+
+        <ol class="mt-12 grid gap-x-10 gap-y-10 md:grid-cols-3">
+          {
+            SWITCH_STEPS.map((item, index) => (
+              <li class="reveal flex flex-col items-start" data-reveal-delay={index * 100}>
+                <span class="nd-marker text-forest" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <h3 class="nd-h4 mt-5">{item.title}</h3>
+                <p class="mt-2.5 text-[17px]">{item.body}</p>
+              </li>
+            ))
+          }
+        </ol>
+
+        <div
+          class="reveal mt-12 grid gap-10 border-t-2 border-dashed border-paper pt-10 md:grid-cols-2"
+        >
+          <div>
+            <h3 class="text-xl font-semibold">Coming from TotalDrive, MyDriveTime or another diary app?</h3>
+            <p class="mt-3 text-[17px]">
+              Your diary, pupils, progress tracking, payments, earnings, receipts and accountant
+              exports are all in Newdryve. Diary apps are built to organise the pupils you already
+              have; Newdryve also brings you new learners and charges late cancellations
+              automatically, for {PRICING.monthlyWithPeriod} with {PRICING.commission} commission.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold">What does not come with you</h3>
+            <p class="mt-3 text-[17px]">
+              Notes and progress records kept in your old app are tied to that app and do not transfer
+              automatically. Once a pupil is on Newdryve, everything from then on is recorded against
+              them, and it belongs to them.
+            </p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- PRICING -->
-  <section id="pricing" class="scroll-mt-20 bg-canvas">
-    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
-      <div class="reveal mx-auto mb-10 max-w-2xl text-center">
-        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">Pricing</p>
-        <h2
-          class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
-        >
-          One flat fee. No commission, ever.
-        </h2>
+  <section id="pricing" class="nd-section pt-0 md:pt-0">
+    <div class="nd-container grid items-center gap-x-16 gap-y-10 lg:grid-cols-2">
+      <div class="reveal">
+        <h2 class="nd-h2">one flat fee, no commission, ever</h2>
+        <p class="nd-lede mt-6 max-w-[24em]">
+          {PRICING.monthlyWithPeriod} and {PRICING.commission} Newdryve commission. Your rates stay
+          yours.
+        </p>
       </div>
 
-      <div class="reveal mx-auto max-w-md rounded-3xl border border-border bg-white p-8 text-center shadow-[0_20px_60px_-20px_rgba(0,0,0,0.1)]">
-        <p class="text-[11px] font-bold uppercase tracking-[1px] text-ink-muted">
-          Instructor subscription
-        </p>
-        <p class="mt-4 flex items-baseline justify-center gap-1">
-          <span class="font-display text-6xl font-semibold tracking-[-2px] tabular-nums"
-            >{PRICING.monthly}</span
-          >
-          <span class="text-lg font-semibold text-ink-secondary">/month</span>
-        </p>
+      <div class="reveal rounded-[32px] bg-mint p-4 sm:p-6" data-reveal-delay="100">
+        <div class="nd-card nd-shadow p-6 sm:p-8">
+          <p class="nd-small-label">Instructor subscription</p>
 
-        <ul class="mt-8 space-y-3.5 text-left text-sm">
-          {
-            [
-              `${PRICING.commission} Newdryve commission on lesson payments`,
-              'Diary, pupils and progress mapped to the DVSA test',
-              'Card, cash or bank transfer; Stripe fees only on card',
-              'Earnings, receipt scanning, PDF and CSV exports',
-              'New learners from the Newdryve marketplace',
-              `${PRICING.lateCancellationShare} fee within ${PRICING.lateCancellationWindow}, full price within ${PRICING.finalCancellationWindow}`,
-              'Help moving your existing pupils across',
-              PRICING.cancelAnytime,
-            ].map((item) => (
-              <li class="flex items-start gap-2.5">
-                <span
-                  class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-racing-green/10 text-racing-green"
-                  aria-hidden="true"
-                >
-                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-                    <path d="M3 7l3 3 5-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+          <div class="mt-5 flex flex-wrap items-end gap-x-10 gap-y-5">
+            <p class="flex items-baseline gap-2.5">
+              <span class="nd-number text-[clamp(64px,8vw,96px)] tabular-nums">{PRICING.monthly}</span>
+              <span class="text-lg font-semibold">/month</span>
+            </p>
+            <p class="flex items-baseline gap-2.5">
+              <span class="nd-number text-[clamp(64px,8vw,96px)] tabular-nums">{PRICING.commission}</span>
+              <span class="text-lg font-semibold">commission</span>
+            </p>
+          </div>
+
+          <hr class="nd-divider my-7" />
+
+          <ul class="flex flex-col gap-3 text-[17px]">
+            {
+              PRICING_POINTS.map((item) => (
+                <li class="flex items-start gap-3">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                    class="mt-1 shrink-0"
+                  >
+                    <path
+                      d="M5 12.5l4.5 4.5L19 7.5"
+                      stroke="currentColor"
+                      stroke-width="3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
                   </svg>
-                </span>
-                <span class="leading-relaxed text-ink-secondary">{item}</span>
-              </li>
-            ))
-          }
-        </ul>
+                  <span>{item}</span>
+                </li>
+              ))
+            }
+          </ul>
 
-        <a
-          href="/instructors/apply"
-          class="focus-ring mt-8 inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-white transition-transform hover:bg-[#1a1a2c] motion-safe:hover:-translate-y-0.5"
-        >
-          Apply as a founding instructor
-        </a>
-        <p class="mt-4 text-xs leading-relaxed text-ink-muted">
-          {PRICING.billingCancellation} You will not be charged again.
-        </p>
+          <a href="/instructors/apply" class="nd-btn nd-btn-lg mt-8 w-full">
+            Apply as a founding instructor
+          </a>
+          <p class="mt-4 text-[15px] text-forest-soft">
+            {PRICING.billingCancellation} You will not be charged again.
+          </p>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- FAQ -->
-  <section id="faq" class="border-y border-border bg-white">
-    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
-      <div class="reveal mx-auto mb-10 max-w-2xl text-center">
-        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-          Frequently asked
-        </p>
-        <h2
-          class="font-display text-[clamp(30px,4.5vw,44px)] font-semibold leading-[1.1] tracking-[-1px] text-balance"
-        >
-          Instructor questions.
-        </h2>
-      </div>
+  <section id="faq" class="nd-section pt-0 md:pt-0">
+    <div class="nd-container grid items-start gap-x-16 gap-y-8 lg:grid-cols-[1fr_1.5fr]">
+      <h2 class="nd-h2">instructor questions</h2>
       <Faq items={FAQ_ITEMS} />
     </div>
   </section>
 
   <!-- APPLY -->
-  <section id="apply" class="scroll-mt-20 bg-canvas">
-    <div class="mx-auto max-w-3xl px-5 py-16 md:py-24">
-      <div class="reveal mb-8 text-center">
-        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-          For instructors
-        </p>
-        <h2
-          class="font-display text-[clamp(28px,4vw,40px)] font-semibold leading-[1.1] tracking-[-1px] text-balance"
-        >
-          Apply as a founding instructor.
-        </h2>
-        <p class="mx-auto mt-4 max-w-xl text-base leading-relaxed text-ink-secondary">
-          You&rsquo;re applying for a real account, not a waiting list. Set up your profile and
-          choose your password now; we check your current DVSA registration and approve you by hand, usually
+  <section id="apply" class="nd-section pt-0 md:pt-0">
+    <div class="nd-container grid items-center gap-x-16 gap-y-10 lg:grid-cols-2">
+      <div class="reveal">
+        <h2 class="nd-h2">apply as a founding instructor</h2>
+        <p class="nd-lede mt-6 max-w-[30em]">
+          You&rsquo;re applying for a real account, not a waiting list. Set up your profile and choose
+          your password now; we check your current DVSA registration and approve you by hand, usually
           within a day or two.
         </p>
       </div>
 
-      <div class="reveal rounded-2xl border border-border bg-white p-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.08)] sm:p-8">
-        <p class="text-[11px] font-bold uppercase tracking-[1px] text-ink-muted">
-          What you&rsquo;ll need
-        </p>
-        <ul class="mt-4 space-y-3 text-sm leading-relaxed text-ink-secondary">
+      <div class="nd-card-lg reveal p-6 sm:p-10" data-reveal-delay="100">
+        <h3 class="text-xl font-semibold">What you&rsquo;ll need</h3>
+        <ul class="mt-4 flex flex-col">
           {
-            [
-              'Your ADI number and badge expiry date.',
-              'Permission for Newdryve to confirm your current registration with DVSA.',
-              'Your hourly rate, the areas you cover and roughly when you teach.',
-              'About five minutes.',
-            ].map((item) => (
-              <li class="flex gap-3">
+            APPLY_NEEDS.map((item, index) => (
+              <li
+                class={`flex gap-3 py-3 text-[17px] ${
+                  index > 0 ? 'border-t-2 border-dashed border-forest' : ''
+                }`}
+              >
                 <svg
                   width="18"
                   height="18"
-                  viewBox="0 0 22 22"
+                  viewBox="0 0 24 24"
                   fill="none"
                   aria-hidden="true"
-                  class="mt-0.5 shrink-0 text-racing-green"
+                  class="mt-1 shrink-0"
                 >
                   <path
-                    d="M5 11l4 4 8-9"
+                    d="M5 12.5l4.5 4.5L19 7.5"
                     stroke="currentColor"
-                    stroke-width="2.5"
+                    stroke-width="3"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   />
@@ -529,55 +560,75 @@ const jsonLd = [
           }
         </ul>
 
-        <a
-          href="/instructors/apply"
-          class="focus-ring mt-7 inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] motion-safe:hover:-translate-y-0.5"
-        >
-          Start your application
-          <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path
-              d="M2.5 6h7M6 2.5 9.5 6 6 9.5"
-              stroke="currentColor"
-              stroke-width="1.75"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
-        </a>
-        <p class="mt-4 text-center text-xs text-ink-muted">
+        <a href="/instructors/apply" class="nd-btn nd-btn-lg mt-6 w-full">Start your application</a>
+        <p class="mt-4 text-center text-[15px] text-forest-soft">
           {PRICING.monthlyWithPeriod}. Newdryve takes 0% commission from lesson payments.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- FINAL CTA -->
-  <section class="relative overflow-hidden bg-racing-green text-white">
-    <div class="mx-auto max-w-4xl px-5 py-16 text-center md:py-20">
-      <h2
-        class="font-display text-[clamp(30px,5vw,48px)] font-semibold leading-[1.05] tracking-[-1px] text-balance"
-      >
-        One app for your whole driving instruction business.
-      </h2>
-      <p class="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/80 text-pretty">
+  <!-- FINAL CTA: pink band -->
+  <section class="bg-pink">
+    <div class="nd-container nd-section flex flex-col items-center text-center">
+      <h2 class="nd-h2 max-w-[14em]">one app for your whole driving instruction business</h2>
+      <p class="nd-lede mt-6 max-w-[30em]">
         Diary, pupils, progress, payments and new learners. {PRICING.commission} Newdryve commission,
         {PRICING.monthlyWithPeriod}. On the App Store and Google Play.
       </p>
-      <div class="mt-8">
-        <a
-          href="/instructors/apply"
-          class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-racing-green transition-transform motion-safe:hover:-translate-y-0.5"
-        >
-          Apply as a founding instructor
-        </a>
-      </div>
+      <a href="/instructors/apply" class="nd-btn nd-btn-lg mt-8">Apply as a founding instructor</a>
       <StoreBadges class="mt-6 justify-center" />
-      <p class="mt-6 text-sm text-white/70">
-        Questions? Email <a
-          href={`mailto:${BRAND.email}`}
-          class="focus-ring rounded font-semibold text-white underline underline-offset-2"
-          >{BRAND.email}</a
-        >.
+      <p class="mt-6 text-[17px]">
+        Questions? Email <a href={`mailto:${BRAND.email}`} class="font-semibold underline">{BRAND.email}</a>.
       </p>
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  // Cancellation sum. The figures are rendered on the server with the default
+  // example, so this only adds the inputs and keeps the numbers in step.
+  const root = document.querySelector<HTMLElement>('[data-cancel-calc]');
+  const controls = root?.querySelector<HTMLElement>('[data-calc-controls]');
+  const rateInput = root?.querySelector<HTMLInputElement>('#calc-rate');
+  const freqInput = root?.querySelector<HTMLSelectElement>('#calc-freq');
+  const status = root?.querySelector<HTMLElement>('[data-calc-status]');
+
+  if (root && controls && rateInput && freqInput) {
+    const hours = Number(root.dataset.hours) || 2;
+    const weeks = Number(root.dataset.weeks) || 48;
+    const share = Number(root.dataset.share) || 50;
+    const gbp = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
+
+    const set = (key: string, value: string) => {
+      root.querySelectorAll(`[data-calc="${key}"]`).forEach((el) => {
+        el.textContent = value;
+      });
+    };
+    const often = (n: number) => (n === 1 ? 'once' : n === 2 ? 'twice' : `${n} times`);
+
+    const update = () => {
+      const rate = Number(rateInput.value);
+      if (!Number.isFinite(rate) || rate <= 0) return;
+      const perWeek = Number(freqInput.value) || 1;
+      const lesson = rate * hours;
+      const week = lesson * perWeek;
+      const year = week * weeks;
+      const back = (year * share) / 100;
+
+      set('rate', Number.isInteger(rate) ? String(rate) : rate.toFixed(2));
+      set('freq', often(perWeek));
+      set('lesson', gbp.format(lesson));
+      set('week', gbp.format(week));
+      set('year', gbp.format(year));
+      set('back', gbp.format(back));
+      if (status) {
+        status.textContent = `About £${gbp.format(year)} lost a year. £${gbp.format(back)} of it comes back to you.`;
+      }
+    };
+
+    controls.hidden = false;
+    rateInput.addEventListener('input', update);
+    freqInput.addEventListener('change', update);
+  }
+</script>

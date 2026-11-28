@@ -19,31 +19,36 @@ const jsonLd = [
   ]),
 ];
 
-const linkClass = 'focus-ring rounded font-semibold text-ink underline underline-offset-2';
+const linkClass = 'font-semibold underline';
 ---
 
 <BaseLayout title={title} description={description} path="/privacy" jsonLd={jsonLd}>
-  <div class="mx-auto max-w-3xl px-5 py-16 md:py-24">
-    <h1 class="font-display text-[clamp(32px,5vw,48px)] font-semibold leading-[1.05] tracking-[-1px]">
-      Privacy Policy
-    </h1>
-    <p class="mt-4 text-sm text-ink-secondary">Last updated 22 October 2026</p>
+  <!-- Mint hero, carrying on from the header band. -->
+  <section class="bg-mint">
+    <div class="nd-container pt-10 pb-14 md:pt-16 md:pb-20">
+      <div class="max-w-[44em]">
+        <h1 class="nd-h1">
+          Privacy Policy
+        </h1>
+        <p class="mt-4 text-base font-semibold">Last updated 22 October 2026</p>
 
-    <p
-      class="mt-6 rounded-2xl border border-blush-border bg-blush-surface px-5 py-4 text-sm leading-relaxed text-ink-secondary"
-    >
-      <strong class="text-ink">Data controller:</strong> NEWDRYVE LTD, trading as Newdryve, company
-      number 17234490. Registered office: 10 Greylag Close, Norwich, NR7 8FQ, England. For privacy
-      questions or requests, email <a href="mailto:support@newdryve.com" class={linkClass}
-        >support@newdryve.com</a
-      >.
-      <span class="mt-2 block"
-        >The Newdryve iOS app is published on the App Store by JSDK SAGA LIMITED on behalf of
-        NEWDRYVE LTD.</span
-      >
-    </p>
+        <p class="nd-card mt-8 px-6 py-5 text-base leading-relaxed">
+          <strong>Data controller:</strong> NEWDRYVE LTD, trading as Newdryve, company
+          number 17234490. Registered office: 10 Greylag Close, Norwich, NR7 8FQ, England. For privacy
+          questions or requests, email <a href="mailto:support@newdryve.com" class={linkClass}
+            >support@newdryve.com</a
+          >.
+          <span class="mt-2 block"
+            >The Newdryve iOS app is published on the App Store by JSDK SAGA LIMITED on behalf of
+            NEWDRYVE LTD.</span
+          >
+        </p>
+      </div>
+    </div>
+  </section>
 
-    <div class="mt-10 space-y-8 [&_h2]:font-display [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:tracking-[-0.3px] [&_h2]:text-ink [&_p]:mt-3 [&_p]:text-base [&_p]:leading-relaxed [&_p]:text-ink-secondary [&_ul]:mt-3 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 [&_ul]:text-base [&_ul]:leading-relaxed [&_ul]:text-ink-secondary [&_ul]:marker:text-deep-rose">
+  <div class="nd-container nd-section">
+    <div class="nd-prose [&_section>*+*]:mt-[1em] [&>section:first-child>h2]:mt-0">
       <section>
         <h2>1. Scope</h2>
         <p>
@@ -59,11 +64,11 @@ const linkClass = 'focus-ring rounded font-semibold text-ink underline underline
         <p>Depending on how you use Newdryve, we may collect the following information.</p>
         <ul>
           <li>
-            <strong class="text-ink">Website and waitlist information:</strong> if you join the learner
+            <strong>Website and waitlist information:</strong> if you join the learner
             waitlist, your email address, name, postcode or area, and any optional notes.
           </li>
           <li>
-            <strong class="text-ink">Instructor application information:</strong> if you apply to teach
+            <strong>Instructor application information:</strong> if you apply to teach
             with Newdryve, your name, email address, telephone number, the areas you cover, your ADI
             number and expiry date, driving-school name, hourly rate, vehicle details, availability and
             any notes you add. We record your permission for us to confirm your current registration
@@ -71,36 +76,36 @@ const linkClass = 'focus-ring rounded font-semibold text-ink underline underline
             to help us match your details. We do not request or retain your DBS certificate.
           </li>
           <li>
-            <strong class="text-ink">Account and profile information:</strong> your name, email address,
+            <strong>Account and profile information:</strong> your name, email address,
             telephone number, account and authentication identifiers, role, age and date of birth, driving experience, language
             preferences, transmission and instructor preferences, learning goal, how you feel about driving and
             when you can usually have lessons. Learners also add a photo of their face, and may add a few words
             about themselves, such as their hobbies.
           </li>
           <li>
-            <strong class="text-ink">Lesson and booking information:</strong> availability, instructor
+            <strong>Lesson and booking information:</strong> availability, instructor
             profile information, lesson type, date, time, price, pickup address, booking status, cancellations,
             payment status, lesson notes, learning progress, assessments, reviews and messages.
           </li>
           <li>
-            <strong class="text-ink">Location information:</strong> a pickup address and, if you choose
+            <strong>Location information:</strong> a pickup address and, if you choose
             to use the feature, your precise device location. An instructor may also actively share a live
             vehicle position during a lesson. We do not request background location access.
           </li>
           <li>
-            <strong class="text-ink">Payment and payout information:</strong> payment references, transaction
+            <strong>Payment and payout information:</strong> payment references, transaction
             history, limited card details such as brand and last four digits, a card fingerprint (an
             identifier Stripe gives a card, which lets us recognise the same card without seeing its number),
             and instructor bank-transfer or payout details. Stripe handles card details and connected-account
             onboarding.
           </li>
           <li>
-            <strong class="text-ink">Optional uploads and content:</strong> receipt images, expense details,
+            <strong>Optional uploads and content:</strong> receipt images, expense details,
             messages, lesson notes and other content you choose to provide. Receipt images may be processed
             to extract information when you request scanning.
           </li>
           <li>
-            <strong class="text-ink">Device and technical information:</strong> push-notification token,
+            <strong>Device and technical information:</strong> push-notification token,
             device platform, security and diagnostic logs, and information needed to keep the service reliable
             and secure.
           </li>
@@ -121,7 +126,7 @@ const linkClass = 'focus-ring rounded font-semibold text-ink underline underline
           date. We do not independently assess criminal-record information or publish a Newdryve DBS claim.
         </p>
         <p>
-          <strong class="text-ink">Learner photos and profiles.</strong> A learner&rsquo;s photo lets their
+          <strong>Learner photos and profiles.</strong> A learner&rsquo;s photo lets their
           instructor check, at the first lesson, that the person getting into the car is the person on the
           provisional licence. The photo, the words a learner writes about themselves and their signup answers
           also help an instructor decide on a lesson request and plan the first lesson. We use them for these
@@ -130,7 +135,7 @@ const linkClass = 'focus-ring rounded font-semibold text-ink underline underline
           performance of our contract with you.
         </p>
         <p>
-          <strong class="text-ink">Unpaid card payments and fraud prevention.</strong> If a card payment
+          <strong>Unpaid card payments and fraud prevention.</strong> If a card payment
           a learner owes, such as a lesson, a late-cancellation fee or a no-show charge, cannot be
           collected (the card is declined and our retries fail, or the bank&rsquo;s authentication is not
           completed), we pause booking and saving cards until it is paid or the instructor settles it.

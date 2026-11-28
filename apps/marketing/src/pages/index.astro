@@ -1,98 +1,23 @@
 ---
+/**
+ * Learner home. Built from docs/redesign/learner-home.reference.html (the
+ * approved design); copy is taken from it verbatim.
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ProductPreview from '../components/ProductPreview.astro';
-import WaitlistForm from '../components/WaitlistForm.astro';
-import GetAppButton from '../components/GetAppButton.astro';
-import StoreBadges from '../components/StoreBadges.astro';
-import Faq from '../components/Faq.astro';
-import { BRAND, FOUNDING_INSTRUCTORS } from '../config/site';
+import CoverageCheck from '../components/CoverageCheck.astro';
+import AvatarPicker from '../components/AvatarPicker.astro';
+import AppBand from '../components/AppBand.astro';
+import { BACKERS } from '../config/site';
 import {
   organizationSchema,
   websiteSchema,
   learnerServiceSchema,
   breadcrumbSchema,
-  type FaqItem,
 } from '../lib/schema';
 
 const title = 'Book Driving Lessons in Norwich | Newdryve';
 const description =
   'Find verified driving instructors in Norwich, see real availability, and join the learner waitlist. Newdryve is free for learners.';
-
-const FAQ_ITEMS: readonly FaqItem[] = [
-  {
-    q: 'How much do driving lessons cost?',
-    a: 'Each instructor sets their own hourly rate, so prices vary. You can see every instructor’s rate before you book, with no booking fee added on top. Newdryve is free for learners: you pay your instructor for the lesson and nothing to us.',
-  },
-  {
-    q: 'How do I book a lesson?',
-    a: 'Open the app, browse verified instructors near you, and pick one or several slots from their real availability. Booking takes under 60 seconds. You need a valid card saved to your account before you can book, but nothing is charged when you reserve a lesson.',
-  },
-  {
-    q: 'Is Newdryve available in my area?',
-    a: 'Newdryve is live in Norwich and the surrounding Norfolk area, including Thorpe St Andrew, Hellesdon, Sprowston, Costessey and Wymondham. We are expanding across the UK from there. Join the waitlist and we will tell you when we reach your area.',
-  },
-  {
-    q: 'How do I pay for lessons?',
-    a: 'At the end of each lesson, your instructor chooses whether to take payment by cash, bank transfer or your saved card through Stripe. Newdryve does not charge learners a booking fee or platform fee.',
-  },
-  {
-    q: 'What happens if I need to cancel?',
-    a: 'If you cancel more than 24 hours before the lesson, there is no cancellation fee. If you cancel within 24 hours, 50% of the lesson price is charged to your saved card through Stripe and sent to your instructor, or the full price if you cancel within 30 minutes of the start. Newdryve takes no commission from that payment.',
-  },
-  {
-    q: 'What happens if a card payment fails?',
-    a: 'If your card is declined, we try it again automatically. If it still fails, or your bank asks you to approve a payment and you don’t, you can pay it in the app with Pay now. Until it is paid, or your instructor settles it, you can’t book new lessons or save a new card. The same applies to other accounts in the same name and date of birth and to the same card, so a payment can’t be avoided by signing up again. We never show anyone another person’s details.',
-  },
-  {
-    q: 'Are the instructors qualified?',
-    a: 'Every instructor’s current DVSA registration is checked before their profile goes live. DVSA requires criminal-record suitability checks for ADI registration and renewal. You can also see their experience, specialisms and coverage areas.',
-  },
-];
-
-const HOW_IT_WORKS = [
-  {
-    step: '01',
-    title: 'Find an instructor',
-    body: 'Browse DVSA-verified, ADI-qualified instructors near you. Filter by manual or automatic, see their rate, specialisms and the areas they cover.',
-  },
-  {
-    step: '02',
-    title: 'Book in 60 seconds',
-    body: 'Pick a slot from their genuine availability and confirm. No phone tag, no voicemails, no waiting days for a reply.',
-  },
-  {
-    step: '03',
-    title: 'Track your progress',
-    body: 'See every lesson, the skills you have signed off and how close you are to test readiness, all in one place.',
-  },
-];
-
-const BENEFITS = [
-  {
-    title: 'Verified instructors only',
-    body: 'We check every instructor’s current DVSA registration before they appear. No guesswork.',
-  },
-  {
-    title: 'Real availability',
-    body: 'You see genuine open slots, not a contact form. What you tap is what you get.',
-  },
-  {
-    title: 'Book instantly',
-    body: 'Under 60 seconds from opening the app to a confirmed lesson in your calendar.',
-  },
-  {
-    title: 'Track hours to test',
-    body: 'A clear view of your lessons, your skills and your test readiness as you go.',
-  },
-  {
-    title: 'Only pay for lessons you take',
-    body: 'Newdryve never charges learners a booking fee or platform fee. You pay your instructor for the lesson.',
-  },
-  {
-    title: 'Cancel fairly',
-    body: 'Free to cancel with more than 24 hours’ notice, with the rules stated up front rather than buried.',
-  },
-];
 
 const jsonLd = [
   organizationSchema,
@@ -101,308 +26,421 @@ const jsonLd = [
   breadcrumbSchema([{ name: 'Home', path: '/' }]),
 ];
 
-const foundingInstructor = FOUNDING_INSTRUCTORS.people[0];
+const TRUST_POINTS = ['DVSA registration checked', 'Real availability', 'No booking fee'];
+
+const SLOTS = ['Tue 4:00pm', 'Wed 9:30am', 'Fri 1:00pm', 'Sat 10:00am'];
+const SELECTED_SLOT = 'Sat 10:00am';
+
+const CANCELLATION = [
+  { when: 'More than 24 hours before', cost: 'Free' },
+  { when: 'Within 24 hours', cost: '50% of the lesson' },
+  { when: 'Within 30 minutes of the start', cost: 'Full price' },
+];
+
+const FAQ = [
+  {
+    q: 'How do I book a lesson?',
+    a: 'Open the app, browse instructors near you and pick a slot from their real availability. You need a valid card saved before you can book, but nothing is charged when you reserve a lesson.',
+  },
+  {
+    q: 'Are the instructors qualified?',
+    a: 'Every instructor’s current DVSA registration is checked before their profile goes live. You can also see their experience, specialisms and the areas they cover.',
+  },
+  {
+    q: 'What happens if a card payment fails?',
+    a: 'We try the card again automatically. If it still fails, you can pay in the app with Pay now. Until it’s paid, or your instructor settles it, you can’t book new lessons.',
+  },
+];
+
+const check = `<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>`;
+
+const stepContent = 'grid min-w-0 flex-1 items-center gap-7 pb-16 md:pb-20 lg:grid-cols-2 lg:gap-x-16';
+const stepBody = 'mt-3.5 max-w-[27em]';
 ---
 
-<BaseLayout title={title} description={description} path="/" jsonLd={jsonLd} audience="learner">
+<BaseLayout
+  title={title}
+  description={description}
+  path="/"
+  jsonLd={jsonLd}
+  audience="learner"
+  appHref="#get-the-app"
+>
   <!-- HERO -->
-  <section class="hero-bg relative overflow-hidden">
-    <div class="dot-pattern pointer-events-none absolute inset-0 opacity-50" aria-hidden="true"></div>
-    <div
-      class="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-5 pb-16 pt-10 md:grid-cols-[1.05fr_1fr] md:pb-24 md:pt-20 lg:gap-16"
-    >
-      <div class="min-w-0">
-        <span
-          class="inline-flex items-center gap-2 rounded-full border border-blush-border bg-blush-surface px-3 py-1.5 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink"
-        >
-          <span class="size-1.5 rounded-full bg-deep-rose" aria-hidden="true"></span>
-          Norwich
-        </span>
-
-        <h1
-          class="font-display mt-5 text-[clamp(38px,7vw,64px)] font-semibold leading-[1.03] tracking-[-1.5px] text-balance"
-        >
-          Find a driving instructor in Norwich. <span class="gradient-text">Book in 60 seconds.</span>
+  <section class="bg-mint" aria-labelledby="hero-title">
+    <div class="nd-container flex flex-wrap items-end gap-x-12 gap-y-8 pt-12 md:pt-[72px]">
+      <div class="flex min-w-0 flex-[1.4_1_520px] flex-col items-start pb-12 md:pb-[88px]">
+        <p class="nd-hand mb-3 ml-1.5">hello, Norwich</p>
+        <h1 id="hero-title" class="nd-display">
+          driving <span
+            aria-hidden="true"
+            class="inline-flex h-[1.18em] w-[1.18em] -rotate-6 items-center justify-center rounded-[0.16em] bg-white align-[0.02em] text-[0.74em] tracking-normal text-hot-pink shadow-[0_0.07em_0_var(--forest)]"
+            >L</span
+          > lessons, minus the <span class="nd-highlight">faff.</span>
         </h1>
-
-        <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-secondary text-pretty">
-          Newdryve is the app that shows you verified driving instructors near you, with their real
-          availability. Pick a slot, book it, and get on with learning to drive. Free for learners.
+        <p class="nd-lede mt-7 max-w-[34em]">
+          Find a driving instructor whose DVSA registration we&rsquo;ve checked, see when they&rsquo;re
+          actually free, and book in the app. Free for learners.
         </p>
 
-        <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          <GetAppButton
-            class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-deep-rose px-6 py-3.5 text-sm font-bold text-white shadow-[0_10px_28px_-10px_rgba(232,82,122,0.6)] transition-transform hover:bg-[#d8406b] motion-safe:hover:-translate-y-0.5"
-          >
-            Get the app
-            <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path
-                d="M2.5 6h7M6 2.5 9.5 6 6 9.5"
-                stroke="currentColor"
-                stroke-width="1.75"
-                stroke-linecap="round"
-                stroke-linejoin="round"></path>
-            </svg>
-          </GetAppButton>
-          <a
-            href="/instructors"
-            class="focus-ring inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-border bg-white px-6 py-3.5 text-sm font-bold text-ink transition-transform hover:border-ink motion-safe:hover:-translate-y-0.5"
-          >
-            I&rsquo;m an instructor
-          </a>
+        <div class="mt-9 w-full">
+          <CoverageCheck />
         </div>
 
-        <p class="mt-6 text-sm font-semibold text-racing-green">
-          Newdryve is now on the App Store and Google Play.
-        </p>
-        <StoreBadges class="mt-3" />
-
-        <p class="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-secondary">
-          <span class="inline-flex items-center gap-1.5 font-semibold text-racing-green">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"></circle>
-              <path
-                d="M4 7l2 2 4-4"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"></path>
-            </svg>
-            DVSA-verified instructors
-          </span>
-        </p>
+        <ul class="mt-7 flex flex-wrap gap-x-[22px] gap-y-2.5 text-base font-semibold">
+          {
+            TRUST_POINTS.map((point) => (
+              <li class="inline-flex items-center gap-2">
+                <Fragment set:html={check} />
+                {point}
+              </li>
+            ))
+          }
+        </ul>
       </div>
 
-      <div class="flex justify-center md:justify-end">
-        <ProductPreview
-          variant="learner-search"
-          caption="A product preview showing how instructor search is presented. Sample data shown."
-          float
-        />
+      <div class="flex min-w-0 flex-[1_1_300px] justify-center">
+        <figure class="relative w-full max-w-[320px]">
+          <div class="h-[440px] rounded-t-[48px] bg-forest px-3 pt-3 sm:h-[540px]">
+            <div class="h-full overflow-hidden rounded-t-[36px] bg-paper">
+              <!-- The PNG has its own phone frame on a grey halo; this crops to the screen. -->
+              <img
+                src="/product/newdryve-discover.png"
+                alt="The newdryve app's instructor search screen, with filters for manual and automatic and a list of instructors to book"
+                width="740"
+                height="1488"
+                loading="eager"
+                decoding="async"
+                class="block h-auto w-[127.6%] max-w-none"
+                style="margin-left:-13.8%;margin-top:-11.2%"
+              />
+            </div>
+          </div>
+          <figcaption class="nd-chip absolute top-10 -right-2 border-2 border-forest sm:-right-4">
+            Preview, sample data
+          </figcaption>
+        </figure>
       </div>
     </div>
   </section>
 
-  <!-- TRUST STRIP -->
-  <section aria-label="Why Newdryve is trustworthy" class="border-y border-border bg-white">
-    <ul class="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-2 px-5 py-5 text-center">
-      {
-        ['ADI-qualified instructors', 'DVSA status checked', 'No booking fees for learners', 'Built in Norwich'].map(
-          (item) => (
-            <li class="inline-flex items-center gap-2 text-sm font-semibold text-ink-secondary">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" class="text-ink-muted">
-                <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5" />
-                <path d="M4 7l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-              {item}
-            </li>
-          )
-        )
-      }
-    </ul>
-  </section>
+  {
+    BACKERS.show && (
+      <section aria-label="Who is behind newdryve" class="border-b-2 border-forest">
+        <div class="nd-container flex flex-wrap gap-x-[72px] gap-y-5 py-9">
+          <div class="flex flex-wrap items-baseline gap-x-7 gap-y-1.5">
+            <span class="nd-small-label">Backed by</span>
+            {BACKERS.backedBy.map((name) => (
+              <span class="font-heading text-[21px] font-bold tracking-[-0.02em]">{name}</span>
+            ))}
+          </div>
+          <div class="flex flex-wrap items-baseline gap-x-7 gap-y-1.5">
+            <span class="nd-small-label">Teaching on newdryve</span>
+            {BACKERS.teachingOnNewdryve.map((name) => (
+              <span class="font-heading text-[21px] font-bold tracking-[-0.02em]">{name}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
-  <!-- HOW IT WORKS -->
-  <section id="how-it-works" class="bg-canvas">
-    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
-      <div class="reveal max-w-2xl">
-        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-          How it works
-        </p>
-        <h2
-          class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
-        >
-          Three steps to your next lesson.
-        </h2>
+  <!-- FROM GREEN TO PINK -->
+  <section id="route" class="pt-20 pb-6 md:pt-[104px]" aria-labelledby="route-title">
+    <div class="nd-container">
+      <div class="mb-16 grid items-center gap-x-16 gap-y-9 md:grid-cols-2 md:mb-[72px]">
+        <div>
+          <h2 id="route-title" class="nd-h2">from green to pink</h2>
+          <p class="nd-lede mt-[18px] max-w-[30em]">
+            Your provisional licence is green. The full one is pink. Here&rsquo;s the bit in between.
+          </p>
+        </div>
+        <div class="flex justify-center md:justify-end">
+          <AvatarPicker />
+        </div>
       </div>
 
-      <ol class="mt-12 grid gap-6 md:grid-cols-3">
-        {
-          HOW_IT_WORKS.map((item, index) => (
-            <li
-              class="reveal rounded-2xl border border-border bg-white p-7"
-              data-reveal-delay={index * 100}
-            >
-              <span class="font-display text-3xl font-semibold text-ink-muted tabular-nums">
-                {item.step}
-              </span>
-              <h3 class="mt-4 text-xl font-bold tracking-[-0.3px]">{item.title}</h3>
-              <p class="mt-2.5 text-sm leading-relaxed text-ink-secondary">{item.body}</p>
-            </li>
-          ))
-        }
+      <ol class="flex flex-col">
+        <!-- 1 -->
+        <li class="flex flex-col gap-4 md:flex-row md:gap-7">
+          <div aria-hidden="true" class="flex flex-[0_0_56px] flex-col items-start md:items-center">
+            <span class="nd-marker">1</span>
+            <span class="my-2.5 hidden w-0 flex-1 border-l-4 border-dashed border-forest md:block"></span>
+          </div>
+          <div class={stepContent}>
+            <div>
+              <h3 class="nd-h3">Find an instructor we&rsquo;ve checked</h3>
+              <p class={stepBody}>
+                We check every instructor&rsquo;s current DVSA registration before their profile goes
+                live. Filter by manual or automatic, and see their rate and the areas they cover.
+              </p>
+            </div>
+            <div class="rounded-[32px] bg-mint p-4 sm:p-6">
+              <div class="flex flex-col gap-3.5 rounded-[20px] bg-paper p-5">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex min-w-0 items-center gap-3">
+                    <span aria-hidden="true" class="size-12 shrink-0 rounded-full bg-forest"></span>
+                    <div class="min-w-0">
+                      <p class="text-lg leading-tight font-semibold">Sample instructor</p>
+                      <p class="text-[15px]">Manual, £38 an hour</p>
+                    </div>
+                  </div>
+                  <span class="nd-chip">Example</span>
+                </div>
+                <div class="flex flex-wrap gap-2 text-sm font-semibold">
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-forest px-3 py-1.5 text-paper">
+                    <Fragment set:html={check.replace(/18/g, '14')} />
+                    DVSA registration checked
+                  </span>
+                  <span class="nd-tag">Covers NR2, NR4, NR7</span>
+                </div>
+                <p class="border-t-2 border-dashed border-forest pt-3 text-[15px]">
+                  Next free: <strong>Tue 4:00pm</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- 2 -->
+        <li class="flex flex-col gap-4 md:flex-row md:gap-7">
+          <div aria-hidden="true" class="flex flex-[0_0_56px] flex-col items-start md:items-center">
+            <span class="nd-marker">2</span>
+            <span class="my-2.5 hidden w-0 flex-1 border-l-4 border-dashed border-forest md:block"></span>
+          </div>
+          <div class={stepContent}>
+            <div>
+              <h3 class="nd-h3">Book a slot that&rsquo;s actually free</h3>
+              <p class={stepBody}>
+                You see real open slots, not a contact form. Pick one and confirm. No phone tag, no
+                waiting days for a reply.
+              </p>
+            </div>
+            <div class="rounded-[32px] bg-pink p-4 sm:p-6">
+              <div class="flex flex-col gap-3.5 rounded-[20px] bg-paper p-5" data-slot-picker>
+                <div class="flex items-center justify-between gap-3">
+                  <p class="text-[17px] font-semibold" id="slots-title">Free this week</p>
+                  <span class="nd-chip">Example</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2.5" role="group" aria-labelledby="slots-title">
+                  {
+                    SLOTS.map((slot) => (
+                      <button
+                        type="button"
+                        class="h-[52px] rounded-[14px] border-2 border-chip bg-chip text-base font-semibold aria-pressed:border-forest aria-pressed:bg-forest aria-pressed:text-paper"
+                        aria-pressed={slot === SELECTED_SLOT ? 'true' : 'false'}
+                        data-slot
+                      >
+                        {slot}
+                      </button>
+                    ))
+                  }
+                </div>
+                <p class="text-[15px]" aria-live="polite">
+                  Selected: <strong data-slot-label>{SELECTED_SLOT}</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- 3 -->
+        <li class="flex flex-col gap-4 md:flex-row md:gap-7">
+          <div aria-hidden="true" class="flex flex-[0_0_56px] flex-col items-start md:items-center">
+            <span class="nd-marker">3</span>
+            <span class="my-2.5 hidden w-0 flex-1 border-l-4 border-dashed border-forest md:block"></span>
+          </div>
+          <div class={stepContent}>
+            <div>
+              <h3 class="nd-h3">Know what to practise next</h3>
+              <p class={stepBody}>
+                Every lesson, the skills your instructor has signed off, and how close you are to
+                test-ready, all in one place.
+              </p>
+            </div>
+            <ul class="flex flex-col gap-1.5 rounded-[32px] bg-forest p-6 text-paper sm:p-7">
+              <li class="flex items-center justify-between gap-3 py-2.5 text-[17px] font-semibold">
+                <span>Roundabouts</span>
+                <span class="rounded-full border-2 border-paper px-3.5 py-1 text-sm">Getting there</span>
+              </li>
+              <li class="flex items-center justify-between gap-3 py-2.5 text-[17px] font-semibold">
+                <span>Parallel parking</span>
+                <span class="rounded-full border-2 border-mint bg-mint px-3.5 py-1 text-sm text-forest"
+                  >Practise next</span
+                >
+              </li>
+              <li class="flex items-center justify-between gap-3 py-2.5 text-[17px] font-semibold">
+                <span>Dual carriageways</span>
+                <span class="rounded-full border-2 border-dashed border-paper px-3.5 py-1 text-sm"
+                  >Coming up</span
+                >
+              </li>
+            </ul>
+          </div>
+        </li>
+
+        <!-- 4 -->
+        <li class="flex flex-col gap-4 md:flex-row md:gap-7">
+          <div aria-hidden="true" class="flex flex-[0_0_56px] flex-col items-start md:items-center">
+            <span class="nd-marker bg-pink">4</span>
+          </div>
+          <div class={stepContent}>
+            <div>
+              <h3 class="nd-h3">Swap the green one for the pink one</h3>
+              <p class={stepBody}>
+                Your instructor tells you when you&rsquo;re test-ready. You book the test itself on
+                GOV.UK, and your lessons keep moving until the day.
+              </p>
+            </div>
+            <div aria-hidden="true" class="flex items-center justify-center py-5">
+              <div
+                class="flex h-[116px] w-[180px] -rotate-8 flex-col justify-between rounded-2xl border-2 border-forest bg-mint p-4 sm:h-[140px] sm:w-[220px]"
+              >
+                <span class="font-heading text-xl font-extrabold tracking-[-0.02em]">provisional</span>
+                <span class="flex items-end gap-3">
+                  <span class="h-10 w-9 rounded-md border-2 border-forest bg-paper sm:h-[54px] sm:w-11"></span>
+                  <span class="flex flex-1 flex-col gap-2">
+                    <span class="h-2 rounded bg-forest"></span>
+                    <span class="h-2 w-3/5 rounded bg-forest"></span>
+                  </span>
+                </span>
+              </div>
+              <div
+                class="nd-shadow -ml-11 flex h-[116px] w-[180px] rotate-7 flex-col justify-between rounded-2xl border-2 border-forest bg-pink p-4 sm:-ml-14 sm:h-[140px] sm:w-[220px]"
+              >
+                <span class="font-heading text-xl font-extrabold tracking-[-0.02em]">full</span>
+                <span class="flex items-end gap-3">
+                  <span class="h-10 w-9 rounded-md border-2 border-forest bg-paper sm:h-[54px] sm:w-11"></span>
+                  <span class="flex flex-1 flex-col gap-2">
+                    <span class="h-2 rounded bg-forest"></span>
+                    <span class="h-2 w-3/5 rounded bg-forest"></span>
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </li>
       </ol>
     </div>
   </section>
 
-  <!-- WHY NEWDRYVE -->
-  <section id="why" class="border-y border-border bg-white">
-    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
-      <div class="grid items-center gap-12 md:grid-cols-[1fr_auto] lg:gap-20">
+  <!-- THE MONEY BIT -->
+  <section id="money" class="pt-6 pb-20 md:pb-[104px]" aria-labelledby="money-title">
+    <div class="nd-container">
+      <h2 id="money-title" class="nd-h2 mb-9">the money bit</h2>
+      <div
+        class="nd-card-lg grid items-center gap-x-[72px] gap-y-10 p-[clamp(24px,4vw,56px)] lg:grid-cols-2"
+      >
         <div>
-          <div class="reveal max-w-xl">
-            <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-              Why Newdryve
-            </p>
-            <h2
-              class="font-display text-[clamp(30px,4.5vw,46px)] font-semibold leading-[1.08] tracking-[-1px] text-balance"
-            >
-              Everything you need to pass, in one app.
-            </h2>
-          </div>
-
-          <ul class="mt-10 grid gap-x-8 gap-y-7 sm:grid-cols-2">
-            {
-              BENEFITS.map((benefit, index) => (
-                <li class="reveal" data-reveal-delay={index * 60}>
-                  <div class="flex items-start gap-3">
-                    <span
-                      class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-racing-green/10 text-racing-green"
-                      aria-hidden="true"
-                    >
-                      <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-                        <path d="M3 7l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-                    </span>
-                    <div>
-                      <h3 class="text-base font-bold tracking-[-0.2px]">{benefit.title}</h3>
-                      <p class="mt-1 text-sm leading-relaxed text-ink-secondary">{benefit.body}</p>
-                    </div>
-                  </div>
-                </li>
-              ))
-            }
-          </ul>
+          <p class="nd-number text-[clamp(110px,15vw,210px)] text-hot-pink">£0</p>
+          <p class="nd-lede mt-6 max-w-[22em]">
+            <strong>in booking fees.</strong> Each instructor sets their own rate and you see it before
+            you book. You pay your instructor for the lesson and nothing to us.
+          </p>
         </div>
-
-        <div class="flex justify-center">
-          <ProductPreview
-            variant="learner-progress"
-            caption="Track your skills and test readiness lesson by lesson."
-          />
+        <div class="flex flex-col gap-7">
+          <div>
+            <h3 class="mb-2 text-xl font-semibold">If you need to cancel</h3>
+            <dl class="flex flex-col">
+              {
+                CANCELLATION.map((row) => (
+                  <div class="flex justify-between gap-6 border-b-2 border-dashed border-forest py-3.5">
+                    <dt>{row.when}</dt>
+                    <dd class="text-right font-semibold">{row.cost}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+            <p class="mt-3 text-base">Cancellation fees go to your instructor. Newdryve takes none of it.</p>
+          </div>
+          <div>
+            <h3 class="mb-2 text-xl font-semibold">How you pay</h3>
+            <p class="text-[17px]">
+              At the end of each lesson, by cash, bank transfer or your saved card. Your instructor
+              chooses. Nothing is charged when you book.
+            </p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- HONEST LAUNCH FRAMING -->
-  <section class="bg-canvas">
-    <div class="mx-auto max-w-4xl px-5 py-16 text-center md:py-24">
-      <div class="reveal">
-        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-          Launching in Norwich now
-        </p>
-        <h2
-          class="font-display text-[clamp(28px,4vw,40px)] font-semibold leading-[1.1] tracking-[-1px] text-balance"
-        >
-          We are starting small, in one city, on purpose.
-        </h2>
-        <p class="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-ink-secondary text-pretty">
-          Newdryve is new. Rather than claim a crowd we do not have, here is exactly where we are:
-          the app is live on the App Store and Google Play, and we are hand-picking the founding
-          instructors in Norwich one at a time. No inflated numbers and no invented reviews.
-        </p>
+  <!-- STARTING SMALL -->
+  <section id="where-we-are" class="pb-20 md:pb-[104px]" aria-labelledby="where-title">
+    <div class="nd-container grid items-start gap-x-[72px] gap-y-8 lg:grid-cols-2">
+      <h2 id="where-title" class="nd-h2">starting small, on purpose</h2>
+      <p class="nd-lede">
+        Newdryve is new. The app is live on the App Store and Google Play, and we&rsquo;re
+        hand-picking founding instructors in Norwich one at a time. No inflated numbers and no
+        invented reviews.
+      </p>
+    </div>
+  </section>
 
+  <!-- FAQ -->
+  <section id="faq" class="pb-24 md:pb-28" aria-labelledby="faq-title">
+    <div class="nd-container grid items-start gap-x-[72px] gap-y-8 lg:grid-cols-2">
+      <h2 id="faq-title" class="nd-h2">learner questions</h2>
+      <div class="flex flex-col border-t-2 border-forest">
+        <!-- The first answer links to the postcode check, so it is written out
+             here rather than going through the plain-text Faq component. -->
+        <details class="group border-b-2 border-forest" open>
+          <summary class="flex min-h-11 items-center justify-between gap-4 py-5 text-xl font-semibold">
+            Is Newdryve available in my area?
+            <span
+              class="inline-flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-forest transition-transform duration-200 group-open:rotate-45"
+              aria-hidden="true"
+            >
+              <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></path></svg>
+            </span>
+          </summary>
+          <p class="mb-6 max-w-[34em] text-[17px]">
+            Newdryve is live in Norwich and the surrounding Norfolk area, including Thorpe St Andrew,
+            Hellesdon, Sprowston, Costessey and Wymondham. <a href="#check" class="font-semibold underline"
+              >Check your postcode</a
+            > and, if we&rsquo;re not there yet, we&rsquo;ll add you to the waitlist.
+          </p>
+        </details>
         {
-          FOUNDING_INSTRUCTORS.show && foundingInstructor && (
-            <div class="mx-auto mt-9 max-w-md rounded-2xl border border-border bg-white p-7">
-              <p class="text-[11px] font-bold uppercase tracking-[1px] text-ink-muted">
-                Our first founding instructor
-              </p>
-              <p class="font-display mt-2 text-2xl font-semibold tracking-[-0.5px]">
-                {foundingInstructor.name}
-              </p>
-              {foundingInstructor.area && (
-                <p class="mt-1 text-sm text-ink-secondary">{foundingInstructor.area}</p>
-              )}
-              {foundingInstructor.quote && (
-                <blockquote class="mt-4 text-sm leading-relaxed text-ink-secondary">
-                  &ldquo;{foundingInstructor.quote}&rdquo;
-                </blockquote>
-              )}
-              {foundingInstructor.website && (
-                <a
-                  href={foundingInstructor.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="focus-ring mt-4 inline-flex min-h-11 items-center rounded text-sm font-semibold text-racing-green underline underline-offset-2"
+          FAQ.map((item) => (
+            <details class="group border-b-2 border-forest">
+              <summary class="flex min-h-11 items-center justify-between gap-4 py-5 text-xl font-semibold">
+                {item.q}
+                <span
+                  class="inline-flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-forest transition-transform duration-200 group-open:rotate-45"
+                  aria-hidden="true"
                 >
-                  Visit their website
-                </a>
-              )}
-            </div>
-          )
+                  <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+                    <path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+                  </svg>
+                </span>
+              </summary>
+              <p class="mb-6 max-w-[34em] text-[17px]">{item.a}</p>
+            </details>
+          ))
         }
       </div>
     </div>
   </section>
 
-  <!-- FAQ -->
-  <section id="faq" class="border-y border-border bg-white">
-    <div class="mx-auto max-w-6xl px-5 py-16 md:py-24">
-      <div class="reveal mx-auto mb-10 max-w-2xl text-center">
-        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-          Frequently asked
-        </p>
-        <h2
-          class="font-display text-[clamp(30px,4.5vw,44px)] font-semibold leading-[1.1] tracking-[-1px] text-balance"
-        >
-          Learner questions.
-        </h2>
-      </div>
-      <Faq items={FAQ_ITEMS} />
-    </div>
-  </section>
-
-  <!-- SIGNUP -->
-  <section id="join" class="scroll-mt-20 bg-canvas">
-    <div class="mx-auto max-w-3xl px-5 py-16 md:py-24">
-      <div class="reveal mb-8 text-center">
-        <p class="mb-3 text-[11px] font-bold uppercase tracking-[1px] text-deep-rose-ink">
-          For learners
-        </p>
-        <h2
-          class="font-display text-[clamp(28px,4vw,40px)] font-semibold leading-[1.1] tracking-[-1px] text-balance"
-        >
-          Join the Norwich waitlist.
-        </h2>
-        <p class="mx-auto mt-4 max-w-xl text-base leading-relaxed text-ink-secondary">
-          Tell us where you are and we will let you know as instructors open up near you.
-        </p>
-      </div>
-      <WaitlistForm id="waitlist-learner" />
-    </div>
-  </section>
-
-  <!-- FINAL CTA -->
-  <section class="relative overflow-hidden bg-racing-green text-white">
-    <div class="mx-auto max-w-4xl px-5 py-16 text-center md:py-20">
-      <h2
-        class="font-display text-[clamp(30px,5vw,48px)] font-semibold leading-[1.05] tracking-[-1px] text-balance"
-      >
-        Learning to drive in Norwich?
-      </h2>
-      <p class="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/80 text-pretty">
-        Find a verified instructor, see when they are actually free, and book your first lesson.
-      </p>
-      <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <StoreBadges class="justify-center" />
-      </div>
-      <p class="mt-6 text-sm text-white/70">
-        Questions? Email <a
-          href={`mailto:${BRAND.email}`}
-          class="focus-ring rounded font-semibold text-white underline underline-offset-2"
-          >{BRAND.email}</a
-        >.
-      </p>
-    </div>
-  </section>
+  <AppBand checkHref="#check" />
 </BaseLayout>
 
 <script>
+  // Example slot picker: one slot pressed at a time, mirrored in "Selected".
+  document.querySelectorAll<HTMLElement>('[data-slot-picker]').forEach((picker) => {
+    const slots = picker.querySelectorAll<HTMLButtonElement>('[data-slot]');
+    const label = picker.querySelector<HTMLElement>('[data-slot-label]');
+    slots.forEach((slot) =>
+      slot.addEventListener('click', () => {
+        slots.forEach((other) => other.setAttribute('aria-pressed', other === slot ? 'true' : 'false'));
+        if (label) label.textContent = slot.textContent?.trim() || '';
+      })
+    );
+  });
+
   // Supabase password-recovery links land on "/" with the recovery session in
   // the URL fragment. Forward them to the reset form, fragment intact.
-  // Ported from components/landing/RecoveryRedirect.tsx.
   const params = new URLSearchParams(window.location.hash.slice(1));
   if (params.get('type') === 'recovery' && params.has('access_token')) {
     window.location.replace(`/reset-password${window.location.hash}`);
